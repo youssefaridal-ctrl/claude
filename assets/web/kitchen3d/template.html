@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #dfe3e8; overflow: hidden; }
+      #scene { display: block; width: 100%; height: 100%; touch-action: none; }
+      #loading {
+        position: fixed; inset: 0; display: flex; align-items: center; justify-content: center;
+        font-family: -apple-system, Roboto, sans-serif; color: #6b6b6b; font-size: 14px;
+        background: #dfe3e8;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loading">جارِ تجهيز المطبخ...</div>
+    <canvas id="scene"></canvas>
+    <script>__SCENE_BUNDLE__</script>
+    <script>
+      (function () {
+        var canvas = document.getElementById('scene');
+        var loading = document.getElementById('loading');
+        KitchenScene.init(canvas);
+
+        function applyConfig(cfg) {
+          try {
+            KitchenScene.updateConfig(cfg);
+            if (loading) {
+              loading.style.display = 'none';
+            }
+          } catch (e) {
+            if (loading) loading.textContent = 'خطأ في عرض المطبخ';
+          }
+        }
+
+        function handleMessage(event) {
+          var data = event && event.data;
+          if (!data) return;
+          try {
+            var cfg = typeof data === 'string' ? JSON.parse(data) : data;
+            if (cfg && cfg.widthCm) {
+              applyConfig(cfg);
+            }
+          } catch (e) {
+            /* ignore malformed messages */
+          }
+        }
+
+        document.addEventListener('message', handleMessage);
+        window.addEventListener('message', handleMessage);
+
+        window.__applyKitchenConfig = applyConfig;
+
+        if (window.__INITIAL_KITCHEN_CONFIG__) {
+          applyConfig(window.__INITIAL_KITCHEN_CONFIG__);
+        }
+      })();
+    </script>
+  </body>
+</html>
