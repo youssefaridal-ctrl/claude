@@ -1,0 +1,3 @@
+# ads.txt — ملف تفويض البائعين الإعلانيين
+# بعد قبولك في Google AdSense استبدل السطر أدناه بمعرّف الناشر الخاص بك:
+# google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
