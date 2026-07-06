@@ -2,19 +2,19 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/seo";
 
-export const metadata = buildMetadata({ title: "Sign-in error", noIndex: true });
+export const metadata = buildMetadata({ title: "خطأ في تسجيل الدخول", noIndex: true });
 
 const MESSAGES: Record<string, string> = {
-  OAuthSignin: "We couldn't start the sign-in. Please try again.",
-  OAuthCallback: "Something went wrong during the sign-in. Please try again.",
-  OAuthCreateAccount: "We couldn't create your account. Please try again.",
-  EmailCreateAccount: "We couldn't create your account. Please try again.",
-  Callback: "The sign-in callback failed. Please try again.",
-  OAuthAccountNotLinked: "That email is already signed in another way. Use the original method.",
-  EmailSignin: "The sign-in email couldn't be sent. Please check your address and try again.",
-  CredentialsSignin: "Sign-in failed. Please check your credentials.",
-  SessionRequired: "Please sign in to access that page.",
-  Default: "An unexpected error occurred. Please try again.",
+  OAuthSignin: "لم نتمكن من بدء تسجيل الدخول. يرجى المحاولة مرة أخرى.",
+  OAuthCallback: "حدث خطأ ما أثناء تسجيل الدخول. يرجى المحاولة مرة أخرى.",
+  OAuthCreateAccount: "لم نتمكن من إنشاء حسابك. يرجى المحاولة مرة أخرى.",
+  EmailCreateAccount: "لم نتمكن من إنشاء حسابك. يرجى المحاولة مرة أخرى.",
+  Callback: "فشل رد الاتصال لتسجيل الدخول. يرجى المحاولة مرة أخرى.",
+  OAuthAccountNotLinked: "هذا البريد الإلكتروني مسجّل بطريقة أخرى. استخدم الطريقة الأصلية.",
+  EmailSignin: "تعذّر إرسال بريد تسجيل الدخول. يرجى التحقق من عنوانك والمحاولة مرة أخرى.",
+  CredentialsSignin: "فشل تسجيل الدخول. يرجى التحقق من بياناتك.",
+  SessionRequired: "يرجى تسجيل الدخول للوصول إلى هذه الصفحة.",
+  Default: "حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.",
 };
 
 export default async function SignInErrorPage({
@@ -27,11 +27,11 @@ export default async function SignInErrorPage({
 
   return (
     <div className="container flex min-h-[70vh] max-w-md flex-col justify-center py-16 text-center">
-      <p className="font-mono text-label-mono uppercase text-muted-foreground">Sign-in error</p>
-      <h1 className="mt-4 text-display-m font-medium">Something didn't work.</h1>
+      <p className="font-mono text-label-mono uppercase text-muted-foreground">خطأ في تسجيل الدخول</p>
+      <h1 className="mt-4 text-display-m font-medium">هناك شيء لم يعمل.</h1>
       <p className="mt-4 text-body-m text-muted-foreground">{message}</p>
       <Button asChild className="mt-8">
-        <Link href="/signin">Try again</Link>
+        <Link href="/signin">حاول مرة أخرى</Link>
       </Button>
     </div>
   );

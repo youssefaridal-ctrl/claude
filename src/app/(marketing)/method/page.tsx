@@ -6,28 +6,28 @@ import { RewriteDemo } from "@/components/method/rewrite-demo";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "The Selv Method — a system for rewriting the voice you think with",
+  title: "منهج سيلف — نظام لإعادة كتابة الصوت الذي تُفكّر به",
   description:
-    "Three movements — Audit, Rewrite, Rep. Twelve minutes a day, grounded in how the brain actually changes.",
+    "ثلاث حركات — التشخيص، وإعادة الكتابة، والتمرين. اثنتا عشرة دقيقة يومياً، مؤسَّسة على كيفية تغيّر الدماغ فعلاً.",
   path: "/method",
 });
 
 const NARRATORS = [
-  { name: "The Perfectionist", line: "“If it's not flawless, it's failure.”", note: "Confuses standards with safety." },
-  { name: "The Guard", line: "“Don't try, and you can't lose.”", note: "Sells protection, delivers smallness." },
-  { name: "The Ghost", line: "“Take up less space.”", note: "Learned invisibility, performed as politeness." },
-  { name: "The Prosecutor", line: "“Let's review everything you did wrong.”", note: "Runs the 2 a.m. tribunal." },
-  { name: "The Pleaser", line: "“Keep them happy and you'll be safe.”", note: "Trades self for approval, daily." },
-  { name: "The Prophet", line: "“This will go badly. It always does.”", note: "Forecasts pain and calls it realism." },
+  { name: "الكمالي", line: ""إذا لم يكن عديم العيوب، فهو فشل."", note: "يخلط بين المعايير والأمان." },
+  { name: "الحارس", line: ""لا تحاول، ولن تخسر."", note: "يبيع الحماية، ويُوصّل الضآلة." },
+  { name: "الشبح", line: ""خذ مساحة أقل."", note: "تعلّم الاختفاء وأدّاه كلياقة." },
+  { name: "المدّعي", line: ""دعنا نراجع كل ما أخطأت فيه."", note: "يُدير محكمة الثانية صباحاً." },
+  { name: "المُرضي", line: ""أسعِدهم وستكون في أمان."", note: "يتاجر بالذات مقابل الموافقة، يومياً." },
+  { name: "المتنبئ", line: ""ستسوء الأمور. دائماً ما يحدث هذا."", note: "يتنبأ بالألم ويُسمّيه واقعية." },
 ];
 
 const SCIENCE = [
-  { claim: "Naming emotions calms the brain.", detail: "Affect labeling dampens amygdala reactivity while engaging regulatory prefrontal regions. The narrator is quieter the moment it's named." },
-  { claim: "Reframing changes feeling, not just thought.", detail: "Cognitive reappraisal is among the best-studied emotion-regulation strategies, with reliable effects on negative affect." },
-  { claim: "Talking to yourself by name creates useful distance.", detail: "Distanced self-talk reduces reactivity, even under social stress, at remarkably low cognitive cost." },
-  { claim: "Affirming values — not traits — lowers defensiveness.", detail: "Values-based self-affirmation buffers threat and improves receptivity to hard feedback. “I am amazing” does not." },
-  { claim: "Identity drives habit more than willpower does.", detail: "Habits anchored to identity statements and if-then plans outlast motivation by design." },
-  { claim: "The brain remains plastic.", detail: "Self-directed practice physically changes networks at every adult age. Slower at 50 than 15 — and entirely available." },
+  { claim: "تسمية المشاعر يهدّئ الدماغ.", detail: "تسمية المشاعر تُخمد نشاط اللوزة الدماغية مع تفعيل مناطق المعالجة الأمامية التنظيمية. الراوي يصبت في اللحظة التي يُسمَّى فيها." },
+  { claim: "إعادة التأطير تُغيّر المشاعر، لا مجرد الأفكار.", detail: "إعادة التقييم المعرفي من بين استراتيجيات تنظيم المشاعر الأكثر دراسةً، مع تأثيرات موثوقة على المشاعر السلبية." },
+  { claim: "مخاطبة نفسك باسمك يُنشئ مسافة نافعة.", detail: "الحوار الذاتي البعيد يُخفّض التفاعلية، حتى في ظل الضغط الاجتماعي، بتكلفة معرفية منخفضة بشكل لافت." },
+  { claim: "تأكيد القيم — لا الصفات — يُخفّض الدفاعية.", detail: "التأكيد الذاتي القائم على القيم يُخفّف التهديد ويُحسّن تقبّل التغذية الراجعة الصعبة. 'أنا رائع' لا يفعل ذلك." },
+  { claim: "الهوية تُقوّد العادات أكثر من الإرادة.", detail: "العادات المرتبطة ببيانات الهوية وخطط 'إذا-ثم' تتجاوز الدافعية في مداها بتصميم." },
+  { claim: "الدماغ يبقى قابلاً للتشكّل.", detail: "الممارسة الموجّهة ذاتياً تُغيّر الشبكات الدماغية فيزيائياً في كل الأعمار. أبطأ عند الخمسين مقارنة بالخامسة عشرة — ومتاح تماماً." },
 ];
 
 export default function MethodPage() {
@@ -37,31 +37,31 @@ export default function MethodPage() {
       <section className="bg-ink-950 py-s10 text-bone-50">
         <div className="container">
           <Reveal>
-            <p className="eyebrow mb-6 !text-ink-300">The Selv Method</p>
+            <p className="eyebrow mb-6 !text-ink-300">منهج سيلف</p>
           </Reveal>
           <Reveal delay={0.1}>
             <h1 className="max-w-3xl text-display-l font-medium">
-              A system for rewriting the voice you think with.
+              نظام لإعادة كتابة الصوت الذي تُفكّر به.
             </h1>
           </Reveal>
           <Reveal delay={0.2}>
             <p className="mt-6 max-w-2xl text-body-l text-ink-300">
-              Three movements. Twelve minutes a day. Grounded in how the brain actually changes.
+              ثلاث حركات. اثنتا عشرة دقيقة يومياً. مؤسَّسة على كيفية تغيّر الدماغ فعلاً.
             </p>
           </Reveal>
         </div>
       </section>
 
-      {/* The problem, precisely */}
+      {/* المشكلة بدقة */}
       <section className="bg-ink-950 pb-s10 text-bone-50">
         <div className="container grid gap-8 md:grid-cols-3">
           {[
-            "Your inner dialogue runs constant commentary — prediction, verdict, replay. You don't hear most of it. You just live inside its conclusions.",
-            "Most of that script was drafted early, by other people: a parent's sigh, a teacher's margin note, a room that laughed at the wrong moment. Never updated since.",
-            "You've been editing your behavior — more preparation, more achievement, more armor — while the script writes the behavior. Work upstream.",
+            "حوارك الداخلي يُدير تعليقاً مستمراً — توقعات، وأحكام، وإعادة تشغيل. معظمه لا تسمعه. أنت فقط تعيش داخل استنتاجاته.",
+            "معظم تلك النصوص صِيغت في وقت مبكر، من قِبَل أشخاص آخرين: تنهيدة أحد الوالدين، ملاحظة معلم في الهامش، غرفة ضحكت في اللحظة الخطأ. لم تُحدَّث منذ ذلك الحين.",
+            "لقد كنت تُحرّر سلوكك — مزيد من التحضير، مزيد من الإنجاز، مزيد من الدروع — بينما النص هو من يكتب السلوك. اعمل في المنبع.",
           ].map((text, i) => (
             <Reveal key={i} delay={i * 0.08}>
-              <div className="border-l border-ink-700 pl-6">
+              <div className="border-r border-ink-700 pr-6">
                 <p className="eyebrow mb-3 !text-solar-500">{String(i + 1).padStart(2, "0")}</p>
                 <p className="text-body-m text-ink-100">{text}</p>
               </div>
@@ -70,16 +70,15 @@ export default function MethodPage() {
         </div>
       </section>
 
-      {/* Movement I — Audit + narrators */}
+      {/* الحركة الأولى — التشخيص */}
       <section className="bg-background py-s10">
         <div className="container">
           <Reveal>
-            <p className="eyebrow mb-3">01 / Audit</p>
-            <h2 className="text-display-m font-medium">You can't rewrite a script you've never read.</h2>
+            <p className="eyebrow mb-3">01 / التشخيص</p>
+            <h2 className="text-display-m font-medium">لا يمكنك إعادة كتابة نص لم تقرأه قط.</h2>
             <p className="mt-4 max-w-2xl text-body-l text-muted-foreground">
-              The Audit makes the invisible voice visible. Most people meet their dominant narrator inside
-              four minutes — and the recognition is physical, a small cold shock of <em>oh, that's been
-              running my life.</em>
+              يجعل التشخيص الصوت غير المرئي مرئياً. يلتقي معظم الناس براويهم المهيمن خلال
+              أربع دقائق — والتعرف جسدي، صدمة باردة صغيرة من <em>آه، هذا يُدير حياتي.</em>
             </p>
           </Reveal>
           <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -96,24 +95,24 @@ export default function MethodPage() {
           <Reveal delay={0.2}>
             <div className="mt-8">
               <Button asChild variant="secondary">
-                <Link href="/lab/audit">Meet yours — 4 minutes, free</Link>
+                <Link href="/lab/audit">تعرّف على راويك — 4 دقائق، مجاناً</Link>
               </Button>
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* Movement II — Rewrite + live demo */}
+      {/* الحركة الثانية — إعادة الكتابة */}
       <section className="border-t border-border bg-background py-s10">
         <div className="container grid items-start gap-10 lg:grid-cols-2">
           <Reveal>
             <div>
-              <p className="eyebrow mb-3">02 / Rewrite</p>
-              <h2 className="text-display-m font-medium">Not affirmations. Authorship.</h2>
+              <p className="eyebrow mb-3">02 / إعادة الكتابة</p>
+              <h2 className="text-display-m font-medium">ليست تأكيدات. بل تأليف.</h2>
               <p className="mt-4 text-body-l text-muted-foreground">
-                Standing at a mirror shouting “I am confident” fails for a reason: the mind rejects
-                statements it can't verify. The Rewrite builds sentences that survive your own
-                cross-examination — using three operations from cognitive science.
+                الوقوف أمام مرآة والصراخ "أنا واثق" يفشل لسبب: العقل يرفض العبارات
+                التي لا يستطيع التحقق منها. إعادة الكتابة تبني جملاً تصمد أمام
+                استجوابك الخاص — باستخدام ثلاث عمليات من العلوم المعرفية.
               </p>
             </div>
           </Reveal>
@@ -123,29 +122,29 @@ export default function MethodPage() {
         </div>
       </section>
 
-      {/* Movement III — Rep */}
+      {/* الحركة الثالثة — التمرين */}
       <section className="border-t border-border bg-background py-s10">
         <div className="container">
           <Reveal>
-            <p className="eyebrow mb-3">03 / Rep</p>
+            <p className="eyebrow mb-3">03 / التمرين</p>
             <h2 className="max-w-2xl text-display-m font-medium">
-              A voice becomes yours the way an accent does: repetition.
+              يصبح الصوت صوتك بالطريقة ذاتها التي يصبح بها اللهجة: التكرار.
             </h2>
             <p className="mt-4 max-w-2xl text-body-l text-muted-foreground">
-              Insight fades in about seventy-two hours unless it's practiced. The Rep movement turns your
-              rewritten sentences into daily practice — brief structured sessions, rehearsals before hard
-              moments, and the Identity Ledger, where every brave act is logged as evidence. Twelve minutes
-              a day, most days. That's the whole ask.
+              الفهم يتلاشى في اثنتين وسبعين ساعة تقريباً دون ممارسة. حركة التمرين تحوّل
+              جملك المعاد كتابتها إلى ممارسة يومية — جلسات منظمة قصيرة، وبروفات قبل اللحظات
+              الصعبة، وسجل الهوية، حيث يُسجَّل كل فعل شجاع كدليل. اثنتا عشرة دقيقة
+              يومياً، في معظم الأيام. هذا كل الطلب.
             </p>
           </Reveal>
         </div>
       </section>
 
-      {/* Science layer */}
+      {/* الطبقة العلمية */}
       <section className="bg-card py-s10">
         <div className="container">
           <Reveal>
-            <h2 className="text-display-m font-medium">The machinery, named.</h2>
+            <h2 className="text-display-m font-medium">الآليات، مُسمَّاةً.</h2>
           </Reveal>
           <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {SCIENCE.map((s, i) => (
@@ -153,7 +152,7 @@ export default function MethodPage() {
                 <details className="group rounded-r3 border border-border bg-background p-6">
                   <summary className="cursor-pointer list-none text-body-m font-medium marker:content-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">
                     {s.claim}
-                    <span aria-hidden className="float-right text-muted-foreground transition-transform duration-fast group-open:rotate-45">＋</span>
+                    <span aria-hidden className="float-left text-muted-foreground transition-transform duration-fast group-open:rotate-45">＋</span>
                   </summary>
                   <p className="mt-3 text-body-s text-muted-foreground">{s.detail}</p>
                 </details>
@@ -163,35 +162,35 @@ export default function MethodPage() {
         </div>
       </section>
 
-      {/* What it isn't */}
+      {/* ما ليس هذا */}
       <section className="bg-background py-s10">
         <div className="container max-w-3xl">
           <Reveal>
-            <h2 className="text-display-m font-medium">What it isn't.</h2>
+            <h2 className="text-display-m font-medium">ما ليس هذا.</h2>
             <ul className="mt-6 space-y-3 text-body-l text-muted-foreground">
-              <li>— Not affirmations shouted at mirrors.</li>
-              <li>— Not toxic positivity. Some thoughts are accurate and deserve action, not reframing.</li>
-              <li>— Not a personality transplant. Introverts stay introverts, with a steadier voice.</li>
+              <li>— ليس تأكيدات يُصرخ بها أمام المرايا.</li>
+              <li>— ليس إيجابية سامة. بعض الأفكار دقيقة وتستحق الفعل، لا إعادة التأطير.</li>
+              <li>— ليس زرع شخصية. الانطوائيون يبقون انطوائيين، بصوت أكثر ثباتاً.</li>
               <li>
-                — <strong className="text-foreground">Not therapy</strong> — and we'll say so clearly
-                whenever therapy is the right door. <Link href="/resources" className="underline underline-offset-4">Resources →</Link>
+                — <strong className="text-foreground">ليس علاجاً نفسياً</strong> — وسنقوله بوضوح
+                كلما كان العلاج هو الباب الصحيح. <Link href="/resources" className="underline underline-offset-4">الموارد ←</Link>
               </li>
             </ul>
           </Reveal>
         </div>
       </section>
 
-      {/* CTA */}
+      {/* دعوة للعمل */}
       <section className="bg-ink-950 py-s10 text-center text-bone-50">
         <div className="container">
-          <Badge variant="solar" className="mb-6">Start where everyone starts</Badge>
-          <h2 className="text-display-m font-medium">Four minutes of honesty.</h2>
+          <Badge variant="solar" className="mb-6">ابدأ من حيث يبدأ الجميع</Badge>
+          <h2 className="text-display-m font-medium">أربع دقائق من الصدق.</h2>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <Button asChild className="bg-bone-50 text-ink-950">
-              <Link href="/lab/audit">Take the Audit</Link>
+              <Link href="/lab/audit">خذ التشخيص</Link>
             </Button>
             <Button asChild variant="ghost" className="text-bone-50 hover:bg-ink-900">
-              <Link href="/programs">See Programs →</Link>
+              <Link href="/programs">انظر البرامج ←</Link>
             </Button>
           </div>
         </div>

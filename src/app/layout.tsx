@@ -18,10 +18,10 @@ export const metadata = buildMetadata({});
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${sans.variable} ${serif.variable} ${mono.variable}`}>
+    <html lang="ar" dir="rtl" suppressHydrationWarning className={`${sans.variable} ${serif.variable} ${mono.variable}`}>
       <body>
         <a href="#main" className="skip-link">
-          Skip to content
+          الانتقال إلى المحتوى
         </a>
         <ThemeProvider>{children}</ThemeProvider>
         <JsonLd data={organizationJsonLd()} />

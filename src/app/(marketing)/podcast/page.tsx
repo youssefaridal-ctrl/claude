@@ -3,20 +3,20 @@ import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "The Inner Voice — conversations on becoming",
-  description: "The SELV podcast: unhurried conversations with researchers, clinicians, and members. Every guest answers the same closing question.",
+  title: "الصوت الداخلي — محادثات حول التحوّل",
+  description: "بودكاست سيلف: محادثات غير مستعجلة مع باحثين وأطباء وأعضاء. كل ضيف يُجيب على السؤال الختامي ذاته.",
   path: "/podcast",
 });
 
 export default function PodcastPage() {
   return (
     <div className="container max-w-3xl py-s9">
-      <p className="eyebrow mb-3">Podcast</p>
-      <h1 className="text-display-l font-medium">The Inner Voice.</h1>
+      <p className="eyebrow mb-3">البودكاست</p>
+      <h1 className="text-display-l font-medium">الصوت الداخلي.</h1>
       <p className="mt-3 text-body-l text-muted-foreground">
-        Conversations on becoming — with researchers, clinicians, and members. Every episode ends with the
-        same two questions: <em>what does your inner voice say these days, verbatim?</em> and{" "}
-        <em>what's the smallest rep you still do?</em>
+        محادثات حول التحوّل — مع باحثين وأطباء وأعضاء. كل حلقة تنتهي بالسؤالين ذاتهما:{" "}
+        <em>ماذا يقول صوتك الداخلي هذه الأيام، حرفياً؟</em> و{" "}
+        <em>ما أصغر تمرين تمارسه إلى الآن؟</em>
       </p>
       <div className="mt-6 flex gap-3">
         <Button variant="secondary" size="compact">Apple Podcasts</Button>
@@ -36,18 +36,18 @@ export default function PodcastPage() {
                   <span className="block text-body-l font-medium">{e.title}</span>
                   <span className="block text-body-s text-muted-foreground">{e.guest}</span>
                 </span>
-                <span className="font-mono text-label-mono text-muted-foreground">{e.minutes} min</span>
+                <span className="font-mono text-label-mono text-muted-foreground">{e.minutes} د</span>
               </summary>
-              <div className="ml-[4.5rem] pb-2 pt-2">
+              <div className="mr-[4.5rem] pb-2 pt-2">
                 <div className="flex items-center gap-4 rounded-r3 border border-border bg-card p-4">
-                  <Button size="compact" aria-label={`Play episode ${e.number}`}>Play ▸</Button>
+                  <Button size="compact" aria-label={`تشغيل الحلقة ${e.number}`}>تشغيل ▸</Button>
                   <div className="h-1 flex-1 rounded-full bg-muted" aria-hidden>
                     <div className="h-full w-0 rounded-full bg-foreground" />
                   </div>
                   <span className="font-mono text-label-mono text-muted-foreground">00:00</span>
                 </div>
                 <p className="mt-3 text-body-s text-muted-foreground">
-                  Full player, chaptered notes, and searchable transcript ship with the audio import.
+                  المشغّل الكامل، والملاحظات المبوّبة، والنص القابل للبحث تأتي مع استيراد الصوت.
                 </p>
               </div>
             </details>

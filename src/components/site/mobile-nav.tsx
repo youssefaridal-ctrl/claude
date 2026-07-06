@@ -5,13 +5,13 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 const NAV = [
-  { href: "/method", label: "Method" },
-  { href: "/programs", label: "Programs" },
-  { href: "/library", label: "Library" },
-  { href: "/lab", label: "Lab" },
-  { href: "/community", label: "Community" },
-  { href: "/stories", label: "Stories" },
-  { href: "/pricing", label: "Pricing" },
+  { href: "/method", label: "المنهج" },
+  { href: "/programs", label: "البرامج" },
+  { href: "/library", label: "المكتبة" },
+  { href: "/lab", label: "المختبر" },
+  { href: "/community", label: "المجتمع" },
+  { href: "/stories", label: "القصص" },
+  { href: "/pricing", label: "الأسعار" },
 ] as const;
 
 export function MobileNav() {
@@ -37,7 +37,7 @@ export function MobileNav() {
       <button
         aria-expanded={open}
         aria-controls="mobile-menu"
-        aria-label={open ? "Close menu" : "Open menu"}
+        aria-label={open ? "إغلاق القائمة" : "فتح القائمة"}
         onClick={() => setOpen(!open)}
         className="flex h-10 w-10 items-center justify-center rounded-r2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
       >
@@ -71,13 +71,13 @@ export function MobileNav() {
                 href="/signin"
                 className="text-body-m text-muted-foreground transition-colors hover:text-foreground"
               >
-                Sign in
+                تسجيل الدخول
               </Link>
               <Link
                 href="/lab/audit"
                 className="font-mono text-label-mono uppercase tracking-[0.12em] text-foreground"
               >
-                Begin →
+                ابدأ ←
               </Link>
             </div>
           </nav>

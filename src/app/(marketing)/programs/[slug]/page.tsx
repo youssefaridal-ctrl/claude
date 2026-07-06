@@ -13,7 +13,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const program = programs.find((p) => p.slug === slug);
-  if (!program) return buildMetadata({ title: "Program not found", noIndex: true });
+  if (!program) return buildMetadata({ title: "البرنامج غير موجود", noIndex: true });
   return buildMetadata({
     title: `${program.name} — ${program.promise}`,
     description: program.whoFor[0],
@@ -28,34 +28,34 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
 
   return (
     <>
-      {/* Emotional hero */}
+      {/* هيرو عاطفي */}
       <section className="bg-ink-950 py-s9 text-bone-50">
         <div className="container">
           <Reveal>
-            <p className="eyebrow mb-4 !text-ink-300">Program {program.number}</p>
+            <p className="eyebrow mb-4 !text-ink-300">برنامج {program.number}</p>
             <h1 className="text-display-l font-medium">{program.name}.</h1>
             <p className="mt-4 font-serif text-serif-feature italic text-ink-100">{program.promise}</p>
             <p className="mt-6 font-mono text-label-mono uppercase text-ink-300">
-              {program.meta.weeks} weeks · {program.meta.minutesPerDay} min/day · cohort of {program.meta.cohort} · next: {program.meta.nextCohort}
+              {program.meta.weeks} أسابيع · {program.meta.minutesPerDay} دقيقة/يوم · مجموعة من {program.meta.cohort} · التالية: {program.meta.nextCohort}
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Button asChild className="bg-bone-50 text-ink-950">
-                <Link href="/pricing">Check your fit</Link>
+                <Link href="/pricing">تحقق من ملاءمتك</Link>
               </Button>
               <Button asChild variant="ghost" className="text-bone-50 hover:bg-ink-900">
-                <a href="#curriculum">Curriculum ↓</a>
+                <a href="#curriculum">المنهج ↓</a>
               </Button>
             </div>
           </Reveal>
         </div>
       </section>
 
-      {/* Honest columns */}
+      {/* أعمدة صادقة */}
       <section className="bg-background py-s9">
         <div className="container grid gap-10 md:grid-cols-2">
           <Reveal>
             <div>
-              <h2 className="text-heading-s font-medium">Who it's for</h2>
+              <h2 className="text-heading-s font-medium">لمن هو</h2>
               <ul className="mt-4 space-y-3">
                 {program.whoFor.map((w) => (
                   <li key={w} className="flex gap-3 text-body-m text-muted-foreground">
@@ -67,7 +67,7 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
           </Reveal>
           <Reveal delay={0.08}>
             <div>
-              <h2 className="text-heading-s font-medium">Who it's not for</h2>
+              <h2 className="text-heading-s font-medium">لمن ليس هو</h2>
               <ul className="mt-4 space-y-3">
                 {program.whoNotFor.map((w) => (
                   <li key={w} className="flex gap-3 text-body-m text-muted-foreground">
@@ -80,11 +80,11 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      {/* Outcomes */}
+      {/* النتائج */}
       <section className="border-y border-border bg-card py-s9">
         <div className="container">
           <Reveal>
-            <h2 className="text-display-m font-medium">By week {program.meta.weeks}, you will —</h2>
+            <h2 className="text-display-m font-medium">بحلول الأسبوع {program.meta.weeks}، ستكون قد —</h2>
           </Reveal>
           <ul className="mt-8 grid gap-4 md:grid-cols-2">
             {program.outcomes.map((o, i) => (
@@ -96,11 +96,11 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
         </div>
       </section>
 
-      {/* Curriculum */}
+      {/* المنهج */}
       <section id="curriculum" className="bg-background py-s9">
         <div className="container max-w-3xl">
           <Reveal>
-            <h2 className="text-display-m font-medium">The curriculum.</h2>
+            <h2 className="text-display-m font-medium">المنهج.</h2>
           </Reveal>
           <div className="mt-8 space-y-3">
             {program.curriculum.map((week) => (
@@ -110,16 +110,16 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
                     {String(week.week).padStart(2, "0")}
                   </span>
                   <span className="text-body-m font-medium">{week.theme}</span>
-                  <span aria-hidden className="ml-auto text-muted-foreground transition-transform duration-fast group-open:rotate-45">＋</span>
+                  <span aria-hidden className="mr-auto text-muted-foreground transition-transform duration-fast group-open:rotate-45">＋</span>
                 </summary>
-                <p className="px-5 pb-5 pl-[4.5rem] text-body-s text-muted-foreground">{week.detail}</p>
+                <p className="px-5 pb-5 pr-[4.5rem] text-body-s text-muted-foreground">{week.detail}</p>
               </details>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing block */}
+      {/* كتلة التسعير */}
       <section className="border-t border-border bg-background pb-s10">
         <div className="container max-w-3xl">
           <div className="rounded-r4 border border-border bg-card p-8">
@@ -127,14 +127,14 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
               <div>
                 <p className="text-display-m font-medium">${program.price}</p>
                 <p className="text-body-s text-muted-foreground">
-                  Everything included · 30-day refund, no interrogation · true seat counts only
+                  كل شيء مضمّن · استرداد 30 يوماً بلا استجواب · عد المقاعد الحقيقي فقط
                 </p>
               </div>
               <Button asChild>
-                <Link href="/pricing">Check your fit</Link>
+                <Link href="/pricing">تحقق من ملاءمتك</Link>
               </Button>
             </div>
-            <Badge className="mt-4">Included with the Academy tier</Badge>
+            <Badge className="mt-4">مضمّن مع مستوى الأكاديمية</Badge>
           </div>
         </div>
       </section>

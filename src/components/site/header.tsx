@@ -5,12 +5,12 @@ import { ThemeToggle } from "@/components/site/theme-toggle";
 import { MobileNav } from "@/components/site/mobile-nav";
 
 const NAV = [
-  { href: "/method", label: "Method" },
-  { href: "/programs", label: "Programs" },
-  { href: "/library", label: "Library" },
-  { href: "/lab", label: "Lab" },
-  { href: "/community", label: "Community" },
-  { href: "/stories", label: "Stories" },
+  { href: "/method", label: "المنهج" },
+  { href: "/programs", label: "البرامج" },
+  { href: "/library", label: "المكتبة" },
+  { href: "/lab", label: "المختبر" },
+  { href: "/community", label: "المجتمع" },
+  { href: "/stories", label: "القصص" },
 ] as const;
 
 /** Marketing header: 64px glass chrome (design/03 §nav, design/04 §10). */
@@ -39,19 +39,19 @@ export async function SiteHeader() {
         <div className="flex items-center gap-2">
           <ThemeToggle />
           <Link href="/pricing" className="hidden text-body-s text-muted-foreground hover:text-foreground sm:block">
-            Pricing
+            الأسعار
           </Link>
           {session?.user ? (
             <Button asChild size="compact" variant="secondary">
-              <Link href="/today">Open SELV</Link>
+              <Link href="/today">افتح سيلف</Link>
             </Button>
           ) : (
             <>
               <Link href="/signin" className="hidden text-body-s text-muted-foreground hover:text-foreground md:block">
-                Sign in
+                تسجيل الدخول
               </Link>
               <Button asChild size="compact" className="hidden md:inline-flex">
-                <Link href="/lab/audit">Begin</Link>
+                <Link href="/lab/audit">ابدأ</Link>
               </Button>
             </>
           )}

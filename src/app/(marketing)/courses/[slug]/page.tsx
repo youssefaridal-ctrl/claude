@@ -6,6 +6,89 @@ import { JsonLd } from "@/components/json-ld";
 import { buildMetadata, courseJsonLd } from "@/lib/seo";
 import { getCourseBySlug, listPublishedCourses } from "@/server/services/content";
 
+const LESSON_TITLES: Record<string, string[]> = {
+  "confidence-fundamentals": [
+    "التوجيه: ما ستمارسه",
+    "من أين تأتي الثقة فعلاً",
+    "الدليل مقابل الشعور: كيف يُقيّم دماغك",
+    "تحيز التأكيد وكيفية معادلته",
+    "بناء سجل الأدلة",
+    "الراوي: تحديده وتسميته",
+    "بروتوكول المراجعة اليومية",
+    "حين تنهار الثقة: استعادة البناء",
+  ],
+  "emotional-mastery": [
+    "التوجيه: ما ستمارسه",
+    "فسيولوجيا المشاعر — ما الذي يحدث فعلاً",
+    "الفجوة بين المحفز والاستجابة",
+    "إعادة التقييم الإدراكي",
+    "تنظيم التنشيط: الأدوات الجسدية",
+    "قبول المشاعر بدون اندماج",
+    "خريطة أنماطك العاطفية",
+    "بناء المرونة العاطفية على المدى البعيد",
+  ],
+  "identity-and-narrative": [
+    "التوجيه: ما ستمارسه",
+    "كيف تتشكّل هوية الذات وتتصلّب",
+    "أثر الكتابة في علم الأعصاب",
+    "علم آثار المعتقدات: تتبع مصدر قصتك",
+    "إعادة كتابة السرد",
+    "الكلمة الصغيرة: أداة تحويل الهوية",
+    "الهوية المستقبلية كمرساة للممارسة",
+    "صياغة قصتك القادمة",
+  ],
+  "self-talk-rewire": [
+    "التوجيه: ما ستمارسه",
+    "تشريح الحوار الداخلي",
+    "الناقد كحارس أمني: فهم الوظيفة",
+    "تقنيات المسافة: الاسم، والضمير، والمكان",
+    "آلة إعادة الكتابة خطوة بخطوة",
+    "التحقق من الموثوقية: لماذا بعض الجمل تنجح وبعضها لا",
+    "تسلسل الممارسة اليومية",
+    "الصيانة: إبقاء التغيير في مكانه",
+  ],
+  "boundary-architecture": [
+    "التوجيه: ما ستمارسه",
+    "الحدود كبنية تحتية، لا كعقاب",
+    "تحديد ما تحميه فعلاً",
+    "الحد الصغير: كيفية الممارسة بأمان",
+    "الصياغة: الكلمات التي تعمل في لهجتك",
+    "استجابة الطرف الآخر: تأهيل نفسك لها",
+    "الحدود في الأماكن عالية المخاطر",
+    "حين لا تُمسك الحدود: ما تعلمته",
+  ],
+  "perfectionism-protocol": [
+    "التوجيه: ما ستمارسه",
+    "الكمالية كآلية حماية",
+    "تحديد ما الذي يُطلقها",
+    "فخ المعايير العالية: التمييز بين الجودة والكمالية",
+    "تمرين المسودة المعيبة",
+    "الإنجاز مقابل التحسين: قرار التوقف",
+    "الفشل كبيانات: بروتوكول المراجعة",
+    "بناء كافٍ على قدر الكفاية",
+  ],
+  "impostor-pattern": [
+    "التوجيه: ما ستمارسه",
+    "متلازمة المحتال: ما تقوله الأبحاث",
+    "الشبح في المرآة: التعرف على نمطك",
+    "أدلة مقابل أداء: إعادة معايرة النجاح",
+    "محاسبة الكفاءة: الأداة الأساسية",
+    "العلاقة بالنجاح الأول: من يملكه؟",
+    "مشاركة العمل بدون اعتذار مسبق",
+    "البقاء في الغرفة: بناء الانتماء",
+  ],
+  "social-confidence": [
+    "التوجيه: ما ستمارسه",
+    "لماذا يحفّز التفاعل الاجتماعي الحذر والتهديد",
+    "أدوات اللحظة الاجتماعية: الأساسيات",
+    "التعرف على الصمت القلق",
+    "بروتوكول الحضور اللفظي",
+    "المشاركة الانفعالية بدون ادعاء الاهتمام",
+    "المواقف عالية الكثافة: الإعداد والمراجعة",
+    "بناء عادة الثقة الاجتماعية",
+  ],
+};
+
 export async function generateStaticParams() {
   const courses = await listPublishedCourses();
   return courses.map((c) => ({ slug: c.slug }));
@@ -14,84 +97,20 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const course = await getCourseBySlug(slug);
-  if (!course) return buildMetadata({ title: "Not found", noIndex: true });
+  if (!course) return buildMetadata({ title: "غير موجود", noIndex: true });
   return buildMetadata({ title: course.title, description: course.promise, path: `/courses/${slug}` });
 }
-
-const LESSON_TITLES: Record<string, string[]> = {
-  "the-anatomy-of-self-talk": [
-    "Orientation: what you'll practice",
-    "Where the inner voice came from",
-    "The narrator's formats: prediction, verdict, replay",
-    "Why the critic sounds like that — and whose voice it borrowed",
-    "Naming the voice: the anatomy of a label",
-    "From narrator to author: what changes",
-  ],
-  "the-confidence-equation": [
-    "Orientation: what you'll practice",
-    "The achievement paradox — why doing more doesn't settle it",
-    "The appraisal process: how your brain runs its confidence check",
-    "Evidence, not achievement: what actually moves the dial",
-    "The equation, assembled",
-  ],
-  "practice-architecture": [
-    "Orientation: what you'll practice",
-    "Why motivation is a terrible foundation",
-    "Designing your twelve minutes",
-    "Identity anchors: habits that stick to who you're becoming",
-    "The maintenance practice: what happens after week eight",
-  ],
-  "emotions-are-data": [
-    "Orientation: what you'll practice",
-    "The signal-versus-noise problem",
-    "Reading the feeling before obeying it",
-    "Affect labeling: why naming it calms it",
-    "Reactivity windows and the ninety-second rule",
-    "Your emotional vocabulary, expanded",
-  ],
-  "the-regulation-toolkit": [
-    "Orientation: what you'll practice",
-    "Breath: what works, what doesn't, and why",
-    "Labeling: precision over venting",
-    "Reappraisal: the surgeon's technique",
-    "Movement and the body-first approach",
-    "Situation selection — the underrated tool",
-    "Building your personal stack",
-  ],
-  "the-criticism-metabolism": [
-    "Orientation: what you'll practice",
-    "Why feedback hits differently than we expect",
-    "Separating information from verdict",
-    "The intake protocol: three steps from receipt to response",
-  ],
-  "where-your-story-came-from": [
-    "Orientation: what you'll practice",
-    "Family scripts: the sentences you were handed",
-    "Cultural scripts: the ones you didn't choose either",
-    "Archaeology: tracing a belief back to its author",
-    "The museum label: understanding without obeying",
-    "Writing your own biography forward",
-  ],
-  "the-rewrite-deep": [
-    "Orientation: what you'll practice",
-    "Believability engineering: the science of what your mind accepts",
-    "Advanced distancing techniques",
-    "Values anchoring: the difference between traits and convictions",
-    "Testing under load: rehearsals at rising stakes",
-    "Relapse design — planning for the old voice's return",
-    "Your author's voice: the final assembly",
-  ],
-};
 
 export default async function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const course = await getCourseBySlug(slug);
   if (!course) notFound();
 
-  const titlesForCourse = LESSON_TITLES[slug] ?? [];
+  const titlesForSlug = LESSON_TITLES[slug] ?? [];
+
   const lessons = Array.from({ length: course.lessons }, (_, i) => ({
     number: i + 1,
-    title: titlesForCourse[i] ?? (i === 0 ? "Orientation: what you'll practice" : `Lesson ${i + 1}`),
+    title: titlesForSlug[i] ?? (i === 0 ? "التوجيه: ما ستمارسه" : `الدرس ${i + 1}`),
     locked: !(course.preview && i === 0),
   }));
 
@@ -102,7 +121,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
         <h1 className="mt-4 text-display-l font-medium">{course.title}</h1>
         <p className="mt-3 max-w-xl text-body-l text-muted-foreground">{course.promise}</p>
 
-        <h2 className="eyebrow mb-4 mt-12">Syllabus</h2>
+        <h2 className="eyebrow mb-4 mt-12">المنهج</h2>
         <ol className="divide-y divide-border rounded-r3 border border-border">
           {lessons.map((l) => (
             <li key={l.number} className="flex min-h-12 items-center gap-4 p-4">
@@ -111,30 +130,30 @@ export default async function CourseDetailPage({ params }: { params: Promise<{ s
               </span>
               <span className="flex-1 text-body-m">{l.title}</span>
               {l.locked ? (
-                <Badge>Members</Badge>
+                <Badge>أعضاء</Badge>
               ) : (
-                <Badge variant="solar">Preview — free</Badge>
+                <Badge variant="solar">معاينة — مجانية</Badge>
               )}
             </li>
           ))}
         </ol>
         <p className="mt-4 text-body-s text-muted-foreground">
-          Every lesson runs Learn → Watch it in yourself → Do → Log, and ends with its rep assignment.
+          كل درس يسير وفق: تعلّم ← شاهده في نفسك ← افعل ← سجّل، وينتهي بمهمة التمرين.
         </p>
       </div>
 
       <aside>
         <div className="sticky top-24 rounded-r4 border border-border bg-card p-6">
           <p className="font-mono text-label-mono uppercase text-muted-foreground">
-            {course.lessons} lessons · {course.hours}
+            {course.lessons} دروس · {course.hours}
           </p>
-          <p className="mt-4 text-body-m">Included with the Academy tier.</p>
+          <p className="mt-4 text-body-m">مضمّن مع مستوى الأكاديمية.</p>
           <Button asChild className="mt-5 w-full">
-            <Link href="/pricing">See membership</Link>
+            <Link href="/pricing">عرض العضوية</Link>
           </Button>
           {course.preview && (
             <Button asChild variant="ghost" size="compact" className="mt-3 w-full">
-              <Link href="/signin">Watch the free preview</Link>
+              <Link href="/signin">شاهد المعاينة المجانية</Link>
             </Button>
           )}
         </div>

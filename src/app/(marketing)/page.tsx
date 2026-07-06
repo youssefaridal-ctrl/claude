@@ -4,24 +4,51 @@ import { Reveal } from "@/components/motion/reveal";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "The voice in your head was written by other people",
+  title: "الصوت في رأسك كتبه أشخاص آخرون",
   description:
-    "SELV is an evidence-based platform for rebuilding self-confidence: audit your inner dialogue, rewrite it, and practice 12 minutes a day.",
+    "سيلف — منصة قائمة على الأدلة لإعادة بناء الثقة بالنفس: تشخّص حوارك الداخلي، تُعيد كتابته، وتتدرّب اثنتي عشرة دقيقة يومياً.",
   path: "/",
 });
 
 const CRITIC_LINES = [
-  "“Don't raise your hand unless you're sure.”",
-  "“They're going to find out.”",
-  "“Who do you think you are?”",
-  "“Say yes now, apologize to yourself later.”",
-  "“Everyone else finds this easy.”",
+  ""لا ترفع يدك إلا إذا كنت متأكداً تماماً."",
+  ""سيكتشفون الحقيقة."",
+  ""من تظن نفسك؟"",
+  ""قل نعم الآن، واعتذر لنفسك لاحقاً."",
+  ""الجميع يجد هذا سهلاً."",
 ];
 
 const MOVEMENTS = [
-  { number: "01 · AUDIT", title: "Map the voice you have.", body: "You can't rewrite a script you've never read. Four minutes of honest questions shows you your narrator." },
-  { number: "02 · REWRITE", title: "Author the voice you choose.", body: "Not affirmations — precise, believable sentences built with tools from cognitive science." },
-  { number: "03 · REP", title: "Practice until it's simply yours.", body: "Twelve minutes a day. Small honest reps, logged as evidence, until the new voice stops feeling new." },
+  { number: "01 · التشخيص", title: "رسّم الصوت الذي تملكه.", body: "لا يمكنك إعادة كتابة نص لم تقرأه قط. أربع دقائق من الأسئلة الصادقة تكشف لك راويك الداخلي." },
+  { number: "02 · إعادة الكتابة", title: "اكتب الصوت الذي تختاره.", body: "ليست تأكيدات — بل جمل دقيقة وموثوقة مبنية بأدوات العلوم المعرفية." },
+  { number: "03 · التمرين", title: "تدرّب حتى يصبح صوتك.", body: "اثنتا عشرة دقيقة يومياً. تكرارات صادقة صغيرة، مسجّلة كأدلة، حتى يتوقف الصوت الجديد عن كونه جديداً." },
+];
+
+const PROGRAMS = [
+  {
+    number: "01",
+    slug: "foundations",
+    name: "الأسس",
+    promise: "ثمانية أسابيع لصوت يقف بجانبك.",
+    meta: "8 أسابيع · 15 دقيقة/يوم · مجموعة من 40",
+    price: "490$",
+  },
+  {
+    number: "02",
+    slug: "the-voice",
+    name: "الصوت",
+    promise: "برنامج مكثف للجملة التي لا تستطيع إيقافها.",
+    meta: "6 أسابيع · 15 دقيقة/يوم · مجموعة من 12",
+    price: "590$",
+  },
+  {
+    number: "03",
+    slug: "unshakeable",
+    name: "الراسخ",
+    promise: "عندما تكبر الغرفة.",
+    meta: "12 أسبوعاً · 20 دقيقة/يوم · بالتقديم",
+    price: "1,190$",
+  },
 ];
 
 const PROGRAMS = [
@@ -52,30 +79,48 @@ const PROGRAMS = [
 ];
 
 const EVIDENCE = [
-  { stat: "71%", label: "report speaking up more within 8 weeks*" },
-  { stat: "12 min", label: "median daily practice" },
-  { stat: "n = 1,204", label: "2025 member survey" },
-  { stat: "30 days", label: "refund window, no interrogation" },
+  { stat: "71%", label: "يُفيدون بزيادة المشاركة خلال 8 أسابيع*" },
+  { stat: "12 دقيقة", label: "متوسط الممارسة اليومية" },
+  { stat: "ن = 1,204", label: "استطلاع الأعضاء 2025" },
+  { stat: "30 يوماً", label: "نافذة الاسترداد، بلا استجواب" },
 ];
 
 const STORIES = [
   {
     quote:
-      "I didn't need to be fixed. I needed a language for what was already happening inside me. SELV gave me that.",
-    name: "Amara O.",
-    detail: "Product designer · 6 months",
+      "لم أكن بحاجة إلى إصلاح. كنت بحاجة إلى لغة لما كان يجري بداخلي. سيلف أعطاني إياها.",
+    name: "أمارا أ.",
+    detail: "مصممة منتجات · 6 أشهر",
   },
   {
     quote:
-      "Week four I noticed I had stopped rehearsing apologies before sending emails. That one small change said everything.",
-    name: "Tom R.",
-    detail: "Startup founder · 3 months",
+      "في الأسبوع الرابع لاحظت أنني توقفت عن التدرب على الاعتذارات قبل إرسال رسائل البريد الإلكتروني. هذا التغيير الصغير وحده قال كل شيء.",
+    name: "توم ر.",
+    detail: "مؤسس شركة ناشئة · 3 أشهر",
   },
   {
     quote:
-      "The Audit was embarrassing to complete honestly. It was also the most useful four minutes I'd spent in years.",
-    name: "Priya K.",
-    detail: "Clinical researcher · 8 weeks",
+      "إكمال التشخيص بصدق كان مُحرجاً. لكنه كان أيضاً أكثر أربع دقائق مفيدة قضيتها منذ سنوات.",
+    name: "بريا ك.",
+    detail: "باحثة سريرية · 8 أسابيع",
+  },
+  {
+    quote:
+      "أعطى التشخيص اسماً للصوت الذي كنت أعتقد دائماً أنه مجرد طريقة تفكيري. تلك الفجوة — بين الصوت وبيني — غيّرت الأمور.",
+    name: "ناديا ر.",
+    detail: "باحثة تجربة المستخدم · 10 أسابيع",
+  },
+  {
+    quote:
+      "كانت معالجتي وأنا ندور حول نفس الشيء منذ عامين. سيلف لم يحل محل ذلك العمل. بل أعطاه مكاناً للهبوط بين الجلسات.",
+    name: "سارة ل.",
+    detail: "معلمة مدرسة ثانوية · 5 أشهر",
+  },
+  {
+    quote:
+      "ألقيت محاضرة الشهر الماضي كنت سألغيها قبل ثلاثة أشهر. لم أستمتع بها — لكنني كنت موجوداً، وبقيت موجوداً. هذا جديد.",
+    name: "جيمس ت.",
+    detail: "معماري · 7 أشهر",
   },
   {
     quote:
@@ -100,7 +145,7 @@ const STORIES = [
 export default function HomePage() {
   return (
     <>
-      {/* 1.1 Hero — "The Mirror" (design/03 §1.1) */}
+      {/* 1.1 Hero */}
       <section className="relative flex min-h-[92vh] items-center bg-ink-950 text-bone-50">
         <div
           aria-hidden
@@ -108,23 +153,23 @@ export default function HomePage() {
         />
         <div className="container relative">
           <Reveal>
-            <p className="eyebrow mb-6 !text-ink-300">Inner architecture</p>
+            <p className="eyebrow mb-6 !text-ink-300">البنية الداخلية</p>
           </Reveal>
           <Reveal delay={0.1}>
             <h1 className="max-w-4xl text-display-xl font-medium">
-              The voice in your head was written by other people.
+              الصوت في رأسك كتبه أشخاص آخرون.
             </h1>
           </Reveal>
           <Reveal delay={0.4}>
-            <p className="mt-6 font-serif text-serif-feature italic text-ink-100">Take the pen back.</p>
+            <p className="mt-6 font-serif text-serif-feature italic text-ink-100">استعد القلم.</p>
           </Reveal>
           <Reveal delay={0.55}>
             <div className="mt-10 flex flex-wrap items-center gap-6">
               <Button asChild className="bg-bone-50 text-ink-950 hover:ring-solar-500">
-                <Link href="/lab/audit">Begin with the free Audit</Link>
+                <Link href="/lab/audit">ابدأ بالتشخيص المجاني</Link>
               </Button>
               <Link href="/method" className="text-body-s text-ink-300 underline-offset-4 hover:text-bone-50 hover:underline">
-                Explore the Method →
+                استكشف المنهج ←
               </Link>
             </div>
           </Reveal>
@@ -132,7 +177,7 @@ export default function HomePage() {
       </section>
 
       {/* 1.2 Recognition strip */}
-      <section aria-label="The inner critic's lines" className="border-t border-ink-700 bg-ink-950 py-24 text-bone-50">
+      <section aria-label="أصوات الناقد الداخلي" className="border-t border-ink-700 bg-ink-950 py-24 text-bone-50">
         <div className="container">
           <ul className="space-y-6">
             {CRITIC_LINES.map((line, i) => (
@@ -142,31 +187,31 @@ export default function HomePage() {
             ))}
             <Reveal as="li" delay={0.35}>
               <p className="font-serif text-serif-feature text-solar-500">
-                None of these are facts. All of them are drafts.
+                لا شيء من هذا حقيقة. كل هذا مسوّدات.
               </p>
             </Reveal>
           </ul>
         </div>
       </section>
 
-      {/* 1.3 Thesis — the "dawn" transition to light */}
+      {/* 1.3 Thesis */}
       <section className="bg-background py-s10">
         <div className="container grid gap-12 lg:grid-cols-2">
           <Reveal>
             <div>
               <h2 className="text-display-m font-medium">
-                Confidence is not a feeling. It&rsquo;s an architecture.
+                الثقة ليست شعوراً. بل هي بنية معمارية.
               </h2>
               <div className="mt-6 space-y-4 text-body-l text-muted-foreground">
                 <p>
-                  You&rsquo;ve been told confidence is something people are born with, or something you find — at
-                  the bottom of an achievement, on the far side of a fear. It&rsquo;s neither. Confidence is a
-                  structure: an identity you hold, a dialogue that runs on it, and a body of evidence that keeps
-                  it standing.
+                  قيل لك أن الثقة شيء يُولد الناس به، أو شيء تجده — في قاع الإنجاز، على الجانب
+                  الآخر من الخوف. ليست هذه ولا تلك. الثقة بنية: هوية تتمسك بها، وحوار يقوم عليها،
+                  وجسم من الأدلة يُبقيها قائمة.
                 </p>
                 <p>
-                  Most self-improvement works on behavior and hopes identity follows. It rarely does. We work in
-                  the other direction — first the identity, then the dialogue, then the reps that make it real.
+                  معظم تطوير الذات يعمل على السلوك ويأمل أن تتبعه الهوية. نادراً ما يحدث ذلك.
+                  نحن نعمل في الاتجاه المعاكس — أولاً الهوية، ثم الحوار، ثم التكرارات التي
+                  تجعله حقيقياً.
                 </p>
               </div>
             </div>
@@ -196,19 +241,19 @@ export default function HomePage() {
           <Reveal delay={0.3}>
             <p className="mt-8">
               <Link href="/method" className="text-accent underline-offset-4 hover:underline">
-                The full Method →
+                المنهج الكامل ←
               </Link>
             </p>
           </Reveal>
         </div>
       </section>
 
-      {/* 1.7 Evidence band — honest numbers */}
-      <section aria-label="Honest numbers" className="border-y border-border bg-card py-16">
+      {/* 1.7 Evidence band */}
+      <section aria-label="أرقام صادقة" className="border-y border-border bg-card py-16">
         <div className="container">
           <dl className="grid grid-cols-2 gap-8 lg:grid-cols-4">
             {EVIDENCE.map((e) => (
-              <div key={e.stat} className="border-l border-border pl-6">
+              <div key={e.stat} className="border-r border-border pr-6">
                 <dt className="sr-only">{e.label}</dt>
                 <dd className="text-display-m font-medium">{e.stat}</dd>
                 <dd className="mt-1 font-mono text-label-mono uppercase text-muted-foreground">{e.label}</dd>
@@ -216,18 +261,18 @@ export default function HomePage() {
             ))}
           </dl>
           <p className="mt-6 text-body-s text-muted-foreground">
-            *Self-reported outcomes from our annual member survey.{" "}
-            <Link href="/methodology" className="underline underline-offset-4">Full methodology</Link>
+            *نتائج ذاتية التقرير من استطلاعنا السنوي للأعضاء.{" "}
+            <Link href="/methodology" className="underline underline-offset-4">المنهجية الكاملة</Link>
           </p>
         </div>
       </section>
 
-      {/* Stories — six pull-quotes */}
-      <section aria-label="Member stories" className="bg-background py-s10">
+      {/* Stories */}
+      <section aria-label="قصص الأعضاء" className="bg-background py-s10">
         <div className="container">
           <Reveal>
-            <p className="eyebrow mb-3 text-center">Stories</p>
-            <p className="mb-10 text-center text-body-m text-muted-foreground">In their own words.</p>
+            <p className="eyebrow mb-3 text-center">قصص</p>
+            <p className="mb-10 text-center text-body-m text-muted-foreground">بأصواتهم.</p>
           </Reveal>
           <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {STORIES.map((s, i) => (
@@ -248,7 +293,7 @@ export default function HomePage() {
           <Reveal delay={0.3}>
             <p className="mt-10 text-center">
               <Link href="/stories" className="text-body-s text-accent underline-offset-4 hover:underline">
-                Read more stories →
+                اقرأ المزيد من القصص ←
               </Link>
             </p>
           </Reveal>
@@ -261,11 +306,11 @@ export default function HomePage() {
           <Reveal>
             <div className="mb-10 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="eyebrow mb-2">Programs</p>
-                <h2 className="text-display-s font-medium">Structured work, not just content.</h2>
+                <p className="eyebrow mb-2">البرامج</p>
+                <h2 className="text-display-s font-medium">عمل منظم، لا مجرد محتوى.</h2>
               </div>
               <Link href="/programs" className="text-body-s text-accent underline-offset-4 hover:underline sm:pb-1">
-                All programs →
+                جميع البرامج ←
               </Link>
             </div>
           </Reveal>
@@ -296,19 +341,19 @@ export default function HomePage() {
       <section className="bg-ink-950 py-s10 text-center text-bone-50">
         <div className="container">
           <Reveal>
-            <h2 className="text-display-m font-medium">Begin with four minutes of honesty.</h2>
+            <h2 className="text-display-m font-medium">ابدأ بأربع دقائق من الصدق.</h2>
           </Reveal>
           <Reveal delay={0.1}>
-            <p className="mt-4 text-body-l text-ink-300">The Audit is free. The results are yours either way.</p>
+            <p className="mt-4 text-body-l text-ink-300">التشخيص مجاني. النتائج لك في كلتا الحالتين.</p>
           </Reveal>
           <Reveal delay={0.2}>
             <div className="mt-8">
               <Button asChild className="bg-bone-50 text-ink-950">
-                <Link href="/lab/audit">Take the Inner Dialogue Audit</Link>
+                <Link href="/lab/audit">خذ تشخيص الحوار الداخلي</Link>
               </Button>
             </div>
             <p className="mt-4 font-mono text-label-mono uppercase text-ink-500">
-              No signup required · Results immediately · Private by design
+              لا تسجيل مطلوب · النتائج فورية · خاص بتصميمه
             </p>
           </Reveal>
         </div>
@@ -317,7 +362,7 @@ export default function HomePage() {
   );
 }
 
-/** Blueprint-style layered SVG: three stacked planes representing Identity → Dialogue → Evidence. */
+/** مخطط هندسي بالطبقات الثلاث: الهوية → الحوار → الأدلة. */
 function ArchitectureDiagram() {
   return (
     <svg
@@ -327,25 +372,25 @@ function ArchitectureDiagram() {
       className="w-full max-w-sm opacity-80"
       aria-hidden="true"
     >
-      {/* Bottom plane — Evidence */}
+      {/* الطبقة السفلى — الأدلة */}
       <g transform="translate(0, 120)">
         <path d="M40 80 L200 20 L360 80 L200 140 Z" stroke="hsl(var(--border))" strokeWidth="1" fill="hsl(var(--card))" />
-        <text x="200" y="88" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="10" fontFamily="monospace" letterSpacing="2" textDecoration="uppercase">EVIDENCE</text>
+        <text x="200" y="88" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="10" fontFamily="monospace" letterSpacing="2">الأدلة</text>
       </g>
 
-      {/* Middle plane — Dialogue */}
+      {/* الطبقة الوسطى — الحوار */}
       <g transform="translate(20, 60)">
         <path d="M40 80 L200 20 L360 80 L200 140 Z" stroke="hsl(var(--border))" strokeWidth="1" fill="hsl(var(--card))" fillOpacity="0.85" />
-        <text x="200" y="88" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="10" fontFamily="monospace" letterSpacing="2">DIALOGUE</text>
+        <text x="200" y="88" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="10" fontFamily="monospace" letterSpacing="2">الحوار</text>
       </g>
 
-      {/* Top plane — Identity (accent) */}
+      {/* الطبقة العليا — الهوية */}
       <g transform="translate(40, 0)">
         <path d="M40 80 L200 20 L360 80 L200 140 Z" stroke="hsl(var(--accent))" strokeWidth="1.5" fill="hsl(var(--card))" fillOpacity="0.95" />
-        <text x="200" y="88" textAnchor="middle" fill="hsl(var(--accent))" fontSize="10" fontFamily="monospace" letterSpacing="2">IDENTITY</text>
+        <text x="200" y="88" textAnchor="middle" fill="hsl(var(--accent))" fontSize="10" fontFamily="monospace" letterSpacing="2">الهوية</text>
       </g>
 
-      {/* Connecting lines between planes */}
+      {/* خطوط الربط */}
       <line x1="80" y1="200" x2="120" y2="140" stroke="hsl(var(--border))" strokeWidth="0.75" strokeDasharray="4 3" />
       <line x1="320" y1="200" x2="360" y2="140" stroke="hsl(var(--border))" strokeWidth="0.75" strokeDasharray="4 3" />
       <line x1="120" y1="140" x2="160" y2="80" stroke="hsl(var(--border))" strokeWidth="0.75" strokeDasharray="4 3" />

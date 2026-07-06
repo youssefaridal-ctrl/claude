@@ -6,26 +6,26 @@ import { Reveal } from "@/components/motion/reveal";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "Mindset Academy — the science of self, taught properly",
-  description: "Self-paced deep education: Confidence Fundamentals, Emotional Mastery, Identity & Narrative.",
+  title: "أكاديمية العقلية — علم الذات، مُعلَّم بشكل صحيح",
+  description: "تعليم عميق ذاتي الإيقاع: أسس الثقة، إتقان المشاعر، الهوية والسرد.",
   path: "/academy",
 });
 
 const PATHS = [
-  { name: "Confidence Fundamentals", blurb: "Where confidence actually comes from, why yours wobbles when it does, and the practice architecture that steadies it." },
-  { name: "Emotional Mastery", blurb: "Regulation, not suppression: the physiology of feeling, and the skills that widen the space between trigger and response." },
-  { name: "Identity & Narrative", blurb: "The deepest layer: how a self-story forms, hardens, and — with the right tools — gets rewritten." },
+  { name: "أسس الثقة", blurb: "من أين تأتي الثقة فعلاً، ولماذا تتذبذب حين تتذبذب، وبنية الممارسة التي تُثبّتها." },
+  { name: "إتقان المشاعر", blurb: "التنظيم لا الكبت: فسيولوجيا الشعور، والمهارات التي توسّع الفجوة بين المحفز والاستجابة." },
+  { name: "الهوية والسرد", blurb: "الطبقة الأعمق: كيف تتشكّل قصة الذات وتتصلّب — وبالأدوات الصحيحة، تُعاد كتابتها." },
 ];
 
 export default function AcademyPage() {
   return (
     <div className="container py-s9">
       <Reveal>
-        <p className="eyebrow mb-3">Mindset Academy</p>
-        <h1 className="text-display-l font-medium">The science of self, taught properly.</h1>
+        <p className="eyebrow mb-3">أكاديمية العقلية</p>
+        <h1 className="text-display-l font-medium">علم الذات، مُعلَّم بشكل صحيح.</h1>
         <p className="mt-3 max-w-2xl text-body-l text-muted-foreground">
-          Programs change you on a schedule. The Academy is the other thing: deep, self-paced understanding,
-          for people who trust ideas more once they've seen the machinery.
+          البرامج تُغيّرك على جدول زمني. الأكاديمية هي الشيء الآخر: فهم عميق ذاتي الإيقاع،
+          للأشخاص الذين يثقون بالأفكار أكثر حين يرون الآلية.
         </p>
       </Reveal>
 
@@ -36,11 +36,11 @@ export default function AcademyPage() {
             <Reveal key={p.name} delay={i * 0.08}>
               <Card className="h-full">
                 <CardContent className="p-7">
-                  <p className="eyebrow mb-3">Path {String(i + 1).padStart(2, "0")}</p>
+                  <p className="eyebrow mb-3">المسار {String(i + 1).padStart(2, "0")}</p>
                   <h2 className="text-heading-s font-medium">{p.name}</h2>
                   <p className="mt-3 text-body-s text-muted-foreground">{p.blurb}</p>
                   <p className="mt-5 font-mono text-label-mono uppercase text-muted-foreground">
-                    {pathCourses.length} courses
+                    {pathCourses.length} دورات
                   </p>
                 </CardContent>
               </Card>
@@ -52,7 +52,7 @@ export default function AcademyPage() {
       <Reveal delay={0.2}>
         <div className="mt-12 text-center">
           <Button asChild variant="secondary">
-            <Link href="/courses">Browse all courses →</Link>
+            <Link href="/courses">استعرض جميع الدورات ←</Link>
           </Button>
         </div>
       </Reveal>

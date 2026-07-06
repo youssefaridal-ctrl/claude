@@ -5,26 +5,26 @@ import { Reveal } from "@/components/motion/reveal";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata = buildMetadata({
-  title: "About — built by people who needed it",
-  description: "SELV started as a 2 a.m. question: if the inner voice is learned, why is nobody teaching the rewrite?",
+  title: "من نحن — بُني من قِبَل أناس احتاجوه",
+  description: "بدأ سيلف بسؤال في الثانية صباحاً: إذا كان الصوت الداخلي مُكتسَباً، فلماذا لا يُعلّم أحد إعادة كتابته؟",
   path: "/about",
 });
 
 const CHAPTERS = [
-  { title: "I. The notebook.", body: "The first version of the Method was a private system: index cards of harsh thoughts on one side, rebuilt sentences on the other, and a rule — no sentence gets rebuilt with a lie. It had to be believable or the mind spat it out. That rule survived everything that came after." },
-  { title: "II. The reading.", body: "We went looking for permission to hope, and found something better: mechanisms. Decades of research on reappraisal, self-distancing, expressive writing, and identity-based habit — rigorous, replicated, and almost entirely absent from the self-help shelf. The science existed. The translation didn't." },
-  { title: "III. The others.", body: "We shared the system with friends who “had it together.” Every single one had a narrator. Competence, we learned, doesn't quiet the critic. It just gives it better material." },
-  { title: "IV. The build.", body: "We assembled the team this work deserved: clinicians to keep it honest, researchers to keep it accurate, writers to keep it human. We wrote three bans into the founding documents: no hype, no shame, no pretending this replaces therapy." },
-  { title: "V. The point.", body: "We measure success in a strange way for a subscription business: we design for graduation. The goal is that one day you notice you've stopped needing us — and that the voice you think with, finally, is yours." },
+  { title: "I. الدفتر.", body: "النسخة الأولى من المنهج كانت نظاماً خاصاً: بطاقات فهرسة للأفكار القاسية على وجه، وجمل معاد بناؤها على الوجه الآخر، وقاعدة واحدة — لا تُعاد كتابة جملة بكذبة. يجب أن تكون موثوقة وإلا رفضها العقل. تلك القاعدة نجت من كل شيء جاء بعدها." },
+  { title: "II. القراءة.", body: "ذهبنا نبحث عن إذن للأمل، ووجدنا ما هو أفضل: الآليات. عقود من الأبحاث حول إعادة التقييم، والمسافة الذاتية، والكتابة التعبيرية، والعادات القائمة على الهوية — صارمة، ومكررة، وغائبة تقريباً عن رف المساعدة الذاتية. العلم كان موجوداً. الترجمة لم تكن." },
+  { title: "III. الآخرون.", body: "شاركنا النظام مع أصدقاء 'يمتلكون الأمور بيدهم'. كل واحد منهم كان لديه راوٍ. الكفاءة، كما تعلمنا، لا تُسكت الناقد. بل تُعطيه مادة أفضل." },
+  { title: "IV. البناء.", body: "جمعنا الفريق الذي يستحقه هذا العمل: أطباء للحفاظ على الصدق، وباحثون للحفاظ على الدقة، وكتّاب للحفاظ على الإنسانية. كتبنا ثلاثة محظورات في وثائق التأسيس: لا مبالغة، ولا خزي، ولا ادعاء أن هذا يحل محل العلاج." },
+  { title: "V. الهدف.", body: "نقيس النجاح بطريقة غريبة لشركة اشتراك: نصمم للتخرج. الهدف أن تلاحظ ذات يوم أنك توقفت عن الحاجة إلينا — وأن الصوت الذي تُفكّر به، أخيراً، هو صوتك." },
 ];
 
 const VALUES = [
-  { name: "Depth over hype", receipt: "Our articles cite sources or say plainly when evidence is thin. Check any footnote." },
-  { name: "Precision", receipt: "Every exercise names its mechanism and time cost. No vague “do this, feel better.”" },
-  { name: "Agency", receipt: "Nothing autoplays, nothing is mandatory, and every reminder can be silenced in one tap." },
-  { name: "Warm rigor", receipt: "Our error messages will never blame you. Neither will our emails." },
-  { name: "Radical accessibility", receipt: "WCAG 2.2 AAA target, audited twice a year, known issues published." },
-  { name: "Privacy as dignity", receipt: "Your journal is encrypted in storage, keys kept apart from words — and full end-to-end encryption is on the public roadmap." },
+  { name: "العمق على المبالغة", receipt: "مقالاتنا تستشهد بمصادر أو تقول بصراحة متى تكون الأدلة شحيحة. تحقق من أي حاشية." },
+  { name: "الدقة", receipt: "كل تمرين يُسمّي آليته وتكلفته الزمنية. لا 'افعل هذا، اشعر بتحسن' غامض." },
+  { name: "الاستقلالية", receipt: "لا شيء يعمل تلقائياً، ولا شيء إلزامي، وكل تذكير يمكن إسكاته بنقرة واحدة." },
+  { name: "الصرامة الدافئة", receipt: "رسائل الخطأ لدينا لن تُلومك أبداً. ولا رسائلنا الإلكترونية." },
+  { name: "إمكانية الوصول الجذرية", receipt: "هدف WCAG 2.2 AAA، مُدقَّق مرتين سنوياً، المشكلات المعروفة منشورة." },
+  { name: "الخصوصية ككرامة", receipt: "مذكرتك مشفّرة في التخزين، والمفاتيح محفوظة بعيداً عن الكلمات — والتشفير الكامل من طرف إلى طرف في خريطة الطريق العامة." },
 ];
 
 export default function AboutPage() {
@@ -33,12 +33,12 @@ export default function AboutPage() {
       <section className="bg-background py-s9">
         <div className="container max-w-3xl">
           <Reveal>
-            <p className="eyebrow mb-4">About SELV</p>
-            <h1 className="text-display-l font-medium">Built by people who needed it.</h1>
+            <p className="eyebrow mb-4">عن سيلف</p>
+            <h1 className="text-display-l font-medium">بُني من قِبَل أناس احتاجوه.</h1>
             <p className="mt-6 text-body-l text-muted-foreground">
-              SELV didn't start as a company. It started as a question one of us wrote in a notebook at
-              2 a.m., after another day of performing confidence we didn't have: <em>if the inner voice is
-              learned, why is nobody teaching the rewrite?</em>
+              لم يبدأ سيلف كشركة. بدأ بسؤال كتبه أحدنا في دفتر في الثانية صباحاً، بعد يوم آخر
+              من أداء الثقة التي لم نملكها: <em>إذا كان الصوت الداخلي مُكتسَباً، فلماذا لا يُعلّم
+              أحد إعادة كتابته؟</em>
             </p>
           </Reveal>
 
@@ -55,26 +55,26 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Manifesto */}
+      {/* البيان */}
       <section className="bg-ink-950 py-s10 text-center text-bone-50">
         <div className="container max-w-2xl space-y-6">
-          <Reveal><p className="font-serif text-serif-feature">We believe the inner voice is not fate. It is a draft.</p></Reveal>
+          <Reveal><p className="font-serif text-serif-feature">نحن نؤمن بأن الصوت الداخلي ليس قدراً. إنه مسوّدة.</p></Reveal>
           <Reveal delay={0.1}>
             <p className="text-body-l text-ink-300">
-              We choose architecture over adrenaline. Evidence over inspiration. Practice over performance.
-              Depth over noise.
+              نختار البنية على الأدرينالين. والأدلة على الإلهام. والممارسة على الأداء.
+              والعمق على الضوضاء.
             </p>
           </Reveal>
           <Reveal delay={0.2}>
-            <p className="font-serif text-serif-feature text-solar-500">You are the author now. Begin.</p>
+            <p className="font-serif text-serif-feature text-solar-500">أنت الكاتب الآن. ابدأ.</p>
           </Reveal>
         </div>
       </section>
 
-      {/* Values in practice */}
+      {/* القيم بالأدلة */}
       <section className="bg-background py-s9">
         <div className="container max-w-3xl">
-          <Reveal><h2 className="text-display-m font-medium">Values, with receipts.</h2></Reveal>
+          <Reveal><h2 className="text-display-m font-medium">القيم، بالأدلة.</h2></Reveal>
           <div className="mt-8">
             {VALUES.map((v) => (
               <details key={v.name} className="group border-b border-border py-4">
@@ -89,10 +89,10 @@ export default function AboutPage() {
           <Separator className="mt-10" />
           <div className="mt-10 text-center">
             <p className="text-body-l text-muted-foreground">
-              Belief is a fine place to start. Mechanism is a better place to stand.
+              الإيمان مكان جيد للبداية. الآلية مكان أفضل للوقوف.
             </p>
             <Button asChild className="mt-6">
-              <Link href="/method">Read how the Method works</Link>
+              <Link href="/method">اقرأ كيف يعمل المنهج</Link>
             </Button>
           </div>
         </div>
