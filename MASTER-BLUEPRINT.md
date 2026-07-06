@@ -1,5 +1,11 @@
 # SELV — Master Blueprint
 
+> ## 🔒 STATUS: FROZEN — v1.0.0 (2026-07-06) · OFFICIAL REFERENCE
+> The brand identity, page structure, product laws, and this document's specifications are **locked for the build phase**. During programming:
+> - **Implementing** the blueprint (new components, routes moving 📋→🔧→✅, content wiring) is normal work, not a change.
+> - **Changing** identity, IA/page structure, product laws, scoring specs, or tier definitions requires a documented *genuine problem* finding: log it in `docs/INTEGRATION-REVIEW.md §5` (what broke, why the blueprint can't stand, the minimal fix), bump this version, and update the traceability matrix in the same commit.
+> - When code and blueprint disagree without a §5 entry, the blueprint wins — fix the code.
+
 > **The one document that holds the whole project.** Everything below is a synthesis with pointers into the detailed sources — `design/` (identity, UX, UI), `content/` (copy, articles, tools), `src/` + `prisma/` (implementation), `ARCHITECTURE.md` (engineering), `docs/INTEGRATION-REVIEW.md` (cross-layer audit). When this summary and a source document disagree, the source wins; when copy and code disagree, code wins (Integration Rule 1).
 >
 > **Thesis:** *Confidence is not a feeling. It is an architecture.*

@@ -46,8 +46,18 @@ Audit results radar + three insight cards (result page currently ships narrator 
 
 ## 4. Standing integration rules (to prevent regressions)
 
+*(See also §5 — after the v1.0.0 freeze, these rules are enforced through the change-control log.)*
+
 1. **Claims flow downhill from implementation.** Marketing copy may promise less than the code does, never more. Any security/privacy sentence must cite its `ARCHITECTURE.md` section.
 2. **`content/07` is executable.** Assessment items, weights, and formulas change only alongside `server/services/assessments.ts` and its tests — one PR, both layers.
 3. **Tier changes touch three files** (`design/02 §11` table, entitlement service, pricing copy) — reviewers check all three.
 4. **Voice rules bind UI copy** (`content/00`): error states, empty states, and emails are content, not engineering afterthoughts.
 5. **The anti-comparison rule is structural:** no schema may add publicly readable counts of other members' activity.
+
+## 5. Change-control log (post-freeze — blueprint v1.0.0, 2026-07-06)
+
+The blueprint is frozen as the official reference. Every deviation from identity, page structure, product laws, scoring specs, or tier definitions must be logged here **before** merging, with a version bump in `MASTER-BLUEPRINT.md`.
+
+| Date | Version | Genuine problem found | Minimal change applied | Layers touched |
+|---|---|---|---|---|
+| — | 1.0.0 | *(freeze baseline — no entries)* | — | — |

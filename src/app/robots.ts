@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: "*",
         allow: "/",
         // Member app, auth, and API are never crawlable.
-        disallow: ["/api/", "/today", "/practice", "/progress", "/commons", "/settings", "/admin", "/signin"],
+        disallow: ["/api/", "/today", "/practice", "/progress", "/commons", "/settings", "/admin", "/signin", "/styleguide"],
       },
     ],
     sitemap: `${appUrl}/sitemap.xml`,
