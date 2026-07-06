@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATABASE_URL: postgresql://selv:selv@localhost:5432/selv_test
+  REDIS_URL: redis://localhost:6379
+  AUTH_SECRET: ci-only-secret-ci-only-secret-ci-only!!
+  JOURNAL_MASTER_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
+  NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: selv
+          POSTGRES_PASSWORD: selv
+          POSTGRES_DB: selv_test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U selv" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Prisma generate + migrate
+        run: |
+          npx prisma generate
+          npx prisma migrate deploy || npx prisma db push
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Build
+        run: npm run build
+
+      - name: E2E (Playwright)
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e -- --project=desktop
+        env:
+          CI: "true"
+
+  # Deployment: pushes to main that pass `quality` deploy via the platform's
+  # integration (Vercel) or the Dockerfile below for self-hosting.
+  # Migrations run in a release phase (`prisma migrate deploy`), never at boot.

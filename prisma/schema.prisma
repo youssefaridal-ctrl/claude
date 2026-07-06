@@ -1,0 +1,738 @@
+// SELV platform schema.
+// Naming and product semantics follow design/02-ux-strategy.md and content/07-interactive-tools.md.
+// Conventions: cuid ids, createdAt/updatedAt on mutable aggregates, soft-delete
+// via archivedAt where user data must survive accidental deletion.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Identity & auth (NextAuth v5 / Auth.js models + platform profile)
+// ---------------------------------------------------------------------------
+
+enum Role {
+  MEMBER
+  MENTOR // may host Circles (design: "Architects")
+  EDITOR // CMS write access
+  ADMIN
+}
+
+enum Tier {
+  FREE
+  PRACTICE
+  ACADEMY
+  INNER_CIRCLE
+}
+
+enum PracticeLevel {
+  FOUNDATIONS
+  PRACTITIONER
+  ARCHITECT
+}
+
+model User {
+  id               String    @id @default(cuid())
+  name             String?
+  email            String    @unique
+  emailVerified    DateTime?
+  image            String?
+  role             Role      @default(MEMBER)
+  stripeCustomerId String?   @unique
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  accounts             Account[]
+  sessions             Session[]
+  profile              Profile?
+  subscription         Subscription?
+  habits               Habit[]
+  moodEntries          MoodEntry[]
+  journalEntries       JournalEntry[]
+  ledgerEntries        LedgerEntry[]
+  seasons              Season[]
+  identityStatements   IdentityStatement[]
+  assessmentResults    AssessmentResult[]
+  enrollments          Enrollment[]
+  certificates         Certificate[]
+  circleMemberships    CircleMembership[]
+  posts                Post[]
+  comments             Comment[]
+  witnesses            Witness[]
+  sentConnections      Connection[]         @relation("ConnectionRequester")
+  receivedConnections  Connection[]         @relation("ConnectionAddressee")
+  conversations        ConversationMember[]
+  messages             Message[]
+  challengeAssignments ChallengeAssignment[]
+  chapters             Chapter[]
+  notifications        Notification[]
+  articles             Article[]
+  auditLogs            AuditLog[]           @relation("AuditActor")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Profile {
+  id                String        @id @default(cuid())
+  userId            String        @unique
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName       String? // pseudonym support in the Commons
+  timezone          String        @default("UTC")
+  identityIntent    String? // onboarding: "What moment are you building toward?"
+  practiceWindow    String? // "morning" | "evening"
+  practiceLevel     PracticeLevel @default(FOUNDATIONS)
+  // Accessibility preferences persist server-side so they follow the member
+  // across devices (design/04 §17–18).
+  reducedMotion     Boolean       @default(false)
+  theme             String        @default("system") // system | light | dark | high-contrast | calm
+  typeScaleStep     Int           @default(0) // -2..+2
+  plainLanguageMode Boolean       @default(false)
+  dmOptIn           Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Billing (Stripe)
+// ---------------------------------------------------------------------------
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  PAUSED
+  INCOMPLETE
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  userId               String             @unique
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  stripeSubscriptionId String             @unique
+  tier                 Tier
+  status               SubscriptionStatus
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+}
+
+// Webhook idempotency ledger — every Stripe event is recorded before processing.
+model WebhookEvent {
+  id          String   @id // Stripe event id
+  type        String
+  processedAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Instruments: Habit Tracker (grace-based, identity-first — design/02 §9)
+// ---------------------------------------------------------------------------
+
+enum HabitLogStatus {
+  KEPT
+  GRACE // deliberate rest/grace day, marked with a tilde in the UI
+}
+
+model Habit {
+  id                String     @id @default(cuid())
+  userId            String
+  user              User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name              String
+  identityStatement String // "I'm someone who…" — required by the add-habit flow
+  cue               String? // implementation intention: "After [cue], I will…"
+  twoMinuteVersion  String?
+  targetPerWeek     Int        @default(4) // ≥ target ⇒ "kept week"; never day-chains
+  archivedAt        DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  logs              HabitLog[]
+
+  @@index([userId, archivedAt])
+}
+
+model HabitLog {
+  id      String         @id @default(cuid())
+  habitId String
+  habit   Habit          @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  date    DateTime       @db.Date
+  status  HabitLogStatus @default(KEPT)
+
+  @@unique([habitId, date])
+}
+
+// ---------------------------------------------------------------------------
+// Instruments: Mood Tracker ("Inner Weather" — content/07 §4)
+// ---------------------------------------------------------------------------
+
+enum Weather {
+  CLEAR
+  BREEZY
+  OVERCAST
+  LOW_FOG
+  CHARGED
+  RAINING
+  COLD_SNAP
+  AFTER_RAIN
+}
+
+model MoodEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weather   Weather
+  bodyAreas String[] // head | jaw | chest | stomach | shoulders | everywhere | unsure
+  need      String? // rest | food | movement | people | quiet | to-say-something
+  note      String?  @db.VarChar(500)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Instruments: Journal (encrypted at rest — see src/lib/crypto.ts)
+// ---------------------------------------------------------------------------
+
+model JournalEntry {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // AES-256-GCM envelope. Plaintext never touches the database or logs.
+  ciphertext Bytes
+  iv         Bytes
+  authTag    Bytes
+  keyVersion Int
+  // Non-sensitive metadata kept in the clear for listing/filtering:
+  title      String?   @db.VarChar(200)
+  mood       Weather?
+  tags       String[]
+  wordCount  Int       @default(0)
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([userId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// The Identity Ledger — the core gamification mechanic ("evidence, not points")
+// ---------------------------------------------------------------------------
+
+enum LedgerSource {
+  REP
+  HABIT
+  CHALLENGE
+  JOURNAL
+  MANUAL
+}
+
+model LedgerEntry {
+  id            String       @id @default(cuid())
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text          String       @db.VarChar(500)
+  becauseClause String?      @db.VarChar(500) // internal attribution training (Article 4)
+  source        LedgerSource @default(MANUAL)
+  themeTags     String[] // powers the "counter-evidence search"
+  createdAt     DateTime     @default(now())
+
+  @@index([userId, createdAt])
+}
+
+// Chapters close every 30 reps with a typeset recap (design/02 §9).
+model Chapter {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  number    Int
+  repCount  Int      @default(30)
+  recap     Json // generated recap payload rendered by the Chapter template
+  closedAt  DateTime @default(now())
+
+  @@unique([userId, number])
+}
+
+// ---------------------------------------------------------------------------
+// Instruments: Goal Planner ("Seasons" — identity → seasons → moves)
+// ---------------------------------------------------------------------------
+
+model IdentityStatement {
+  id       String @id @default(cuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  text     String @db.VarChar(300)
+  position Int // max 3 enforced in service layer
+
+  @@unique([userId, position])
+}
+
+model Season {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme     String
+  startsOn  DateTime  @db.Date
+  endsOn    DateTime  @db.Date
+  closedAt  DateTime?
+  goals     Goal[]
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+model Goal {
+  id       String @id @default(cuid())
+  seasonId String
+  season   Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  outcome  String @db.VarChar(300)
+  position Int // max 3 per season enforced in service layer
+  moves    Move[]
+}
+
+model Move {
+  id          String    @id @default(cuid())
+  goalId      String
+  goal        Goal      @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  description String    @db.VarChar(300)
+  weekOf      DateTime  @db.Date
+  doneAt      DateTime?
+}
+
+// ---------------------------------------------------------------------------
+// Assessments (Audit, Confidence Map, Mindset, Values, Life Wheel)
+// Content, items and scoring: content/07-interactive-tools.md
+// ---------------------------------------------------------------------------
+
+enum AssessmentType {
+  DIALOGUE_AUDIT
+  CONFIDENCE_MAP
+  MINDSET
+  VALUES
+  LIFE_WHEEL
+}
+
+enum Narrator {
+  PERFECTIONIST
+  GUARD
+  GHOST
+  PROSECUTOR
+  PLEASER
+  PROPHET
+}
+
+model AssessmentResult {
+  id                String         @id @default(cuid())
+  // Nullable: the Audit is taken ungated; results attach to the account on signup
+  // via the anonymous token (flow A, design/02 §7).
+  userId            String?
+  user              User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anonToken         String?        @unique
+  type              AssessmentType
+  version           Int            @default(1)
+  answers           Json
+  scores            Json // dimension scores / narrator totals — always inspectable
+  dominantNarrator  Narrator?
+  secondaryNarrator Narrator?
+  createdAt         DateTime       @default(now())
+
+  @@index([userId, type, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Learning: Academy courses, enrollment, progress, certificates
+// ---------------------------------------------------------------------------
+
+enum PublishStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+model Course {
+  id           String        @id @default(cuid())
+  slug         String        @unique
+  title        String
+  promise      String // one-line promise (content/01 catalog)
+  summary      String
+  artworkId    String? // Cloudinary public id
+  requiredTier Tier          @default(ACADEMY)
+  status       PublishStatus @default(DRAFT)
+  position     Int           @default(0)
+  modules      CourseModule[]
+  enrollments  Enrollment[]
+  certificates Certificate[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model CourseModule {
+  id       String   @id @default(cuid())
+  courseId String
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title    String
+  position Int
+  lessons  Lesson[]
+
+  @@unique([courseId, position])
+}
+
+model Lesson {
+  id              String         @id @default(cuid())
+  moduleId        String
+  module          CourseModule   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title           String
+  position        Int
+  durationMinutes Int            @default(10)
+  videoPublicId   String? // Cloudinary
+  bodyMdx         String // Learn → Watch it in yourself → Do → Log structure
+  repPrompt       String? // the end-of-lesson "Do the rep" assignment
+  isPreview       Boolean        @default(false) // unlocked for visitors
+  progress        LessonProgress[]
+
+  @@unique([moduleId, position])
+}
+
+model Enrollment {
+  id          String           @id @default(cuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId    String
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  startedAt   DateTime         @default(now())
+  completedAt DateTime?
+  progress    LessonProgress[]
+
+  @@unique([userId, courseId])
+}
+
+model LessonProgress {
+  id           String     @id @default(cuid())
+  enrollmentId String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lessonId     String
+  lesson       Lesson     @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  completedAt  DateTime   @default(now())
+
+  @@unique([enrollmentId, lessonId])
+}
+
+model Certificate {
+  id       String   @id @default(cuid())
+  serial   String   @unique // human-verifiable: SELV-XXXX-XXXX
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId String
+  course   Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  issuedAt DateTime @default(now())
+  pdfUrl   String?
+
+  @@unique([userId, courseId])
+}
+
+// ---------------------------------------------------------------------------
+// Community: The Commons (Circles, Forum with "seeking" norm, witness-only reactions)
+// ---------------------------------------------------------------------------
+
+enum Seeking {
+  SUPPORT
+  PERSPECTIVES
+  ACCOUNTABILITY
+}
+
+enum PostStatus {
+  VISIBLE
+  FLAGGED // crisis-keyword or report → human review queue
+  REMOVED
+}
+
+model Circle {
+  id        String             @id @default(cuid())
+  name      String
+  intent    String // matching dimension (design/02 §10)
+  timezone  String
+  capacity  Int                @default(8)
+  createdAt DateTime           @default(now())
+  members   CircleMembership[]
+  posts     Post[]
+}
+
+enum CircleRole {
+  MEMBER
+  HOST // MENTOR-level users only, enforced in service layer
+}
+
+model CircleMembership {
+  id       String     @id @default(cuid())
+  circleId String
+  circle   Circle     @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     CircleRole @default(MEMBER)
+  joinedAt DateTime   @default(now())
+  leftAt   DateTime?
+
+  @@unique([circleId, userId])
+}
+
+model Post {
+  id        String     @id @default(cuid())
+  authorId  String
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  circleId  String? // null ⇒ public forum space
+  circle    Circle?    @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  space     String     @default("general") // inner-dialogue | work-and-voice | rebuilding | wins
+  seeking   Seeking
+  title     String     @db.VarChar(200)
+  body      String
+  status    PostStatus @default(VISIBLE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  comments  Comment[]
+  witnesses Witness[]
+
+  @@index([space, status, createdAt])
+  @@index([circleId])
+}
+
+model Comment {
+  id        String     @id @default(cuid())
+  postId    String
+  post      Post       @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  body      String
+  status    PostStatus @default(VISIBLE)
+  createdAt DateTime   @default(now())
+
+  @@index([postId, createdAt])
+}
+
+// The only reaction in the Commons: "I see you". Counts are never shown publicly.
+model Witness {
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([postId, userId])
+}
+
+// ---------------------------------------------------------------------------
+// Messaging: DMs are opt-in and mutual (design/02 §10)
+// ---------------------------------------------------------------------------
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  BLOCKED
+}
+
+model Connection {
+  id          String           @id @default(cuid())
+  requesterId String
+  requester   User             @relation("ConnectionRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId String
+  addressee   User             @relation("ConnectionAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  status      ConnectionStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([requesterId, addresseeId])
+}
+
+model Conversation {
+  id        String               @id @default(cuid())
+  createdAt DateTime             @default(now())
+  members   ConversationMember[]
+  messages  Message[]
+}
+
+model ConversationMember {
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lastReadAt     DateTime?
+
+  @@id([conversationId, userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  body           String       @db.VarChar(4000)
+  createdAt      DateTime     @default(now())
+
+  @@index([conversationId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Challenges ("Small Brave Things" deck — content/03 §J, content/07 §8)
+// ---------------------------------------------------------------------------
+
+model Challenge {
+  id          String                @id @default(cuid())
+  domain      String // voice-at-work | social | asking | visibility | solitude
+  tierLevel   Int                   @default(1) // graded 1–3
+  title       String
+  description String
+  assignments ChallengeAssignment[]
+}
+
+model ChallengeAssignment {
+  id                  String    @id @default(cuid())
+  userId              String
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challengeId         String
+  challenge           Challenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  assignedOn          DateTime  @db.Date
+  predictedDiscomfort Int? // 0–10; prediction-vs-actual gap is the teaching tool
+  actualDiscomfort    Int?
+  completedAt         DateTime?
+  swappedSmaller      Boolean   @default(false)
+
+  @@unique([userId, assignedOn])
+}
+
+// ---------------------------------------------------------------------------
+// Notifications (digest-style, never red-badged — design/02 §4)
+// ---------------------------------------------------------------------------
+
+enum NotificationType {
+  PRACTICE_REMINDER
+  CIRCLE_ACTIVITY
+  COMMENT_REPLY
+  CONNECTION_REQUEST
+  CHAPTER_CLOSED
+  SYSTEM
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      NotificationType
+  title     String
+  body      String?
+  href      String?
+  readAt    DateTime?
+  createdAt DateTime         @default(now())
+
+  @@index([userId, readAt, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// CMS: Library content (articles/essays; MDX body, Postgres FTS via migration)
+// ---------------------------------------------------------------------------
+
+model Category {
+  id       String    @id @default(cuid())
+  slug     String    @unique
+  name     String
+  position Int       @default(0)
+  articles Article[]
+}
+
+model Article {
+  id          String        @id @default(cuid())
+  slug        String        @unique
+  title       String
+  dek         String // one-line summary
+  inBrief     String // 3-sentence plain summary (a11y + meta description)
+  bodyMdx     String
+  categoryId  String
+  category    Category      @relation(fields: [categoryId], references: [id])
+  tags        String[]
+  authorId    String
+  author      User          @relation(fields: [authorId], references: [id])
+  heroImageId String? // Cloudinary
+  readMinutes Int           @default(8)
+  status      PublishStatus @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  // search_vector tsvector column added by raw SQL migration (see ARCHITECTURE.md §Search)
+
+  @@index([status, publishedAt])
+}
+
+model NewsletterSubscriber {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  confirmedAt DateTime? // double opt-in
+  createdAt   DateTime  @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Analytics (privacy-first, first-party) & audit trail
+// ---------------------------------------------------------------------------
+
+model AnalyticsEvent {
+  id        BigInt   @id @default(autoincrement())
+  name      String // e.g. audit_completed, rep_completed, checkout_started
+  userId    String? // only for members; visitors get a rotating anonId
+  anonId    String?
+  props     Json?
+  createdAt DateTime @default(now())
+
+  @@index([name, createdAt])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  actorId   String?
+  actor     User?    @relation("AuditActor", fields: [actorId], references: [id])
+  action    String // e.g. admin.article.publish, user.data.export
+  entity    String?
+  entityId  String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([actorId, createdAt])
+}

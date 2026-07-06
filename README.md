@@ -30,6 +30,24 @@ Complete original content built on the design system's brand voice:
 | [`content/06-seo-editorial-strategy.md`](content/06-seo-editorial-strategy.md) | Category hierarchy, keyword clusters, 100 SEO article ideas, internal linking strategy, editorial calendar, author profiles, reading recommendations |
 | [`content/07-interactive-tools.md`](content/07-interactive-tools.md) | Complete question sets, scoring logic, and result copy for all 11 interactive tools (Confidence & Mindset Assessments, Dialogue Analyzer, Mood/Habit Trackers, Goal Planner, Vision Board, Fear Challenge Generator, Life Wheel, Values Assessment, Daily Reflection) |
 
+## Platform implementation
+
+A production-grade Next.js codebase implementing the design and content specs. See [`ARCHITECTURE.md`](ARCHITECTURE.md) for the full engineering documentation, including an honest status map (implemented / scaffolded / designed).
+
+**Stack:** Next.js 15 (App Router) · React 19 · TypeScript strict · Tailwind (Blueprint tokens) · Framer Motion · Prisma + PostgreSQL · Redis · NextAuth v5 (passwordless magic links) · Stripe · Cloudinary.
+
+**Implemented and verified** (typecheck ✅ · 14 unit tests ✅ · production build ✅):
+- Full Prisma schema (40+ models: auth, billing, habits, moods, encrypted journal, Identity Ledger + Chapters, seasons/goals, assessments, courses/certificates, community, messaging, challenges, notifications, CMS, analytics, audit log)
+- Assessment scoring engines wired to the content spec (Audit narrator weights, Confidence Map reverse scoring, Mindset axes) — unit-tested
+- The ungated Inner Dialogue Audit: full interactive flow, keyboard-first, anonymous results claimable on signup
+- Habit Tracker with grace-based weeks and optimistic UI; Identity Ledger with counter-evidence search and auto-closing Chapters
+- Stripe checkout + signature-verified idempotent webhook; tier entitlements with Redis caching and free-tier quotas
+- AES-256-GCM encrypted journal API; rate-limited REST layer with RFC 9457 errors; crisis-flagged community posts
+- Marketing home + member Today page on the Blueprint token system (dark/light/high-contrast), reduced-motion parity
+- SEO: metadata builder, JSON-LD, sitemap, robots, manifest; security headers; CI (GitHub Actions) + Dockerfile
+
+**Quick start:** `docker compose up -d && cp .env.example .env && npm install && npx prisma migrate dev && npm run db:seed && npm run dev`
+
 ## How to use
 
 Read in order (01 → 04). Documents cross-reference each other by section number. `03` assumes the tokens and components defined in `04`; a designer should be able to produce high-fidelity screens from `03` + `04` without further briefing.

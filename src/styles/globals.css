@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------------------------------------------------------------------------
+   Blueprint design tokens (design/04-ui-design-system.md §1, §17).
+   Semantic HSL variables; raw brand scales live in tailwind.config.ts.
+   Themes: light (default) / dark / high-contrast — swapped via .dark /
+   [data-theme="high-contrast"] on <html>.
+--------------------------------------------------------------------------- */
+
+@layer base {
+  :root {
+    /* Light — "Day": bone surfaces, ink text, solar-700 for AAA accent text */
+    --background: 40 38% 97%; /* bone-50 */
+    --foreground: 45 10% 8%; /* ink-900 */
+    --card: 42 28% 93%; /* bone-100 */
+    --card-foreground: 45 10% 8%;
+    --muted: 40 24% 87%; /* bone-200 */
+    --muted-foreground: 40 8% 32%; /* darkened ink-500 for 7:1 on bone */
+    --border: 40 15% 84%; /* ink-100 */
+    --input: 40 24% 87%;
+    --primary: 40 12% 5%; /* ink-950 fill buttons on light */
+    --primary-foreground: 40 38% 97%;
+    --accent: 35 79% 30%; /* solar-700 zone: AAA-safe accent text on bone */
+    --accent-foreground: 40 38% 97%;
+    --ring: 35 79% 45%;
+    --positive: 135 27% 33%;
+    --caution: 40 61% 30%;
+    --attention: 8 48% 37%;
+  }
+
+  .dark {
+    /* Dark — "Night": luminance elevation, solar-500 accent */
+    --background: 40 12% 5%; /* ink-950 */
+    --foreground: 40 38% 97%; /* bone-50 */
+    --card: 45 10% 8%; /* ink-900 */
+    --card-foreground: 40 38% 97%;
+    --muted: 40 10% 12%; /* ink-800 */
+    --muted-foreground: 38 9% 70%;
+    --border: 40 10% 18%; /* ink-700 */
+    --input: 40 10% 12%;
+    --primary: 40 38% 97%; /* bone fill buttons on dark */
+    --primary-foreground: 40 12% 5%;
+    --accent: 35 79% 57%; /* solar-500 */
+    --accent-foreground: 40 12% 5%;
+    --ring: 35 79% 57%;
+    --positive: 135 24% 60%;
+    --caution: 40 59% 63%;
+    --attention: 9 44% 61%;
+  }
+
+  [data-theme="high-contrast"] {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --border: 0 0% 0%;
+    --muted-foreground: 0 0% 20%;
+    --ring: 240 100% 50%;
+  }
+  .dark[data-theme="high-contrast"] {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --border: 0 0% 100%;
+    --muted-foreground: 0 0% 85%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans text-body-m antialiased;
+  }
+
+  /* Visible focus everywhere, never removed (design/04 §18). */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: hsl(35 79% 57% / 0.25);
+  }
+
+  /* Reduced motion is a first-class theme: kill transforms & smooth scroll. */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Mono eyebrow label (design/04 §2: label-mono) */
+  .eyebrow {
+    @apply font-mono text-label-mono uppercase tracking-[0.08em] text-muted-foreground;
+  }
+
+  /* Skip link: first focusable element on every page, visible on focus. */
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100]
+      focus:rounded-r2 focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground;
+  }
+
+  /* Glass chrome material — header, palettes, sticky bars only (design/04 §14). */
+  .glass {
+    @apply border-b border-border/60 bg-background/75 backdrop-blur-xl backdrop-saturate-150;
+  }
+
+  .hairline {
+    @apply border-t border-border;
+  }
+}
