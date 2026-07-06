@@ -11,11 +11,11 @@ export const metadata = buildMetadata({
 });
 
 const CRITIC_LINES = [
-  ""لا ترفع يدك إلا إذا كنت متأكداً تماماً."",
-  ""سيكتشفون الحقيقة."",
-  ""من تظن نفسك؟"",
-  ""قل نعم الآن، واعتذر لنفسك لاحقاً."",
-  ""الجميع يجد هذا سهلاً."",
+  '"لا ترفع يدك إلا إذا كنت متأكداً تماماً."',
+  '"سيكتشفون الحقيقة."',
+  '"من تظن نفسك؟"',
+  '"قل نعم الآن، واعتذر لنفسك لاحقاً."',
+  '"الجميع يجد هذا سهلاً."',
 ];
 
 const MOVEMENTS = [
@@ -48,33 +48,6 @@ const PROGRAMS = [
     promise: "عندما تكبر الغرفة.",
     meta: "12 أسبوعاً · 20 دقيقة/يوم · بالتقديم",
     price: "1,190$",
-  },
-];
-
-const PROGRAMS = [
-  {
-    number: "01",
-    slug: "foundations",
-    name: "Foundations",
-    promise: "Eight weeks to a voice that's on your side.",
-    meta: "8 weeks · 15 min/day · cohort of 40",
-    price: "$490",
-  },
-  {
-    number: "02",
-    slug: "the-voice",
-    name: "The Voice",
-    promise: "An intensive for the sentence you can't stop hearing.",
-    meta: "6 weeks · 15 min/day · cohort of 12",
-    price: "$590",
-  },
-  {
-    number: "03",
-    slug: "unshakeable",
-    name: "Unshakeable",
-    promise: "For when the room gets bigger.",
-    meta: "12 weeks · 20 min/day · by application",
-    price: "$1,190",
   },
 ];
 
@@ -121,24 +94,6 @@ const STORIES = [
       "ألقيت محاضرة الشهر الماضي كنت سألغيها قبل ثلاثة أشهر. لم أستمتع بها — لكنني كنت موجوداً، وبقيت موجوداً. هذا جديد.",
     name: "جيمس ت.",
     detail: "معماري · 7 أشهر",
-  },
-  {
-    quote:
-      "The Audit gave a name to the voice I'd always assumed was just 'how I think.' That gap — between the voice and me — changed things.",
-    name: "Nadia R.",
-    detail: "UX researcher · 10 weeks",
-  },
-  {
-    quote:
-      "My therapist and I had been circling the same thing for two years. SELV didn't replace that work. It gave it somewhere to land between sessions.",
-    name: "Sarah L.",
-    detail: "Secondary school teacher · 5 months",
-  },
-  {
-    quote:
-      "I gave a talk last month that I would have cancelled three months ago. I didn't enjoy it — but I was there, and I stayed there. That's new.",
-    name: "James T.",
-    detail: "Architect · 7 months",
   },
 ];
 

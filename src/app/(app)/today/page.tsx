@@ -74,7 +74,7 @@ export default async function TodayPage() {
           <CardContent className="p-5">
             <p className="eyebrow mb-2">From your Ledger</p>
             <p className="text-body-s text-muted-foreground">
-              {latestLedger ? `“${latestLedger.text}”` : "Your first evidence entry is one rep away."}
+              {latestLedger ? `"${latestLedger.text}"` : "Your first evidence entry is one rep away."}
             </p>
           </CardContent>
         </Card>

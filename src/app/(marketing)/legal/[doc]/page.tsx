@@ -21,7 +21,7 @@ const DOCS: Record<string, { title: string; sections: { heading: string; plain: 
     sections: [
       { heading: "The deal", plain: "You get the tools and content for the tier you pay for. Cancel in two clicks. 30-day refund, no interrogation." },
       { heading: "What SELV is not", plain: "Education and practice, not therapy or medical care — and we say so everywhere it matters." },
-      { heading: "Your content", plain: "Your words stay yours. We never sell data, and the Commons' “what's shared here stays here” rule binds us too." },
+      { heading: "Your content", plain: "Your words stay yours. We never sell data, and the Commons' "what's shared here stays here" rule binds us too." },
     ],
   },
   cookies: {

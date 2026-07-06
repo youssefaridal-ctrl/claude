@@ -55,7 +55,7 @@ export function RepPlayer() {
                 id="rep-quote"
                 value={quote}
                 onChange={(e) => setQuote(e.target.value)}
-                placeholder="“You're going to…”"
+                placeholder='"You're going to…"'
                 className="font-serif"
               />
               <Button className="mt-4" disabled={!quote.trim()} onClick={() => setPhase("distance")}>
@@ -69,7 +69,7 @@ export function RepPlayer() {
               <p className="eyebrow mb-3">Step 2 of 3 · Distance it</p>
               <p className="text-body-m text-muted-foreground">Read this once, slowly:</p>
               <p className="mt-4 font-serif text-serif-feature">
-                “I&rsquo;m having the thought that {quote.trim().replace(/^["“]|["”]$/g, "")}”
+                "I&rsquo;m having the thought that {quote.trim().replace(/^[""]|[""]$/g, "")}"
               </p>
               <p className="mt-4 text-body-s text-muted-foreground">
                 Same words — different altitude. The thought becomes weather, not fact.
@@ -88,7 +88,7 @@ export function RepPlayer() {
                 id="rep-rewrite"
                 value={rewrite}
                 onChange={(e) => setRewrite(e.target.value)}
-                placeholder="“I've done hard rooms before…”"
+                placeholder='"I've done hard rooms before…"'
                 className="font-serif"
               />
               <Button className="mt-4" disabled={!rewrite.trim()} onClick={() => setPhase("done")}>
@@ -105,7 +105,7 @@ export function RepPlayer() {
                 transition={{ duration: 0.6, ease: [0.25, 1, 0.5, 1] }}
                 className="rounded-r3 border border-solar-500/40 bg-background p-6 shadow-glow-solar"
               >
-                <p className="font-serif text-serif-feature">“{rewrite.trim()}”</p>
+                <p className="font-serif text-serif-feature">"{rewrite.trim()}"</p>
                 <Badge variant="solar" className="mt-4">Filed · Identity Ledger</Badge>
               </motion.div>
               <p className="mt-8 font-serif text-serif-feature">Done is done.</p>

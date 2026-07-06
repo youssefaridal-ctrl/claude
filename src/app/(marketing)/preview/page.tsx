@@ -7,7 +7,7 @@ const SCREENS = [
   { href: "/preview/journal", name: "Journal", blurb: "Two-pane writing with the encryption badge and mood capture." },
   { href: "/preview/planner", name: "Goal Planner", blurb: "Identity → Season → Moves. Check moves off; the season arc responds." },
   { href: "/preview/progress", name: "Progress", blurb: "The Identity Ledger, the counter-evidence search, and the quarterly Delta radar." },
-  { href: "/preview/commons", name: "The Commons", blurb: "Seeking-labeled posts and the “I see you” reaction — no counts anywhere." },
+  { href: "/preview/commons", name: "The Commons", blurb: 'Seeking-labeled posts and the "I see you" reaction — no counts anywhere.' },
 ] as const;
 
 export default function PreviewIndexPage() {

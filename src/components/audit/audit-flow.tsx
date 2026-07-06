@@ -18,7 +18,7 @@ const ITEMS = [
   "I feel responsible for the moods of people around me.",
   "Taking up space — time, attention, airtime — feels like a debt I'll owe.",
   "When I imagine trying something new, I picture how it fails first.",
-  "“Good enough” feels like a euphemism for failure.",
+  '"Good enough" feels like a euphemism for failure.',
   "I'd rather not try than try and be seen struggling.",
   "Old mistakes still get called as witnesses against me, years later.",
   "I agree to things mid-sentence and regret them by the end of the sentence.",
@@ -30,33 +30,33 @@ const SCALE = ["Never", "Rarely", "Sometimes", "Often", "Always"] as const;
 const NARRATOR_COPY: Record<string, { name: string; core: string; work: string }> = {
   PERFECTIONIST: {
     name: "The Perfectionist",
-    core: "“If it's not flawless, it's failure.”",
+    core: `"If it's not flawless, it's failure."`,
     work: "The work is not lowering your standards — it's writing them down. Undefined standards are unfalsifiable; written ones are meetable, and met standards are how evidence gets in.",
   },
   GUARD: {
     name: "The Guard",
-    core: "“Don't try, and you can't lose.”",
+    core: `"Don't try, and you can't lose."`,
     work: "The Guard sells protection and delivers smallness. The work is graded thresholds — doors small enough to walk through today, logged as evidence the danger has expired.",
   },
   GHOST: {
     name: "The Ghost",
-    core: "“Take up less space.”",
+    core: `"Take up less space."`,
     work: "Learned invisibility, performed as politeness. The work is the Visibility Ladder: eight rungs from one question in a small meeting to a voice the room can count on.",
   },
   PROSECUTOR: {
     name: "The Prosecutor",
-    core: "“Let's review everything you did wrong.”",
+    core: `"Let's review everything you did wrong."`,
     work: "The 2 a.m. tribunal convenes for unprocessed charges. The work is the adjournment protocol: hold court once, on paper, at a decent hour — and file or dismiss every charge.",
   },
   PLEASER: {
     name: "The Pleaser",
-    core: "“Keep them happy and you'll be safe.”",
-    work: "The work is boundary scripts in your own dialect, rehearsed before you need them — because “no” is a sentence you can prepare.",
+    core: `"Keep them happy and you'll be safe."`,
+    work: `The work is boundary scripts in your own dialect, rehearsed before you need them — because "no" is a sentence you can prepare.`,
   },
   PROPHET: {
     name: "The Prophet",
-    core: "“This will go badly. It always does.”",
-    work: "Forecasts of pain, dressed as realism. The work is prediction-vs-actual tracking: write the forecast down, run the moment, score the Prophet's accuracy. It's lower than it sounds.",
+    core: `"This will go badly. It always does."`,
+    work: `Forecasts of pain, dressed as realism. The work is prediction-vs-actual tracking: write the forecast down, run the moment, score the Prophet's accuracy. It's lower than it sounds.`,
   },
 };
 

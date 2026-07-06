@@ -28,7 +28,7 @@ export default function PreviewTodayPage() {
         <Card>
           <CardContent className="p-5">
             <p className="eyebrow mb-2">From your Ledger</p>
-            <p className="text-body-s text-muted-foreground">“{latest.text}”</p>
+            <p className="text-body-s text-muted-foreground">"{latest.text}"</p>
           </CardContent>
         </Card>
         <Card>

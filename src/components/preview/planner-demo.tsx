@@ -42,7 +42,7 @@ export function PlannerDemo() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <h2 className="eyebrow mb-1">Current season · weeks 1–12</h2>
-              <p className="text-heading-s font-medium">“Say the true thing sooner.”</p>
+              <p className="text-heading-s font-medium">"Say the true thing sooner."</p>
             </div>
             <Badge>Week 5 of 12</Badge>
           </div>

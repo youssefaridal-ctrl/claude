@@ -14,25 +14,25 @@ const STEPS = [
   {
     op: "Start",
     mechanism: "the raw thought",
-    sentence: "“I always freeze in meetings.”",
+    sentence: '"I always freeze in meetings."',
     note: "The narrator serves this as a fact. Watch what three operations do to it.",
   },
   {
     op: "Distance",
     mechanism: "self-distancing · Kross et al.",
-    sentence: "“I'm having the thought that I'll freeze in meetings.”",
+    sentence: `"I'm having the thought that I'll freeze in meetings."`,
     note: "The thought becomes weather, not fact. Naming it as a thought is already regulation.",
   },
   {
     op: "Evidence",
     mechanism: "cognitive restructuring",
-    sentence: "“I froze twice last quarter — and spoke up in eleven other meetings, including the hard one on Tuesday.”",
+    sentence: '"I froze twice last quarter — and spoke up in eleven other meetings, including the hard one on Tuesday."',
     note: "Not positive thinking — accurate thinking. The critic hates accuracy.",
   },
   {
     op: "Author",
     mechanism: "believability 7+ · your dialect",
-    sentence: "“I've done hard rooms before. I can do this one at 80% — and 80% is enough.”",
+    sentence: `"I've done hard rooms before. I can do this one at 80% — and 80% is enough."`,
     note: "A sentence that survives your own cross-examination. That's the voice you practice.",
   },
 ] as const;

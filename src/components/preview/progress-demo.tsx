@@ -105,7 +105,7 @@ export function ProgressDemo() {
           type="search"
           value={doubt}
           onChange={(e) => setDoubt(e.target.value)}
-          placeholder="“I can't speak up”"
+          placeholder='"I can't speak up"'
         />
         <div aria-live="polite" className="mt-6">
           {matches && (

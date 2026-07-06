@@ -28,7 +28,7 @@ export function RepFlow() {
     setSaving(true);
     setError(null);
     try {
-      const normalised = quote.trim().replace(/^[""“”]|[""“”]$/g, "");
+      const normalised = quote.trim().replace(/^[""""]|[""""]$/g, "");
       // Two entries: the rewrite is the evidence; the original is the context.
       await Promise.all([
         fetch("/api/ledger", {
@@ -110,7 +110,7 @@ export function RepFlow() {
               className="mt-6 rounded-r3 border border-border bg-card p-6 font-serif text-serif-feature"
             >
               &ldquo;{DISTANCE_PREAMBLE}{" "}
-              {quote.trim().replace(/^[""“”]|[""“”]$/g, "")}&rdquo;
+              {quote.trim().replace(/^[""""]|[""""]$/g, "")}&rdquo;
             </blockquote>
             <p className="mt-6 text-body-m text-muted-foreground">
               Same words — different altitude. The thought is weather now, not fact. It&rsquo;s yours

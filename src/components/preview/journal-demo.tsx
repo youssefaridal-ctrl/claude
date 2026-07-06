@@ -94,7 +94,7 @@ export function JournalDemo() {
                 rows={10}
                 value={draftBody}
                 onChange={(e) => setDraftBody(e.target.value)}
-                placeholder="The narrator said… / type “/dialogue” for critic-vs-author mode"
+                placeholder="The narrator said… / type "/dialogue" for critic-vs-author mode"
                 className="font-serif text-body-l"
               />
             </div>
