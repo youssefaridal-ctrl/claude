@@ -18,14 +18,80 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return buildMetadata({ title: course.title, description: course.promise, path: `/courses/${slug}` });
 }
 
+const LESSON_TITLES: Record<string, string[]> = {
+  "the-anatomy-of-self-talk": [
+    "Orientation: what you'll practice",
+    "Where the inner voice came from",
+    "The narrator's formats: prediction, verdict, replay",
+    "Why the critic sounds like that — and whose voice it borrowed",
+    "Naming the voice: the anatomy of a label",
+    "From narrator to author: what changes",
+  ],
+  "the-confidence-equation": [
+    "Orientation: what you'll practice",
+    "The achievement paradox — why doing more doesn't settle it",
+    "The appraisal process: how your brain runs its confidence check",
+    "Evidence, not achievement: what actually moves the dial",
+    "The equation, assembled",
+  ],
+  "practice-architecture": [
+    "Orientation: what you'll practice",
+    "Why motivation is a terrible foundation",
+    "Designing your twelve minutes",
+    "Identity anchors: habits that stick to who you're becoming",
+    "The maintenance practice: what happens after week eight",
+  ],
+  "emotions-are-data": [
+    "Orientation: what you'll practice",
+    "The signal-versus-noise problem",
+    "Reading the feeling before obeying it",
+    "Affect labeling: why naming it calms it",
+    "Reactivity windows and the ninety-second rule",
+    "Your emotional vocabulary, expanded",
+  ],
+  "the-regulation-toolkit": [
+    "Orientation: what you'll practice",
+    "Breath: what works, what doesn't, and why",
+    "Labeling: precision over venting",
+    "Reappraisal: the surgeon's technique",
+    "Movement and the body-first approach",
+    "Situation selection — the underrated tool",
+    "Building your personal stack",
+  ],
+  "the-criticism-metabolism": [
+    "Orientation: what you'll practice",
+    "Why feedback hits differently than we expect",
+    "Separating information from verdict",
+    "The intake protocol: three steps from receipt to response",
+  ],
+  "where-your-story-came-from": [
+    "Orientation: what you'll practice",
+    "Family scripts: the sentences you were handed",
+    "Cultural scripts: the ones you didn't choose either",
+    "Archaeology: tracing a belief back to its author",
+    "The museum label: understanding without obeying",
+    "Writing your own biography forward",
+  ],
+  "the-rewrite-deep": [
+    "Orientation: what you'll practice",
+    "Believability engineering: the science of what your mind accepts",
+    "Advanced distancing techniques",
+    "Values anchoring: the difference between traits and convictions",
+    "Testing under load: rehearsals at rising stakes",
+    "Relapse design — planning for the old voice's return",
+    "Your author's voice: the final assembly",
+  ],
+};
+
 export default async function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const course = await getCourseBySlug(slug);
   if (!course) notFound();
 
+  const titlesForCourse = LESSON_TITLES[slug] ?? [];
   const lessons = Array.from({ length: course.lessons }, (_, i) => ({
     number: i + 1,
-    title: i === 0 ? "Orientation: what you'll practice" : `Lesson ${i + 1}`,
+    title: titlesForCourse[i] ?? (i === 0 ? "Orientation: what you'll practice" : `Lesson ${i + 1}`),
     locked: !(course.preview && i === 0),
   }));
 
