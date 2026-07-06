@@ -10,7 +10,7 @@ export const metadata = buildMetadata({
   path: "/courses",
 });
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export default async function CoursesPage() {
   const courses = await listPublishedCourses();

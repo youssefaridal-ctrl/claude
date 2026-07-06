@@ -1,3 +1,20 @@
+// Strict CSP — 'unsafe-inline' is absent; nonces would be required for inline
+// scripts if any are added in future. script-src 'self' covers Next.js chunks.
+// Google Fonts is excluded by design (next/font self-hosts everything).
+const csp = [
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-eval'", // 'unsafe-eval' for Next.js HMR in dev only; prod build drops it via env check
+  "style-src 'self' 'unsafe-inline'", // Tailwind inlines; acceptable — no user-controlled style
+  "img-src 'self' data: blob: https://res.cloudinary.com",
+  "font-src 'self'",
+  "connect-src 'self'",
+  "frame-ancestors 'none'",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "object-src 'none'",
+  "upgrade-insecure-requests",
+].join("; ");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -28,6 +45,10 @@ const nextConfig = {
           {
             key: "Strict-Transport-Security",
             value: "max-age=63072000; includeSubDomains; preload",
+          },
+          {
+            key: "Content-Security-Policy",
+            value: csp,
           },
         ],
       },

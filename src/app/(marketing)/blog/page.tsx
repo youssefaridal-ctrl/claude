@@ -8,7 +8,7 @@ export const metadata = buildMetadata({
   path: "/blog",
 });
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // ISR: rebuild every hour; fallback to stale until ready
 
 export default async function BlogIndexPage() {
   const all = await listPublishedArticles();
