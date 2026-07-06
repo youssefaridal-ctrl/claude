@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { courses } from "@/lib/mock";
 import { Badge } from "@/components/ui/badge";
 import { InteractiveCard, CardContent } from "@/components/ui/card";
 import { buildMetadata } from "@/lib/seo";
+import { listPublishedCourses } from "@/server/services/content";
 
 export const metadata = buildMetadata({
   title: "Courses — the Academy catalog",
@@ -10,7 +10,11 @@ export const metadata = buildMetadata({
   path: "/courses",
 });
 
-export default function CoursesPage() {
+export const dynamic = "force-dynamic";
+
+export default async function CoursesPage() {
+  const courses = await listPublishedCourses();
+
   return (
     <div className="container py-s9">
       <p className="eyebrow mb-3">Courses</p>

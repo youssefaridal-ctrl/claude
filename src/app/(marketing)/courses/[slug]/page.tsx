@@ -1,25 +1,26 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { courses } from "@/lib/mock";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { JsonLd } from "@/components/json-ld";
 import { buildMetadata, courseJsonLd } from "@/lib/seo";
+import { getCourseBySlug, listPublishedCourses } from "@/server/services/content";
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const courses = await listPublishedCourses();
   return courses.map((c) => ({ slug: c.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const course = courses.find((c) => c.slug === slug);
+  const course = await getCourseBySlug(slug);
   if (!course) return buildMetadata({ title: "Not found", noIndex: true });
   return buildMetadata({ title: course.title, description: course.promise, path: `/courses/${slug}` });
 }
 
 export default async function CourseDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const course = courses.find((c) => c.slug === slug);
+  const course = await getCourseBySlug(slug);
   if (!course) notFound();
 
   const lessons = Array.from({ length: course.lessons }, (_, i) => ({

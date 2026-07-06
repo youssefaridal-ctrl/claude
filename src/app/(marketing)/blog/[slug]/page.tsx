@@ -1,19 +1,14 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { articles } from "@/lib/mock";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { JsonLd } from "@/components/json-ld";
 import { articleJsonLd, buildMetadata } from "@/lib/seo";
+import { getArticleBySlug, listPublishedArticles } from "@/server/services/content";
 
-/**
- * Article template (design/03 §9): 680px reading column, serif body, one
- * "Do the rep" block mid-article, no comments. Prototype bodies for two
- * essays; the rest render the template with their opening — full bodies
- * arrive with the CMS import (content/02 has them written).
- */
-
-const BODIES: Record<string, string[]> = {
+// Prototype prose bodies for the two showcase articles.
+// Full bodies for all articles live in content/02-articles.md and arrive with the CMS import.
+const PROTOTYPE_BODIES: Record<string, string[]> = {
   "the-2am-tribunal": [
     "The lights are off. The day is over. And somewhere in your head, a courtroom comes to order.",
     "Exhibit A: the joke that landed wrong. Exhibit B: the email you should have worded differently. Exhibit C — the tribunal has been waiting all day for this one — the moment in the meeting when you said the thing, and there was a pause, and someone changed the subject.",
@@ -25,32 +20,37 @@ const BODIES: Record<string, string[]> = {
     "There's a sentence your inner voice says that you'd never say to anyone you love. You know the one.",
     "Here's the question almost nobody asks about that sentence: what is it for? Because psychological habits don't persist for decades unless they're doing a job. And the inner critic, for all its cruelty, has one of the oldest jobs there is. It's trying to keep you safe.",
     "Watch the critic's timing and the pattern appears. It speaks loudest at thresholds — before you raise your hand, submit the application, say the honest thing. It goes quiet when you play small. That's not a coincidence. That's a security system.",
-    "Every critic line is a warning about something you care about, delivered in the worst possible dialect. “You're going to embarrass yourself” translates to: this matters to you, and you want to do it well. Translation strips the packaging and keeps the signal — and precision, unlike insult, calms the brain's alarm.",
+    `Every critic line is a warning about something you care about, delivered in the worst possible dialect. “You’re going to embarrass yourself” translates to: this matters to you, and you want to do it well. Translation strips the packaging and keeps the signal — and precision, unlike insult, calms the brain’s alarm.`,
     "The critic does not disappear. What changes — for most people, noticeably inside two to three weeks — is your relationship to the voice: it becomes a character you recognize rather than a narrator you obey. In that gap, choice lives.",
   ],
 };
 
-export function generateStaticParams() {
+export async function generateStaticParams() {
+  const articles = await listPublishedArticles();
   return articles.map((a) => ({ slug: a.slug }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const article = articles.find((a) => a.slug === slug);
+  const article = await getArticleBySlug(slug);
   if (!article) return buildMetadata({ title: "Not found", noIndex: true });
   return buildMetadata({ title: article.title, description: article.dek, path: `/blog/${slug}`, type: "article" });
 }
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const article = articles.find((a) => a.slug === slug);
+  const article = await getArticleBySlug(slug);
   if (!article) notFound();
 
-  const body = BODIES[slug] ?? [
-    article.dek,
-    "The full essay is written and ships with the content import (see content/02-articles.md). This prototype page demonstrates the reading experience: the 680px measure, the serif voice, the science layer, and the rep block below.",
-  ];
-  const mid = Math.ceil(body.length / 2);
+  // Prefer DB body (MDX stored as plain paragraphs for now); fall back to prototype prose.
+  const bodyParagraphs: string[] = article.bodyMdx
+    ? article.bodyMdx.split("\n\n").filter(Boolean)
+    : (PROTOTYPE_BODIES[slug] ?? [
+        article.dek,
+        "The full essay is written and ships with the content import (see content/02-articles.md). This page demonstrates the reading experience: the 680px measure, the serif voice, the science layer, and the rep block.",
+      ]);
+
+  const mid = Math.ceil(bodyParagraphs.length / 2);
 
   return (
     <article className="container max-w-[680px] py-s9">
@@ -65,11 +65,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
       </header>
 
       <div className="mt-10 space-y-6">
-        {body.slice(0, mid).map((p, i) => (
+        {bodyParagraphs.slice(0, mid).map((p, i) => (
           <p key={i} className="font-serif text-body-l leading-[1.75]">{p}</p>
         ))}
 
-        {/* The one rep block per article */}
         <aside className="rounded-r3 border-l-2 border-l-solar-600 bg-card p-6 dark:border-l-solar-500">
           <p className="eyebrow mb-2">Do the rep</p>
           <p className="text-body-m">
@@ -80,7 +79,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           </Button>
         </aside>
 
-        {body.slice(mid).map((p, i) => (
+        {bodyParagraphs.slice(mid).map((p, i) => (
           <p key={i} className="font-serif text-body-l leading-[1.75]">{p}</p>
         ))}
       </div>
@@ -100,8 +99,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           description: article.dek,
           slug: article.slug,
           authorName: article.author,
-          publishedAt: new Date("2026-06-01"),
-          updatedAt: new Date("2026-06-01"),
+          publishedAt: article.publishedAt ?? new Date("2026-06-01"),
+          updatedAt: article.publishedAt ?? new Date("2026-06-01"),
         })}
       />
     </article>

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { articles } from "@/lib/mock";
 import { buildMetadata } from "@/lib/seo";
+import { listPublishedArticles } from "@/server/services/content";
 
 export const metadata = buildMetadata({
   title: "Essays — one idea per piece, mechanism named",
@@ -8,8 +8,13 @@ export const metadata = buildMetadata({
   path: "/blog",
 });
 
-export default function BlogIndexPage() {
-  const [feature, ...rest] = articles.filter((a) => a.type === "ESSAY");
+export const dynamic = "force-dynamic";
+
+export default async function BlogIndexPage() {
+  const all = await listPublishedArticles();
+  const essays = all.filter((a) => a.type !== "EXERCISE");
+  const [feature, ...rest] = essays;
+
   return (
     <div className="container max-w-3xl py-s9">
       <p className="eyebrow mb-3">Essays</p>

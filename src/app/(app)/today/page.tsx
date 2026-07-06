@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildMetadata } from "@/lib/seo";
+import { listPublishedArticles } from "@/server/services/content";
 
 export const metadata = buildMetadata({ title: "Today", noIndex: true });
 
@@ -15,7 +16,7 @@ export default async function TodayPage() {
   const session = await auth();
   const userId = session!.user.id;
 
-  const [profile, latestLedger, weekLogs] = await Promise.all([
+  const [profile, latestLedger, weekLogs, articles] = await Promise.all([
     prisma.profile.findUnique({ where: { userId } }),
     prisma.ledgerEntry.findFirst({ where: { userId }, orderBy: { createdAt: "desc" } }),
     prisma.habitLog.count({
@@ -25,7 +26,10 @@ export default async function TodayPage() {
         date: { gte: startOfWeek() },
       },
     }),
+    listPublishedArticles(),
   ]);
+
+  const readingPick = articles[0];
 
   const greeting = greetingFor(new Date(), profile?.timezone ?? "UTC");
   const firstName = session!.user.name?.split(" ")[0];
@@ -77,9 +81,15 @@ export default async function TodayPage() {
         <Card>
           <CardContent className="p-5">
             <p className="eyebrow mb-2">Worth reading</p>
-            <Link href="/blog/the-2am-tribunal" className="text-body-s underline-offset-4 hover:underline">
-              The 2 a.m. Tribunal: how to adjourn it →
-            </Link>
+            {readingPick ? (
+              <Link href={`/blog/${readingPick.slug}`} className="text-body-s underline-offset-4 hover:underline">
+                {readingPick.title} →
+              </Link>
+            ) : (
+              <Link href="/blog" className="text-body-s underline-offset-4 hover:underline">
+                Browse the essay archive →
+              </Link>
+            )}
           </CardContent>
         </Card>
       </div>
