@@ -50,6 +50,8 @@ A production-grade Next.js codebase implementing the design and content specs. S
 
 **Quick start:** `docker compose up -d && cp .env.example .env && npm install && npx prisma migrate dev && npm run db:seed && npm run dev`
 
+**Clickable prototype:** every public page is built and navigable, and **`/preview`** hosts the interactive member-app walkthrough (Today with a runnable rep, Tracker, Journal, Planner, Progress with the Delta radar, Commons) on sample data — no account or database needed. The design system reference lives at **`/styleguide`**.
+
 ## Integration review
 
 All three phases were cross-audited as one project: [`docs/INTEGRATION-REVIEW.md`](docs/INTEGRATION-REVIEW.md) records every conflict found (encryption overclaim, tier-access mismatch, scoring-scale drift, spec arithmetic), the applied resolutions, what was verified consistent, and five standing rules that keep the layers aligned going forward.

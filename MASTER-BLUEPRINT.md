@@ -61,6 +61,8 @@ Authoring flow for any new feature: **design section → content section → sch
 
 ## 4. Site Map (source: `design/02 §6`; route status from code)
 
+> **Prototype milestone (2026-07-06, post-freeze implementation — no spec changes):** every public route below is now a clickable, designed page (Method, About, Programs ×3, Pricing, FAQ, Contact, Library, Blog + articles, Podcast, Community, Stories ×2, Lab, Academy, Courses ×8, Tools, Resources, Legal ×3, Accessibility), and `/preview` hosts an interactive member-app walkthrough (Today + rep player, Tracker, Journal, Planner, Progress + Delta radar, Commons) on sample data with no sign-in. Catalog pages run on `src/lib/mock.ts` fixtures until wired to Prisma; 📋 marks below read as "prototype ✅ / wiring pending."
+
 ```
 PUBLIC (marketing — dark-first narrative)                        STATUS
 ├── /                     Home (hero → recognition → thesis → proof) ✅
