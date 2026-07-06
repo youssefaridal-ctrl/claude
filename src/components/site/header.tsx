@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/site/theme-toggle";
+import { MobileNav } from "@/components/site/mobile-nav";
 
 const NAV = [
   { href: "/method", label: "Method" },
@@ -34,7 +36,8 @@ export async function SiteHeader() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
           <Link href="/pricing" className="hidden text-body-s text-muted-foreground hover:text-foreground sm:block">
             Pricing
           </Link>
@@ -44,14 +47,15 @@ export async function SiteHeader() {
             </Button>
           ) : (
             <>
-              <Link href="/signin" className="text-body-s text-muted-foreground hover:text-foreground">
+              <Link href="/signin" className="hidden text-body-s text-muted-foreground hover:text-foreground md:block">
                 Sign in
               </Link>
-              <Button asChild size="compact">
+              <Button asChild size="compact" className="hidden md:inline-flex">
                 <Link href="/lab/audit">Begin</Link>
               </Button>
             </>
           )}
+          <MobileNav />
         </div>
       </div>
     </header>

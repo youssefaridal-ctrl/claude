@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { NewsletterForm } from "@/components/newsletter/newsletter-form";
 
 const COLUMNS = [
   {
@@ -45,7 +46,15 @@ export function SiteFooter() {
   return (
     <footer className="bg-ink-950 text-bone-50">
       <div className="container py-16">
-        <p className="mb-12 font-serif text-serif-feature">You are the author now.</p>
+        <p className="mb-10 font-serif text-serif-feature">You are the author now.</p>
+
+        {/* Force dark context so Input/Button vars resolve to Night values on this always-dark surface */}
+        <div className="dark mb-16 max-w-lg">
+          <p className="mb-4 font-mono text-label-mono uppercase tracking-[0.12em] text-ink-300">
+            One essay, every week
+          </p>
+          <NewsletterForm />
+        </div>
 
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {COLUMNS.map((col) => (

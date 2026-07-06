@@ -31,6 +31,27 @@ const EVIDENCE = [
   { stat: "30 days", label: "refund window, no interrogation" },
 ];
 
+const STORIES = [
+  {
+    quote:
+      "I didn't need to be fixed. I needed a language for what was already happening inside me. SELV gave me that.",
+    name: "Amara O.",
+    detail: "Product designer · 6 months",
+  },
+  {
+    quote:
+      "Week four I noticed I had stopped rehearsing apologies before sending emails. That one small change said everything.",
+    name: "Tom R.",
+    detail: "Startup founder · 3 months",
+  },
+  {
+    quote:
+      "The Audit was embarrassing to complete honestly. It was also the most useful four minutes I'd spent in years.",
+    name: "Priya K.",
+    detail: "Clinical researcher · 8 weeks",
+  },
+];
+
 export default function HomePage() {
   return (
     <>
@@ -105,10 +126,11 @@ export default function HomePage() {
               </div>
             </div>
           </Reveal>
-          <div aria-hidden className="hidden items-center justify-center lg:flex">
-            {/* Blueprint illustration slot (design/01 §16) — layered SVG, line-draw on scroll. */}
-            <div className="h-80 w-full rounded-r4 border border-dashed border-border" />
-          </div>
+          <Reveal delay={0.1}>
+            <div className="hidden items-center justify-center lg:flex" aria-hidden>
+              <ArchitectureDiagram />
+            </div>
+          </Reveal>
         </div>
       </section>
 
@@ -155,6 +177,38 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Stories — three pull-quotes */}
+      <section aria-label="Member stories" className="bg-background py-s10">
+        <div className="container">
+          <Reveal>
+            <p className="eyebrow mb-10 text-center">Stories</p>
+          </Reveal>
+          <div className="grid gap-6 md:grid-cols-3">
+            {STORIES.map((s, i) => (
+              <Reveal key={s.name} delay={i * 0.08}>
+                <figure className="flex h-full flex-col rounded-r3 border border-border bg-card p-8 shadow-elev-1">
+                  <blockquote className="flex-1 font-serif text-body-l leading-relaxed text-foreground">
+                    &ldquo;{s.quote}&rdquo;
+                  </blockquote>
+                  <figcaption className="mt-6 border-t border-border pt-5">
+                    <p className="font-mono text-label-mono uppercase text-muted-foreground">
+                      {s.name} · {s.detail}
+                    </p>
+                  </figcaption>
+                </figure>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal delay={0.3}>
+            <p className="mt-10 text-center">
+              <Link href="/stories" className="text-body-s text-accent underline-offset-4 hover:underline">
+                Read more stories →
+              </Link>
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
       {/* 1.10 Final invitation */}
       <section className="bg-ink-950 py-s10 text-center text-bone-50">
         <div className="container">
@@ -177,5 +231,42 @@ export default function HomePage() {
         </div>
       </section>
     </>
+  );
+}
+
+/** Blueprint-style layered SVG: three stacked planes representing Identity → Dialogue → Evidence. */
+function ArchitectureDiagram() {
+  return (
+    <svg
+      viewBox="0 0 400 320"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className="w-full max-w-sm opacity-80"
+      aria-hidden="true"
+    >
+      {/* Bottom plane — Evidence */}
+      <g transform="translate(0, 120)">
+        <path d="M40 80 L200 20 L360 80 L200 140 Z" stroke="hsl(var(--border))" strokeWidth="1" fill="hsl(var(--card))" />
+        <text x="200" y="88" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="10" fontFamily="monospace" letterSpacing="2" textDecoration="uppercase">EVIDENCE</text>
+      </g>
+
+      {/* Middle plane — Dialogue */}
+      <g transform="translate(20, 60)">
+        <path d="M40 80 L200 20 L360 80 L200 140 Z" stroke="hsl(var(--border))" strokeWidth="1" fill="hsl(var(--card))" fillOpacity="0.85" />
+        <text x="200" y="88" textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize="10" fontFamily="monospace" letterSpacing="2">DIALOGUE</text>
+      </g>
+
+      {/* Top plane — Identity (accent) */}
+      <g transform="translate(40, 0)">
+        <path d="M40 80 L200 20 L360 80 L200 140 Z" stroke="hsl(var(--accent))" strokeWidth="1.5" fill="hsl(var(--card))" fillOpacity="0.95" />
+        <text x="200" y="88" textAnchor="middle" fill="hsl(var(--accent))" fontSize="10" fontFamily="monospace" letterSpacing="2">IDENTITY</text>
+      </g>
+
+      {/* Connecting lines between planes */}
+      <line x1="80" y1="200" x2="120" y2="140" stroke="hsl(var(--border))" strokeWidth="0.75" strokeDasharray="4 3" />
+      <line x1="320" y1="200" x2="360" y2="140" stroke="hsl(var(--border))" strokeWidth="0.75" strokeDasharray="4 3" />
+      <line x1="120" y1="140" x2="160" y2="80" stroke="hsl(var(--border))" strokeWidth="0.75" strokeDasharray="4 3" />
+      <line x1="360" y1="140" x2="400" y2="80" stroke="hsl(var(--border))" strokeWidth="0.75" strokeDasharray="4 3" />
+    </svg>
   );
 }
