@@ -206,24 +206,6 @@ export const stories = [
     after: "الاهتمام هو الوظيفة. توقفت فقط عن السماح للجمهور بكتابة حكمي.",
     situation: "الظهور",
   },
-  {
-    slug: "elena",
-    name: "Elena V.",
-    age: 29,
-    role: "Software engineer",
-    before: "Someone smarter will say what you were about to say. Wait.",
-    after: "My half-formed idea became the direction. It doesn't have to be finished to be useful.",
-    situation: "Speaking up",
-  },
-  {
-    slug: "james",
-    name: "James O.",
-    age: 41,
-    role: "Secondary school teacher",
-    before: "You care too much about what people think — and you always will.",
-    after: "Caring is the job. I just stopped letting the audience write my verdict.",
-    situation: "Visibility",
-  },
 ] as const;
 
 export const faqs = [
