@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +21,6 @@ const NEEDS = ["rest", "food", "movement", "people", "quiet", "to-say-something"
 type Phase = "weather" | "body" | "need" | "note" | "done";
 
 export function MoodCheckin() {
-  const router = useRouter();
   const [phase, setPhase] = useState<Phase>("weather");
   const [weather, setWeather] = useState<string | null>(null);
   const [bodyAreas, setBodyAreas] = useState<string[]>([]);

@@ -1,13 +1,15 @@
-// Strict CSP — 'unsafe-inline' is absent; nonces would be required for inline
-// scripts if any are added in future. script-src 'self' covers Next.js chunks.
-// Google Fonts is excluded by design (next/font self-hosts everything).
+// Next.js App Router requires 'unsafe-inline' for its inline hydration scripts
+// (streaming RSC payloads, __NEXT_DATA__, next-themes init). Without it, React
+// won't hydrate and animations / interactive features will not work.
+// connect-src includes ws: for dev HMR; prod builds only need 'self'.
+const isDev = process.env.NODE_ENV !== "production";
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-eval'", // 'unsafe-eval' for Next.js HMR in dev only; prod build drops it via env check
-  "style-src 'self' 'unsafe-inline'", // Tailwind inlines; acceptable — no user-controlled style
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval'`,
+  "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://res.cloudinary.com",
   "font-src 'self'",
-  "connect-src 'self'",
+  isDev ? "connect-src 'self' ws: wss:" : "connect-src 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   "form-action 'self'",

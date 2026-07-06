@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input, Textarea, Label, FieldError } from "@/components/ui/input";
+import { Input, Label, FieldError } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 
 type FieldErrors = Record<string, string>;
