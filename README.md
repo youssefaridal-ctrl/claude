@@ -1,5 +1,7 @@
 # SELV — Brand, UX & UI Design Specification
 
+> **Start here → [`MASTER-BLUEPRINT.md`](MASTER-BLUEPRINT.md)** — the project master plan binding identity, sitemap, UX, pages, content, architecture, database, and component relationships into one navigable document with a full cross-layer traceability matrix.
+
 A complete design specification for a premium digital platform dedicated to self-confidence, identity transformation, emotional mastery, mindset development, and rewriting internal dialogue.
 
 **Design ambition:** Apple / Notion / Linear / Framer calibre — a product you inhabit, not a coaching website.
