@@ -24,6 +24,33 @@ const MOVEMENTS = [
   { number: "03 · REP", title: "Practice until it's simply yours.", body: "Twelve minutes a day. Small honest reps, logged as evidence, until the new voice stops feeling new." },
 ];
 
+const PROGRAMS = [
+  {
+    number: "01",
+    slug: "foundations",
+    name: "Foundations",
+    promise: "Eight weeks to a voice that's on your side.",
+    meta: "8 weeks · 15 min/day · cohort of 40",
+    price: "$490",
+  },
+  {
+    number: "02",
+    slug: "the-voice",
+    name: "The Voice",
+    promise: "An intensive for the sentence you can't stop hearing.",
+    meta: "6 weeks · 15 min/day · cohort of 12",
+    price: "$590",
+  },
+  {
+    number: "03",
+    slug: "unshakeable",
+    name: "Unshakeable",
+    promise: "For when the room gets bigger.",
+    meta: "12 weeks · 20 min/day · by application",
+    price: "$1,190",
+  },
+];
+
 const EVIDENCE = [
   { stat: "71%", label: "report speaking up more within 8 weeks*" },
   { stat: "12 min", label: "median daily practice" },
@@ -49,6 +76,24 @@ const STORIES = [
       "The Audit was embarrassing to complete honestly. It was also the most useful four minutes I'd spent in years.",
     name: "Priya K.",
     detail: "Clinical researcher · 8 weeks",
+  },
+  {
+    quote:
+      "The Audit gave a name to the voice I'd always assumed was just 'how I think.' That gap — between the voice and me — changed things.",
+    name: "Nadia R.",
+    detail: "UX researcher · 10 weeks",
+  },
+  {
+    quote:
+      "My therapist and I had been circling the same thing for two years. SELV didn't replace that work. It gave it somewhere to land between sessions.",
+    name: "Sarah L.",
+    detail: "Secondary school teacher · 5 months",
+  },
+  {
+    quote:
+      "I gave a talk last month that I would have cancelled three months ago. I didn't enjoy it — but I was there, and I stayed there. That's new.",
+    name: "James T.",
+    detail: "Architect · 7 months",
   },
 ];
 
@@ -177,15 +222,16 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stories — three pull-quotes */}
+      {/* Stories — six pull-quotes */}
       <section aria-label="Member stories" className="bg-background py-s10">
         <div className="container">
           <Reveal>
-            <p className="eyebrow mb-10 text-center">Stories</p>
+            <p className="eyebrow mb-3 text-center">Stories</p>
+            <p className="mb-10 text-center text-body-m text-muted-foreground">In their own words.</p>
           </Reveal>
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
             {STORIES.map((s, i) => (
-              <Reveal key={s.name} delay={i * 0.08}>
+              <Reveal key={s.name} delay={Math.min(i, 4) * 0.07}>
                 <figure className="flex h-full flex-col rounded-r3 border border-border bg-card p-8 shadow-elev-1">
                   <blockquote className="flex-1 font-serif text-body-l leading-relaxed text-foreground">
                     &ldquo;{s.quote}&rdquo;
@@ -206,6 +252,43 @@ export default function HomePage() {
               </Link>
             </p>
           </Reveal>
+        </div>
+      </section>
+
+      {/* Programs preview */}
+      <section className="border-y border-border bg-card py-s10">
+        <div className="container">
+          <Reveal>
+            <div className="mb-10 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <div>
+                <p className="eyebrow mb-2">Programs</p>
+                <h2 className="text-display-s font-medium">Structured work, not just content.</h2>
+              </div>
+              <Link href="/programs" className="text-body-s text-accent underline-offset-4 hover:underline sm:pb-1">
+                All programs →
+              </Link>
+            </div>
+          </Reveal>
+          <div className="grid gap-5 lg:grid-cols-3">
+            {PROGRAMS.map((p, i) => (
+              <Reveal key={p.slug} delay={i * 0.08}>
+                <Link
+                  href={`/programs/${p.slug}`}
+                  className="group flex h-full flex-col rounded-r3 border border-border bg-background p-6 shadow-elev-1 transition-all duration-base ease-out-quart hover:-translate-y-1 hover:border-foreground/20 hover:shadow-elev-2"
+                >
+                  <p className="eyebrow mb-4">{p.number}</p>
+                  <h3 className="text-heading-s font-medium group-hover:underline group-hover:underline-offset-4">
+                    {p.name}
+                  </h3>
+                  <p className="mt-3 flex-1 text-body-s text-muted-foreground">{p.promise}</p>
+                  <div className="mt-6 flex items-center justify-between border-t border-border pt-5">
+                    <p className="font-mono text-label-mono uppercase text-muted-foreground">{p.meta}</p>
+                    <p className="font-mono text-label-mono font-medium">{p.price}</p>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
