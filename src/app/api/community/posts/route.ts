@@ -74,8 +74,9 @@ export const POST = createHandler(
   },
 );
 
-export const GET = createHandler({ auth: "required" }, async ({ userId, req }) => {
-  await requireTier(userId!, "PRACTICE");
+// Reading the Commons is open to every signed-in member — the Free tier is
+// read-only (design/02 §11); only posting requires the Practice tier.
+export const GET = createHandler({ auth: "required" }, async ({ req }) => {
   const space = req.nextUrl.searchParams.get("space") ?? "general";
   const posts = await prisma.post.findMany({
     where: { space, status: "VISIBLE", circleId: null },

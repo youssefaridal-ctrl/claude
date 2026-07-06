@@ -48,6 +48,10 @@ A production-grade Next.js codebase implementing the design and content specs. S
 
 **Quick start:** `docker compose up -d && cp .env.example .env && npm install && npx prisma migrate dev && npm run db:seed && npm run dev`
 
+## Integration review
+
+All three phases were cross-audited as one project: [`docs/INTEGRATION-REVIEW.md`](docs/INTEGRATION-REVIEW.md) records every conflict found (encryption overclaim, tier-access mismatch, scoring-scale drift, spec arithmetic), the applied resolutions, what was verified consistent, and five standing rules that keep the layers aligned going forward.
+
 ## How to use
 
 Read in order (01 → 04). Documents cross-reference each other by section number. `03` assumes the tokens and components defined in `04`; a designer should be able to produce high-fidelity screens from `03` + `04` without further briefing.

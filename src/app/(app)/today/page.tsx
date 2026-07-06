@@ -40,7 +40,7 @@ export default async function TodayPage() {
       {/* Hero: today's rep — exactly one primary action */}
       <Card className="mt-8 bg-gradient-to-br from-card to-muted">
         <CardHeader>
-          <p className="eyebrow">Today&rsquo;s rep · 7 min · reappraisal</p>
+          <p className="eyebrow">Today&rsquo;s rep · 4 min · reappraisal</p>
           <CardTitle>The Second Draft</CardTitle>
         </CardHeader>
         <CardContent>

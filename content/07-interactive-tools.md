@@ -15,7 +15,7 @@
 **Dimension 5 — Action under doubt:** 17. I can start things before I feel ready. · 18. ★ I wait for certainty before acting, and certainty rarely comes. · 19. Nervousness and I can share a room while I do the thing anyway. · 20. I volunteer for stretches slightly beyond my current evidence.
 **Dimension 6 — Self-trust** (kept promises): 21. When I tell myself I'll do something, I mostly believe me. · 22. ★ My plans for myself are where my reliability goes to die. · 23. I keep small promises to myself even when nobody would notice. · 24. Past evidence tells me I generally figure things out.
 
-**Scoring:** dimension score = mean × 20 (0–100). No global "confidence score" is shown as a single number — the *shape* is the result (radar chart), because a single number invites verdicts and the shape invites work.
+**Scoring:** dimension score = ((mean − 1) ÷ 4) × 100, a true 0–100 scale. No global "confidence score" is shown as a single number — the *shape* is the result (radar chart), because a single number invites verdicts and the shape invites work.
 **Result copy pattern (per dimension, 3 bands):** e.g., Voice 0–40: "Your thoughts are clearing a high bar before they're allowed out loud. That's not shyness — it's a pre-trial system, and it's negotiable. Start here: the Visibility Ladder, rung one." · 41–70: "Your voice shows up when the stakes are low and goes quiet when they rise. The gap is situational, which is good news — situations can be rehearsed." · 71–100: "Voice is a strength — your work likely lives in another dimension. Lend this one's evidence to the others."
 **Retake cadence:** quarterly (feeds the Quarterly Delta overlay).
 
@@ -23,7 +23,7 @@
 
 ## 2. Mindset Assessment ("The Operating Assumptions Audit")
 
-**Format:** 18 items · agree–disagree 5-point · ~5 min · maps four assumption pairs (not "fixed vs. growth" alone — richer, and honest about nuance).
+**Format:** 16 items (4 per axis) · agree–disagree 5-point · ~5 min · maps four assumption pairs (not "fixed vs. growth" alone — richer, and honest about nuance).
 
 **Axis 1 — Malleability** (Can people like me change?): "People's core character is set by adulthood." ★ · "With practice, I've changed things about myself that felt permanent." · "Confidence is something you're born with or not." ★ · "Skills I lack are mostly skills I haven't built yet." (+1)
 **Axis 2 — Attribution** (Where do outcomes come from?): "When things go wrong for me, it usually traces to something about me." ★ · "My wins usually have my fingerprints on them somewhere." · "Luck explains more of my success than effort does." ★ · "I can usually name the specific actions that produced my results." (+1)

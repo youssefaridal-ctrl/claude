@@ -49,7 +49,7 @@ That's not a slogan. It's a sequence — and it's teachable.
 
 ### Instruments panorama
 **H2:** Tools you'll actually open tomorrow.
-- *Journal* — Writing that talks back to the critic. Encrypted. Even we can't read it.
+- *Journal* — Writing that talks back to the critic. Encrypted before it's stored: if our database leaked, your words wouldn't.
 - *Tracker* — Habits built on identity, with streaks that forgive.
 - *Ledger* — Every brave thing you do, kept as evidence for the days you forget.
 **Link:** See all Instruments →
@@ -113,7 +113,7 @@ We measure success in a strange way for a subscription business: we design for g
 - **Agency** → Nothing autoplays, nothing is mandatory, and every reminder can be silenced in one tap.
 - **Warm rigor** → Our error messages will never blame you. Neither will our emails.
 - **Radical accessibility** → WCAG 2.2 AAA target, audited twice a year, known issues published.
-- **Privacy as dignity** → Your journal is end-to-end encrypted. We couldn't sell your data if we wanted to — we can't read it.
+- **Privacy as dignity** → Your journal is encrypted before it touches storage, with keys kept apart from your words. Full end-to-end encryption — keys only you hold — is on our public roadmap, and we won't use that phrase until it ships. That's what honest looks like in a privacy section.
 
 ### CTA band
 Belief is a fine place to start. Mechanism is a better place to stand. **Read how the Method works →**
@@ -355,7 +355,7 @@ Subject: *You're in. Here's the only promise we'll make.*
 - **Why no lifetime deal?** Because we design for graduation, not for owning you. A lifetime deal would be a bet against our own method.
 
 **Privacy & data**
-- **Can you read my journal?** No. It's end-to-end encrypted; the keys are yours. This also means we can't recover it if you lose your keys — we trade convenience for dignity, and we say so upfront.
+- **Can you read my journal?** Reading it is blocked by design and forbidden by policy: entries are encrypted before storage with keys held separately from your words, so a database breach exposes nothing. Full end-to-end encryption — where only you hold the keys and not even a subpoena reaches your words — is on our public roadmap; we deliberately don't claim that phrase until it's true.
 - **What happens to my data if I leave?** Export everything (PDF/JSON) in Settings, then true deletion — not deactivation — within 30 days of request.
 
 **Community & access**

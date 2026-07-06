@@ -72,7 +72,7 @@
 3. **Manifesto (full):** the complete manifesto as a full-bleed Ink section, set as a typographic poster (mixed Display/serif scale), with a subtle "print" texture. A quiet [Download as poster PDF] ghost button — a giveaway that spreads the brand.
 4. **The team:** grid of portrait cards (3-col), the photography direction's composed-not-corporate portraits; hover reveals a handwritten-style one-liner: what their inner critic used to say. Humanizing and on-thesis.
 5. **Advisory board:** distinct band (Bone-100) — smaller cards with names, credentials, institutions, each linking to their published work. This section is deliberately more formal: mono-labels, hairline rules.
-6. **Values in practice:** the six core values (`01 §4`) as an accordion — each opens to a concrete receipt ("Privacy as dignity → your journal is E2E-encrypted; here's the whitepaper").
+6. **Values in practice:** the six core values (`01 §4`) as an accordion — each opens to a concrete receipt ("Privacy as dignity → your journal is encrypted in storage, keys kept apart from words; here's the security whitepaper and the public roadmap to full end-to-end encryption").
 7. **CTA band:** "Read how the Method works →" (to /method) — About sells belief; Method sells mechanism.
 
 ---
@@ -230,7 +230,7 @@ Single scroll-page each under /tools/[instrument]: hero screenshot, 3 principles
 ## 23. Legal pages `/legal/privacy` · `/legal/terms` · `/legal/cookies`
 
 - Shared template: 680 px reading column, sticky right mini-TOC, last-updated date + version history link.
-- **Signature move: the Plain-Language Layer.** Each legal section is preceded by a Bone-100 summary card: "In plain words: we can't read your journal. Ever." Legal text follows beneath. Toggle at top: "Plain summary / Full text / Both" (default Both).
+- **Signature move: the Plain-Language Layer.** Each legal section is preceded by a Bone-100 summary card: "In plain words: your journal is encrypted before it's stored, and reading it is forbidden by policy and blocked by design. If our database leaked, your words wouldn't." Legal text follows beneath. Toggle at top: "Plain summary / Full text / Both" (default Both).
 - Cookie policy pairs with the consent UI: our banner is a quiet bottom-left card, equal-weight Accept/Decline buttons, no dark patterns, remembers choice, and the site is fully functional on Decline.
 
 ## 24. Accessibility Statement `/accessibility`
@@ -262,7 +262,7 @@ Single scroll-page each under /tools/[instrument]: hero screenshot, 3 principles
 
 ## 29. Journal `/practice/journal`
 - Two-pane (T6). Left: entries list, search, filter by mood/tag/prompt. Main canvas: minimal editor — serif 20 px, slash-commands (/prompt inserts a guided reframe template, /evidence files the line to Ledger, /dialogue opens two-column critic-vs-author writing mode — the signature journaling feature).
-- Encryption badge (lock glyph + "Only you can read this") persistent in the corner. Mood capture optional per entry (5 subtle glyphs, no emoji). Weekly review mode: Sunday layout showing the week's entries as a bound-notebook spread with a guided 4-question review.
+- Encryption badge (lock glyph + "Encrypted in storage") persistent in the corner; tapping it opens the plain-language security note. Mood capture optional per entry (5 subtle glyphs, no emoji). Weekly review mode: Sunday layout showing the week's entries as a bound-notebook spread with a guided 4-question review.
 
 ## 30. Goal Planner `/practice/planner`
 - Structure: Identity → Seasons → Moves. Top: identity statements (max 3, editable, serif). Middle: current season card (12-week horizon, theme, 2–3 goals max — the UI physically limits to 3). Each goal: outcome line + weekly moves checklist + linked habits + evidence auto-count from Ledger. Right rail: season progress arc + "quarterly Delta due in 3 weeks" reminder. Deliberately not a project manager: no dependencies, no Gantt — a *becoming* planner.

@@ -137,7 +137,7 @@ export function scoreConfidenceMap(answers: number[]): ConfidenceScores {
   CONFIDENCE_DIMENSIONS.forEach((dim, d) => {
     const slice = adjusted.slice(d * 4, d * 4 + 4);
     const mean = slice.reduce((a, b) => a + b, 0) / slice.length;
-    result[dim] = Math.round(mean * 20); // 0–100
+    result[dim] = Math.round(((mean - 1) / 4) * 100); // true 0–100 (content/07 §1)
   });
   return result;
 }

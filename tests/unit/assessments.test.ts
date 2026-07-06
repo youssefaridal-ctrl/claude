@@ -47,9 +47,16 @@ describe("scoreAudit", () => {
 });
 
 describe("scoreConfidenceMap", () => {
-  it("scores a neutral profile at 60 across dimensions (3s, with reverses balancing)", () => {
+  it("scores a neutral profile at the true midpoint 50 (3s, with reverses balancing)", () => {
     const scores = scoreConfidenceMap(Array(24).fill(3));
-    for (const value of Object.values(scores)) expect(value).toBe(60);
+    for (const value of Object.values(scores)) expect(value).toBe(50);
+  });
+
+  it("spans the full 0–100 range at the extremes of a reverse-free dimension", () => {
+    // Dimension 3 (boundaries) items 9–12 include one ★ (item 10): mix to hit 100.
+    const answers = Array(24).fill(3);
+    answers[8] = 5; answers[9] = 1; answers[10] = 5; answers[11] = 5; // 1-based 9,10★,11,12
+    expect(scoreConfidenceMap(answers).boundaries).toBe(100);
   });
 
   it("applies reverse scoring — all-5s is NOT a perfect profile", () => {

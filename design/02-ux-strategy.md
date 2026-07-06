@@ -276,7 +276,7 @@ Conventional gamification (XP, badges, leaderboards) would poison this brand. We
 2. **Honest numbers:** outcomes reported with methodology ("In our 2025 member survey, n=1,204, 71% reported…"), never "10x your confidence."
 3. **The fit-check that says no:** program quizzes genuinely redirect mismatched users (to free tools or elsewhere). Referenced in marketing: "We'll tell you if this isn't for you."
 4. **Radical pricing clarity:** all prices on one page, taxes explained, cancel-anytime stated at every purchase point, refund policy in plain language (30-day, no interrogation).
-5. **Privacy as feature:** journal E2E-encrypted (and marketed as such: "We can't read your journal. That's the point."), no ad trackers, data export + true deletion in Settings.
+5. **Privacy as feature:** journal encrypted before storage with keys held separately from the words (a database breach exposes nothing), full client-side end-to-end encryption on the *public* roadmap — and by our own honesty rule, the phrase "end-to-end" is not used in copy until it ships. No ad trackers, data export + true deletion in Settings.
 6. **Documentary stories, not testimonials:** filmed/written Success Stories include the struggle and the relapse, name + occupation shown with consent, no income claims, no stock faces.
 7. **Design quality itself:** in this category, taste *is* trust. Every hairline, easing curve, and sentence of microcopy is a credibility signal.
 8. **Anti-guru stance:** the founder is present but the method is the hero; advisory board diffuses single-personality risk.
