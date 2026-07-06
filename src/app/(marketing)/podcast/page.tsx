@@ -39,6 +39,7 @@ export default function PodcastPage() {
                 <span className="font-mono text-label-mono text-muted-foreground">{e.minutes} د</span>
               </summary>
               <div className="mr-[4.5rem] pb-2 pt-2">
+                <p className="mb-4 text-body-m text-foreground/80">{e.description}</p>
                 <div className="flex items-center gap-4 rounded-r3 border border-border bg-card p-4">
                   <Button size="compact" aria-label={`تشغيل الحلقة ${e.number}`}>تشغيل ▸</Button>
                   <div className="h-1 flex-1 rounded-full bg-muted" aria-hidden>
@@ -46,9 +47,6 @@ export default function PodcastPage() {
                   </div>
                   <span className="font-mono text-label-mono text-muted-foreground">00:00</span>
                 </div>
-                <p className="mt-3 text-body-s text-muted-foreground">
-                  المشغّل الكامل، والملاحظات المبوّبة، والنص القابل للبحث تأتي مع استيراد الصوت.
-                </p>
               </div>
             </details>
           </li>
