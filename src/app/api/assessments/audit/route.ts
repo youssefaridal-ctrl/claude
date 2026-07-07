@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { scoreAudit, AUDIT_WEIGHTS } from "@/server/services/assessments";
 import { track } from "@/lib/analytics";
 
+export const dynamic = "force-static";
+
 /**
  * The Inner Dialogue Audit — deliberately UNGATED (flow A, design/02 §7):
  * anonymous submissions are scored and stored under a one-time token so the

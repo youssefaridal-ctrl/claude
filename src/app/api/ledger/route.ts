@@ -4,6 +4,8 @@ import { policies } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { addLedgerEntry, counterEvidence } from "@/server/services/ledger";
 
+export const dynamic = "force-static";
+
 const createSchema = z.object({
   text: z.string().min(1).max(500),
   becauseClause: z.string().max(500).optional(),

@@ -7,6 +7,8 @@ import { appUrl } from "@/env";
 import { ValidationError } from "@/lib/errors";
 import { track } from "@/lib/analytics";
 
+export const dynamic = "force-static";
+
 const checkoutSchema = z.object({
   tier: z.enum(["PRACTICE", "ACADEMY"]),
   interval: z.enum(["monthly", "annual"]),

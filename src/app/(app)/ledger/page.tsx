@@ -5,6 +5,8 @@ import { buildMetadata } from "@/lib/seo";
 import { AddEntryForm } from "@/components/ledger/add-entry-form";
 import { CounterEvidence } from "@/components/ledger/counter-evidence";
 
+export const dynamic = "force-static";
+
 export const metadata = buildMetadata({ title: "سجل الهوية", noIndex: true });
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -17,7 +19,8 @@ const SOURCE_LABELS: Record<string, string> = {
 
 export default async function LedgerPage() {
   const session = await auth();
-  const userId = session!.user.id;
+  if (!session?.user) return null;
+  const userId = session.user.id;
 
   const [entries, total, chapters] = await Promise.all([
     prisma.ledgerEntry.findMany({

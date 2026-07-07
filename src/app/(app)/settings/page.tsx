@@ -1,24 +1,22 @@
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/seo";
 import { ProfileForm } from "@/components/settings/profile-form";
+import { SignOutButton } from "@/components/auth/sign-out-button";
+
+export const dynamic = "force-static";
 
 export const metadata = buildMetadata({ title: "الإعدادات", noIndex: true });
 
 export default async function SettingsPage() {
   const session = await auth();
-  const userId = session!.user.id;
+  if (!session?.user) return null;
+  const userId = session.user.id;
 
   const [user, profile] = await Promise.all([
     prisma.user.findUnique({ where: { id: userId }, select: { name: true, email: true, role: true, createdAt: true } }),
     prisma.profile.findUnique({ where: { userId }, select: { timezone: true } }),
   ]);
-
-  async function handleSignOut() {
-    "use server";
-    await signOut({ redirectTo: "/" });
-  }
 
   return (
     <div className="container max-w-2xl py-12">
@@ -42,7 +40,13 @@ export default async function SettingsPage() {
           </dl>
           <dl className="flex items-center gap-4 px-5 py-4">
             <dt className="w-28 flex-shrink-0 font-mono text-label-mono uppercase text-muted-foreground">الخطة</dt>
-            <dd className="text-body-m">{user?.role === "FREE" ? "مجاني" : user?.role === "MEMBER" ? "عضو" : user?.role?.toLowerCase() ?? "مجاني"}</dd>
+            <dd className="text-body-m">{
+              user?.role === "MEMBER" ? "عضو" :
+              user?.role === "MENTOR" ? "مرشد" :
+              user?.role === "EDITOR" ? "محرر" :
+              user?.role === "ADMIN" ? "مدير" :
+              "عضو"
+            }</dd>
           </dl>
         </div>
       </section>
@@ -62,9 +66,7 @@ export default async function SettingsPage() {
         <p className="mb-4 text-body-s text-muted-foreground">
           تسجيل الخروج ينهي جلستك على هذا الجهاز. بياناتك تبقى في مكانها.
         </p>
-        <form action={handleSignOut}>
-          <Button type="submit" variant="secondary">تسجيل الخروج</Button>
-        </form>
+        <SignOutButton />
       </section>
 
       {/* Data & deletion — placeholder */}

@@ -6,6 +6,8 @@ import { encryptForUser, decryptForUser } from "@/lib/crypto";
 import { assertJournalQuota } from "@/server/services/subscription";
 import { Weather } from "@prisma/client";
 
+export const dynamic = "force-static";
+
 const createEntrySchema = z.object({
   title: z.string().max(200).optional(),
   content: z.string().min(1).max(50_000),

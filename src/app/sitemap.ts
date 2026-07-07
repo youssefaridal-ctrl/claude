@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+
+export const dynamic = "force-static";
 import { appUrl } from "@/env";
 import { prisma } from "@/lib/prisma";
 

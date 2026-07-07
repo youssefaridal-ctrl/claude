@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { requireTier } from "@/server/services/subscription";
 import { track } from "@/lib/analytics";
 
+export const dynamic = "force-static";
+
 const SPACES = ["general", "inner-dialogue", "work-and-voice", "rebuilding", "wins"] as const;
 
 /**

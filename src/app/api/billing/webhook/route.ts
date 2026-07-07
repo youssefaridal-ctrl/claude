@@ -7,6 +7,8 @@ import { logger } from "@/lib/logger";
 import { invalidateTierCache } from "@/server/services/subscription";
 import { track } from "@/lib/analytics";
 
+export const dynamic = "force-static";
+
 /**
  * Stripe webhook. Signature-verified, idempotent (WebhookEvent ledger),
  * and the single source of truth for subscription state — the app never

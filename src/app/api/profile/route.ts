@@ -3,6 +3,8 @@ import { createHandler } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { policies } from "@/lib/rate-limit";
 
+export const dynamic = "force-static";
+
 const bodySchema = z.object({
   name: z.string().max(80).optional(),
   timezone: z.string().max(64).optional(),

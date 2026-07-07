@@ -6,11 +6,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/seo";
 
+export const dynamic = "force-static";
+
 export const metadata = buildMetadata({ title: "متتبع العادات", noIndex: true });
 
 export default async function TrackerPage() {
   const session = await auth();
-  const habits = await listHabits(session!.user.id);
+  if (!session?.user) return null;
+  const habits = await listHabits(session.user.id);
 
   return (
     <div className="container max-w-3xl py-12">

@@ -4,6 +4,8 @@ import { policies } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { Weather } from "@prisma/client";
 
+export const dynamic = "force-static";
+
 const BODY_AREAS = ["head", "jaw", "chest", "stomach", "shoulders", "everywhere", "unsure"] as const;
 const NEEDS = ["rest", "food", "movement", "people", "quiet", "to-say-something"] as const;
 

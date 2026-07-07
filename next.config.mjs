@@ -17,10 +17,19 @@ const csp = [
   "upgrade-insecure-requests",
 ].join("; ");
 
+const isGitHubPages = process.env.GITHUB_PAGES === "true";
+// NEXT_PUBLIC_ prefix required so Edge runtime (middleware) can read it
+process.env.NEXT_PUBLIC_GITHUB_PAGES = isGitHubPages ? "true" : "";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  ...(isGitHubPages && {
+    output: "export",
+    basePath: "/claude",
+    trailingSlash: true,
+  }),
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
@@ -28,6 +37,7 @@ const nextConfig = {
     ],
     // Marketing photography ships at these widths (design/04 §13, §19).
     deviceSizes: [480, 768, 1200, 1600, 2048],
+    ...(isGitHubPages && { unoptimized: true }),
   },
   experimental: {
     optimizePackageImports: ["lucide-react", "framer-motion"],

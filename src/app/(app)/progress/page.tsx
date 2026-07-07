@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/seo";
 import { computeWeekStates } from "@/server/services/habits";
 
+export const dynamic = "force-static";
+
 export const metadata = buildMetadata({ title: "التقدم", noIndex: true });
 
 const SOURCE_LABELS: Record<string, string> = {
@@ -16,7 +18,8 @@ const SOURCE_LABELS: Record<string, string> = {
 
 export default async function ProgressPage() {
   const session = await auth();
-  const userId = session!.user.id;
+  if (!session?.user) return null;
+  const userId = session.user.id;
 
   const [
     ledgerTotal,
@@ -208,7 +211,7 @@ export default async function ProgressPage() {
               <div key={a.id} className="flex items-center justify-between border-b border-border py-3">
                 <div>
                   <p className="text-body-m font-medium">
-                    {a.type === "INNER_DIALOGUE_AUDIT" ? "تشخيص الحوار الداخلي" : a.type}
+                    {a.type === "DIALOGUE_AUDIT" ? "تشخيص الحوار الداخلي" : a.type}
                   </p>
                   {a.dominantNarrator && (
                     <p className="text-body-s text-muted-foreground">

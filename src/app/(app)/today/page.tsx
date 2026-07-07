@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildMetadata } from "@/lib/seo";
 import { listPublishedArticles } from "@/server/services/content";
 
+export const dynamic = "force-static";
+
 export const metadata = buildMetadata({ title: "اليوم", noIndex: true });
 
 /**
@@ -14,7 +16,8 @@ export const metadata = buildMetadata({ title: "اليوم", noIndex: true });
  */
 export default async function TodayPage() {
   const session = await auth();
-  const userId = session!.user.id;
+  if (!session?.user) return null;
+  const userId = session.user.id;
 
   const [profile, latestLedger, weekLogs, articles] = await Promise.all([
     prisma.profile.findUnique({ where: { userId } }),

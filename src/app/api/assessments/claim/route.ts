@@ -4,6 +4,8 @@ import { policies } from "@/lib/rate-limit";
 import { prisma } from "@/lib/prisma";
 import { track } from "@/lib/analytics";
 
+export const dynamic = "force-static";
+
 /** Attach an anonymous Audit result to the freshly created account. */
 const claimSchema = z.object({ anonToken: z.string().uuid() });
 

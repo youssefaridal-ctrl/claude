@@ -15,7 +15,12 @@ const NAV = [
 
 /** Marketing header: 64px glass chrome (design/03 §nav, design/04 §10). */
 export async function SiteHeader() {
-  const session = await auth();
+  let session = null;
+  try {
+    session = await auth();
+  } catch {
+    // auth() unavailable during static export — render signed-out state
+  }
 
   return (
     <header className="glass sticky top-0 z-50">

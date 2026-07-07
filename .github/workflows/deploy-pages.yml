@@ -1,0 +1,73 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main, claude/confidence-platform-design-2zikb0]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Prepare for static export
+        run: |
+          # Replace auth middleware with no-op for static build
+          cp src/middleware.github-pages.ts src/middleware.ts
+          # Remove dynamic catch-all API routes incompatible with static export
+          rm -rf src/app/api/auth src/app/api/habits
+
+      - name: Build for GitHub Pages
+        run: npm run build
+        env:
+          GITHUB_PAGES: "true"
+          AUTH_SECRET: "github-pages-static-build-placeholder-32-chars"
+          JOURNAL_MASTER_KEY: "0000000000000000000000000000000000000000000000000000000000000000"
+          NEXT_PUBLIC_APP_URL: "https://${{ github.repository_owner }}.github.io/claude"
+          DATABASE_URL: "postgresql://placeholder:placeholder@localhost:5432/placeholder"
+          REDIS_URL: "redis://localhost:6379"
+          STRIPE_SECRET_KEY: "sk_test_placeholder"
+          STRIPE_WEBHOOK_SECRET: "whsec_placeholder"
+          STRIPE_PRICE_PRACTICE_MONTHLY: "price_placeholder"
+          STRIPE_PRICE_PRACTICE_ANNUAL: "price_placeholder"
+          STRIPE_PRICE_ACADEMY_MONTHLY: "price_placeholder"
+          STRIPE_PRICE_ACADEMY_ANNUAL: "price_placeholder"
+          GOOGLE_CLIENT_ID: "placeholder"
+          GOOGLE_CLIENT_SECRET: "placeholder"
+          RESEND_API_KEY: "re_placeholder"
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

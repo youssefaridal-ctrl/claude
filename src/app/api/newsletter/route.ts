@@ -3,6 +3,8 @@ import { createHandler } from "@/lib/api";
 import { prisma } from "@/lib/prisma";
 import { policies } from "@/lib/rate-limit";
 
+export const dynamic = "force-static";
+
 const bodySchema = z.object({ email: z.string().email() });
 
 export const POST = createHandler({ bodySchema, rateLimit: policies.mutation }, async ({ body }) => {

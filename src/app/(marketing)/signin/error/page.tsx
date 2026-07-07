@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/seo";
 
+export const dynamic = "force-static";
 export const metadata = buildMetadata({ title: "خطأ في تسجيل الدخول", noIndex: true });
 
 const MESSAGES: Record<string, string> = {
@@ -22,8 +23,8 @@ export default async function SignInErrorPage({
 }: {
   searchParams: Promise<{ error?: string }>;
 }) {
-  const { error } = await searchParams;
-  const message = (error && MESSAGES[error]) ?? MESSAGES.Default;
+  const params = await searchParams.catch(() => ({} as { error?: string }));
+  const message = (params.error && MESSAGES[params.error]) ?? MESSAGES.Default;
 
   return (
     <div className="container flex min-h-[70vh] max-w-md flex-col justify-center py-16 text-center">
