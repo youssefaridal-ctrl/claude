@@ -29,7 +29,7 @@ export function JournalDemo() {
   function save() {
     const entry: Entry = {
       id: `new-${Date.now()}`,
-      title: draftTitle.trim() || "Untitled",
+      title: draftTitle.trim() || "بلا عنوان",
       excerpt: draftBody.trim(),
       daysAgo: 0,
     };
@@ -45,9 +45,9 @@ export function JournalDemo() {
       {/* Entries rail */}
       <div className="rounded-r3 border border-border bg-card">
         <div className="flex items-center justify-between border-b border-border p-4">
-          <h2 className="eyebrow">Entries</h2>
+          <h2 className="eyebrow">المدخلات</h2>
           <Button size="compact" variant="secondary" onClick={() => setComposing(true)}>
-            New
+            جديد
           </Button>
         </div>
         <ul>
@@ -69,7 +69,7 @@ export function JournalDemo() {
                 <p className="text-body-s font-medium">{e.title}</p>
                 <p className="mt-1 line-clamp-1 text-body-s text-muted-foreground">{e.excerpt}</p>
                 <p className="mt-1 font-mono text-label-mono text-muted-foreground">
-                  {e.daysAgo === 0 ? "today" : `${e.daysAgo}d ago`}
+                  {e.daysAgo === 0 ? "اليوم" : `منذ ${e.daysAgo}ي`}
                 </p>
               </button>
             </li>
@@ -80,28 +80,28 @@ export function JournalDemo() {
       {/* Canvas */}
       <div className="relative rounded-r3 border border-border bg-background p-8">
         <Badge className="absolute right-5 top-5">
-          <Icon icon={Lock} size="inline" /> Encrypted in storage
+          <Icon icon={Lock} size="inline" /> مشفَّر في التخزين
         </Badge>
 
         {composing ? (
           <div className="max-w-xl">
-            <Label htmlFor="j-title">Title</Label>
+            <Label htmlFor="j-title">العنوان</Label>
             <Input id="j-title" value={draftTitle} onChange={(e) => setDraftTitle(e.target.value)} />
             <div className="mt-5">
-              <Label htmlFor="j-body">Entry</Label>
+              <Label htmlFor="j-body">المدخل</Label>
               <Textarea
                 id="j-body"
                 rows={10}
                 value={draftBody}
                 onChange={(e) => setDraftBody(e.target.value)}
-                placeholder="The narrator said… / type "/dialogue" for critic-vs-author mode"
+                placeholder='قال الراوي… / اكتب "/حوار" لوضع الناقد في مواجهة المؤلف'
                 className="font-serif text-body-l"
               />
             </div>
             <div className="mt-4 flex items-center gap-4">
-              <Button onClick={save} disabled={!draftBody.trim()}>Save entry</Button>
+              <Button onClick={save} disabled={!draftBody.trim()}>احفظ المدخل</Button>
               <span className="font-mono text-label-mono text-muted-foreground" aria-live="polite">
-                {draftBody.trim() ? "Draft — saved locally" : ""}
+                {draftBody.trim() ? "مسودة — محفوظة محلياً" : ""}
               </span>
             </div>
           </div>
@@ -110,8 +110,8 @@ export function JournalDemo() {
             <h2 className="font-serif text-heading-s">{current.title}</h2>
             <p className="mt-4 font-serif text-body-l leading-[1.75]">{current.excerpt}</p>
             <p className="mt-8 text-body-s text-muted-foreground">
-              In the wired app this pane is the full editor — slash-commands (/prompt, /evidence,
-              /dialogue), mood capture, and the Sunday review spread.
+              في التطبيق الكامل هذه اللوحة هي المحرر الحقيقي — أوامر مائلة (/موجّه، /دليل، /حوار)،
+              تسجيل المزاج، وعرض المراجعة الأسبوعية.
             </p>
           </article>
         ) : null}

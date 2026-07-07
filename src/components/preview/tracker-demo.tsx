@@ -5,7 +5,7 @@ import { previewHabits } from "@/lib/mock";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const DAYS = ["إث", "ثل", "أر", "خم", "جم", "سب", "أح"];
 const TODAY_INDEX = 4; // prototype fixes "today" mid-week so future days demo the disabled state
 
 /** Local-state Habit Tracker preview: same anatomy as the wired HabitWeek. */
@@ -35,11 +35,11 @@ export function TrackerDemo() {
             <div className="flex items-center justify-between">
               <h2 className="text-body-m font-medium">{habit.name}</h2>
               <p className="font-mono text-label-mono text-muted-foreground" aria-live="polite">
-                {habit.keptDays.size} of {habit.target} this week
-                {habit.keptDays.size >= habit.target && " · kept ✓"}
+                {habit.keptDays.size} من {habit.target} هذا الأسبوع
+                {habit.keptDays.size >= habit.target && " · محقَّق ✓"}
               </p>
             </div>
-            <div role="group" aria-label={`${habit.name} — this week`} className="mt-3 flex gap-2">
+            <div role="group" aria-label={`${habit.name} — هذا الأسبوع`} className="mt-3 flex gap-2">
               {DAYS.map((label, day) => {
                 const kept = habit.keptDays.has(day);
                 const future = day > TODAY_INDEX;
@@ -49,7 +49,7 @@ export function TrackerDemo() {
                     type="button"
                     disabled={future}
                     aria-pressed={kept}
-                    aria-label={`${label}: ${kept ? "kept" : "not logged"}`}
+                    aria-label={`${label}: ${kept ? "محقَّق" : "لم يُسجَّل"}`}
                     onClick={() => toggle(hi, day)}
                     className={cn(
                       "flex h-11 w-11 flex-col items-center justify-center rounded-full border transition-all duration-fast",
@@ -70,8 +70,7 @@ export function TrackerDemo() {
         </Card>
       ))}
       <p className="text-body-s text-muted-foreground">
-        Notice: unchecking a day changes a count, never a color. Nothing here can turn red — that's
-        structural, not cosmetic.
+        لاحظ: إلغاء تحديد يوم يغيّر عدداً، لا لوناً. لا شيء هنا يمكن أن يتحول إلى الأحمر — هذا بنيوي، لا تجميلي.
       </p>
     </div>
   );

@@ -6,10 +6,10 @@ import { cn } from "@/lib/utils";
 import { ThemeToggle } from "@/components/site/theme-toggle";
 
 const NAV = [
-  { href: "/today", label: "Today" },
-  { href: "/practice/tracker", label: "Practice" },
-  { href: "/ledger", label: "Ledger" },
-  { href: "/progress", label: "Progress" },
+  { href: "/today", label: "اليوم" },
+  { href: "/practice/tracker", label: "الممارسة" },
+  { href: "/ledger", label: "السجل" },
+  { href: "/progress", label: "التقدم" },
 ] as const;
 
 /** Active-link matching: exact for /today, prefix for all others. */
@@ -20,7 +20,7 @@ function isActive(pathname: string, href: string) {
 export function AppNavLinks() {
   const pathname = usePathname();
   return (
-    <nav aria-label="App" className="hidden gap-6 md:flex">
+    <nav aria-label="التطبيق" className="hidden gap-6 md:flex">
       {NAV.map((item) => (
         <Link
           key={item.href}
@@ -44,7 +44,7 @@ export function AppBottomNav() {
   const pathname = usePathname();
   return (
     <nav
-      aria-label="App navigation"
+      aria-label="تنقل التطبيق"
       className="glass fixed inset-x-0 bottom-0 z-50 flex h-16 items-stretch justify-around border-t md:hidden"
     >
       {NAV.map((item) => (
@@ -74,7 +74,7 @@ export function AppHeaderActions() {
         href="/settings"
         className="text-body-s text-muted-foreground hover:text-foreground"
       >
-        Settings
+        الإعدادات
       </Link>
     </div>
   );

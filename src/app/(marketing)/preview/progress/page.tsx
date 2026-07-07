@@ -4,15 +4,15 @@ import { Badge } from "@/components/ui/badge";
 export default function PreviewProgressPage() {
   return (
     <div className="container py-12">
-      <p className="eyebrow mb-2">Progress</p>
-      <h1 className="text-display-m font-medium">Evidence, not points.</h1>
+      <p className="eyebrow mb-2">التقدم</p>
+      <h1 className="text-display-m font-medium">دليل، لا نقاط.</h1>
       <p className="mt-2 max-w-xl text-body-m text-muted-foreground">
-        The Ledger keeps what you did; the Delta shows what moved. You&rsquo;ll find no XP, no levels-by-payment,
-        and no leaderboards anywhere in this product — comparison is the disease we treat.
+        السجل يحفظ ما فعلته؛ ودلتا يُظهر ما تحرّك. لن تجد XP ولا مستويات بالدفع
+        ولا لوحات تصنيف في أي مكان بهذا المنتج — المقارنة هي المرض الذي نُعالجه.
       </p>
       <div className="mt-4 flex gap-2">
-        <Badge variant="filled">Chapter 2 · rep 12 of 30</Badge>
-        <Badge>47 Ledger entries</Badge>
+        <Badge variant="filled">الفصل ٢ · التمرين ١٢ من ٣٠</Badge>
+        <Badge>٤٧ إدخالاً في السجل</Badge>
       </div>
       <div className="mt-10">
         <ProgressDemo />

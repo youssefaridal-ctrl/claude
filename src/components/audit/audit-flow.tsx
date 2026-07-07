@@ -11,52 +11,52 @@ import { Button } from "@/components/ui/button";
  */
 
 const ITEMS = [
-  "When something goes well, my first thought is that I got lucky.",
-  "Before I speak in a group, I test the sentence for stupidity.",
-  "After social events, I run a highlight reel of my mistakes.",
-  "I downplay wants so I won't be disappointed.",
-  "I feel responsible for the moods of people around me.",
-  "Taking up space — time, attention, airtime — feels like a debt I'll owe.",
-  "When I imagine trying something new, I picture how it fails first.",
-  '"Good enough" feels like a euphemism for failure.',
-  "I'd rather not try than try and be seen struggling.",
-  "Old mistakes still get called as witnesses against me, years later.",
-  "I agree to things mid-sentence and regret them by the end of the sentence.",
-  "Compliments feel like errors that will be corrected soon.",
+  "حين يسير شيء على ما يرام، أول ما يخطر ببالي أنني كنت محظوظاً فحسب.",
+  "قبل أن أتكلم في مجموعة، أختبر الجملة: هل تبدو غبية؟",
+  "بعد اللقاءات الاجتماعية، أُعيد تشغيل مقاطع أخطائي.",
+  "أُخفّف ما أريده حتى لا أخيب أملي.",
+  "أشعر أنني مسؤول عن مزاج من حولي.",
+  "أخذ مساحة — وقتاً، اهتماماً، كلاماً — يبدو كدين سأسدّده لاحقاً.",
+  "حين أتخيل تجربة شيء جديد، أبدأ بتصوّر كيف سيفشل.",
+  '"جيد بما يكفي" تبدو في أذني مرادفاً للفشل.',
+  "أُفضّل ألا أحاول على أن أُرى أكافح.",
+  "أخطاء قديمة لا تزال تُستدعى كشهود ضدي، بعد سنوات.",
+  "أوافق على أشياء في منتصف الجملة وأندم عليها بنهايتها.",
+  "المجاملات تبدو أخطاءً ستُصحَّح قريباً.",
 ] as const;
 
-const SCALE = ["Never", "Rarely", "Sometimes", "Often", "Always"] as const;
+const SCALE = ["أبداً", "نادراً", "أحياناً", "كثيراً", "دائماً"] as const;
 
 const NARRATOR_COPY: Record<string, { name: string; core: string; work: string }> = {
   PERFECTIONIST: {
-    name: "The Perfectionist",
-    core: `"If it's not flawless, it's failure."`,
-    work: "The work is not lowering your standards — it's writing them down. Undefined standards are unfalsifiable; written ones are meetable, and met standards are how evidence gets in.",
+    name: "الكمالي",
+    core: '"إذا لم يكن عديم العيوب، فهو فشل."',
+    work: "العمل ليس خفض معاييرك — بل كتابتها. المعايير غير المكتوبة لا يمكن دحضها؛ المكتوبة يمكن الوفاء بها، والوفاء بها هو كيف يدخل الدليل.",
   },
   GUARD: {
-    name: "The Guard",
-    core: `"Don't try, and you can't lose."`,
-    work: "The Guard sells protection and delivers smallness. The work is graded thresholds — doors small enough to walk through today, logged as evidence the danger has expired.",
+    name: "الحارس",
+    core: '"لا تحاول، ولن تخسر."',
+    work: "الحارس يبيع الحماية ويُسلّم الضآلة. العمل هو عتبات تدريجية — أبواب صغيرة بما يكفي للمرور منها اليوم، مُسجَّلة كدليل على انتهاء صلاحية الخطر.",
   },
   GHOST: {
-    name: "The Ghost",
-    core: `"Take up less space."`,
-    work: "Learned invisibility, performed as politeness. The work is the Visibility Ladder: eight rungs from one question in a small meeting to a voice the room can count on.",
+    name: "الشبح",
+    core: '"خذ مساحة أقل."',
+    work: "اختفاء مُكتسَب، مُؤدَّى كلياقة. العمل هو سلّم الظهور: ثماني درجات من سؤال واحد في اجتماع صغير إلى صوت يستند إليه الآخرون.",
   },
   PROSECUTOR: {
-    name: "The Prosecutor",
-    core: `"Let's review everything you did wrong."`,
-    work: "The 2 a.m. tribunal convenes for unprocessed charges. The work is the adjournment protocol: hold court once, on paper, at a decent hour — and file or dismiss every charge.",
+    name: "المدّعي",
+    core: '"دعنا نراجع كل ما أخطأت فيه."',
+    work: "محكمة الثانية صباحاً تنعقد لتسوية تهم لم تُعالَج. العمل هو بروتوكول التأجيل: عقد الجلسة مرة واحدة، على ورقة، في ساعة مناسبة — وإغلاق كل تهمة أو ردّها.",
   },
   PLEASER: {
-    name: "The Pleaser",
-    core: `"Keep them happy and you'll be safe."`,
-    work: `The work is boundary scripts in your own dialect, rehearsed before you need them — because "no" is a sentence you can prepare.`,
+    name: "المُرضي",
+    core: '"أسعِدهم وستكون في أمان."',
+    work: 'العمل هو نصوص الحدود بلهجتك الخاصة، مُدرَّبة قبل أن تحتاجها — لأن "لا" جملة يمكن التحضير لها.',
   },
   PROPHET: {
-    name: "The Prophet",
-    core: `"This will go badly. It always does."`,
-    work: `Forecasts of pain, dressed as realism. The work is prediction-vs-actual tracking: write the forecast down, run the moment, score the Prophet's accuracy. It's lower than it sounds.`,
+    name: "المتنبئ",
+    core: '"ستسوء الأمور. دائماً ما يحدث هذا."',
+    work: "توقعات بالألم، مُلبَّسة بالواقعية. العمل هو تتبّع التوقع مقابل الواقع: اكتب التوقع، عِش اللحظة، سجّل دقة المتنبئ. هي أدنى مما تبدو.",
   },
 };
 
@@ -108,7 +108,7 @@ export function AuditFlow() {
       localStorage.removeItem(STORAGE_KEY);
       if (data.anonToken) localStorage.setItem("selv.audit.token", data.anonToken);
     } catch {
-      setError("Something went wrong on our side — not yours. Your answers are safe; try again in a moment.");
+      setError("حدث خطأ من جانبنا — لا من جانبك. إجاباتك محفوظة؛ حاول مجدداً بعد لحظة.");
     } finally {
       setSubmitting(false);
     }
@@ -149,25 +149,25 @@ export function AuditFlow() {
     const secondaryCopy = NARRATOR_COPY[result.secondary];
     return (
       <div className="mx-auto max-w-2xl py-16">
-        <p className="eyebrow mb-4">Your dialogue profile</p>
+        <p className="eyebrow mb-4">ملف حوارك الداخلي</p>
         <h1 className="text-display-m font-medium">
-          Your dominant narrator: <span className="text-accent">{copy?.name}</span>
+          راويك المهيمن: <span className="text-accent">{copy?.name}</span>
         </h1>
         <p className="mt-6 font-serif text-serif-feature italic">{copy?.core}</p>
         <p className="mt-6 text-body-l text-muted-foreground">{copy?.work}</p>
         {secondaryCopy && (
           <p className="mt-4 text-body-s text-muted-foreground">
-            Supporting cast: {secondaryCopy.name} — they work shifts.
+            في الكواليس: {secondaryCopy.name} — يعملان بالتناوب.
           </p>
         )}
         <div className="mt-10 rounded-r3 border border-border bg-card p-6">
-          <h2 className="text-heading-s font-medium">Keep this profile</h2>
+          <h2 className="text-heading-s font-medium">احتفظ بهذا الملف</h2>
           <p className="mt-2 text-body-s text-muted-foreground">
-            Save it to an account and get your 7-day First Rep plan — one exercise a day, matched to your
-            narrator. Or just screenshot it. Both are allowed.
+            احفظه في حساب واحصل على خطة الأسبوع الأول — تمرين يومي مُطابق لراويك.
+            أو خذ لقطة شاشة. كلاهما مسموح.
           </p>
           <Button asChild className="mt-4">
-            <a href="/signin?from=audit">Save my profile</a>
+            <a href="/signin?from=audit">احفظ ملفي</a>
           </Button>
         </div>
       </div>
@@ -210,7 +210,7 @@ export function AuditFlow() {
       </AnimatePresence>
 
       {(step === 3 || step === 8) && (
-        <p className="mt-8 text-center text-body-s text-muted-foreground">Honest answers beat impressive ones.</p>
+        <p className="mt-8 text-center text-body-s text-muted-foreground">الإجابات الصادقة تتفوق على المُبهِرة.</p>
       )}
       {error && (
         <p role="alert" className="mt-8 text-center text-body-s text-attention">
@@ -219,7 +219,7 @@ export function AuditFlow() {
       )}
       {submitting && (
         <p aria-live="polite" className="mt-8 text-center text-body-s text-muted-foreground">
-          Reading your answers…
+          نقرأ إجاباتك…
         </p>
       )}
     </div>

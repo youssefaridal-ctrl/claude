@@ -28,8 +28,8 @@ function DeltaRadar() {
       <svg
         viewBox={`0 0 ${size} ${size}`}
         role="img"
-        aria-label={`Confidence radar: ${dimensions
-          .map((d, i) => `${d} ${current[i]} (was ${previous[i]})`)
+        aria-label={`رادار الثقة: ${dimensions
+          .map((d, i) => `${d} ${current[i]} (كان ${previous[i]})`)
           .join(", ")}`}
         className="mx-auto w-full max-w-sm"
       >
@@ -61,8 +61,8 @@ function DeltaRadar() {
         })}
       </svg>
       <figcaption className="mt-3 flex justify-center gap-6 font-mono text-label-mono text-muted-foreground">
-        <span><span style={{ color: chart.currentDark }}>—</span> this quarter</span>
-        <span><span style={{ color: chart.previousDark }}>- -</span> last quarter</span>
+        <span><span style={{ color: chart.currentDark }}>—</span> هذا الربع</span>
+        <span><span style={{ color: chart.previousDark }}>- -</span> الربع الماضي</span>
       </figcaption>
     </figure>
   );
@@ -85,32 +85,31 @@ export function ProgressDemo() {
   return (
     <div className="grid gap-10 lg:grid-cols-2">
       <div>
-        <h2 className="eyebrow mb-4">The Quarterly Delta</h2>
+        <h2 className="eyebrow mb-4">دلتا الربع السنوي</h2>
         <Card>
           <CardContent className="p-6">
             <DeltaRadar />
             <p className="mt-4 text-center text-body-s text-muted-foreground">
-              The movement is the reward. No single number, on purpose — a number invites verdicts;
-              the shape invites work.
+              الحركة هي المكافأة. لا رقم واحد، عن قصد — الرقم يستدعي الأحكام؛ الشكل يستدعي العمل.
             </p>
           </CardContent>
         </Card>
       </div>
 
       <div>
-        <h2 className="eyebrow mb-4">The Identity Ledger · counter-evidence search</h2>
-        <Label htmlFor="doubt">Type the doubt, verbatim</Label>
+        <h2 className="eyebrow mb-4">سجل الهوية · بحث الأدلة المضادة</h2>
+        <Label htmlFor="doubt">اكتب الشك، حرفياً</Label>
         <Input
           id="doubt"
           type="search"
           value={doubt}
           onChange={(e) => setDoubt(e.target.value)}
-          placeholder='"I can't speak up"'
+          placeholder='"لا أستطيع التعبير عن رأيي"'
         />
         <div aria-live="polite" className="mt-6">
           {matches && (
             <p className="mb-4 font-serif text-body-l">
-              You have {previewLedger.length} entries that disagree with that thought. A few:
+              لديك {previewLedger.length} إدخالاً يعارض هذه الفكرة. بعضها:
             </p>
           )}
           <ul className="space-y-3">
@@ -119,7 +118,7 @@ export function ProgressDemo() {
                 <p className="text-body-m">{e.text}</p>
                 <p className="mt-1 text-body-s italic text-muted-foreground">…{e.because}</p>
                 <div className="mt-2 flex items-center gap-2">
-                  <Badge>{e.days === 1 ? "yesterday" : `${e.days} days ago`}</Badge>
+                  <Badge>{e.days === 1 ? "أمس" : `منذ ${e.days} يوماً`}</Badge>
                 </div>
               </li>
             ))}

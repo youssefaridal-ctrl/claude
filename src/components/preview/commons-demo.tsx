@@ -10,9 +10,11 @@ import { Input, Textarea } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 const SEEKING_COPY: Record<string, string> = {
-  SUPPORT: "seeking: support",
-  PERSPECTIVES: "seeking: perspectives",
-  ACCOUNTABILITY: "seeking: accountability",
+  SUPPORT: "طلب: دعم",
+  PERSPECTIVES: "طلب: وجهات نظر",
+  ACCOUNTABILITY: "طلب: مساءلة",
+  SHARING: "طلب: مشاركة",
+  LEARNING: "طلب: تعلم",
 };
 
 interface DemoPost {
@@ -46,9 +48,9 @@ export function CommonsDemo() {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <h2 className="eyebrow">The Forum · general</h2>
+        <h2 className="eyebrow">المنتدى · عام</h2>
         <Button size="compact" variant="secondary" onClick={() => setComposing((c) => !c)}>
-          {composing ? "Cancel" : "New post"}
+          {composing ? "إلغاء" : "منشور جديد"}
         </Button>
       </div>
 
@@ -56,8 +58,8 @@ export function CommonsDemo() {
         <Card className="mt-4">
           <CardContent className="p-6">
             <fieldset className="mb-5 border-0 p-0">
-              <legend className="mb-2 block text-body-s font-medium">What are you seeking?</legend>
-              <div role="radiogroup" aria-label="Seeking" className="flex flex-wrap gap-2">
+              <legend className="mb-2 block text-body-s font-medium">ما الذي تطلبه؟</legend>
+              <div role="radiogroup" aria-label="نوع الطلب" className="flex flex-wrap gap-2">
                 {(["SUPPORT", "PERSPECTIVES", "ACCOUNTABILITY"] as const).map((s) => (
                   <button
                     key={s}
@@ -71,21 +73,21 @@ export function CommonsDemo() {
                       seeking === s ? "border-foreground bg-foreground text-background" : "border-border hover:border-foreground",
                     )}
                   >
-                    {s.toLowerCase()}
+                    {SEEKING_COPY[s]}
                   </button>
                 ))}
               </div>
               <p className="mt-2 text-body-s text-muted-foreground">
-                This sets what responses you get. No advice unless you ask for perspectives — that&rsquo;s law here.
+                هذا يحدد نوع الردود التي تحصل عليها. لا نصائح إلا إذا طلبت وجهات نظر — هذا قانون هنا.
               </p>
             </fieldset>
-            <Field id="post-title" label="Title">
+            <Field id="post-title" label="العنوان">
               {(aria) => <Input value={title} onChange={(e) => setTitle(e.target.value)} {...aria} />}
             </Field>
-            <Field id="post-body" label="Your post">
+            <Field id="post-body" label="منشورك">
               {(aria) => <Textarea rows={4} value={body} onChange={(e) => setBody(e.target.value)} {...aria} />}
             </Field>
-            <Button onClick={publish} disabled={!title.trim()}>Post to the Commons</Button>
+            <Button onClick={publish} disabled={!title.trim()}>انشر في المنتدى</Button>
           </CardContent>
         </Card>
       )}
@@ -121,10 +123,10 @@ export function CommonsDemo() {
                         seen ? "border-foreground bg-foreground text-background" : "border-border hover:border-foreground",
                       )}
                     >
-                      {seen ? "Witnessed" : "I see you"}
+                      {seen ? "شهدت ذلك" : "أراك"}
                     </button>
                     <span className="text-body-s text-muted-foreground">
-                      {p.comments} {p.comments === 1 ? "reply" : "replies"}
+                      {p.comments} {p.comments === 1 ? "رد" : "ردود"}
                     </span>
                   </div>
                 </CardContent>
@@ -134,7 +136,7 @@ export function CommonsDemo() {
         })}
       </ul>
       <p className="mt-6 text-body-s text-muted-foreground">
-        Notice what&rsquo;s missing: reaction counts. You can witness; you can&rsquo;t compete.
+        لاحظ ما غائب: أعداد التفاعلات. يمكنك أن تشهد؛ لا يمكنك أن تتنافس.
       </p>
     </div>
   );

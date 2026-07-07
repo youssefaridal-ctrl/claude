@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buildMetadata } from "@/lib/seo";
 import { listPublishedArticles } from "@/server/services/content";
 
-export const metadata = buildMetadata({ title: "Today", noIndex: true });
+export const metadata = buildMetadata({ title: "اليوم", noIndex: true });
 
 /**
  * Today — "not a dashboard, a daily page" (design/03 §26).
@@ -44,16 +44,16 @@ export default async function TodayPage() {
       {/* Hero: today's rep — exactly one primary action */}
       <Card className="mt-8 bg-gradient-to-br from-card to-muted">
         <CardHeader>
-          <p className="eyebrow">Today&rsquo;s rep · 4 min · reappraisal</p>
-          <CardTitle>The Second Draft</CardTitle>
+          <p className="eyebrow">تمرين اليوم · ٤ دقائق · إعادة تأطير</p>
+          <CardTitle>المسودة الثانية</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="mb-6 text-body-m text-muted-foreground">
-            Take today&rsquo;s harshest line, get some distance from it, and rewrite it at believability seven.
-            Both drafts go to your Ledger — the pair is the progress.
+            خذ أقسى جملة اليوم، أعطها مسافة، وأعد كتابتها عند درجة مصداقية سبعة.
+            كلتا المسودتين تذهبان إلى سجلّك — الزوج هو التقدم.
           </p>
           <Button asChild>
-            <Link href="/practice/rep">Begin rep</Link>
+            <Link href="/practice/rep">ابدأ التمرين</Link>
           </Button>
         </CardContent>
       </Card>
@@ -62,32 +62,32 @@ export default async function TodayPage() {
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="p-5">
-            <p className="eyebrow mb-2">This week</p>
-            <p className="text-body-m" aria-label={`${weekLogs} habit days kept this week`}>
+            <p className="eyebrow mb-2">هذا الأسبوع</p>
+            <p className="text-body-m" aria-label={`${weekLogs} أيام عادة محقَّقة هذا الأسبوع`}>
               {"●".repeat(Math.min(weekLogs, 7))}
               {"○".repeat(Math.max(0, 4 - weekLogs))}
-              <span className="ml-2 text-body-s text-muted-foreground">{weekLogs} of 4 kept</span>
+              <span className="mr-2 text-body-s text-muted-foreground">{weekLogs} من ٤ محقَّقة</span>
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-5">
-            <p className="eyebrow mb-2">From your Ledger</p>
+            <p className="eyebrow mb-2">من سجلّك</p>
             <p className="text-body-s text-muted-foreground">
-              {latestLedger ? `"${latestLedger.text}"` : "Your first evidence entry is one rep away."}
+              {latestLedger ? `"${latestLedger.text}"` : "إدخال دليلك الأول على بُعد تمرين واحد."}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-5">
-            <p className="eyebrow mb-2">Worth reading</p>
+            <p className="eyebrow mb-2">يستحق القراءة</p>
             {readingPick ? (
               <Link href={`/blog/${readingPick.slug}`} className="text-body-s underline-offset-4 hover:underline">
-                {readingPick.title} →
+                {readingPick.title} ←
               </Link>
             ) : (
               <Link href="/blog" className="text-body-s underline-offset-4 hover:underline">
-                Browse the essay archive →
+                تصفّح أرشيف المقالات ←
               </Link>
             )}
           </CardContent>
@@ -96,7 +96,7 @@ export default async function TodayPage() {
 
       <p className="mt-12 text-center">
         <Link href="/practice/tracker" className="text-body-s text-muted-foreground underline-offset-4 hover:underline">
-          Browse Instruments →
+          تصفّح الأدوات ←
         </Link>
       </p>
     </div>
@@ -115,13 +115,13 @@ function greetingFor(date: Date, timezone: string): string {
   const hour = Number(
     new Intl.DateTimeFormat("en-US", { timeZone: timezone, hour: "numeric", hour12: false }).format(date),
   );
-  if (hour < 12) return "Good morning";
-  if (hour < 18) return "Good afternoon";
-  return "Good evening";
+  if (hour < 12) return "صباح الخير";
+  if (hour < 18) return "مساء الخير";
+  return "مساء النور";
 }
 
 function formatToday(timezone: string): string {
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("ar-SA", {
     timeZone: timezone,
     weekday: "long",
     month: "long",

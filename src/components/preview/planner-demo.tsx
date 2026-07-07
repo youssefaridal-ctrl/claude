@@ -7,15 +7,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 
 const IDENTITIES = [
-  "I'm becoming someone whose voice arrives before the doubt does",
-  "I'm becoming someone who keeps small promises to himself",
+  "أصبح شخصاً يصل صوته قبل أن يصل الشك",
+  "أصبح شخصاً يفي بوعوده الصغيرة لنفسه",
 ];
 
 const INITIAL_MOVES = [
-  { id: "m1", text: "Ask the first question in Monday's leadership sync", done: true },
-  { id: "m2", text: "Draft the conference talk outline (ugly version)", done: true },
-  { id: "m3", text: "One boundary script, written before Thursday", done: false },
-  { id: "m4", text: "Rehearsal Room: salary conversation, twice", done: false },
+  { id: "m1", text: "اطرح السؤال الأول في اجتماع القيادة يوم الاثنين", done: true },
+  { id: "m2", text: "ابدأ مسودة محاضرة المؤتمر (النسخة القبيحة)", done: true },
+  { id: "m3", text: "نص حدود واحد، مكتوب قبل الخميس", done: false },
+  { id: "m4", text: "غرفة البروفة: محادثة الراتب، مرتين", done: false },
 ];
 
 /** Goal Planner preview: Identity → Season → Moves (design/03 §30). */
@@ -26,11 +26,11 @@ export function PlannerDemo() {
 
   return (
     <div className="space-y-8">
-      <section aria-label="Identity statements">
-        <h2 className="eyebrow mb-3">Identity · the directions (max 3)</h2>
+      <section aria-label="بيانات الهوية">
+        <h2 className="eyebrow mb-3">الهوية · الاتجاهات (بحد أقصى ٣)</h2>
         <div className="space-y-3">
           {IDENTITIES.map((s) => (
-            <p key={s} className="border-l-2 border-l-foreground pl-4 font-serif text-body-l italic">
+            <p key={s} className="border-r-2 border-r-foreground pr-4 font-serif text-body-l italic">
               {s}
             </p>
           ))}
@@ -41,24 +41,24 @@ export function PlannerDemo() {
         <CardContent className="p-7">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="eyebrow mb-1">Current season · weeks 1–12</h2>
-              <p className="text-heading-s font-medium">"Say the true thing sooner."</p>
+              <h2 className="eyebrow mb-1">الموسم الحالي · الأسابيع ١–١٢</h2>
+              <p className="text-heading-s font-medium">"قل الشيء الصحيح أبكر."</p>
             </div>
-            <Badge>Week 5 of 12</Badge>
+            <Badge>الأسبوع ٥ من ١٢</Badge>
           </div>
 
           <div className="mt-6">
             <div className="mb-2 flex justify-between font-mono text-label-mono text-muted-foreground">
-              <span>This week&rsquo;s moves</span>
-              <span aria-live="polite">{done} of {moves.length}</span>
+              <span>خطوات هذا الأسبوع</span>
+              <span aria-live="polite">{done} من {moves.length}</span>
             </div>
-            <Progress value={pct} aria-label="Weekly moves progress" accent={pct === 100} />
+            <Progress value={pct} aria-label="تقدم خطوات الأسبوع" accent={pct === 100} />
           </div>
 
           <ul className="mt-6 space-y-1">
             {moves.map((m) => (
               <li key={m.id}>
-                <label className="flex cursor-pointer items-center gap-1 rounded-r2 pr-3 transition-colors duration-fast hover:bg-muted">
+                <label className="flex cursor-pointer items-center gap-1 rounded-r2 pl-3 transition-colors duration-fast hover:bg-muted">
                   <Checkbox
                     checked={m.done}
                     onChange={() =>
@@ -75,15 +75,14 @@ export function PlannerDemo() {
 
           {pct === 100 && (
             <p role="status" className="mt-5 font-serif text-body-l">
-              Week&rsquo;s moves complete. Done is done — the rest of the week is allowed to be ordinary.
+              خطوات الأسبوع مكتملة. المنجز منجز — بقية الأسبوع مسموح لها أن تكون عادية.
             </p>
           )}
         </CardContent>
       </Card>
 
       <p className="text-body-s text-muted-foreground">
-        Two or three goals per season — the UI physically limits it. Every yes to a fourth goal is a no to
-        the first three.
+        هدفان أو ثلاثة في الموسم — الواجهة تُقيّد ذلك حرفياً. كل نعم لهدف رابع هو لا للثلاثة الأولى.
       </p>
     </div>
   );

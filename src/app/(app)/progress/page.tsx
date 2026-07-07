@@ -4,14 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { buildMetadata } from "@/lib/seo";
 import { computeWeekStates } from "@/server/services/habits";
 
-export const metadata = buildMetadata({ title: "Progress", noIndex: true });
+export const metadata = buildMetadata({ title: "التقدم", noIndex: true });
 
 const SOURCE_LABELS: Record<string, string> = {
-  REP: "Reps",
-  HABIT: "Habits",
-  CHALLENGE: "Challenges",
-  JOURNAL: "Journal",
-  MANUAL: "Manual entries",
+  REP: "تمارين",
+  HABIT: "عادات",
+  CHALLENGE: "تحديات",
+  JOURNAL: "مجلة",
+  MANUAL: "إدخالات يدوية",
 };
 
 export default async function ProgressPage() {
@@ -51,25 +51,33 @@ export default async function ProgressPage() {
   const repsInCurrentChapter = repCount % 30;
   const nextChapterAt = 30;
 
-  // Week states for all habits, last 12 weeks
   const habitWeeks = habits.map((h) => ({
     name: h.name,
     identityStatement: h.identityStatement,
     weeks: computeWeekStates(h.logs, h.targetPerWeek, 12),
   }));
 
+  const NARRATOR_NAMES: Record<string, string> = {
+    PERFECTIONIST: "الكمالي",
+    GUARD: "الحارس",
+    GHOST: "الشبح",
+    PROSECUTOR: "المدّعي",
+    PLEASER: "المُرضي",
+    PROPHET: "المتنبئ",
+  };
+
   return (
     <div className="container max-w-3xl py-12">
-      <p className="eyebrow mb-2">Instruments</p>
-      <h1 className="text-display-m font-medium">Progress</h1>
+      <p className="eyebrow mb-2">الأدوات</p>
+      <h1 className="text-display-m font-medium">التقدم</h1>
 
       {/* Ledger summary */}
-      <section aria-label="Ledger overview" className="mt-10">
-        <p className="eyebrow mb-5">Identity Ledger</p>
+      <section aria-label="ملخص السجل" className="mt-10">
+        <p className="eyebrow mb-5">سجل الهوية</p>
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div className="rounded-r3 border border-border bg-card p-5">
             <p className="text-display-m font-medium">{ledgerTotal}</p>
-            <p className="mt-1 font-mono text-label-mono uppercase text-muted-foreground">Total entries</p>
+            <p className="mt-1 font-mono text-label-mono uppercase text-muted-foreground">إجمالي المدخلات</p>
           </div>
           {ledgerBySrc.map((row) => (
             <div key={row.source} className="rounded-r3 border border-border bg-card p-5">
@@ -83,12 +91,12 @@ export default async function ProgressPage() {
       </section>
 
       {/* Chapter progress */}
-      <section aria-label="Rep chapters" className="mt-10">
+      <section aria-label="فصول التمارين" className="mt-10">
         <div className="flex items-baseline justify-between">
-          <p className="eyebrow">Rep chapters</p>
+          <p className="eyebrow">فصول التمارين</p>
           {repCount > 0 && (
             <p className="text-body-s text-muted-foreground">
-              {repsInCurrentChapter} / {nextChapterAt} reps in Chapter {chapters.length + 1}
+              {repsInCurrentChapter} / {nextChapterAt} تمريناً في الفصل {chapters.length + 1}
             </p>
           )}
         </div>
@@ -107,15 +115,15 @@ export default async function ProgressPage() {
         {chapters.length === 0 ? (
           <div className="rounded-r3 border border-dashed border-border bg-card p-8 text-center">
             <p className="font-serif text-serif-feature text-muted-foreground">
-              First Chapter closes at 30 reps.
+              الفصل الأول يُغلق عند ٣٠ تمريناً.
             </p>
             <p className="mt-2 text-body-s text-muted-foreground">
               {repCount === 0
-                ? "Your first rep is one step away."
-                : `${30 - repsInCurrentChapter} more rep${30 - repsInCurrentChapter !== 1 ? "s" : ""} to close Chapter 1.`}
+                ? "تمرينك الأول على بُعد خطوة واحدة."
+                : `${30 - repsInCurrentChapter} تمرين آخر لإغلاق الفصل ١.`}
             </p>
             <Link href="/practice/rep" className="mt-4 inline-block text-accent underline-offset-4 hover:underline">
-              Do a rep →
+              أجرِ تمريناً ←
             </Link>
           </div>
         ) : (
@@ -131,11 +139,11 @@ export default async function ProgressPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="font-mono text-label-mono uppercase">
-                        {recap.title ?? `Chapter ${ch.number}`}
+                        {recap.title ?? `الفصل ${ch.number}`}
                       </p>
                       <p className="mt-1 text-body-s text-muted-foreground">
-                        {ch.repCount} reps ·{" "}
-                        {new Date(ch.closedAt).toLocaleDateString("en-US", {
+                        {ch.repCount} تمرين ·{" "}
+                        {new Date(ch.closedAt).toLocaleDateString("ar-SA", {
                           month: "long",
                           year: "numeric",
                         })}
@@ -143,7 +151,7 @@ export default async function ProgressPage() {
                     </div>
                   </div>
                   {recap.highlights && recap.highlights.length > 0 && (
-                    <blockquote className="mt-4 border-l-2 border-solar-500 pl-4 font-serif text-body-l italic">
+                    <blockquote className="mt-4 border-r-2 border-solar-500 pr-4 font-serif text-body-l italic">
                       &ldquo;{recap.highlights[0]}&rdquo;
                     </blockquote>
                   )}
@@ -156,8 +164,8 @@ export default async function ProgressPage() {
 
       {/* Habit history — 12-week dots */}
       {habitWeeks.length > 0 && (
-        <section aria-label="Habit history" className="mt-10">
-          <p className="eyebrow mb-5">Habit history · 12 weeks</p>
+        <section aria-label="سجل العادات" className="mt-10">
+          <p className="eyebrow mb-5">سجل العادات · ١٢ أسبوعاً</p>
           <div className="space-y-6">
             {habitWeeks.map((h) => (
               <div key={h.name}>
@@ -165,13 +173,13 @@ export default async function ProgressPage() {
                 <p className="mb-3 text-body-s italic text-muted-foreground">{h.identityStatement}</p>
                 <div
                   role="img"
-                  aria-label={`${h.name}: ${h.weeks.filter((w) => w.kept).length} of 12 weeks kept`}
+                  aria-label={`${h.name}: ${h.weeks.filter((w) => w.kept).length} من 12 أسبوعاً محقَّقة`}
                   className="flex flex-wrap gap-1.5"
                 >
                   {h.weeks.map((week) => (
                     <div
                       key={week.weekStart}
-                      title={`Week of ${week.weekStart}: ${week.keptDays}/${week.target} days`}
+                      title={`أسبوع ${week.weekStart}: ${week.keptDays}/${week.target} أيام`}
                       className={`h-4 w-4 rounded-sm ${
                         week.kept
                           ? "bg-foreground"
@@ -183,7 +191,7 @@ export default async function ProgressPage() {
                   ))}
                 </div>
                 <p className="mt-2 text-body-s text-muted-foreground">
-                  {h.weeks.filter((w) => w.kept).length} of 12 weeks kept
+                  {h.weeks.filter((w) => w.kept).length} من 12 أسبوعاً محقَّقة
                 </p>
               </div>
             ))}
@@ -193,23 +201,23 @@ export default async function ProgressPage() {
 
       {/* Assessment history */}
       {assessments.length > 0 && (
-        <section aria-label="Assessment history" className="mt-10">
-          <p className="eyebrow mb-4">Assessments</p>
+        <section aria-label="سجل التشخيصات" className="mt-10">
+          <p className="eyebrow mb-4">التشخيصات</p>
           <div className="space-y-3">
             {assessments.map((a) => (
               <div key={a.id} className="flex items-center justify-between border-b border-border py-3">
                 <div>
                   <p className="text-body-m font-medium">
-                    {a.type.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase())}
+                    {a.type === "INNER_DIALOGUE_AUDIT" ? "تشخيص الحوار الداخلي" : a.type}
                   </p>
                   {a.dominantNarrator && (
                     <p className="text-body-s text-muted-foreground">
-                      Dominant: {a.dominantNarrator.charAt(0) + a.dominantNarrator.slice(1).toLowerCase()}
+                      المهيمن: {NARRATOR_NAMES[a.dominantNarrator] ?? a.dominantNarrator}
                     </p>
                   )}
                 </div>
                 <p className="font-mono text-label-mono uppercase text-muted-foreground">
-                  {new Date(a.createdAt).toLocaleDateString("en-US", {
+                  {new Date(a.createdAt).toLocaleDateString("ar-SA", {
                     month: "short",
                     day: "numeric",
                     year: "numeric",
@@ -220,7 +228,7 @@ export default async function ProgressPage() {
           </div>
           <p className="mt-4">
             <Link href="/lab/audit" className="text-accent underline-offset-4 hover:underline">
-              Retake the Audit →
+              أعِد التشخيص ←
             </Link>
           </p>
         </section>
@@ -229,13 +237,13 @@ export default async function ProgressPage() {
       {/* Quick links */}
       <div className="mt-12 flex flex-wrap gap-4 border-t border-border pt-8">
         <Link href="/ledger" className="text-body-s text-accent underline-offset-4 hover:underline">
-          Full Ledger →
+          السجل الكامل ←
         </Link>
         <Link href="/practice/rep" className="text-body-s text-accent underline-offset-4 hover:underline">
-          Do a rep →
+          أجرِ تمريناً ←
         </Link>
         <Link href="/practice/tracker" className="text-body-s text-accent underline-offset-4 hover:underline">
-          Habit tracker →
+          متتبع العادات ←
         </Link>
       </div>
     </div>

@@ -8,8 +8,8 @@ export default function PreviewTodayPage() {
   return (
     <div className="container max-w-3xl py-12">
       <p className="font-serif text-serif-feature">
-        {new Intl.DateTimeFormat("en-US", { weekday: "long", month: "long", day: "numeric" }).format(new Date())}.
-        Good morning, Maya.
+        {new Intl.DateTimeFormat("ar-SA", { weekday: "long", month: "long", day: "numeric" }).format(new Date())}.
+        صباح الخير، مايا.
       </p>
 
       <div className="mt-8">
@@ -19,23 +19,23 @@ export default function PreviewTodayPage() {
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
         <Card>
           <CardContent className="p-5">
-            <p className="eyebrow mb-2">This week</p>
+            <p className="eyebrow mb-2">هذا الأسبوع</p>
             <p className="text-body-m">
-              ●●●○ <span className="ml-2 text-body-s text-muted-foreground">3 of 4 kept</span>
+              ●●●○ <span className="mr-2 text-body-s text-muted-foreground">٣ من ٤ محقَّقة</span>
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-5">
-            <p className="eyebrow mb-2">From your Ledger</p>
-            <p className="text-body-s text-muted-foreground">"{latest.text}"</p>
+            <p className="eyebrow mb-2">من سجلّك</p>
+            <p className="text-body-s text-muted-foreground">&ldquo;{latest.text}&rdquo;</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-5">
-            <p className="eyebrow mb-2">Worth reading</p>
+            <p className="eyebrow mb-2">يستحق القراءة</p>
             <Link href="/blog/the-2am-tribunal" className="text-body-s underline-offset-4 hover:underline">
-              The 2 a.m. Tribunal →
+              محكمة الثانية صباحاً ←
             </Link>
           </CardContent>
         </Card>
@@ -43,7 +43,7 @@ export default function PreviewTodayPage() {
 
       <p className="mt-12 text-center">
         <Link href="/preview/tracker" className="text-body-s text-muted-foreground underline-offset-4 hover:underline">
-          Browse Instruments →
+          تصفّح الأدوات ←
         </Link>
       </p>
     </div>

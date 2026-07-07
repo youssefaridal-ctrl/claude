@@ -2,23 +2,23 @@ import Link from "next/link";
 import { InteractiveCard, CardContent } from "@/components/ui/card";
 
 const SCREENS = [
-  { href: "/preview/today", name: "Today", blurb: "The daily page: one rep, three tiles, nothing else. Run the rep — it's the product's heartbeat." },
-  { href: "/preview/tracker", name: "Habit Tracker", blurb: "Grace-based weeks. Toggle the day dots; notice nothing ever turns red." },
-  { href: "/preview/journal", name: "Journal", blurb: "Two-pane writing with the encryption badge and mood capture." },
-  { href: "/preview/planner", name: "Goal Planner", blurb: "Identity → Season → Moves. Check moves off; the season arc responds." },
-  { href: "/preview/progress", name: "Progress", blurb: "The Identity Ledger, the counter-evidence search, and the quarterly Delta radar." },
-  { href: "/preview/commons", name: "The Commons", blurb: 'Seeking-labeled posts and the "I see you" reaction — no counts anywhere.' },
+  { href: "/preview/today", name: "اليوم", blurb: "الصفحة اليومية: تمرين واحد، ثلاث بطاقات، لا شيء آخر. أجرِ التمرين — هو نبضة المنتج." },
+  { href: "/preview/tracker", name: "متتبع العادات", blurb: "أسابيع مبنية على اللطف. بدّل نقاط الأيام؛ ستلاحظ ألا شيء يتحول إلى الأحمر أبداً." },
+  { href: "/preview/journal", name: "المجلة", blurb: "كتابة بجزئين مع شارة التشفير وتسجيل المزاج." },
+  { href: "/preview/planner", name: "مخطط الأهداف", blurb: "الهوية ← الموسم ← الخطوات. أنجز الخطوات؛ قوس الموسم يستجيب." },
+  { href: "/preview/progress", name: "التقدم", blurb: "سجل الهوية، والبحث عن الأدلة المضادة، وراداري دلتا الفصلي." },
+  { href: "/preview/commons", name: "المنتدى", blurb: 'منشورات بعلامات طلب ورد الفعل "أراك" — لا أعداد في أي مكان.' },
 ] as const;
 
 export default function PreviewIndexPage() {
   return (
     <div className="container py-s9">
-      <p className="eyebrow mb-3">Member app · clickable prototype</p>
-      <h1 className="text-display-l font-medium">Walk the whole product.</h1>
+      <p className="eyebrow mb-3">تطبيق الأعضاء · نموذج أولي تفاعلي</p>
+      <h1 className="text-display-l font-medium">جوّل في المنتج كله.</h1>
       <p className="mt-3 max-w-xl text-body-l text-muted-foreground">
-        Every member screen, interactive, with sample data — no account, nothing saved. The public site
-        and the <Link href="/lab/audit" className="underline underline-offset-4">real Audit</Link> are
-        live around it; this is the part that normally sits behind sign-in.
+        كل شاشة للأعضاء، تفاعلية، ببيانات نموذجية — بلا حساب، ولا شيء يُحفظ. الموقع العام
+        و<Link href="/lab/audit" className="underline underline-offset-4">التشخيص الحقيقي</Link> حيّان من حوله؛
+        هذا القسم يجلس عادةً خلف تسجيل الدخول.
       </p>
       <div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
         {SCREENS.map((s) => (

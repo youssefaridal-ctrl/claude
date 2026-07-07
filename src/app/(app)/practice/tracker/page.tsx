@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { buildMetadata } from "@/lib/seo";
 
-export const metadata = buildMetadata({ title: "Habit Tracker", noIndex: true });
+export const metadata = buildMetadata({ title: "متتبع العادات", noIndex: true });
 
 export default async function TrackerPage() {
   const session = await auth();
@@ -16,14 +16,14 @@ export default async function TrackerPage() {
     <div className="container max-w-3xl py-12">
       <div className="flex items-end justify-between">
         <div>
-          <p className="eyebrow mb-2">Instruments</p>
-          <h1 className="text-display-m font-medium">Tracker</h1>
+          <p className="eyebrow mb-2">الأدوات</p>
+          <h1 className="text-display-m font-medium">المتتبع</h1>
           <p className="mt-2 text-body-m text-muted-foreground">
-            Weeks, not chains. Four kept days is a kept week — and a missed day is data, never a verdict.
+            أسابيع لا سلاسل. أربعة أيام محقَّقة تعني أسبوعاً محقَّقاً — واليوم الفائت بيانات، لا حكم أبداً.
           </p>
         </div>
         <Button asChild variant="secondary" size="compact">
-          <Link href="/practice/tracker/new">New habit</Link>
+          <Link href="/practice/tracker/new">عادة جديدة</Link>
         </Button>
       </div>
 
@@ -31,12 +31,12 @@ export default async function TrackerPage() {
         {habits.length === 0 && (
           <Card>
             <CardContent className="py-12 text-center">
-              <p className="font-serif text-serif-feature">Nothing here yet.</p>
+              <p className="font-serif text-serif-feature">لا شيء هنا بعد.</p>
               <p className="mt-2 text-body-s text-muted-foreground">
-                That&rsquo;s not a gap — it&rsquo;s a beginning. Every habit starts with who it belongs to.
+                هذه ليست فجوة — بل بداية. كل عادة تبدأ بمن تنتمي إليه.
               </p>
               <Button asChild className="mt-6">
-                <Link href="/practice/tracker/new">Create your first habit</Link>
+                <Link href="/practice/tracker/new">أنشئ أول عادة لك</Link>
               </Button>
             </CardContent>
           </Card>
@@ -67,7 +67,7 @@ function thisWeek(keptDates: Date[]): DayState[] {
   const now = new Date();
   const monday = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
   monday.setUTCDate(monday.getUTCDate() - ((monday.getUTCDay() + 6) % 7));
-  const labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  const labels = ["إث", "ثل", "أر", "خم", "جم", "سب", "أح"];
   const todayIso = now.toISOString().slice(0, 10);
 
   return labels.map((label, i) => {

@@ -30,69 +30,69 @@ export function RepPlayer() {
   return (
     <Card className="bg-gradient-to-br from-card to-muted">
       <CardHeader>
-        <p className="eyebrow">Today&rsquo;s rep · 4 min · reappraisal</p>
-        <CardTitle>The Second Draft</CardTitle>
+        <p className="eyebrow">تمرين اليوم · ٤ دقائق · إعادة تأطير</p>
+        <CardTitle>المسودة الثانية</CardTitle>
       </CardHeader>
       <CardContent>
         <AnimatePresence mode="wait">
           {phase === "intro" && (
             <motion.div key="intro" {...anim}>
               <p className="text-body-m text-muted-foreground">
-                Take today&rsquo;s harshest line, get some distance from it, and rewrite it at believability
-                seven. Both drafts go to your Ledger — the pair is the progress.
+                خذ أقسى جملة اليوم، أعطها مسافة، وأعد كتابتها عند درجة مصداقية سبعة.
+                كلتا المسودتين تذهبان إلى سجلّك — الزوج هو التقدم.
               </p>
-              <Button className="mt-6" onClick={() => setPhase("quote")}>Begin rep</Button>
+              <Button className="mt-6" onClick={() => setPhase("quote")}>ابدأ التمرين</Button>
             </motion.div>
           )}
 
           {phase === "quote" && (
             <motion.div key="quote" {...anim}>
-              <p className="eyebrow mb-3">Step 1 of 3 · Quote it</p>
+              <p className="eyebrow mb-3">الخطوة ١ من ٣ · اقتبسها</p>
               <Label htmlFor="rep-quote">
-                What did the narrator say today? Verbatim — ugly grammar and all.
+                ماذا قال الراوي اليوم؟ حرفياً — بكل قبحه النحوي.
               </Label>
               <Textarea
                 id="rep-quote"
                 value={quote}
                 onChange={(e) => setQuote(e.target.value)}
-                placeholder='"You're going to…"'
+                placeholder='"ستُحرج نفسك…"'
                 className="font-serif"
               />
               <Button className="mt-4" disabled={!quote.trim()} onClick={() => setPhase("distance")}>
-                Next
+                التالي
               </Button>
             </motion.div>
           )}
 
           {phase === "distance" && (
             <motion.div key="distance" {...anim} aria-live="polite">
-              <p className="eyebrow mb-3">Step 2 of 3 · Distance it</p>
-              <p className="text-body-m text-muted-foreground">Read this once, slowly:</p>
+              <p className="eyebrow mb-3">الخطوة ٢ من ٣ · أعطها مسافة</p>
+              <p className="text-body-m text-muted-foreground">اقرأ هذا مرة، بتمهّل:</p>
               <p className="mt-4 font-serif text-serif-feature">
-                "I&rsquo;m having the thought that {quote.trim().replace(/^[""]|[""]$/g, "")}"
+                "أنا أعاني من فكرة أنني {quote.trim().replace(/^[""]|[""]$/g, "")}"
               </p>
               <p className="mt-4 text-body-s text-muted-foreground">
-                Same words — different altitude. The thought becomes weather, not fact.
+                نفس الكلمات — ارتفاع مختلف. الفكرة أصبحت طقساً لا حقيقة.
               </p>
-              <Button className="mt-6" onClick={() => setPhase("rewrite")}>Next</Button>
+              <Button className="mt-6" onClick={() => setPhase("rewrite")}>التالي</Button>
             </motion.div>
           )}
 
           {phase === "rewrite" && (
             <motion.div key="rewrite" {...anim}>
-              <p className="eyebrow mb-3">Step 3 of 3 · Rewrite it</p>
+              <p className="eyebrow mb-3">الخطوة ٣ من ٣ · أعد كتابتها</p>
               <Label htmlFor="rep-rewrite">
-                The second draft — in your dialect, anchored in one fact, believability 7 or better.
+                المسودة الثانية — بلهجتك، مُرتكزة على حقيقة واحدة، مصداقية سبعة فما فوق.
               </Label>
               <Textarea
                 id="rep-rewrite"
                 value={rewrite}
                 onChange={(e) => setRewrite(e.target.value)}
-                placeholder='"I've done hard rooms before…"'
+                placeholder='"خضت غرفاً صعبة من قبل…"'
                 className="font-serif"
               />
               <Button className="mt-4" disabled={!rewrite.trim()} onClick={() => setPhase("done")}>
-                File it in the Ledger
+                أودِعها في السجل
               </Button>
             </motion.div>
           )}
@@ -106,11 +106,11 @@ export function RepPlayer() {
                 className="rounded-r3 border border-solar-500/40 bg-background p-6 shadow-glow-solar"
               >
                 <p className="font-serif text-serif-feature">"{rewrite.trim()}"</p>
-                <Badge variant="solar" className="mt-4">Filed · Identity Ledger</Badge>
+                <Badge variant="solar" className="mt-4">مُودَعة · سجل الهوية</Badge>
               </motion.div>
-              <p className="mt-8 font-serif text-serif-feature">Done is done.</p>
+              <p className="mt-8 font-serif text-serif-feature">المنجز منجز.</p>
               <p className="mt-2 text-body-s text-muted-foreground">
-                Tomorrow: Evidence Sprint, 3 min. It&rsquo;s already scheduled — nothing to remember.
+                غداً: جلسة البحث عن الأدلة، ٣ دقائق. مجدوَلة بالفعل — لا شيء تتذكره.
               </p>
               <Button
                 variant="ghost"
@@ -122,7 +122,7 @@ export function RepPlayer() {
                   setPhase("intro");
                 }}
               >
-                Run it again
+                أجرِه مرة أخرى
               </Button>
             </motion.div>
           )}

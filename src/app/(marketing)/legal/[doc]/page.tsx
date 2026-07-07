@@ -9,26 +9,58 @@ import { buildMetadata } from "@/lib/seo";
 
 const DOCS: Record<string, { title: string; sections: { heading: string; plain: string }[] }> = {
   privacy: {
-    title: "Privacy Policy",
+    title: "سياسة الخصوصية",
     sections: [
-      { heading: "What we collect", plain: "Your email, your practice data, and what you choose to write. First-party analytics only — no ad trackers, ever." },
-      { heading: "Your journal", plain: "Encrypted before it's stored, keys kept apart from your words. If our database leaked, your words wouldn't. Full end-to-end encryption is on our public roadmap." },
-      { heading: "Your rights", plain: "Export everything in Settings. Deletion means deletion — gone within 30 days, not deactivated." },
+      {
+        heading: "ما الذي نجمعه",
+        plain: "بريدك الإلكتروني، وبيانات ممارستك، وما تختار كتابته. تحليلات الطرف الأول فقط — لا متتبعات إعلانية، أبداً.",
+      },
+      {
+        heading: "مجلتك الخاصة",
+        plain: "تُشفَّر قبل تخزينها، والمفاتيح تُحفظ بمعزل عن كلماتك. لو سُرّبت قاعدة بياناتنا، لن تسرّب كلماتك. التشفير الكامل من طرف إلى طرف موجود في خارطة طريقنا العامة.",
+      },
+      {
+        heading: "حقوقك",
+        plain: "صدّر كل شيء من الإعدادات. الحذف يعني الحذف — يختفي خلال 30 يوماً، لا مجرد تعطيل.",
+      },
+      {
+        heading: "لن نفعل",
+        plain: "لن نبيع بياناتك. لن نشاركها مع معلنين. لن نستخدمها لتدريب نماذج الذكاء الاصطناعي الخارجية. هذا وعد بالنص، لا مجرد سياسة.",
+      },
     ],
   },
   terms: {
-    title: "Terms of Service",
+    title: "شروط الخدمة",
     sections: [
-      { heading: "The deal", plain: "You get the tools and content for the tier you pay for. Cancel in two clicks. 30-day refund, no interrogation." },
-      { heading: "What SELV is not", plain: "Education and practice, not therapy or medical care — and we say so everywhere it matters." },
-      { heading: "Your content", plain: "Your words stay yours. We never sell data, and the Commons' "what's shared here stays here" rule binds us too." },
+      {
+        heading: "الاتفاق",
+        plain: "تحصل على الأدوات والمحتوى للمستوى الذي تدفع مقابله. إلغاء بنقرتين. استرداد خلال 30 يوماً بلا أسئلة.",
+      },
+      {
+        heading: "ما ليس سيلف",
+        plain: "تعليم وممارسة، لا علاجاً نفسياً ولا رعاية طبية — ونقول ذلك في كل مكان يهم.",
+      },
+      {
+        heading: "محتواك",
+        plain: "كلماتك تبقى لك. لا نبيع البيانات أبداً، وقاعدة المنتدى 'ما يُشارَك هنا يبقى هنا' تُلزمنا أيضاً.",
+      },
+      {
+        heading: "التوقعات المتبادلة",
+        plain: "نلتزم بتحسين المنتج وصون بياناتك والتواصل معك عند حدوث تغييرات مهمة. نطلب منك استخدام المنصة بنية صادقة واحترام خصوصية أعضاء المنتدى الآخرين.",
+      },
     ],
   },
   cookies: {
-    title: "Cookie Policy",
+    title: "سياسة ملفات تعريف الارتباط",
     sections: [
-      { heading: "What we set", plain: "A session cookie to keep you signed in, and a theme preference. That's the list." },
-      { heading: "What we don't", plain: "No ad cookies, no cross-site trackers, no fingerprinting. The site works fully if you decline everything optional." },
+      {
+        heading: "ما نضعه",
+        plain: "ملف ارتباط للجلسة يُبقيك متصلاً، وتفضيل للمظهر. هذا هو القائمة.",
+      },
+      {
+        heading: "ما لا نضعه",
+        plain: "لا ملفات ارتباط إعلانية، ولا متتبعات عبر المواقع، ولا بصمات رقمية. يعمل الموقع بالكامل إذا رفضت كل اختياري.",
+      },
     ],
   },
 };
@@ -40,7 +72,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ doc: string }> }) {
   const { doc } = await params;
   const d = DOCS[doc];
-  if (!d) return buildMetadata({ title: "Not found", noIndex: true });
+  if (!d) return buildMetadata({ title: "غير موجود", noIndex: true });
   return buildMetadata({ title: d.title, path: `/legal/${doc}` });
 }
 
@@ -51,21 +83,20 @@ export default async function LegalPage({ params }: { params: Promise<{ doc: str
 
   return (
     <div className="container max-w-[680px] py-s9">
-      <p className="eyebrow mb-3">Legal</p>
+      <p className="eyebrow mb-3">قانوني</p>
       <h1 className="text-display-l font-medium">{d.title}</h1>
-      <p className="mt-3 font-mono text-label-mono text-muted-foreground">Last updated: prototype draft · v0</p>
+      <p className="mt-3 font-mono text-label-mono text-muted-foreground">آخر تحديث: مسودة نموذج أولي · ن٠</p>
 
       <div className="mt-12 space-y-10">
         {d.sections.map((s) => (
           <section key={s.heading}>
             <h2 className="text-heading-s font-medium">{s.heading}</h2>
             <div className="mt-3 rounded-r3 bg-card p-5">
-              <p className="eyebrow mb-2">In plain words</p>
+              <p className="eyebrow mb-2">بكلمات بسيطة</p>
               <p className="text-body-m">{s.plain}</p>
             </div>
             <p className="mt-3 text-body-s text-muted-foreground">
-              [Full legal text for this section arrives with counsel review — the plain-language card above
-              is binding on our conduct in the meantime.]
+              [النص القانوني الكامل لهذا القسم يصل مع مراجعة المستشار القانوني — البطاقة أعلاه ملزِمة لسلوكنا في غضون ذلك.]
             </p>
           </section>
         ))}

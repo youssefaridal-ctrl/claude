@@ -7,7 +7,7 @@ import { Textarea, Label } from "@/components/ui/input";
 
 type Phase = "intro" | "quote" | "distance" | "rewrite" | "done";
 
-const DISTANCE_PREAMBLE = "I'm having the thought that";
+const DISTANCE_PREAMBLE = "أنا أعاني من فكرة أنني";
 
 export function RepFlow() {
   const reduced = useReducedMotion();
@@ -29,22 +29,21 @@ export function RepFlow() {
     setError(null);
     try {
       const normalised = quote.trim().replace(/^[""""]|[""""]$/g, "");
-      // Two entries: the rewrite is the evidence; the original is the context.
       await Promise.all([
         fetch("/api/ledger", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             text: rewrite.trim(),
-            becauseClause: `Rewrite of: "${normalised}"`,
+            becauseClause: `إعادة كتابة: "${normalised}"`,
             source: "REP",
-            themeTags: ["reappraisal", "second-draft"],
+            themeTags: ["إعادة-تأطير", "المسودة-الثانية"],
           }),
         }),
       ]);
       setPhase("done");
     } catch {
-      setError("That didn't save — our side, not yours. Your words are worth keeping. Try once more.");
+      setError("لم يُحفَظ — الخطأ من جانبنا لا من جانبك. كلماتك تستحق البقاء. حاول مرة أخرى.");
     } finally {
       setSaving(false);
     }
@@ -56,55 +55,55 @@ export function RepFlow() {
 
         {phase === "intro" && (
           <motion.div key="intro" {...anim} className="text-center">
-            <p className="eyebrow mb-4">Today&rsquo;s rep</p>
-            <h1 className="font-serif text-display-m font-medium">The Second Draft</h1>
+            <p className="eyebrow mb-4">تمرين اليوم</p>
+            <h1 className="font-serif text-display-m font-medium">المسودة الثانية</h1>
             <p className="mt-6 text-body-l text-muted-foreground">
-              Take today&rsquo;s harshest inner line, get some distance from it,
-              then rewrite it at believability seven. Both go to your Ledger.
-              The pair is the progress.
+              خذ أقسى جملة داخلية اليوم، أعطها مسافة،
+              ثم أعد كتابتها عند درجة سبعة من المصداقية. كلتاهما تذهبان إلى سجلّك.
+              الزوج هو التقدم.
             </p>
-            <p className="mt-4 text-body-s text-muted-foreground">~4 minutes</p>
+            <p className="mt-4 text-body-s text-muted-foreground">~٤ دقائق</p>
             <Button className="mt-8" onClick={() => setPhase("quote")}>
-              Begin rep
+              ابدأ التمرين
             </Button>
           </motion.div>
         )}
 
         {phase === "quote" && (
           <motion.div key="quote" {...anim}>
-            <p className="eyebrow mb-6">Step 1 of 3 · Quote it</p>
+            <p className="eyebrow mb-6">الخطوة ١ من ٣ · اقتبسها</p>
             <Label htmlFor="rep-quote" className="text-heading-s font-medium">
-              What did the narrator say today?
+              ماذا قال الراوي اليوم؟
             </Label>
             <p className="mb-4 mt-2 text-body-m text-muted-foreground">
-              Verbatim — ugly grammar and all. You can&rsquo;t rewrite a line you haven&rsquo;t named.
+              حرفياً — بكل قبحه النحوي. لا يمكنك إعادة كتابة سطر لم تسمّه.
             </p>
             <Textarea
               id="rep-quote"
               value={quote}
               onChange={(e) => setQuote(e.target.value)}
-              placeholder="&quot;You're going to embarrass yourself.&quot;"
+              placeholder='"ستُحرجَ نفسك."'
               rows={4}
               className="font-serif text-body-l"
               aria-describedby="quote-hint"
             />
             <p id="quote-hint" className="mt-2 text-body-s text-muted-foreground">
-              Honest answers beat impressive ones.
+              الإجابات الصادقة تتفوق على المُبهِرة.
             </p>
             <Button
               className="mt-6"
               disabled={!quote.trim()}
               onClick={() => setPhase("distance")}
             >
-              Next
+              التالي
             </Button>
           </motion.div>
         )}
 
         {phase === "distance" && (
           <motion.div key="distance" {...anim}>
-            <p className="eyebrow mb-6">Step 2 of 3 · Distance it</p>
-            <p className="text-body-m text-muted-foreground">Read this once, out loud if you can:</p>
+            <p className="eyebrow mb-6">الخطوة ٢ من ٣ · أعطها مسافة</p>
+            <p className="text-body-m text-muted-foreground">اقرأ هذا مرة، بصوت عالٍ إن أمكن:</p>
             <blockquote
               aria-live="polite"
               className="mt-6 rounded-r3 border border-border bg-card p-6 font-serif text-serif-feature"
@@ -113,30 +112,29 @@ export function RepFlow() {
               {quote.trim().replace(/^[""""]|[""""]$/g, "")}&rdquo;
             </blockquote>
             <p className="mt-6 text-body-m text-muted-foreground">
-              Same words — different altitude. The thought is weather now, not fact. It&rsquo;s yours
-              to carry or put down.
+              نفس الكلمات — ارتفاع مختلف. الفكرة أصبحت طقساً الآن، لا حقيقة. بيدك أن تحملها أو تضعها.
             </p>
             <Button className="mt-8" onClick={() => setPhase("rewrite")}>
-              Next
+              التالي
             </Button>
           </motion.div>
         )}
 
         {phase === "rewrite" && (
           <motion.div key="rewrite" {...anim}>
-            <p className="eyebrow mb-6">Step 3 of 3 · Rewrite it</p>
+            <p className="eyebrow mb-6">الخطوة ٣ من ٣ · أعد كتابتها</p>
             <Label htmlFor="rep-rewrite" className="text-heading-s font-medium">
-              Write the second draft.
+              اكتب المسودة الثانية.
             </Label>
             <p className="mb-4 mt-2 text-body-m text-muted-foreground">
-              Not the affirmation you wish were true — the version you can believe at seven out of ten.
-              Honest beats perfect.
+              لا التأكيد الذي تتمنى أنه صحيح — بل النسخة التي يمكنك تصديقها بسبعة من عشرة.
+              الصادق يتفوق على الكامل.
             </p>
             <Textarea
               id="rep-rewrite"
               value={rewrite}
               onChange={(e) => setRewrite(e.target.value)}
-              placeholder="I'm nervous, and nervous means I care. That's not evidence of failure."
+              placeholder='"أنا قلق، والقلق يعني أنني أهتم. هذا ليس دليلاً على الفشل."'
               rows={4}
               className="font-serif text-body-l"
             />
@@ -148,21 +146,21 @@ export function RepFlow() {
               disabled={!rewrite.trim() || saving}
               onClick={saveToLedger}
             >
-              {saving ? "Saving to Ledger…" : "File it — done is done"}
+              {saving ? "جارٍ الحفظ في السجل…" : "أودِعها — المنجز منجز"}
             </Button>
           </motion.div>
         )}
 
         {phase === "done" && (
           <motion.div key="done" {...anim} className="text-center">
-            <p className="font-mono text-label-mono uppercase text-muted-foreground">Rep complete</p>
-            <p className="mt-6 font-serif text-display-m">Done is done.</p>
-            <div className="mt-6 rounded-r3 border border-border bg-card p-6 text-left">
-              <p className="eyebrow mb-3">Filed to your Ledger</p>
+            <p className="font-mono text-label-mono uppercase text-muted-foreground">التمرين مكتمل</p>
+            <p className="mt-6 font-serif text-display-m">المنجز منجز.</p>
+            <div className="mt-6 rounded-r3 border border-border bg-card p-6 text-right">
+              <p className="eyebrow mb-3">مُودَعة في سجلّك</p>
               <p className="font-serif text-body-l text-muted-foreground">&ldquo;{rewrite.trim()}&rdquo;</p>
             </div>
             <p className="mt-6 text-body-m text-muted-foreground">
-              The second draft is evidence. Thirty reps and a Chapter closes — your words, typeset.
+              المسودة الثانية دليل. ثلاثون تمريناً وينتهي الفصل — كلماتك، مُنضَّدة.
             </p>
             <div className="mt-8 flex flex-col items-center gap-3">
               <Button
@@ -174,10 +172,10 @@ export function RepFlow() {
                   setError(null);
                 }}
               >
-                Another rep
+                تمرين آخر
               </Button>
               <a href="/ledger" className="text-body-s text-accent underline-offset-4 hover:underline">
-                View your Ledger →
+                عرض سجلّك ←
               </a>
             </div>
           </motion.div>

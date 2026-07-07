@@ -5,18 +5,18 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const WEATHER_OPTIONS = [
-  { value: "CLEAR", emoji: "☀️", label: "Clear", description: "Present and at ease" },
-  { value: "BREEZY", emoji: "🌤️", label: "Breezy", description: "Light and moving" },
-  { value: "OVERCAST", emoji: "☁️", label: "Overcast", description: "Dull but functional" },
-  { value: "LOW_FOG", emoji: "🌫️", label: "Low fog", description: "Hard to see clearly" },
-  { value: "CHARGED", emoji: "⚡", label: "Charged", description: "Energised or tense" },
-  { value: "RAINING", emoji: "🌧️", label: "Raining", description: "Something's hard right now" },
-  { value: "COLD_SNAP", emoji: "🌨️", label: "Cold snap", description: "Withdrawn, frozen" },
-  { value: "AFTER_RAIN", emoji: "🌦️", label: "After rain", description: "Clearing, something shifted" },
+  { value: "CLEAR", emoji: "☀️", label: "صافٍ", description: "حاضر ومرتاح" },
+  { value: "BREEZY", emoji: "🌤️", label: "منعش", description: "خفيف ومتحرك" },
+  { value: "OVERCAST", emoji: "☁️", label: "غائم", description: "باهت لكن وظيفي" },
+  { value: "LOW_FOG", emoji: "🌫️", label: "ضباب خفيف", description: "صعب الرؤية بوضوح" },
+  { value: "CHARGED", emoji: "⚡", label: "مشحون", description: "نشط أو متوتر" },
+  { value: "RAINING", emoji: "🌧️", label: "ممطر", description: "شيء ما صعب الآن" },
+  { value: "COLD_SNAP", emoji: "🌨️", label: "برد قارس", description: "منسحب، متجمد" },
+  { value: "AFTER_RAIN", emoji: "🌦️", label: "بعد المطر", description: "يتضح، شيء ما تغيّر" },
 ] as const;
 
-const BODY_AREAS = ["head", "jaw", "chest", "stomach", "shoulders", "everywhere", "unsure"] as const;
-const NEEDS = ["rest", "food", "movement", "people", "quiet", "to-say-something"] as const;
+const BODY_AREAS = ["الرأس", "الفك", "الصدر", "المعدة", "الكتفان", "في كل مكان", "غير متأكد"] as const;
+const NEEDS = ["راحة", "طعام", "حركة", "ناس", "هدوء", "أريد أن أقول شيئاً"] as const;
 
 type Phase = "weather" | "body" | "need" | "note" | "done";
 
@@ -53,7 +53,7 @@ export function MoodCheckin() {
       if (!res.ok) throw new Error(String(res.status));
       setPhase("done");
     } catch {
-      setError("Didn't save — try once more.");
+      setError("لم يُحفظ — حاول مرة أخرى.");
     } finally {
       setSaving(false);
     }
@@ -62,9 +62,9 @@ export function MoodCheckin() {
   if (phase === "done") {
     return (
       <div className="py-12 text-center">
-        <p className="font-serif text-display-m">Logged.</p>
+        <p className="font-serif text-display-m">تم التسجيل.</p>
         <p className="mt-4 text-body-m text-muted-foreground">
-          Patterns take a month to become readable — every check-in is data.
+          الأنماط تحتاج شهراً كي تصبح قابلة للقراءة — كل تسجيل هو بيانات.
         </p>
         <div className="mt-8 flex flex-col items-center gap-3">
           <Button
@@ -77,10 +77,10 @@ export function MoodCheckin() {
               setNote("");
             }}
           >
-            Check in again
+            سجّل مجدداً
           </Button>
           <a href="/today" className="text-body-s text-accent underline-offset-4 hover:underline">
-            Back to Today →
+            العودة إلى اليوم →
           </a>
         </div>
       </div>
@@ -91,7 +91,7 @@ export function MoodCheckin() {
     <div className="space-y-10">
       {/* Phase: weather */}
       <section>
-        <p className="eyebrow mb-4">Inner weather</p>
+        <p className="eyebrow mb-4">الطقس الداخلي</p>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {WEATHER_OPTIONS.map((opt) => (
             <button
@@ -119,8 +119,8 @@ export function MoodCheckin() {
         <>
           {/* Phase: body */}
           <section>
-            <p className="eyebrow mb-1">Where do you feel it?</p>
-            <p className="mb-4 text-body-s text-muted-foreground">Select any that apply</p>
+            <p className="eyebrow mb-1">أين تشعر به؟</p>
+            <p className="mb-4 text-body-s text-muted-foreground">اختر ما ينطبق</p>
             <div className="flex flex-wrap gap-2">
               {BODY_AREAS.map((area) => (
                 <button
@@ -144,8 +144,8 @@ export function MoodCheckin() {
 
           {/* Phase: need */}
           <section>
-            <p className="eyebrow mb-1">What do you need right now?</p>
-            <p className="mb-4 text-body-s text-muted-foreground">Optional — best guess is enough</p>
+            <p className="eyebrow mb-1">ماذا تحتاج الآن؟</p>
+            <p className="mb-4 text-body-s text-muted-foreground">اختياري — أفضل تخمين يكفي</p>
             <div className="flex flex-wrap gap-2">
               {NEEDS.map((n) => (
                 <button
@@ -170,7 +170,7 @@ export function MoodCheckin() {
           {/* Note */}
           <section>
             <label htmlFor="mood-note" className="eyebrow mb-2 block">
-              One sentence <span className="text-muted-foreground">(optional)</span>
+              جملة واحدة <span className="text-muted-foreground">(اختياري)</span>
             </label>
             <textarea
               id="mood-note"
@@ -178,7 +178,7 @@ export function MoodCheckin() {
               onChange={(e) => setNote(e.target.value)}
               maxLength={500}
               rows={3}
-              placeholder="Anything else worth naming…"
+              placeholder="أي شيء آخر يستحق التسمية…"
               className="w-full resize-none rounded-r2 border border-border bg-input px-4 py-3 font-sans text-body-m focus-visible:border-foreground focus-visible:outline-none"
             />
           </section>
@@ -186,7 +186,7 @@ export function MoodCheckin() {
           {error && <p role="alert" className="text-body-s text-attention">{error}</p>}
 
           <Button onClick={save} disabled={saving}>
-            {saving ? "Saving…" : "Log it"}
+            {saving ? "يحفظ…" : "سجّله"}
           </Button>
         </>
       )}

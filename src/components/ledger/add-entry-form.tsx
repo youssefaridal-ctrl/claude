@@ -35,7 +35,7 @@ export function AddEntryForm() {
       setOpen(false);
       router.refresh();
     } catch {
-      setError("Didn't save — try once more.");
+      setError("لم يُحفظ — حاول مرة أخرى.");
     } finally {
       setSaving(false);
     }
@@ -44,22 +44,22 @@ export function AddEntryForm() {
   if (!open) {
     return (
       <Button onClick={() => setOpen(true)} variant="secondary">
-        + Add evidence
+        + أضف دليلاً
       </Button>
     );
   }
 
   return (
     <form onSubmit={submit} className="rounded-r3 border border-border bg-card p-6">
-      <h2 className="mb-4 text-heading-s font-medium">Add a piece of evidence</h2>
+      <h2 className="mb-4 text-heading-s font-medium">أضف دليلاً</h2>
       <div className="space-y-4">
         <div>
-          <Label htmlFor="ledger-text">What happened?</Label>
+          <Label htmlFor="ledger-text">ماذا حدث؟</Label>
           <Textarea
             id="ledger-text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="I spoke up in the meeting even though my voice shook."
+            placeholder="تكلمت في الاجتماع رغم أن صوتي كان يرتجف."
             rows={3}
             maxLength={500}
             className="font-serif"
@@ -71,16 +71,16 @@ export function AddEntryForm() {
         </div>
         <div>
           <Label htmlFor="ledger-because">
-            Because… <span className="text-muted-foreground">(optional)</span>
+            لأنني… <span className="text-muted-foreground">(اختياري)</span>
           </Label>
           <p className="mb-2 text-body-s text-muted-foreground">
-            Complete: "This matters because I'm someone who…"
+            أكمل: "هذا مهم لأنني شخص يـ…"
           </p>
           <Input
             id="ledger-because"
             value={because}
             onChange={(e) => setBecause(e.target.value)}
-            placeholder="chooses discomfort over silence"
+            placeholder="يختار الانزعاج على الصمت"
             maxLength={500}
           />
         </div>
@@ -88,10 +88,10 @@ export function AddEntryForm() {
       {error && <p role="alert" className="mt-3 text-body-s text-attention">{error}</p>}
       <div className="mt-4 flex gap-3">
         <Button type="submit" disabled={!text.trim() || saving}>
-          {saving ? "Saving…" : "File it"}
+          {saving ? "يحفظ…" : "احفظه"}
         </Button>
         <Button type="button" variant="ghost" onClick={() => setOpen(false)}>
-          Cancel
+          إلغاء
         </Button>
       </div>
     </form>
