@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { TierCards } from "@/components/pricing/tier-cards";
+import { ImmersiveTierCards } from "@/components/pricing/immersive-tier-cards";
 import { Reveal } from "@/components/motion/reveal";
 import { buildMetadata } from "@/lib/seo";
 
@@ -23,7 +23,7 @@ export default function PricingPage() {
       </Reveal>
 
       <div className="mt-12">
-        <TierCards />
+        <ImmersiveTierCards />
       </div>
 
       <Reveal delay={0.1}>
