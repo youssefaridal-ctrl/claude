@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { programs } from "@/lib/mock";
+import { programs, trackingPrograms } from "@/lib/mock";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { InteractiveCard, CardContent } from "@/components/ui/card";
@@ -46,6 +46,53 @@ export default function ProgramsPage() {
                   </span>
                 </CardContent>
               </Link>
+            </InteractiveCard>
+          </Reveal>
+        ))}
+      </div>
+
+      <Reveal delay={0.15}>
+        <div className="mt-20">
+          <p className="eyebrow mb-3">برامج التتبع اليومي</p>
+          <h2 className="text-display-m font-medium">ممارسة يومية، بنيّة واضحة.</h2>
+          <p className="mt-3 max-w-2xl text-body-m text-muted-foreground">
+            برامج مستقلة تعمل بجانب المواسم الجماعية أو بمفردها. مدد أقصر، عادات يومية مُحددة،
+            وهوية واضحة لكل خطوة.
+          </p>
+        </div>
+      </Reveal>
+
+      <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {trackingPrograms.map((prog, i) => (
+          <Reveal key={prog.slug} delay={0.15 + i * 0.07}>
+            <InteractiveCard className="h-full">
+              <CardContent className="flex h-full flex-col p-6">
+                <div className="flex items-start justify-between gap-3">
+                  <Badge>{prog.level}</Badge>
+                  <span className="font-mono text-label-mono text-muted-foreground">
+                    {prog.duration} يوماً
+                  </span>
+                </div>
+                <h3 className="mt-4 text-heading-s font-medium">{prog.name}</h3>
+                <p className="mt-2 font-serif italic text-muted-foreground">{prog.tagline}</p>
+                <p className="mt-3 flex-1 text-body-s text-muted-foreground">{prog.description}</p>
+                <div className="mt-5 border-t border-border pt-4">
+                  <p className="eyebrow mb-3">العادات اليومية</p>
+                  <ul className="space-y-2">
+                    {prog.habits.map((h) => (
+                      <li key={h.name} className="flex items-start gap-2 text-body-s">
+                        <span className="mt-0.5 shrink-0 font-mono text-label-mono text-accent">
+                          {h.target}×
+                        </span>
+                        <span>{h.name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="mt-5 font-mono text-label-mono text-muted-foreground">
+                  {prog.minutesPerDay} دقائق / اليوم
+                </div>
+              </CardContent>
             </InteractiveCard>
           </Reveal>
         ))}

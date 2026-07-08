@@ -200,6 +200,60 @@ export const articles = [
     category: "إتقان المشاعر",
     type: "ESSAY" as const,
   },
+  {
+    slug: "the-comparison-ladder",
+    title: "المقارنة الاجتماعية: السُّلَّم الذي لا قمة له",
+    dek: "حين تقارن نفسك بالآخرين، دماغك لا يلعب بشكل عادل — إنه يختار من يُقارنك بهم بعناية.",
+    author: "صوفيا رييس",
+    minutes: 9,
+    category: "الحوار الداخلي",
+    type: "ESSAY" as const,
+  },
+  {
+    slug: "the-perfectionist-delays",
+    title: "الكمالي يُؤخِّر ولا يحمي",
+    dek: "الكمالية ليست معياراً عالياً — إنها معيار غير قابل للإثبات. الفرق الذي يُغيّر كيف تعمل.",
+    author: "د. ماركوس أويلاران",
+    minutes: 8,
+    category: "الكمالية",
+    type: "ESSAY" as const,
+  },
+  {
+    slug: "narrator-diary-7-days",
+    title: "يوميات الراوي — سبعة أيام من الرصد الصادق",
+    dek: "سبعة أيام، جملة واحدة في اليوم. أحضر الصوت الداخلي إلى الورق قبل أن يحكم.",
+    author: "يوناس ويبر",
+    minutes: 4,
+    category: "الممارسة والعادات",
+    type: "EXERCISE" as const,
+  },
+  {
+    slug: "compliments-you-reject",
+    title: "الإطراء الذي ترفضه: جدار اللامستحق",
+    dek: "حين يُمدحك أحد وتنكر، تعتقد أنك تتواضع. دماغك يسجّل شيئاً مختلفاً تماماً.",
+    author: "د. لينا هارتفيغ",
+    minutes: 8,
+    category: "متلازمة المحتال",
+    type: "ESSAY" as const,
+  },
+  {
+    slug: "the-quiet-presence",
+    title: "الصمت في الغرفة: كيف يتكلم الحضور الهادئ",
+    dek: "الثقة تُقرأ في الصمت قبل الكلام. كيف تبني حضوراً لا يحتاج إلى ملء كل فراغ.",
+    author: "صوفيا رييس",
+    minutes: 9,
+    category: "الظهور",
+    type: "ESSAY" as const,
+  },
+  {
+    slug: "the-big-three-protocol",
+    title: "تمرين: الثلاث الكبار — بروتوكول اليوم الصعب",
+    dek: "ثلاث دقائق، ثلاث أدوات، نسخة واحدة للتعامل مع اليوم الصعب. تُبنى مسبقاً.",
+    author: "يوناس ويبر",
+    minutes: 4,
+    category: "إتقان المشاعر",
+    type: "EXERCISE" as const,
+  },
 ] as const;
 
 export const episodes = [
@@ -396,6 +450,73 @@ export const pricingTiers = [
     features: ["كل شيء في الأكاديمية", "مجموعة من الأقران", "جلسات فردية", "بالتقديم"],
     cta: "قدّم طلبك",
     recommended: false,
+  },
+] as const;
+
+export const trackingPrograms = [
+  {
+    slug: "narrator-journey-21",
+    name: "رحلة الراوي",
+    duration: 21,
+    level: "مبتدئ · وسط" as const,
+    minutesPerDay: 12,
+    tagline: "واحد وعشرون يوماً مع الصوت الداخلي.",
+    description:
+      "برنامج مُنظَّم لتحديد راويك الداخلي المهيمن، فهم وظيفته، وبدء إعادة كتابة نصوصه الأساسية. لا تقرأ — تُلاحظ وتُدوِّن وتُعيد الصياغة يوماً بيوم.",
+    relatedArticles: [
+      "the-inner-critic-is-a-bodyguard",
+      "why-affirmations-fail",
+      "talk-to-yourself-by-name",
+      "narrator-diary-7-days",
+    ],
+    habits: [
+      { name: "رصد الراوي الصباحي", identity: "أنا شخص يُلاحظ صوته قبل أن يُطيعه", target: 5 },
+      { name: "تدوين جملة الشك اليومية", identity: "أنا شخص يكتب ما يسمعه لا ما يشعر به", target: 5 },
+      { name: "تمرين المسافة الذاتية باسمك", identity: "أنا شخص يضع اسمه على أفكاره لا يذوب فيها", target: 4 },
+      { name: "سجل دليل اليوم", identity: "أنا شخص يحفظ دليلاً واحداً على نفسه يومياً", target: 7 },
+    ],
+  },
+  {
+    slug: "evidence-builder-14",
+    name: "بناء الأدلة",
+    duration: 14,
+    level: "وسط · متقدم" as const,
+    minutesPerDay: 8,
+    tagline: "أربعة عشر يوماً لتغيير ما يعتقده دماغك عنك.",
+    description:
+      "برنامج مُركَّز على بناء سجل أدلة يومي يُغيّر ميزان المحاسبة الداخلية. جملة واحدة، واقعة واحدة، في كل يوم — حتى يجد الشك مزاحِماً.",
+    relatedArticles: [
+      "where-confidence-actually-comes-from",
+      "evidence-sprint",
+      "the-ghost-in-the-mirror",
+      "the-comparison-ladder",
+    ],
+    habits: [
+      { name: "جملة الأدلة اليومية", identity: "أنا شخص يُعيد كتابة سردية نفسه بوقائع لا بأمنيات", target: 7 },
+      { name: "لاحظ مقارنة صاعدة — وسمِّها", identity: "أنا شخص يلاحظ حين يقارن ويسأل: لماذا الآن؟", target: 5 },
+      { name: "سباق الأدلة عند الشك", identity: "أنا شخص يفتح ملف الأدلة حين يأتي الشك", target: 3 },
+    ],
+  },
+  {
+    slug: "daily-presence-7",
+    name: "الحضور اليومي",
+    duration: 7,
+    level: "مدخل" as const,
+    minutesPerDay: 5,
+    tagline: "سبعة أيام لبناء ركيزة واحدة: الحضور قبل الكلام.",
+    description:
+      "مدخل قصير ومُكثَّف — سبعة أيام لبناء ممارسة واحدة راسخة قبل الانتقال لبرنامج أطول. الهدف ليس الكمال، بل إثبات أن الاثنتي عشرة دقيقة ممكنة.",
+    relatedArticles: [
+      "the-body-remembers",
+      "talk-to-yourself-by-name",
+      "the-quiet-presence",
+      "the-big-three-protocol",
+    ],
+    habits: [
+      { name: "الستون ثانية قبل الموقف", identity: "أنا شخص يُعدّ جسده قبل أي موقف مهم", target: 5 },
+      { name: "صمت انتقائي في محادثة واحدة", identity: "أنا شخص يثق بصمته ولا يُسارع لملء الفراغ", target: 4 },
+      { name: "جملة ملاحظة قبل النوم", identity: "أنا شخص يُراجع يومه دون إدانة ودون تزوير", target: 7 },
+    ],
   },
 ] as const;
 
