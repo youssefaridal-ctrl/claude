@@ -71,10 +71,13 @@
   html {
     scroll-behavior: smooth;
     text-rendering: optimizeLegibility;
+    overflow-x: clip; /* منع التمرير الأفقي على الشاشات الصغيرة */
   }
 
   body {
     @apply bg-background text-foreground font-sans text-body-m antialiased;
+    overflow-x: clip; /* منع أي عنصر من الخروج عن حدود الشاشة */
+    min-width: 320px;
   }
 
   /* Visible focus everywhere, never removed (design/04 §18). */
