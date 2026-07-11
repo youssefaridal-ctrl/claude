@@ -3,6 +3,7 @@ import { View, StatusBar, I18nManager } from 'react-native';
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import '../src/i18n';
+import { initDatabase } from '../src/database/client';
 import { useAppStore } from '../src/store';
 import { Colors } from '../src/theme/colors';
 
@@ -12,7 +13,7 @@ export default function RootLayout() {
   const { isLoading, isInitialized, user, initializeApp } = useAppStore();
 
   useEffect(() => {
-    initializeApp();
+    initDatabase().then(() => initializeApp()).catch(() => initializeApp());
   }, []);
 
   useEffect(() => {

@@ -1,6 +1,10 @@
 import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
+import { eq, isNull, and } from 'drizzle-orm';
+import * as Crypto from 'expo-crypto';
+import { getDb } from '../database/client';
+import * as schema from '../database/schema';
+import { Colors } from '../theme/colors';
+import type {
   UserProfile,
   BudgetCategory,
   IncomeSource,
@@ -11,27 +15,17 @@ import {
   Currency,
   Language,
 } from './types';
-import { Colors } from '../theme/colors';
 
-const STORAGE_KEYS = {
-  USER: 'fb_user',
-  SALARY: 'fb_salary',
-  CATEGORIES: 'fb_categories',
-  INCOME_SOURCES: 'fb_income_sources',
-  TRANSACTIONS: 'fb_transactions',
-  CREDITS: 'fb_credits',
-  EMERGENCY: 'fb_emergency',
-  GOALS: 'fb_goals',
-};
+// ─── Defaults ─────────────────────────────────────────────────────────────────
 
-const DEFAULT_CATEGORIES: BudgetCategory[] = [
-  { id: 'housing', name: 'Logement', percentage: 30, amount: 0, color: Colors.categories.housing, icon: '🏠', spent: 0 },
-  { id: 'food', name: 'Alimentation', percentage: 15, amount: 0, color: Colors.categories.food, icon: '🛒', spent: 0 },
-  { id: 'transport', name: 'Transport', percentage: 10, amount: 0, color: Colors.categories.transport, icon: '🚗', spent: 0 },
-  { id: 'health', name: 'Santé', percentage: 5, amount: 0, color: Colors.categories.health, icon: '❤️', spent: 0 },
-  { id: 'leisure', name: 'Loisirs', percentage: 10, amount: 0, color: Colors.categories.leisure, icon: '🎮', spent: 0 },
-  { id: 'savings', name: 'Épargne', percentage: 20, amount: 0, color: Colors.categories.savings, icon: '💰', spent: 0 },
-  { id: 'utilities', name: 'Factures', percentage: 10, amount: 0, color: Colors.categories.utilities, icon: '⚡', spent: 0 },
+const DEFAULT_CATEGORIES: Omit<BudgetCategory, 'amount'>[] = [
+  { id: 'housing', name: 'Logement', percentage: 30, color: Colors.categories.housing, icon: '🏠', spent: 0 },
+  { id: 'food', name: 'Alimentation', percentage: 15, color: Colors.categories.food, icon: '🛒', spent: 0 },
+  { id: 'transport', name: 'Transport', percentage: 10, color: Colors.categories.transport, icon: '🚗', spent: 0 },
+  { id: 'health', name: 'Santé', percentage: 5, color: Colors.categories.health, icon: '❤️', spent: 0 },
+  { id: 'leisure', name: 'Loisirs', percentage: 10, color: Colors.categories.leisure, icon: '🎮', spent: 0 },
+  { id: 'savings', name: 'Épargne', percentage: 20, color: Colors.categories.savings, icon: '💰', spent: 0 },
+  { id: 'utilities', name: 'Factures', percentage: 10, color: Colors.categories.utilities, icon: '⚡', spent: 0 },
 ];
 
 const DEFAULT_EMERGENCY_FUND: EmergencyFund = {
@@ -43,77 +37,114 @@ const DEFAULT_EMERGENCY_FUND: EmergencyFund = {
   transactions: [],
 };
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+const generateId = () => Crypto.randomUUID();
+const getCurrentMonth = () => new Date().toISOString().slice(0, 7);
+const now = () => new Date().toISOString();
+
+const recalcCategoryAmounts = (categories: BudgetCategory[], totalIncome: number): BudgetCategory[] =>
+  categories.map((c) => ({ ...c, amount: Math.round((c.percentage / 100) * totalIncome) }));
+
+// ─── DB mappers ───────────────────────────────────────────────────────────────
+
+function dbRowToCategory(row: schema.DbBudgetCategory): BudgetCategory {
+  return {
+    id: row.id,
+    name: row.name,
+    percentage: row.percentage,
+    amount: row.amount,
+    color: row.color,
+    icon: row.icon,
+    spent: 0,
+  };
+}
+
+function dbRowToIncomeSource(row: schema.DbIncomeSource): IncomeSource {
+  return { id: row.id, name: row.name, amount: row.amount, type: row.type };
+}
+
+function dbRowToTransaction(row: schema.DbTransaction): Transaction {
+  return {
+    id: row.id,
+    description: row.description,
+    amount: row.amount,
+    categoryId: row.categoryId,
+    date: row.date,
+    type: row.type,
+    month: row.month,
+  };
+}
+
+function dbRowToCredit(row: schema.DbCredit): Credit {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type,
+    totalAmount: row.totalAmount,
+    remainingAmount: row.remainingAmount,
+    monthlyPayment: row.monthlyPayment,
+    interestRate: row.interestRate,
+    startDate: row.startDate,
+    endDate: row.endDate,
+    bank: row.bank,
+    color: row.color,
+  };
+}
+
+// ─── Store interface ──────────────────────────────────────────────────────────
+
 interface AppState {
-  // App state
   isLoading: boolean;
   isInitialized: boolean;
 
-  // User
   user: UserProfile;
   salary: number;
   categories: BudgetCategory[];
   incomeSources: IncomeSource[];
   transactions: Transaction[];
-
-  // Credits
   credits: Credit[];
-
-  // Emergency
   emergencyFund: EmergencyFund;
-
-  // Goals
   goals: Goal[];
 
-  // Actions - User
   initializeApp: () => Promise<void>;
   updateUser: (user: Partial<UserProfile>) => Promise<void>;
   setSalary: (amount: number) => Promise<void>;
   completeOnboarding: (name: string, salary: number, language: Language, currency: Currency) => Promise<void>;
 
-  // Actions - Categories
   updateCategories: (categories: BudgetCategory[]) => Promise<void>;
   apply503020Rule: () => void;
   addCategory: (category: Omit<BudgetCategory, 'id' | 'spent'>) => Promise<void>;
   deleteCategory: (id: string) => Promise<void>;
 
-  // Actions - Income Sources
   addIncomeSource: (source: Omit<IncomeSource, 'id'>) => Promise<void>;
   deleteIncomeSource: (id: string) => Promise<void>;
 
-  // Actions - Transactions
   addTransaction: (tx: Omit<Transaction, 'id' | 'month'>) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
   getMonthTransactions: (month: string) => Transaction[];
   getCurrentMonthSpentByCategory: () => Record<string, number>;
 
-  // Actions - Credits
   addCredit: (credit: Omit<Credit, 'id'>) => Promise<void>;
   updateCredit: (id: string, credit: Partial<Credit>) => Promise<void>;
   deleteCredit: (id: string) => Promise<void>;
 
-  // Actions - Emergency Fund
   updateEmergencyFund: (fund: Partial<EmergencyFund>) => Promise<void>;
   addEmergencyContribution: (amount: number, note: string) => Promise<void>;
   withdrawFromEmergency: (amount: number, reason: string) => Promise<void>;
 
-  // Actions - Goals
   addGoal: (goal: Omit<Goal, 'id' | 'contributions' | 'createdAt'>) => Promise<void>;
   updateGoal: (id: string, goal: Partial<Goal>) => Promise<void>;
   deleteGoal: (id: string) => Promise<void>;
   addGoalContribution: (goalId: string, amount: number) => Promise<void>;
 
-  // Computed
   getTotalIncome: () => number;
   getTotalMonthlyPayments: () => number;
   getBudgetHealth: () => number;
   getDebtRatio: () => number;
 }
 
-const generateId = () => Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
-const getCurrentMonth = () => new Date().toISOString().slice(0, 7);
-
-const recalcCategoryAmounts = (categories: BudgetCategory[], totalIncome: number): BudgetCategory[] =>
-  categories.map((c) => ({ ...c, amount: Math.round((c.percentage / 100) * totalIncome) }));
+// ─── Store ────────────────────────────────────────────────────────────────────
 
 export const useAppStore = create<AppState>((set, get) => ({
   isLoading: true,
@@ -127,41 +158,109 @@ export const useAppStore = create<AppState>((set, get) => ({
     onboardingCompleted: false,
   },
   salary: 0,
-  categories: DEFAULT_CATEGORIES,
+  categories: DEFAULT_CATEGORIES.map((c) => ({ ...c, amount: 0 })),
   incomeSources: [],
   transactions: [],
   credits: [],
   emergencyFund: DEFAULT_EMERGENCY_FUND,
   goals: [],
 
+  // ── Init ──────────────────────────────────────────────────────────────────
   initializeApp: async () => {
     try {
-      const [user, salary, categories, incomeSources, transactions, credits, emergency, goals] =
+      const db = getDb();
+
+      const [userRows, categoryRows, incomeRows, txRows, creditRows, efRows, efTxRows, goalRows, contribRows] =
         await Promise.all([
-          AsyncStorage.getItem(STORAGE_KEYS.USER),
-          AsyncStorage.getItem(STORAGE_KEYS.SALARY),
-          AsyncStorage.getItem(STORAGE_KEYS.CATEGORIES),
-          AsyncStorage.getItem(STORAGE_KEYS.INCOME_SOURCES),
-          AsyncStorage.getItem(STORAGE_KEYS.TRANSACTIONS),
-          AsyncStorage.getItem(STORAGE_KEYS.CREDITS),
-          AsyncStorage.getItem(STORAGE_KEYS.EMERGENCY),
-          AsyncStorage.getItem(STORAGE_KEYS.GOALS),
+          db.select().from(schema.users).where(eq(schema.users.id, 1)),
+          db.select().from(schema.budgetCategories).where(isNull(schema.budgetCategories.deletedAt)),
+          db.select().from(schema.incomeSources).where(isNull(schema.incomeSources.deletedAt)),
+          db.select().from(schema.transactions).where(isNull(schema.transactions.deletedAt)),
+          db.select().from(schema.credits).where(isNull(schema.credits.deletedAt)),
+          db.select().from(schema.emergencyFund).where(eq(schema.emergencyFund.id, 1)),
+          db.select().from(schema.emergencyTransactions).where(isNull(schema.emergencyTransactions.deletedAt)),
+          db.select().from(schema.goals).where(isNull(schema.goals.deletedAt)),
+          db.select().from(schema.goalContributions).where(isNull(schema.goalContributions.deletedAt)),
         ]);
 
-      const parsedSalary = salary ? parseFloat(salary) : 0;
-      const parsedCategories = categories ? JSON.parse(categories) : DEFAULT_CATEGORIES;
-      const parsedIncomeSources = incomeSources ? JSON.parse(incomeSources) : [];
-      const updatedCategories = recalcCategoryAmounts(parsedCategories, parsedSalary + parsedIncomeSources.reduce((a: number, s: IncomeSource) => a + s.amount, 0));
+      const userRow = userRows[0];
+      const salary = userRow?.salary ?? 0;
+
+      const parsedIncomeSources = incomeRows.map(dbRowToIncomeSource);
+      const totalIncome = salary + parsedIncomeSources.reduce((a, s) => a + s.amount, 0);
+
+      // Seed default categories if none exist
+      let parsedCategories: BudgetCategory[];
+      if (categoryRows.length === 0) {
+        const defaults = DEFAULT_CATEGORIES.map((c, i) => ({
+          ...c,
+          amount: Math.round((c.percentage / 100) * totalIncome),
+          sortOrder: i,
+        }));
+        await db.insert(schema.budgetCategories).values(
+          defaults.map((c) => ({
+            id: c.id,
+            name: c.name,
+            percentage: c.percentage,
+            amount: c.amount,
+            color: c.color,
+            icon: c.icon,
+            sortOrder: c.sortOrder,
+          }))
+        );
+        parsedCategories = defaults.map((c) => ({ ...c, spent: 0 }));
+      } else {
+        parsedCategories = recalcCategoryAmounts(categoryRows.map(dbRowToCategory), totalIncome);
+      }
+
+      const ef = efRows[0];
+      const emergencyFund: EmergencyFund = ef
+        ? {
+            currentAmount: ef.currentAmount,
+            targetAmount: ef.targetAmount,
+            monthlyContribution: ef.monthlyContribution,
+            targetType: ef.targetType,
+            monthlyExpenses: ef.monthlyExpenses,
+            transactions: efTxRows
+              .filter((t) => !t.deletedAt)
+              .map((t) => ({ id: t.id, type: t.type, amount: t.amount, date: t.date, note: t.note })),
+          }
+        : DEFAULT_EMERGENCY_FUND;
+
+      const parsedGoals: Goal[] = goalRows.map((g) => ({
+        id: g.id,
+        name: g.name,
+        description: g.description,
+        type: g.type,
+        targetAmount: g.targetAmount,
+        currentAmount: g.currentAmount,
+        targetDate: g.targetDate,
+        priority: g.priority,
+        color: g.color,
+        icon: g.icon,
+        createdAt: g.createdAt,
+        contributions: contribRows
+          .filter((c) => c.goalId === g.id && !c.deletedAt)
+          .map((c) => ({ id: c.id, amount: c.amount, date: c.date })),
+      }));
 
       set({
-        user: user ? JSON.parse(user) : get().user,
-        salary: parsedSalary,
-        categories: updatedCategories,
+        user: userRow
+          ? {
+              name: userRow.name,
+              language: userRow.language,
+              currency: userRow.currency,
+              salaryPaymentDay: userRow.salaryPaymentDay,
+              onboardingCompleted: userRow.onboardingCompleted,
+            }
+          : get().user,
+        salary,
+        categories: parsedCategories,
         incomeSources: parsedIncomeSources,
-        transactions: transactions ? JSON.parse(transactions) : [],
-        credits: credits ? JSON.parse(credits) : [],
-        emergencyFund: emergency ? JSON.parse(emergency) : DEFAULT_EMERGENCY_FUND,
-        goals: goals ? JSON.parse(goals) : [],
+        transactions: txRows.map(dbRowToTransaction),
+        credits: creditRows.map(dbRowToCredit),
+        emergencyFund,
+        goals: parsedGoals,
         isLoading: false,
         isInitialized: true,
       });
@@ -170,20 +269,34 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
+  // ── User ──────────────────────────────────────────────────────────────────
   updateUser: async (userUpdate) => {
     const updated = { ...get().user, ...userUpdate };
     set({ user: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updated));
+    await getDb()
+      .update(schema.users)
+      .set({
+        name: updated.name,
+        language: updated.language,
+        currency: updated.currency,
+        salaryPaymentDay: updated.salaryPaymentDay,
+        onboardingCompleted: updated.onboardingCompleted,
+        updatedAt: now(),
+      })
+      .where(eq(schema.users.id, 1));
   },
 
   setSalary: async (amount) => {
     const totalIncome = amount + get().incomeSources.reduce((a, s) => a + s.amount, 0);
     const updated = recalcCategoryAmounts(get().categories, totalIncome);
     set({ salary: amount, categories: updated });
-    await Promise.all([
-      AsyncStorage.setItem(STORAGE_KEYS.SALARY, amount.toString()),
-      AsyncStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(updated)),
-    ]);
+    const db = getDb();
+    await db.update(schema.users).set({ salary: amount, updatedAt: now() }).where(eq(schema.users.id, 1));
+    await Promise.all(
+      updated.map((c) =>
+        db.update(schema.budgetCategories).set({ amount: c.amount }).where(eq(schema.budgetCategories.id, c.id))
+      )
+    );
   },
 
   completeOnboarding: async (name, salary, language, currency) => {
@@ -191,16 +304,30 @@ export const useAppStore = create<AppState>((set, get) => ({
     const updated = recalcCategoryAmounts(get().categories, totalIncome);
     const user: UserProfile = { ...get().user, name, language, currency, onboardingCompleted: true };
     set({ user, salary, categories: updated });
-    await Promise.all([
-      AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user)),
-      AsyncStorage.setItem(STORAGE_KEYS.SALARY, salary.toString()),
-      AsyncStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(updated)),
-    ]);
+    const db = getDb();
+    await db
+      .update(schema.users)
+      .set({ name, salary, language, currency, onboardingCompleted: true, updatedAt: now() })
+      .where(eq(schema.users.id, 1));
+    await Promise.all(
+      updated.map((c) =>
+        db.update(schema.budgetCategories).set({ amount: c.amount }).where(eq(schema.budgetCategories.id, c.id))
+      )
+    );
   },
 
+  // ── Categories ────────────────────────────────────────────────────────────
   updateCategories: async (categories) => {
     set({ categories });
-    await AsyncStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(categories));
+    const db = getDb();
+    await Promise.all(
+      categories.map((c) =>
+        db
+          .update(schema.budgetCategories)
+          .set({ name: c.name, percentage: c.percentage, amount: c.amount, color: c.color, icon: c.icon })
+          .where(eq(schema.budgetCategories.id, c.id))
+      )
+    );
   },
 
   apply503020Rule: () => {
@@ -221,27 +348,43 @@ export const useAppStore = create<AppState>((set, get) => ({
       amount: (cat.percentage / 100) * totalIncome,
       spent: 0,
     };
+    const sortOrder = get().categories.length;
     const updated = [...get().categories, newCat];
     set({ categories: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(updated));
+    await getDb().insert(schema.budgetCategories).values({
+      id: newCat.id,
+      name: newCat.name,
+      percentage: newCat.percentage,
+      amount: newCat.amount,
+      color: newCat.color,
+      icon: newCat.icon,
+      sortOrder,
+    });
   },
 
   deleteCategory: async (id) => {
     const updated = get().categories.filter((c) => c.id !== id);
     set({ categories: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(updated));
+    await getDb()
+      .update(schema.budgetCategories)
+      .set({ deletedAt: now() })
+      .where(eq(schema.budgetCategories.id, id));
   },
 
+  // ── Income Sources ────────────────────────────────────────────────────────
   addIncomeSource: async (source) => {
     const newSource: IncomeSource = { ...source, id: generateId() };
     const updated = [...get().incomeSources, newSource];
     const totalIncome = get().salary + updated.reduce((a, s) => a + s.amount, 0);
     const updatedCats = recalcCategoryAmounts(get().categories, totalIncome);
     set({ incomeSources: updated, categories: updatedCats });
-    await Promise.all([
-      AsyncStorage.setItem(STORAGE_KEYS.INCOME_SOURCES, JSON.stringify(updated)),
-      AsyncStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(updatedCats)),
-    ]);
+    const db = getDb();
+    await db.insert(schema.incomeSources).values({ id: newSource.id, name: newSource.name, amount: newSource.amount, type: newSource.type });
+    await Promise.all(
+      updatedCats.map((c) =>
+        db.update(schema.budgetCategories).set({ amount: c.amount }).where(eq(schema.budgetCategories.id, c.id))
+      )
+    );
   },
 
   deleteIncomeSource: async (id) => {
@@ -249,23 +392,38 @@ export const useAppStore = create<AppState>((set, get) => ({
     const totalIncome = get().salary + updated.reduce((a, s) => a + s.amount, 0);
     const updatedCats = recalcCategoryAmounts(get().categories, totalIncome);
     set({ incomeSources: updated, categories: updatedCats });
-    await Promise.all([
-      AsyncStorage.setItem(STORAGE_KEYS.INCOME_SOURCES, JSON.stringify(updated)),
-      AsyncStorage.setItem(STORAGE_KEYS.CATEGORIES, JSON.stringify(updatedCats)),
-    ]);
+    const db = getDb();
+    await db.update(schema.incomeSources).set({ deletedAt: now() }).where(eq(schema.incomeSources.id, id));
+    await Promise.all(
+      updatedCats.map((c) =>
+        db.update(schema.budgetCategories).set({ amount: c.amount }).where(eq(schema.budgetCategories.id, c.id))
+      )
+    );
   },
 
+  // ── Transactions ──────────────────────────────────────────────────────────
   addTransaction: async (tx) => {
     const newTx: Transaction = { ...tx, id: generateId(), month: tx.date.slice(0, 7) };
     const updated = [newTx, ...get().transactions];
     set({ transactions: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(updated));
+    await getDb().insert(schema.transactions).values({
+      id: newTx.id,
+      description: newTx.description,
+      amount: newTx.amount,
+      categoryId: newTx.categoryId,
+      date: newTx.date,
+      month: newTx.month,
+      type: newTx.type,
+    });
   },
 
   deleteTransaction: async (id) => {
     const updated = get().transactions.filter((t) => t.id !== id);
     set({ transactions: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(updated));
+    await getDb()
+      .update(schema.transactions)
+      .set({ deletedAt: now() })
+      .where(eq(schema.transactions.id, id));
   },
 
   getMonthTransactions: (month) => get().transactions.filter((t) => t.month === month),
@@ -279,90 +437,175 @@ export const useAppStore = create<AppState>((set, get) => ({
     }, {});
   },
 
+  // ── Credits ───────────────────────────────────────────────────────────────
   addCredit: async (credit) => {
     const newCredit: Credit = { ...credit, id: generateId() };
     const updated = [...get().credits, newCredit];
     set({ credits: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.CREDITS, JSON.stringify(updated));
+    await getDb().insert(schema.credits).values({
+      id: newCredit.id,
+      name: newCredit.name,
+      type: newCredit.type,
+      totalAmount: newCredit.totalAmount,
+      remainingAmount: newCredit.remainingAmount,
+      monthlyPayment: newCredit.monthlyPayment,
+      interestRate: newCredit.interestRate,
+      startDate: newCredit.startDate,
+      endDate: newCredit.endDate,
+      bank: newCredit.bank,
+      color: newCredit.color,
+    });
   },
 
   updateCredit: async (id, creditUpdate) => {
     const updated = get().credits.map((c) => (c.id === id ? { ...c, ...creditUpdate } : c));
     set({ credits: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.CREDITS, JSON.stringify(updated));
+    const credit = updated.find((c) => c.id === id);
+    if (credit) {
+      await getDb()
+        .update(schema.credits)
+        .set({
+          name: credit.name,
+          type: credit.type,
+          totalAmount: credit.totalAmount,
+          remainingAmount: credit.remainingAmount,
+          monthlyPayment: credit.monthlyPayment,
+          interestRate: credit.interestRate,
+          startDate: credit.startDate,
+          endDate: credit.endDate,
+          bank: credit.bank,
+          color: credit.color,
+        })
+        .where(eq(schema.credits.id, id));
+    }
   },
 
   deleteCredit: async (id) => {
     const updated = get().credits.filter((c) => c.id !== id);
     set({ credits: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.CREDITS, JSON.stringify(updated));
+    await getDb().update(schema.credits).set({ deletedAt: now() }).where(eq(schema.credits.id, id));
   },
 
+  // ── Emergency Fund ────────────────────────────────────────────────────────
   updateEmergencyFund: async (fund) => {
     const updated = { ...get().emergencyFund, ...fund };
     set({ emergencyFund: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.EMERGENCY, JSON.stringify(updated));
+    await getDb()
+      .update(schema.emergencyFund)
+      .set({
+        currentAmount: updated.currentAmount,
+        targetAmount: updated.targetAmount,
+        monthlyContribution: updated.monthlyContribution,
+        targetType: updated.targetType,
+        monthlyExpenses: updated.monthlyExpenses,
+        updatedAt: now(),
+      })
+      .where(eq(schema.emergencyFund.id, 1));
   },
 
   addEmergencyContribution: async (amount, note) => {
-    const tx = { id: generateId(), type: 'contribution' as const, amount, date: new Date().toISOString(), note };
+    const txId = generateId();
+    const tx = { id: txId, type: 'contribution' as const, amount, date: now(), note };
     const updated = {
       ...get().emergencyFund,
       currentAmount: get().emergencyFund.currentAmount + amount,
       transactions: [tx, ...get().emergencyFund.transactions],
     };
     set({ emergencyFund: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.EMERGENCY, JSON.stringify(updated));
+    const db = getDb();
+    await db.insert(schema.emergencyTransactions).values({ id: txId, type: 'contribution', amount, date: tx.date, note });
+    await db
+      .update(schema.emergencyFund)
+      .set({ currentAmount: updated.currentAmount, updatedAt: now() })
+      .where(eq(schema.emergencyFund.id, 1));
   },
 
   withdrawFromEmergency: async (amount, reason) => {
-    const tx = { id: generateId(), type: 'withdrawal' as const, amount, date: new Date().toISOString(), note: reason };
+    const txId = generateId();
+    const tx = { id: txId, type: 'withdrawal' as const, amount, date: now(), note: reason };
     const updated = {
       ...get().emergencyFund,
       currentAmount: Math.max(0, get().emergencyFund.currentAmount - amount),
       transactions: [tx, ...get().emergencyFund.transactions],
     };
     set({ emergencyFund: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.EMERGENCY, JSON.stringify(updated));
+    const db = getDb();
+    await db.insert(schema.emergencyTransactions).values({ id: txId, type: 'withdrawal', amount, date: tx.date, note: reason });
+    await db
+      .update(schema.emergencyFund)
+      .set({ currentAmount: updated.currentAmount, updatedAt: now() })
+      .where(eq(schema.emergencyFund.id, 1));
   },
 
+  // ── Goals ─────────────────────────────────────────────────────────────────
   addGoal: async (goal) => {
-    const newGoal: Goal = { ...goal, id: generateId(), contributions: [], createdAt: new Date().toISOString() };
+    const newGoal: Goal = { ...goal, id: generateId(), contributions: [], createdAt: now() };
     const updated = [...get().goals, newGoal];
     set({ goals: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(updated));
+    await getDb().insert(schema.goals).values({
+      id: newGoal.id,
+      name: newGoal.name,
+      description: newGoal.description,
+      type: newGoal.type,
+      targetAmount: newGoal.targetAmount,
+      currentAmount: newGoal.currentAmount,
+      targetDate: newGoal.targetDate,
+      priority: newGoal.priority,
+      color: newGoal.color,
+      icon: newGoal.icon,
+      createdAt: newGoal.createdAt,
+    });
   },
 
   updateGoal: async (id, goalUpdate) => {
     const updated = get().goals.map((g) => (g.id === id ? { ...g, ...goalUpdate } : g));
     set({ goals: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(updated));
+    const goal = updated.find((g) => g.id === id);
+    if (goal) {
+      await getDb()
+        .update(schema.goals)
+        .set({
+          name: goal.name,
+          description: goal.description,
+          type: goal.type,
+          targetAmount: goal.targetAmount,
+          currentAmount: goal.currentAmount,
+          targetDate: goal.targetDate,
+          priority: goal.priority,
+          color: goal.color,
+          icon: goal.icon,
+        })
+        .where(eq(schema.goals.id, id));
+    }
   },
 
   deleteGoal: async (id) => {
     const updated = get().goals.filter((g) => g.id !== id);
     set({ goals: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(updated));
+    await getDb().update(schema.goals).set({ deletedAt: now() }).where(eq(schema.goals.id, id));
   },
 
   addGoalContribution: async (goalId, amount) => {
-    const contribution = { id: generateId(), amount, date: new Date().toISOString() };
+    const contribId = generateId();
+    const contribution = { id: contribId, amount, date: now() };
     const updated = get().goals.map((g) =>
       g.id === goalId
         ? { ...g, currentAmount: g.currentAmount + amount, contributions: [contribution, ...g.contributions] }
         : g
     );
     set({ goals: updated });
-    await AsyncStorage.setItem(STORAGE_KEYS.GOALS, JSON.stringify(updated));
+    const db = getDb();
+    await db.insert(schema.goalContributions).values({ id: contribId, goalId, amount, date: contribution.date });
+    await db
+      .update(schema.goals)
+      .set({ currentAmount: (updated.find((g) => g.id === goalId)?.currentAmount ?? 0) })
+      .where(eq(schema.goals.id, goalId));
   },
 
-  getTotalIncome: () => {
-    return get().salary + get().incomeSources.reduce((a, s) => a + s.amount, 0);
-  },
+  // ── Computed ──────────────────────────────────────────────────────────────
+  getTotalIncome: () => get().salary + get().incomeSources.reduce((a, s) => a + s.amount, 0),
 
-  getTotalMonthlyPayments: () => {
-    return get().credits.reduce((a, c) => a + c.monthlyPayment, 0);
-  },
+  getTotalMonthlyPayments: () => get().credits.reduce((a, c) => a + c.monthlyPayment, 0),
 
   getBudgetHealth: () => {
     const total = get().getTotalIncome();
