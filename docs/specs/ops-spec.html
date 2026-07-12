@@ -1,0 +1,1997 @@
+<title>SPEC-OPS-001 — CI/CD Pipeline, Production Infrastructure & Operations</title>
+<style>
+:root {
+  --acc:     #EA580C;
+  --acc-dim: rgba(234,88,12,.5);
+  --acc-bg:  rgba(234,88,12,.08);
+  --bg:      #0D1117;
+  --surf:    #161B22;
+  --surf2:   #21262D;
+  --bd:      #30363D;
+  --txt:     #F0F6FC;
+  --txt2:    #8B949E;
+  --txt3:    #6E7681;
+  --ok:      #3FB950;
+  --warn:    #D29922;
+  --danger:  #F85149;
+  --violet:  #A371F7;
+  --cyan:    #39D3F0;
+  --slate:   #79C0FF;
+}
+@media (prefers-color-scheme: light) { :root {
+  --bg: #F6F8FA; --surf: #FFFFFF; --surf2: #F0F2F4; --bd: #D0D7DE;
+  --txt: #1F2328; --txt2: #57606A; --txt3: #6E7781;
+}}
+:root[data-theme="dark"] {
+  --bg: #0D1117; --surf: #161B22; --surf2: #21262D; --bd: #30363D;
+  --txt: #F0F6FC; --txt2: #8B949E; --txt3: #6E7681;
+}
+:root[data-theme="light"] {
+  --bg: #F6F8FA; --surf: #FFFFFF; --surf2: #F0F2F4; --bd: #D0D7DE;
+  --txt: #1F2328; --txt2: #57606A; --txt3: #6E7781;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--txt);
+  line-height: 1.65; display: flex; min-height: 100vh;
+}
+
+#sidebar {
+  position: fixed; top: 0; left: 0; width: 230px; height: 100vh;
+  background: var(--surf); border-right: 1px solid var(--bd);
+  overflow-y: auto; padding: 1.5rem 0; z-index: 100;
+  scrollbar-width: thin;
+}
+#sidebar-header { padding: 0 1.25rem 1.25rem; border-bottom: 1px solid var(--bd); margin-bottom: .75rem; }
+.spec-id { font-size: .65rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); margin-bottom: .2rem; }
+.spec-title { font-size: .72rem; color: var(--txt2); line-height: 1.4; }
+#sidebar nav a {
+  display: block; padding: .38rem 1.25rem; font-size: .75rem;
+  color: var(--txt2); text-decoration: none; border-left: 2px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+}
+#sidebar nav a:hover { color: var(--txt); background: var(--surf2); }
+#sidebar nav a.active { color: var(--acc); border-left-color: var(--acc); background: var(--acc-bg); font-weight: 600; }
+.nav-section { padding: .5rem 1.25rem .2rem; font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--txt3); }
+
+#main { margin-left: 230px; flex: 1; }
+
+#topbar {
+  position: sticky; top: 0; z-index: 90;
+  background: var(--surf); border-bottom: 1px solid var(--bd);
+  padding: .65rem 2.5rem; display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-left { display: flex; align-items: center; gap: .75rem; }
+.topbar-badge {
+  font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  background: var(--acc-bg); color: var(--acc); border: 1px solid var(--acc-dim);
+  border-radius: 4px; padding: .15rem .5rem;
+}
+.topbar-ver { font-size: .7rem; color: var(--txt3); }
+#theme-btn {
+  border: 1px solid var(--bd); background: var(--surf2); color: var(--txt2);
+  border-radius: 6px; padding: .3rem .65rem; font-size: .75rem; cursor: pointer;
+  transition: background .15s;
+}
+#theme-btn:hover { background: var(--bd); color: var(--txt); }
+
+section {
+  padding: 3rem 2.5rem 3.5rem;
+  border-bottom: 1px solid var(--bd);
+  max-width: 1100px;
+}
+.sec-eyebrow { font-size: .65rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: .5rem; }
+.sec-title { font-size: 1.65rem; font-weight: 700; color: var(--txt); margin-bottom: .4rem; text-wrap: balance; }
+.sec-sub { font-size: .9rem; color: var(--txt2); margin-bottom: 2rem; max-width: 72ch; }
+
+h3 { font-size: 1.05rem; font-weight: 600; color: var(--txt); margin: 2rem 0 .75rem; }
+h4 { font-size: .875rem; font-weight: 600; color: var(--txt2); margin: 1.25rem 0 .5rem; text-transform: uppercase; letter-spacing: .06em; }
+p { font-size: .875rem; color: var(--txt2); margin-bottom: .75rem; max-width: 80ch; }
+
+/* Tables */
+.tbl-wrap { overflow-x: auto; margin: 1rem 0; }
+table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+th {
+  background: var(--surf2); color: var(--txt2); font-weight: 600;
+  padding: .6rem .85rem; text-align: left; border-bottom: 1px solid var(--bd);
+  font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
+}
+td { padding: .55rem .85rem; border-bottom: 1px solid var(--bd); color: var(--txt2); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surf2); }
+td:first-child { color: var(--txt); font-weight: 500; }
+
+/* Callout */
+.callout {
+  border-left: 3px solid var(--acc); background: var(--acc-bg);
+  border-radius: 0 6px 6px 0; padding: .85rem 1rem; margin: 1.25rem 0;
+  font-size: .83rem; color: var(--txt2);
+}
+.callout strong { color: var(--acc); }
+.callout-ok   { border-left-color: var(--ok);   background: rgba(63,185,80,.07); }
+.callout-ok strong { color: var(--ok); }
+.callout-warn { border-left-color: var(--warn); background: rgba(210,153,34,.07); }
+.callout-warn strong { color: var(--warn); }
+.callout-danger { border-left-color: var(--danger); background: rgba(248,81,73,.07); }
+.callout-danger strong { color: var(--danger); }
+.callout-violet { border-left-color: var(--violet); background: rgba(163,113,247,.07); }
+.callout-violet strong { color: var(--violet); }
+.callout-cyan { border-left-color: var(--cyan); background: rgba(57,211,240,.07); }
+.callout-cyan strong { color: var(--cyan); }
+
+/* Grid cards */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin: 1rem 0; }
+.card {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; padding: 1rem 1.1rem;
+}
+.card-title { font-size: .78rem; font-weight: 700; color: var(--txt); margin-bottom: .4rem; }
+.card-body { font-size: .78rem; color: var(--txt2); line-height: 1.6; }
+
+/* Environment cards */
+.env-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: .85rem; margin: 1rem 0; }
+.env-card {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; overflow: hidden;
+}
+.env-header {
+  padding: .65rem 1rem; display: flex; align-items: center; gap: .6rem;
+  border-bottom: 1px solid var(--bd);
+}
+.env-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.env-name { font-size: .78rem; font-weight: 700; color: var(--txt); }
+.env-tag { font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: .12rem .4rem; border-radius: 3px; margin-left: auto; }
+.env-body { padding: .75rem 1rem; font-size: .78rem; color: var(--txt2); line-height: 1.6; }
+.env-row { display: flex; gap: .4rem; margin-bottom: .25rem; }
+.env-key { color: var(--txt3); font-size: .72rem; min-width: 70px; }
+
+/* Pipeline visualization */
+.pipeline {
+  display: flex; align-items: stretch; gap: 0; margin: 1.25rem 0;
+  overflow-x: auto; padding-bottom: .5rem;
+}
+.pipe-stage {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 6px; padding: .75rem .9rem; min-width: 130px;
+  flex-shrink: 0; position: relative;
+}
+.pipe-stage + .pipe-stage { margin-left: .5rem; }
+.pipe-stage::after {
+  content: '→'; position: absolute; right: -1.15rem; top: 50%; transform: translateY(-50%);
+  color: var(--txt3); font-size: .9rem; pointer-events: none; z-index: 1;
+}
+.pipe-stage:last-child::after { display: none; }
+.pipe-num { font-size: .6rem; font-weight: 700; color: var(--acc); letter-spacing: .08em; margin-bottom: .2rem; }
+.pipe-name { font-size: .72rem; font-weight: 600; color: var(--txt); }
+.pipe-dur { font-size: .67rem; color: var(--txt3); margin-top: .15rem; }
+.pipe-ok   { border-top: 3px solid var(--ok); }
+.pipe-warn { border-top: 3px solid var(--warn); }
+.pipe-acc  { border-top: 3px solid var(--acc); }
+.pipe-gate { border-top: 3px solid var(--violet); }
+
+/* Branch strategy */
+.branch-list { display: flex; flex-direction: column; gap: .55rem; margin: 1rem 0; }
+.branch-item {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 6px; padding: .7rem 1rem;
+  display: grid; grid-template-columns: 160px 80px 1fr; gap: .75rem; align-items: center;
+}
+.branch-name { font-family: 'Courier New', monospace; font-size: .78rem; color: var(--slate); font-weight: 600; }
+.branch-prot { font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .12rem .4rem; border-radius: 3px; text-align: center; }
+.bp-protected { background: rgba(248,81,73,.15); color: var(--danger); }
+.bp-restricted { background: rgba(210,153,34,.15); color: var(--warn); }
+.bp-open { background: rgba(63,185,80,.15); color: var(--ok); }
+.branch-desc { font-size: .78rem; color: var(--txt2); }
+
+/* Build matrix */
+.build-matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+.build-card {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; padding: 1rem 1.1rem;
+}
+.build-platform { font-size: .65rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); margin-bottom: .5rem; }
+.build-row { display: flex; justify-content: space-between; align-items: center; padding: .3rem 0; border-bottom: 1px solid var(--bd); font-size: .78rem; }
+.build-row:last-child { border-bottom: none; }
+.build-type { color: var(--txt2); }
+.build-sign { font-size: .68rem; font-weight: 600; padding: .1rem .35rem; border-radius: 3px; }
+.bs-signed { background: rgba(63,185,80,.15); color: var(--ok); }
+.bs-debug { background: var(--surf2); color: var(--txt3); }
+
+/* Secret rows */
+.secret-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: .85rem; margin: 1rem 0; }
+.secret-card {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; padding: .9rem 1rem;
+}
+.secret-cat { font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--txt3); margin-bottom: .4rem; }
+.secret-list { list-style: none; }
+.secret-list li { font-size: .78rem; color: var(--txt2); padding: .2rem 0; display: flex; align-items: center; gap: .4rem; }
+.secret-list li::before { content: '•'; color: var(--acc); font-size: .9rem; }
+
+/* Business rules */
+.br-block {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; padding: .85rem 1rem; margin: .55rem 0;
+  display: flex; gap: .9rem; align-items: flex-start;
+}
+.br-id {
+  font-size: .68rem; font-weight: 700; color: var(--acc);
+  letter-spacing: .08em; text-transform: uppercase;
+  white-space: nowrap; padding-top: .05rem;
+}
+.br-body { font-size: .82rem; color: var(--txt2); line-height: 1.6; }
+
+/* Status */
+.status-ok   { color: var(--ok);     font-weight: 600; }
+.status-warn { color: var(--warn);   font-weight: 600; }
+.status-info { color: var(--slate);  font-weight: 600; }
+.status-danger { color: var(--danger); font-weight: 600; }
+
+/* Check items */
+.check-section { margin: 1.25rem 0; }
+.check-hdr { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--acc); padding: .4rem .75rem; background: var(--acc-bg); border-radius: 4px; margin-bottom: .5rem; }
+.check-item { display: flex; align-items: flex-start; gap: .65rem; padding: .35rem .5rem; border-radius: 4px; font-size: .8rem; color: var(--txt2); }
+.check-item:hover { background: var(--surf2); }
+.check-box { width: 14px; height: 14px; border: 1.5px solid var(--bd); border-radius: 3px; flex-shrink: 0; margin-top: .15rem; }
+
+/* Risk blocks */
+.risk-block {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; padding: 1rem 1.1rem; margin: .65rem 0;
+}
+.risk-meta { display: flex; align-items: center; gap: .65rem; margin-bottom: .5rem; flex-wrap: wrap; }
+.risk-id { font-size: .65rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--txt3); }
+.risk-name { font-size: .85rem; font-weight: 600; color: var(--txt); }
+.risk-pill { font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .12rem .45rem; border-radius: 3px; margin-left: auto; }
+.rp-high { background: rgba(248,81,73,.15); color: var(--danger); }
+.rp-med  { background: rgba(210,153,34,.15); color: var(--warn); }
+.rp-low  { background: rgba(63,185,80,.15);  color: var(--ok); }
+.risk-detail { font-size: .8rem; color: var(--txt2); line-height: 1.6; }
+
+/* Responsibility matrix */
+.raci-wrap { overflow-x: auto; margin: 1rem 0; }
+.raci-table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+.raci-table th { background: var(--surf2); color: var(--txt2); font-weight: 600; padding: .55rem .7rem; text-align: center; border: 1px solid var(--bd); font-size: .7rem; letter-spacing: .04em; white-space: nowrap; }
+.raci-table th:first-child { text-align: left; }
+.raci-table td { padding: .45rem .7rem; border: 1px solid var(--bd); text-align: center; color: var(--txt2); }
+.raci-table td:first-child { text-align: left; color: var(--txt); font-weight: 500; }
+.raci-r { color: var(--danger); font-weight: 700; }
+.raci-a { color: var(--warn);   font-weight: 700; }
+.raci-c { color: var(--slate);  font-weight: 700; }
+.raci-i { color: var(--txt3);   font-weight: 600; }
+
+/* KPI grid */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: .85rem; margin: 1rem 0; }
+.kpi-card { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: .85rem 1rem; }
+.kpi-label { font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--txt3); margin-bottom: .35rem; }
+.kpi-val { font-size: 1.4rem; font-weight: 700; color: var(--acc); font-variant-numeric: tabular-nums; margin-bottom: .2rem; }
+.kpi-desc { font-size: .72rem; color: var(--txt3); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  #sidebar { display: none; }
+  #main { margin-left: 0; }
+  section { padding: 2rem 1.25rem; }
+  .build-matrix { grid-template-columns: 1fr; }
+  .branch-item { grid-template-columns: 1fr; }
+}
+</style>
+
+<div id="sidebar">
+  <div id="sidebar-header">
+    <div class="spec-id">SPEC-OPS-001</div>
+    <div class="spec-title">CI/CD Pipeline, Production Infrastructure & Operations</div>
+  </div>
+  <nav>
+    <div class="nav-section">Overview</div>
+    <a href="#s1">§1 Scope & Core Philosophy</a>
+    <a href="#s2">§2 Environment Architecture</a>
+    <a href="#s3">§3 Source Control Strategy</a>
+    <div class="nav-section">Delivery</div>
+    <a href="#s4">§4 CI Pipeline Design</a>
+    <a href="#s5">§5 CD Pipeline Design</a>
+    <a href="#s6">§6 Build Management</a>
+    <a href="#s7">§7 Secret Management</a>
+    <a href="#s8">§8 Code Signing</a>
+    <a href="#s9">§9 App Store Release</a>
+    <div class="nav-section">Operations</div>
+    <a href="#s10">§10 Feature Flag Strategy</a>
+    <a href="#s11">§11 Operational Monitoring</a>
+    <a href="#s12">§12 Incident Response</a>
+    <a href="#s13">§13 Versioning Strategy</a>
+    <a href="#s14">§14 Compliance Framework</a>
+    <div class="nav-section">Governance</div>
+    <a href="#s15">§15 Operations Dashboard</a>
+    <a href="#s16">§16 Team Responsibilities</a>
+    <a href="#s17">§17 Future Compatibility</a>
+    <a href="#s18">§18 Production Checklist</a>
+  </nav>
+</div>
+
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-left">
+      <span class="topbar-badge">SPEC-OPS-001</span>
+      <span class="topbar-ver">v1.0.0 — Finance Bag</span>
+    </div>
+    <button id="theme-btn" aria-label="Toggle theme">Toggle Theme</button>
+  </div>
+
+  <main>
+
+<!-- ── §1 Scope & Core Philosophy ── -->
+<section id="s1">
+  <div class="sec-eyebrow">Section 1</div>
+  <div class="sec-title">Scope & Core Philosophy</div>
+  <div class="sec-sub">The operational mandate, delivery principles, and architectural boundaries governing every pipeline, release, and production operation for Finance Bag.</div>
+
+  <h3>Document Purpose</h3>
+  <p>This specification defines the complete continuous integration, continuous delivery, production infrastructure, mobile release engineering, and long-term operational strategy for Finance Bag — a premium offline-first personal finance application built on React Native 0.76 / Expo SDK 52 targeting Android and iOS.</p>
+  <p>Every process defined here is designed to be automated, auditable, reproducible, and rollback-capable. Manual steps are exceptions that require explicit documentation and a named owner.</p>
+
+  <h3>Delivery Mandate</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Automatically Validated</div>
+      <div class="card-body">Every commit triggers validation. No code reaches a shared environment without passing the full CI gate. Validation includes static analysis, unit tests, integration tests, and security scanning.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Automatically Tested</div>
+      <div class="card-body">Test suites are mandatory gates, not optional checks. A failing test blocks promotion to the next stage. No human overrides the test gate without a documented incident decision.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Secure by Default</div>
+      <div class="card-body">Secrets are never in source code. Signing certificates are hardware-protected where possible. All artifact transfers occur over encrypted channels. SAST and dependency scans run on every build.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Reproducible</div>
+      <div class="card-body">Given the same source commit and pipeline version, the build output is byte-for-byte identical. Build environments are pinned and containerized. No side-channel toolchain modifications.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Traceable</div>
+      <div class="card-body">Every artifact is tagged with its source commit SHA, build number, timestamp, and pipeline run ID. The lineage from deployed binary back to source line is unbroken and queryable.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Rollback-Capable</div>
+      <div class="card-body">Every production release has a documented rollback path. For stores, phased rollout halts are prepared before submission. Emergency hotfix pipelines are tested quarterly, not discovered during incidents.</div>
+    </div>
+  </div>
+
+  <h3>Guiding Principles</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Principle</th><th>Implication</th></tr></thead>
+      <tbody>
+        <tr><td>P-1</td><td>Pipeline as Code</td><td>All CI/CD configuration lives in version control alongside the application code. Pipeline changes follow the same PR/review process as application changes.</td></tr>
+        <tr><td>P-2</td><td>Fail Fast</td><td>Cheap checks (lint, format, types) run first. Expensive checks (integration tests, builds) run only after cheap checks pass. This minimises compute waste and developer wait time.</td></tr>
+        <tr><td>P-3</td><td>Single Source of Truth</td><td>One canonical artifact is built once and promoted through environments. The same binary that passed QA is the binary submitted to the stores.</td></tr>
+        <tr><td>P-4</td><td>Defense in Depth</td><td>Security is enforced at every layer: SAST in CI, secret scanning in pre-commit, dependency CVE scanning on every build, binary signing at packaging, certificate pinning in app configuration.</td></tr>
+        <tr><td>P-5</td><td>Deployment Rings</td><td>Production changes are progressively exposed: internal → closed beta → open beta → phased production rollout. No feature reaches 100% of users without passing through each ring.</td></tr>
+        <tr><td>P-6</td><td>Immutable Artifacts</td><td>Built artifacts are never modified after creation. Promotion is a tagging and distribution operation, never a rebuild. Production artifacts are retained for a minimum of 24 months.</td></tr>
+        <tr><td>P-7</td><td>Blameless Operations</td><td>Incidents are diagnosed through postmortem, not blame assignment. Systems are assumed to fail; operations procedures assume failure and design recovery paths before they are needed.</td></tr>
+        <tr><td>P-8</td><td>Documentation as Deployment Gate</td><td>A release without complete release notes, changelog, and privacy label review is incomplete. Documentation is a release requirement, not an afterthought.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Technology Boundary</h3>
+  <div class="callout-cyan callout">
+    <strong>CI/CD Platform:</strong> GitHub Actions (primary). All pipelines are YAML-defined in <code>.github/workflows/</code>. Expo Application Services (EAS) handles mobile build orchestration. Google Play Console and Apple App Store Connect are the production distribution channels. No third-party CI vendor lock-in is acceptable.
+  </div>
+
+  <h3>Specification Relationships</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Upstream Spec</th><th>Dependency</th></tr></thead>
+      <tbody>
+        <tr><td>SPEC-ARC-001</td><td>Architecture decisions that determine build configurations, environment matrix, and security model</td></tr>
+        <tr><td>SPEC-RDM-001</td><td>Phase timeline and release gate definitions that map to CD pipeline stages</td></tr>
+        <tr><td>SPEC-SEC-001</td><td>Security requirements that mandate SAST, secret scanning, dependency CVE, and certificate management rules</td></tr>
+        <tr><td>SPEC-QA-001</td><td>Test coverage requirements and quality gate thresholds enforced in CI</td></tr>
+        <tr><td>SPEC-PMO-001</td><td>Performance baselines and monitoring SLOs that trigger release holds and rollbacks</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── §2 Environment Architecture ── -->
+<section id="s2">
+  <div class="sec-eyebrow">Section 2</div>
+  <div class="sec-title">Environment Architecture</div>
+  <div class="sec-sub">Eight operational environments, each with a distinct purpose, access model, data policy, and promotion gate.</div>
+
+  <div class="env-grid">
+    <div class="env-card">
+      <div class="env-header">
+        <div class="env-dot" style="background:#79C0FF"></div>
+        <div class="env-name">Local Development</div>
+        <div class="env-tag" style="background:rgba(121,192,255,.1);color:#79C0FF">LOCAL</div>
+      </div>
+      <div class="env-body">
+        <div class="env-row"><span class="env-key">Purpose</span> Engineer's personal machine. Full debug tooling enabled, Metro bundler with hot reload, Expo Go or development client.</div>
+        <div class="env-row"><span class="env-key">Data</span> Synthetic fixtures only. Never real user data or production secrets.</div>
+        <div class="env-row"><span class="env-key">Trigger</span> Developer-initiated. No automation gate.</div>
+        <div class="env-row"><span class="env-key">Access</span> Individual developer only.</div>
+      </div>
+    </div>
+
+    <div class="env-card">
+      <div class="env-header">
+        <div class="env-dot" style="background:#39D3F0"></div>
+        <div class="env-name">Shared Development</div>
+        <div class="env-tag" style="background:rgba(57,211,240,.1);color:#39D3F0">DEV</div>
+      </div>
+      <div class="env-body">
+        <div class="env-row"><span class="env-key">Purpose</span> Collaborative integration target. All feature branches merge here for early integration testing across the team.</div>
+        <div class="env-row"><span class="env-key">Data</span> Seeded synthetic dataset. Reset weekly.</div>
+        <div class="env-row"><span class="env-key">Trigger</span> Automatic on merge to <code>develop</code> branch.</div>
+        <div class="env-row"><span class="env-key">Access</span> All engineers. Read-only to QA.</div>
+      </div>
+    </div>
+
+    <div class="env-card">
+      <div class="env-header">
+        <div class="env-dot" style="background:#EA580C"></div>
+        <div class="env-name">Integration</div>
+        <div class="env-tag" style="background:rgba(234,88,12,.1);color:#EA580C">INT</div>
+      </div>
+      <div class="env-body">
+        <div class="env-row"><span class="env-key">Purpose</span> Automated integration test execution. All cross-module contracts verified here before QA handoff.</div>
+        <div class="env-row"><span class="env-key">Data</span> Controlled synthetic dataset with edge cases. Never reset mid-sprint.</div>
+        <div class="env-row"><span class="env-key">Trigger</span> Automatic on CI green for <code>develop</code>.</div>
+        <div class="env-row"><span class="env-key">Access</span> CI system only. No manual access.</div>
+      </div>
+    </div>
+
+    <div class="env-card">
+      <div class="env-header">
+        <div class="env-dot" style="background:#D29922"></div>
+        <div class="env-name">QA</div>
+        <div class="env-tag" style="background:rgba(210,153,34,.1);color:#D29922">QA</div>
+      </div>
+      <div class="env-body">
+        <div class="env-row"><span class="env-key">Purpose</span> Manual and exploratory QA on stable build. Sprint acceptance testing performed here.</div>
+        <div class="env-row"><span class="env-key">Data</span> Representative anonymised dataset. Controlled by QA team.</div>
+        <div class="env-row"><span class="env-key">Trigger</span> Manual promotion by Tech Lead after INT gate passes.</div>
+        <div class="env-row"><span class="env-key">Access</span> QA team, PM, Tech Lead.</div>
+      </div>
+    </div>
+
+    <div class="env-card">
+      <div class="env-header">
+        <div class="env-dot" style="background:#A371F7"></div>
+        <div class="env-name">Staging</div>
+        <div class="env-tag" style="background:rgba(163,113,247,.1);color:#A371F7">STAGING</div>
+      </div>
+      <div class="env-body">
+        <div class="env-row"><span class="env-key">Purpose</span> Production-identical configuration. Final validation, performance testing, and security audit target.</div>
+        <div class="env-row"><span class="env-key">Data</span> Anonymised production-representative data. GDPR-compliant.</div>
+        <div class="env-row"><span class="env-key">Trigger</span> Manual promotion by Release Manager after QA sign-off.</div>
+        <div class="env-row"><span class="env-key">Access</span> Release Manager, Tech Lead, Security team.</div>
+      </div>
+    </div>
+
+    <div class="env-card">
+      <div class="env-header">
+        <div class="env-dot" style="background:#F85149"></div>
+        <div class="env-name">Release Candidate</div>
+        <div class="env-tag" style="background:rgba(248,81,73,.1);color:#F85149">RC</div>
+      </div>
+      <div class="env-body">
+        <div class="env-row"><span class="env-key">Purpose</span> Final signed artifact validation before store submission. Identical to production except for store distribution channel.</div>
+        <div class="env-row"><span class="env-key">Data</span> Production artifact. Internal tester distribution only.</div>
+        <div class="env-row"><span class="env-key">Trigger</span> Manual by Release Manager after staging sign-off and security review.</div>
+        <div class="env-row"><span class="env-key">Access</span> Internal testers (≤25 per platform). Approval required for each tester.</div>
+      </div>
+    </div>
+
+    <div class="env-card">
+      <div class="env-header">
+        <div class="env-dot" style="background:#3FB950"></div>
+        <div class="env-name">Production</div>
+        <div class="env-tag" style="background:rgba(63,185,80,.1);color:#3FB950">PROD</div>
+      </div>
+      <div class="env-body">
+        <div class="env-row"><span class="env-key">Purpose</span> Live user environment. Phased rollout: 5% → 20% → 50% → 100% with 24-hour health gates between each ring.</div>
+        <div class="env-row"><span class="env-key">Data</span> Live user data. Encrypted at rest. No debug access ever.</div>
+        <div class="env-row"><span class="env-key">Trigger</span> Manual final approval by Release Manager + PM. Phased expansion is automated with health checks.</div>
+        <div class="env-row"><span class="env-key">Access</span> No individual developer access to production data or secrets at runtime.</div>
+      </div>
+    </div>
+
+    <div class="env-card">
+      <div class="env-header">
+        <div class="env-dot" style="background:#8B949E"></div>
+        <div class="env-name">Sandbox</div>
+        <div class="env-tag" style="background:rgba(139,148,158,.1);color:#8B949E">SBX</div>
+      </div>
+      <div class="env-body">
+        <div class="env-row"><span class="env-key">Purpose</span> Experimental features, proof-of-concept integrations, and future module development without affecting any shared environment.</div>
+        <div class="env-row"><span class="env-key">Data</span> Fully synthetic. Self-contained. No shared secrets.</div>
+        <div class="env-row"><span class="env-key">Trigger</span> Developer-initiated. Lifetime-limited (30 days max).</div>
+        <div class="env-row"><span class="env-key">Access</span> Feature team only. Scoped per sandbox instance.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Environment Promotion Policy</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Promotion</th><th>Gate</th><th>Approver</th><th>Rollback</th></tr></thead>
+      <tbody>
+        <tr><td>LOCAL → DEV</td><td>PR review approved + CI green</td><td>Peer reviewer (1 required)</td><td>Revert commit</td></tr>
+        <tr><td>DEV → INT</td><td>Automatic on CI green</td><td>Automated gate</td><td>Auto-rollback on gate failure</td></tr>
+        <tr><td>INT → QA</td><td>Integration test suite 100% pass</td><td>Tech Lead</td><td>Re-promote previous QA build</td></tr>
+        <tr><td>QA → STAGING</td><td>Sprint acceptance sign-off + zero P0/P1 bugs</td><td>Release Manager</td><td>Re-promote previous staging build</td></tr>
+        <tr><td>STAGING → RC</td><td>Security review passed + performance baseline met</td><td>Release Manager + Security Lead</td><td>Re-promote previous RC artifact</td></tr>
+        <tr><td>RC → PROD</td><td>48h internal soak + PM approval</td><td>Release Manager + PM (dual approval)</td><td>Phased rollout halt; store rollback initiated</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-warn callout">
+    <strong>Data Isolation Rule:</strong> No production data may flow into any environment below STAGING. Any environment below STAGING that encounters production data must be immediately isolated, reported as a security incident, and wiped. Synthetic data generation tooling must cover all edge cases sufficient for complete test coverage without requiring real user data.
+  </div>
+</section>
+
+<!-- ── §3 Source Control Strategy ── -->
+<section id="s3">
+  <div class="sec-eyebrow">Section 3</div>
+  <div class="sec-title">Source Control Strategy</div>
+  <div class="sec-sub">Repository structure, branching model, protection rules, pull request workflow, and commit conventions governing all code and configuration changes.</div>
+
+  <h3>Branching Model</h3>
+  <div class="branch-list">
+    <div class="branch-item">
+      <div class="branch-name">main</div>
+      <div class="branch-prot bp-protected">PROTECTED</div>
+      <div class="branch-desc">Production-only. Reflects exactly what is in production stores. Direct pushes are disabled. Only release manager may merge. Tagged with every release version.</div>
+    </div>
+    <div class="branch-item">
+      <div class="branch-name">develop</div>
+      <div class="branch-prot bp-protected">PROTECTED</div>
+      <div class="branch-desc">Integration target for all feature branches. CI must be green to merge. Force-push disabled. History is linear (squash merge from feature branches).</div>
+    </div>
+    <div class="branch-item">
+      <div class="branch-name">release/v*.*.*</div>
+      <div class="branch-prot bp-restricted">RESTRICTED</div>
+      <div class="branch-desc">Created from develop at the start of release hardening. Only bug fixes may be merged here during release freeze. Used for RC build generation. Merged to both main and develop on release.</div>
+    </div>
+    <div class="branch-item">
+      <div class="branch-name">hotfix/v*.*.*</div>
+      <div class="branch-prot bp-restricted">RESTRICTED</div>
+      <div class="branch-desc">Branched from main for critical production bug fixes. Bypasses the normal develop integration cycle. Requires Release Manager approval. Merged to both main and develop upon completion.</div>
+    </div>
+    <div class="branch-item">
+      <div class="branch-name">feat/*</div>
+      <div class="branch-prot bp-open">OPEN</div>
+      <div class="branch-desc">Individual feature development. Branched from develop. Named <code>feat/&lt;issue-id&gt;-short-description</code>. Deleted after merge. No direct pushes from non-owners without PR.</div>
+    </div>
+    <div class="branch-item">
+      <div class="branch-name">fix/*</div>
+      <div class="branch-prot bp-open">OPEN</div>
+      <div class="branch-desc">Bug fixes targeting develop. Named <code>fix/&lt;issue-id&gt;-short-description</code>. Same rules as feat branches.</div>
+    </div>
+    <div class="branch-item">
+      <div class="branch-name">chore/*</div>
+      <div class="branch-prot bp-open">OPEN</div>
+      <div class="branch-desc">Infrastructure, tooling, dependency updates, and housekeeping. Never contains user-facing changes. CI gate is still required.</div>
+    </div>
+    <div class="branch-item">
+      <div class="branch-name">docs/*</div>
+      <div class="branch-prot bp-open">OPEN</div>
+      <div class="branch-desc">Documentation-only changes. CI runs type check and lint only (no full build required for merge).</div>
+    </div>
+  </div>
+
+  <h3>Branch Protection Rules (main & develop)</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Rule</th><th>main</th><th>develop</th></tr></thead>
+      <tbody>
+        <tr><td>Require pull request</td><td class="status-ok">Required</td><td class="status-ok">Required</td></tr>
+        <tr><td>Minimum approvals</td><td>2 (incl. Release Manager)</td><td>1 (peer review)</td></tr>
+        <tr><td>Dismiss stale approvals on push</td><td class="status-ok">Enabled</td><td class="status-ok">Enabled</td></tr>
+        <tr><td>Require status checks to pass</td><td class="status-ok">All CI jobs</td><td class="status-ok">All CI jobs</td></tr>
+        <tr><td>Require branches to be up to date</td><td class="status-ok">Enabled</td><td class="status-ok">Enabled</td></tr>
+        <tr><td>Restrict who can push</td><td>Release Manager only</td><td>Any engineer via PR</td></tr>
+        <tr><td>Force push</td><td class="status-danger">Disabled</td><td class="status-danger">Disabled</td></tr>
+        <tr><td>Delete branch</td><td class="status-danger">Disabled</td><td class="status-danger">Disabled</td></tr>
+        <tr><td>Linear history required</td><td class="status-ok">Squash only</td><td class="status-ok">Squash only</td></tr>
+        <tr><td>Signed commits</td><td class="status-ok">Required</td><td class="status-warn">Encouraged</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Pull Request Workflow</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">PR Creation</div>
+      <div class="card-body">PRs reference the issue or task ID. Title follows Conventional Commits format. PR body includes: motivation, change summary, testing performed, screenshots for UI changes, and a self-review checklist. Draft PRs allowed for early feedback; must be converted to Ready before CI gate applies.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Review Requirements</div>
+      <div class="card-body">Minimum 1 approval for develop. 2 approvals (including Release Manager) for main. Domain-specific changes (schema, security, AI integration) require the named domain owner as one approver. Automated review assignments via CODEOWNERS file.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">PR Size Policy</div>
+      <div class="card-body">Maximum 400 lines changed per PR (per SPEC-ARC-001). PRs exceeding this must be split unless a single atomic migration or schema change requires more. Mechanical PRs (dependency bumps, generated code) are exempt with a waiver comment.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Merge Policy</div>
+      <div class="card-body">Squash merge into develop to maintain clean history. Each squash commit represents one logical change. The squash message is the PR title in Conventional Commits format. No merge commits in develop or main.</div>
+    </div>
+  </div>
+
+  <h3>Commit Conventions</h3>
+  <p>All commits follow the Conventional Commits 1.0.0 specification. Commit message format: <code>type(scope): description</code>. Enforced by commitlint in the CI pipeline and a local git commit-msg hook.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Type</th><th>Scope Examples</th><th>Triggers Version Bump</th></tr></thead>
+      <tbody>
+        <tr><td><code>feat</code></td><td>accounts, budget, ai, auth, ui</td><td>Minor (0.x.0)</td></tr>
+        <tr><td><code>fix</code></td><td>accounts, budget, sync, db</td><td>Patch (0.0.x)</td></tr>
+        <tr><td><code>perf</code></td><td>db, render, startup</td><td>Patch (0.0.x)</td></tr>
+        <tr><td><code>security</code></td><td>auth, crypto, api</td><td>Patch (immediate)</td></tr>
+        <tr><td><code>refactor</code></td><td>any</td><td>None</td></tr>
+        <tr><td><code>test</code></td><td>any</td><td>None</td></tr>
+        <tr><td><code>docs</code></td><td>any</td><td>None</td></tr>
+        <tr><td><code>chore</code></td><td>deps, ci, config</td><td>None</td></tr>
+        <tr><td><code>BREAKING CHANGE</code></td><td>any (footer)</td><td>Major (x.0.0)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Version Tagging</h3>
+  <p>Git tags are created on main only by the Release Manager. Tags follow semantic versioning: <code>v{MAJOR}.{MINOR}.{PATCH}</code>. Release candidates are tagged <code>v1.0.0-rc.1</code>. All tags are signed GPG commits. Automated changelog generation reads from Conventional Commits since the previous tag.</p>
+
+  <div class="callout callout-ok">
+    <strong>CODEOWNERS:</strong> A <code>.github/CODEOWNERS</code> file maps paths to mandatory reviewers. Database schema changes (<code>src/db/</code>) require the Tech Lead. Security utilities (<code>src/security/</code>) require the Security Lead. AI integration (<code>src/ai/</code>) requires the AI specialist. Pipeline files (<code>.github/workflows/</code>) require both Tech Lead and DevOps.
+  </div>
+</section>
+
+<!-- ── §4 CI Pipeline Design ── -->
+<section id="s4">
+  <div class="sec-eyebrow">Section 4</div>
+  <div class="sec-title">CI Pipeline Design</div>
+  <div class="sec-sub">The continuous integration pipeline: sequential quality gates that every pull request and develop branch commit must pass before any artifact is created or promoted.</div>
+
+  <h3>Pipeline Overview</h3>
+  <div class="pipeline">
+    <div class="pipe-stage pipe-ok">
+      <div class="pipe-num">S-1</div>
+      <div class="pipe-name">Pre-flight</div>
+      <div class="pipe-dur">~45s</div>
+    </div>
+    <div class="pipe-stage pipe-ok">
+      <div class="pipe-num">S-2</div>
+      <div class="pipe-name">Static Analysis</div>
+      <div class="pipe-dur">~2m</div>
+    </div>
+    <div class="pipe-stage pipe-ok">
+      <div class="pipe-num">S-3</div>
+      <div class="pipe-name">Unit Tests</div>
+      <div class="pipe-dur">~3m</div>
+    </div>
+    <div class="pipe-stage pipe-warn">
+      <div class="pipe-num">S-4</div>
+      <div class="pipe-name">Security Scan</div>
+      <div class="pipe-dur">~4m</div>
+    </div>
+    <div class="pipe-stage pipe-acc">
+      <div class="pipe-num">S-5</div>
+      <div class="pipe-name">Integration Tests</div>
+      <div class="pipe-dur">~8m</div>
+    </div>
+    <div class="pipe-stage pipe-gate">
+      <div class="pipe-num">S-6</div>
+      <div class="pipe-name">Quality Gate</div>
+      <div class="pipe-dur">~1m</div>
+    </div>
+    <div class="pipe-stage pipe-ok">
+      <div class="pipe-num">S-7</div>
+      <div class="pipe-name">Build Verify</div>
+      <div class="pipe-dur">~10m</div>
+    </div>
+  </div>
+
+  <h3>Stage S-1: Pre-flight</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Check</th><th>Tool</th><th>Failure Mode</th></tr></thead>
+      <tbody>
+        <tr><td>Commit message validation</td><td>commitlint</td><td>Hard fail — pipeline does not continue</td></tr>
+        <tr><td>Dependency installation</td><td>npm ci (frozen lockfile)</td><td>Hard fail — lockfile drift is not tolerated</td></tr>
+        <tr><td>Secrets detection in diff</td><td>gitleaks</td><td>Hard fail — blocks PR and alerts Security Lead immediately</td></tr>
+        <tr><td>File size check</td><td>Custom script</td><td>Warn if binary > 1MB inadvertently committed to source</td></tr>
+        <tr><td>License header check</td><td>Custom script</td><td>Warn on missing headers in new source files</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Stage S-2: Static Analysis</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Check</th><th>Tool</th><th>Threshold</th></tr></thead>
+      <tbody>
+        <tr><td>TypeScript type checking</td><td>tsc --noEmit (strict)</td><td>Zero type errors — hard fail</td></tr>
+        <tr><td>ESLint</td><td>ESLint + Expo config</td><td>Zero errors; warnings allowed but counted</td></tr>
+        <tr><td>Prettier formatting</td><td>prettier --check</td><td>Any unformatted file = hard fail</td></tr>
+        <tr><td>Import cycle detection</td><td>madge</td><td>Any new circular import = hard fail</td></tr>
+        <tr><td>Bundle size analysis</td><td>Custom metro stats</td><td>Warn if JS bundle grows &gt;5% vs baseline</td></tr>
+        <tr><td>Unused exports</td><td>ts-prune</td><td>Warning only — tracked as tech debt metric</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Stage S-3: Unit Tests</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Suite</th><th>Runner</th><th>Coverage Threshold</th><th>Fail Condition</th></tr></thead>
+      <tbody>
+        <tr><td>Business logic tests</td><td>Jest + Hermes</td><td>≥85% lines, ≥80% branches</td><td>Any test failure or coverage drop</td></tr>
+        <tr><td>Store/state tests</td><td>Jest</td><td>≥90% for Zustand stores</td><td>Any test failure</td></tr>
+        <tr><td>Database layer tests</td><td>Jest + in-memory SQLite</td><td>≥90% for Drizzle schema ops</td><td>Any test failure</td></tr>
+        <tr><td>Utility function tests</td><td>Jest</td><td>≥95% for crypto, formatting, ULID utilities</td><td>Any test failure</td></tr>
+        <tr><td>Component tests</td><td>Jest + RNTL</td><td>≥75% for UI components</td><td>Any test failure</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Stage S-4: Security Scanning</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Scan Type</th><th>Tool</th><th>Blocking Severity</th></tr></thead>
+      <tbody>
+        <tr><td>SAST (static application security testing)</td><td>Semgrep + custom Finance rules</td><td>High + Critical = hard fail</td></tr>
+        <tr><td>Dependency CVE scanning</td><td>npm audit + Snyk</td><td>High + Critical CVEs = hard fail; Medium = tracked</td></tr>
+        <tr><td>License compliance</td><td>license-checker</td><td>GPL/AGPL in dependencies = hard fail (copyleft conflict)</td></tr>
+        <tr><td>Hardcoded credential detection</td><td>TruffleHog (deep scan)</td><td>Any detection = hard fail + security incident</td></tr>
+        <tr><td>Insecure RNG usage</td><td>Custom ESLint rule</td><td>Math.random() in security context = hard fail</td></tr>
+        <tr><td>SQL injection patterns</td><td>Semgrep rule set</td><td>Any detection = hard fail</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Stage S-5: Integration Tests</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Test Group</th><th>Scope</th><th>Threshold</th></tr></thead>
+      <tbody>
+        <tr><td>Database migration tests</td><td>Full migration chain from schema v0 to current on emulator</td><td>100% pass</td></tr>
+        <tr><td>Cross-module interaction tests</td><td>Account ↔ Transaction ↔ Budget ↔ Debt contract verification</td><td>100% pass</td></tr>
+        <tr><td>Cryptography integration tests</td><td>Encrypt/decrypt/key-derivation round-trips</td><td>100% pass</td></tr>
+        <tr><td>AI API mock contract tests</td><td>Request/response contract validation against API schema</td><td>100% pass</td></tr>
+        <tr><td>Offline/online transition tests</td><td>Data consistency through network state transitions</td><td>100% pass</td></tr>
+        <tr><td>E2E smoke tests (Detox)</td><td>Critical user journeys: onboarding, add transaction, view budget</td><td>100% pass on Android + iOS simulators</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Stage S-6: Quality Gate Evaluation</h3>
+  <p>The Quality Gate aggregates all prior stage results into a pass/fail decision. It also computes trend metrics and posts a summary comment to the PR.</p>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Hard Blockers</div>
+      <div class="card-body">Any single hard-fail from S-1 through S-5 results in a Quality Gate FAIL. The PR is blocked from merge. The engineer must fix the issue, push a new commit, and the full pipeline re-runs from S-1.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Warning Accumulation</div>
+      <div class="card-body">Warnings from any stage are recorded and aggregated. If warning count exceeds the sprint warning budget (tracked in the operations dashboard), a WARN gate fires and requires Tech Lead acknowledgement before merge.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Trend Reporting</div>
+      <div class="card-body">The gate posts: test coverage delta, bundle size delta, CVE count, warning count, and pipeline duration to the PR as a structured comment. All metrics are persisted to the pipeline telemetry store for dashboard display.</div>
+    </div>
+  </div>
+
+  <h3>Stage S-7: Build Verification</h3>
+  <p>Runs only on develop branch merges and release/hotfix branches. Not required for every PR to reduce queue time.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Build Target</th><th>Purpose</th><th>Artifact Retained</th></tr></thead>
+      <tbody>
+        <tr><td>Android Debug APK</td><td>Verify Metro bundle compiles for Android runtime</td><td>7 days</td></tr>
+        <tr><td>iOS Simulator Build</td><td>Verify Metro bundle compiles for iOS runtime</td><td>7 days</td></tr>
+        <tr><td>TypeScript production build</td><td>Verify no type errors with production tsconfig flags</td><td>Not retained</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout callout">
+    <strong>CI Target SLO:</strong> Full pipeline (S-1 through S-6) must complete in under 18 minutes for PRs. S-7 (build verify) adds up to 12 minutes for branch builds. Pipeline duration exceeding these targets for two consecutive runs triggers a performance investigation task.
+  </div>
+</section>
+
+<!-- ── §5 CD Pipeline Design ── -->
+<section id="s5">
+  <div class="sec-eyebrow">Section 5</div>
+  <div class="sec-title">CD Pipeline Design</div>
+  <div class="sec-sub">The continuous delivery pipeline governing how validated artifacts move from the integration environment through to production store release.</div>
+
+  <h3>Delivery Rings</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Ring</th><th>Channel</th><th>Audience</th><th>Trigger</th><th>Dwell Time</th></tr></thead>
+      <tbody>
+        <tr><td>Ring 0 — Internal</td><td>EAS Internal Distribution</td><td>Core team (≤10 devices)</td><td>Automatic on develop merge</td><td>24h minimum</td></tr>
+        <tr><td>Ring 1 — QA</td><td>TestFlight + Play Internal</td><td>QA team + PM (≤25)</td><td>Manual by Tech Lead</td><td>Sprint review gate</td></tr>
+        <tr><td>Ring 2 — Alpha</td><td>TestFlight + Play Alpha</td><td>Invited testers (≤200)</td><td>Manual by Release Manager</td><td>72h minimum</td></tr>
+        <tr><td>Ring 3 — Closed Beta</td><td>TestFlight + Play Closed Beta</td><td>Selected users (≤1,000)</td><td>Manual by Release Manager + PM</td><td>1 week minimum</td></tr>
+        <tr><td>Ring 4 — Open Beta</td><td>TestFlight Public + Play Open Beta</td><td>Opted-in public</td><td>Manual by Release Manager + PM</td><td>1 week minimum</td></tr>
+        <tr><td>Ring 5 — RC</td><td>Internal TestFlight only</td><td>Internal testers (≤50)</td><td>Manual by Release Manager</td><td>48h soak</td></tr>
+        <tr><td>Ring 6 — Production 5%</td><td>Play staged rollout + TestFlight phased</td><td>5% of production users</td><td>Manual final approval (dual)</td><td>24h health gate</td></tr>
+        <tr><td>Ring 7 — Production 20%</td><td>Play staged rollout + TestFlight phased</td><td>20% of production users</td><td>Automated if health gate passes</td><td>24h health gate</td></tr>
+        <tr><td>Ring 8 — Production 50%</td><td>Play staged rollout + TestFlight phased</td><td>50% of production users</td><td>Automated if health gate passes</td><td>24h health gate</td></tr>
+        <tr><td>Ring 9 — Production 100%</td><td>Full public release</td><td>All users</td><td>Automated if health gate passes</td><td>Ongoing monitoring</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Health Gate Criteria (Rings 6–9)</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Metric</th><th>Threshold for Halt</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>Crash-free session rate</td><td>&lt; 99.5% triggers halt</td><td>Crash monitoring service</td></tr>
+        <tr><td>ANR/freeze rate (Android)</td><td>&gt; 0.5% triggers halt</td><td>Android Vitals</td></tr>
+        <tr><td>App launch p95 time</td><td>&gt; 3,000ms triggers warn; &gt; 5,000ms triggers halt</td><td>Performance monitoring</td></tr>
+        <tr><td>Store rating delta</td><td>Drop &gt; 0.3 stars in 24h triggers warn</td><td>Store review monitoring</td></tr>
+        <tr><td>AI API error rate</td><td>&gt; 5% in production triggers halt</td><td>API monitoring</td></tr>
+        <tr><td>Database error rate</td><td>Any SQLite error in telemetry triggers immediate halt</td><td>Error monitoring</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Automatic Rollout Halt</h3>
+  <p>If any health gate threshold is breached, the automated CD system halts the staged rollout immediately. The breach is logged to the operations dashboard, the on-call engineer is paged, and the rollout percentage is frozen at its current level. Rollback is not automatic — it requires an engineer decision — but the halt is.</p>
+
+  <h3>Emergency Release Process</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Hotfix Trigger</div>
+      <div class="card-body">A severity P0 bug in production (crash affecting &gt;1% of users, security vulnerability, data integrity failure) triggers the hotfix pipeline. All regular releases are frozen while the hotfix is in flight.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Hotfix Branch</div>
+      <div class="card-body">Branched from the last release tag on main. Fix is applied and reviewed with 2 approvers (including Release Manager). CI full pipeline runs. No steps are skipped — speed is achieved through prioritisation, not bypass.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Expedited Review</div>
+      <div class="card-body">Both stores offer expedited review for critical security fixes. The Release Manager submits with the expedited review flag and a clear description of the security/safety issue. Target: 24–48h store review.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Merge Strategy</div>
+      <div class="card-body">Hotfix is merged to main (for release), tagged with a patch version, and immediately cherry-picked to develop to avoid regression in future releases. Both merges are documented in the incident postmortem.</div>
+    </div>
+  </div>
+
+  <h3>Manual Approval Gates</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Gate</th><th>Approvers Required</th><th>Timeout</th><th>Escalation</th></tr></thead>
+      <tbody>
+        <tr><td>QA → Staging promotion</td><td>Release Manager</td><td>48h</td><td>Notify PM if expired</td></tr>
+        <tr><td>Staging → RC promotion</td><td>Release Manager + Security Lead</td><td>72h</td><td>Notify Tech Lead</td></tr>
+        <tr><td>RC → Production submission</td><td>Release Manager + PM</td><td>96h</td><td>Notify all stakeholders</td></tr>
+        <tr><td>Emergency hotfix ring skip</td><td>Release Manager + Tech Lead + PM</td><td>4h</td><td>Immediate escalation to CTO</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── §6 Build Management ── -->
+<section id="s6">
+  <div class="sec-eyebrow">Section 6</div>
+  <div class="sec-title">Build Management</div>
+  <div class="sec-sub">Build configuration matrix, version numbering, artifact management, signing preparation, and retention policy for all platforms and environments.</div>
+
+  <h3>Build Configuration Matrix</h3>
+  <div class="build-matrix">
+    <div class="build-card">
+      <div class="build-platform">Android</div>
+      <div class="build-row">
+        <span class="build-type">Debug APK</span>
+        <span class="build-sign bs-debug">Unsigned</span>
+      </div>
+      <div class="build-row">
+        <span class="build-type">QA APK</span>
+        <span class="build-sign bs-debug">Debug keystore</span>
+      </div>
+      <div class="build-row">
+        <span class="build-type">Internal AAB</span>
+        <span class="build-sign bs-signed">Upload key</span>
+      </div>
+      <div class="build-row">
+        <span class="build-type">Beta AAB</span>
+        <span class="build-sign bs-signed">Upload key</span>
+      </div>
+      <div class="build-row">
+        <span class="build-type">Production AAB</span>
+        <span class="build-sign bs-signed">Upload key + Play signing</span>
+      </div>
+    </div>
+    <div class="build-card">
+      <div class="build-platform">iOS</div>
+      <div class="build-row">
+        <span class="build-type">Simulator build</span>
+        <span class="build-sign bs-debug">Unsigned</span>
+      </div>
+      <div class="build-row">
+        <span class="build-type">Development IPA</span>
+        <span class="build-sign bs-debug">Development profile</span>
+      </div>
+      <div class="build-row">
+        <span class="build-type">AdHoc IPA</span>
+        <span class="build-sign bs-signed">AdHoc profile</span>
+      </div>
+      <div class="build-row">
+        <span class="build-type">TestFlight IPA</span>
+        <span class="build-sign bs-signed">App Store profile</span>
+      </div>
+      <div class="build-row">
+        <span class="build-type">Production IPA</span>
+        <span class="build-sign bs-signed">Distribution certificate</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Version & Build Numbering</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Field</th><th>Format</th><th>Example</th><th>Rule</th></tr></thead>
+      <tbody>
+        <tr><td>Version name (display)</td><td>MAJOR.MINOR.PATCH</td><td>1.2.3</td><td>Manually set on release branch; never on feature branches</td></tr>
+        <tr><td>Android versionCode</td><td>Auto-incremented integer</td><td>10203</td><td>Derived: (MAJOR × 10000) + (MINOR × 100) + PATCH. Monotonically increasing, never reused.</td></tr>
+        <tr><td>iOS CFBundleShortVersionString</td><td>MAJOR.MINOR.PATCH</td><td>1.2.3</td><td>Matches version name exactly</td></tr>
+        <tr><td>iOS CFBundleVersion</td><td>Build counter</td><td>247</td><td>CI-managed counter. Increments on every EAS build. Never manual.</td></tr>
+        <tr><td>EAS build number</td><td>CI run number</td><td>eas-build-247</td><td>Stamped into binary metadata. Links artifact to pipeline run.</td></tr>
+        <tr><td>Git commit SHA</td><td>Short SHA (8 chars)</td><td>a1b2c3d4</td><td>Embedded in app build metadata and About screen.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>EAS Build Configuration</h3>
+  <p>Expo Application Services (EAS Build) is the mobile build orchestration layer. EAS runs builds on managed infrastructure with pinned Node, Expo SDK, and Xcode/NDK versions. Build profiles are defined in <code>eas.json</code> and version-controlled.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>EAS Profile</th><th>Platforms</th><th>Distribution</th><th>Environment</th><th>Auto-submit</th></tr></thead>
+      <tbody>
+        <tr><td><code>development</code></td><td>Android + iOS</td><td>Internal</td><td>DEV vars</td><td>No</td></tr>
+        <tr><td><code>qa</code></td><td>Android + iOS</td><td>Internal</td><td>QA vars</td><td>No</td></tr>
+        <tr><td><code>preview</code></td><td>Android + iOS</td><td>Internal + AdHoc</td><td>STAGING vars</td><td>No</td></tr>
+        <tr><td><code>beta</code></td><td>Android + iOS</td><td>TestFlight + Play Beta</td><td>PROD vars</td><td>Conditional</td></tr>
+        <tr><td><code>production</code></td><td>Android + iOS</td><td>App Store + Play Store</td><td>PROD vars</td><td>Manual gate</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Artifact Retention Policy</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Artifact Type</th><th>Retention</th><th>Storage</th></tr></thead>
+      <tbody>
+        <tr><td>Debug / CI verification builds</td><td>7 days</td><td>GitHub Actions cache</td></tr>
+        <tr><td>QA builds</td><td>30 days</td><td>EAS artifact storage</td></tr>
+        <tr><td>Beta / RC builds</td><td>90 days</td><td>EAS artifact storage</td></tr>
+        <tr><td>Production releases</td><td>24 months (minimum)</td><td>EAS + encrypted offsite backup</td></tr>
+        <tr><td>Signing artifacts (keystores, certs)</td><td>Permanent</td><td>EAS credentials store + hardware backup</td></tr>
+        <tr><td>Build logs</td><td>90 days</td><td>GitHub Actions + EAS logs</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── §7 Secret Management ── -->
+<section id="s7">
+  <div class="sec-eyebrow">Section 7</div>
+  <div class="sec-title">Secret Management</div>
+  <div class="sec-sub">Classification, storage, access control, rotation policy, and audit requirements for all application and infrastructure secrets.</div>
+
+  <h3>Secret Classification</h3>
+  <div class="secret-grid">
+    <div class="secret-card">
+      <div class="secret-cat">API Keys</div>
+      <ul class="secret-list">
+        <li>Anthropic API key (claude-sonnet-5)</li>
+        <li>Sentry DSN (crash reporting)</li>
+        <li>Analytics service key</li>
+        <li>EAS project token</li>
+      </ul>
+    </div>
+    <div class="secret-card">
+      <div class="secret-cat">Signing Credentials</div>
+      <ul class="secret-list">
+        <li>Android upload keystore</li>
+        <li>Android keystore password</li>
+        <li>iOS distribution certificate</li>
+        <li>iOS provisioning profiles</li>
+        <li>Apple team credentials</li>
+      </ul>
+    </div>
+    <div class="secret-card">
+      <div class="secret-cat">Infrastructure</div>
+      <ul class="secret-list">
+        <li>GitHub Actions environment secrets</li>
+        <li>EAS secret store values</li>
+        <li>Deployment approval tokens</li>
+        <li>Monitoring service tokens</li>
+      </ul>
+    </div>
+    <div class="secret-card">
+      <div class="secret-cat">Application Runtime</div>
+      <ul class="secret-list">
+        <li>SQLCipher encryption key derivation params (per-device)</li>
+        <li>Feature flag evaluation keys</li>
+        <li>Environment-specific config endpoints</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Secret Storage Architecture</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Secret Category</th><th>Storage</th><th>Access Method</th><th>Rotation</th></tr></thead>
+      <tbody>
+        <tr><td>CI/CD pipeline secrets</td><td>GitHub Actions Encrypted Secrets (environment-scoped)</td><td>Injected as env vars at runtime only</td><td>Annually or on personnel change</td></tr>
+        <tr><td>Mobile build secrets (keys, certs)</td><td>EAS Credentials Store (AES-256 encrypted)</td><td>EAS CLI during build — never exposed in logs</td><td>Per certificate lifecycle (1–3 years)</td></tr>
+        <tr><td>Runtime API keys</td><td>EAS Secrets → baked into signed binary at build time</td><td>Not accessible at runtime as plaintext variable</td><td>Quarterly or on compromise</td></tr>
+        <tr><td>Device encryption keys</td><td>On-device only (iOS Keychain, Android Keystore)</td><td>Never transmitted; derived per-device</td><td>On user explicit reset only</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Access Control Model</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Secret Type</th><th>Developer</th><th>Tech Lead</th><th>Release Manager</th><th>CI System</th></tr></thead>
+      <tbody>
+        <tr><td>Dev environment secrets</td><td class="status-ok">Read</td><td class="status-ok">Read/Write</td><td class="status-ok">Read/Write</td><td class="status-ok">Read</td></tr>
+        <tr><td>Staging / RC secrets</td><td class="status-danger">None</td><td class="status-ok">Read</td><td class="status-ok">Read/Write</td><td class="status-ok">Read</td></tr>
+        <tr><td>Production secrets</td><td class="status-danger">None</td><td class="status-danger">None</td><td class="status-ok">Write (rotate only)</td><td class="status-ok">Read</td></tr>
+        <tr><td>Signing keystores/certs</td><td class="status-danger">None</td><td class="status-warn">Audit log only</td><td class="status-ok">Managed via EAS</td><td class="status-ok">Use only</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Rotation Policy</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Secret</th><th>Rotation Frequency</th><th>Trigger for Immediate Rotation</th></tr></thead>
+      <tbody>
+        <tr><td>Anthropic API key</td><td>Every 90 days</td><td>Any team member departure, suspected leak</td></tr>
+        <tr><td>CI/CD pipeline tokens</td><td>Every 180 days</td><td>Repo access change, team member departure</td></tr>
+        <tr><td>EAS project token</td><td>Every 180 days</td><td>As above</td></tr>
+        <tr><td>Android upload keystore</td><td>Never (Google Play locks keystore)</td><td>Backup-level protection; rotate only on confirmed compromise via Play app signing</td></tr>
+        <tr><td>iOS distribution certificate</td><td>Annual (Apple enforces 1-year expiry)</td><td>Certificate revocation on compromise</td></tr>
+        <tr><td>Analytics service keys</td><td>Every 90 days</td><td>Suspected leak</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-danger callout">
+    <strong>Zero-Secret-in-Code Rule:</strong> Any commit containing a credential, API key, certificate, password, or token — even a test/dummy value — triggers an automatic pipeline failure via gitleaks, a security incident report, and a mandatory postmortem. The history is not edited (rewriting history on shared branches is prohibited). The secret is rotated immediately.
+  </div>
+
+  <h3>Audit Logging</h3>
+  <p>All secret access events are logged: who accessed which secret, when, from which pipeline run, and what action was performed. Logs are immutable, retained for 12 months, and reviewed quarterly by the Security Lead. Any anomalous access pattern (unexpected runner, off-hours access, access from non-pipeline context) triggers an immediate security review.</p>
+</section>
+
+<!-- ── §8 Code Signing ── -->
+<section id="s8">
+  <div class="sec-eyebrow">Section 8</div>
+  <div class="sec-title">Code Signing</div>
+  <div class="sec-sub">Certificate lifecycle, signing architecture, key protection, backup strategy, and emergency recovery procedures for Android and iOS code signing.</div>
+
+  <h3>Android Signing Architecture</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Layer</th><th>Key Type</th><th>Owner</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>Upload Key</td><td>RSA 2048, PKCS12 keystore</td><td>Release Manager (via EAS)</td><td>Authenticates our AAB upload to Google Play. Google re-signs with the App Signing Key for distribution. We never lose the upload key — it can be reset via Google if required.</td></tr>
+        <tr><td>App Signing Key</td><td>Managed by Google Play App Signing</td><td>Google (delegated)</td><td>The actual key used to sign APKs distributed to users. We enrolled in Play App Signing at first upload. Google holds the app signing key; we hold the upload key.</td></tr>
+        <tr><td>Debug Keystore</td><td>Android debug default</td><td>Developer (auto-generated)</td><td>Local development only. Never used for any shared build.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout-ok callout">
+    <strong>Play App Signing Enrollment:</strong> Finance Bag is enrolled in Google Play App Signing from the initial upload. This means Google holds the ultimate signing key, providing protection against keystore loss. Our upload key can be reset if compromised. This eliminates the catastrophic risk of app signing key loss that would require a new package name.
+  </div>
+
+  <h3>iOS Signing Architecture</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Artifact</th><th>Certificate Type</th><th>Managed By</th><th>Validity</th></tr></thead>
+      <tbody>
+        <tr><td>Development builds</td><td>Apple Development Certificate</td><td>EAS (managed)</td><td>1 year (auto-renewed by EAS)</td></tr>
+        <tr><td>AdHoc / internal builds</td><td>Apple Distribution Certificate + AdHoc Profile</td><td>EAS (managed)</td><td>1 year; device UDID registration required</td></tr>
+        <tr><td>TestFlight builds</td><td>Apple Distribution Certificate + App Store Profile</td><td>EAS (managed)</td><td>1 year; auto-renewed before expiry</td></tr>
+        <tr><td>Production App Store</td><td>Apple Distribution Certificate + App Store Profile</td><td>EAS (managed)</td><td>1 year; renewal 30 days before expiry</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>EAS Managed Credentials</h3>
+  <p>EAS Credentials Management (managed mode) is used for all signing operations. EAS generates, stores, and rotates certificates and provisioning profiles automatically. This eliminates manual Fastlane match or certificate file management. The Release Manager retains Apple Developer Program access for emergency manual operations.</p>
+
+  <h3>Certificate Lifecycle Management</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Event</th><th>Action</th><th>Owner</th><th>Timeline</th></tr></thead>
+      <tbody>
+        <tr><td>30 days before iOS cert expiry</td><td>EAS auto-renewal triggered; Release Manager notified</td><td>EAS + Release Manager</td><td>Automatic</td></tr>
+        <tr><td>iOS cert renewal complete</td><td>New provisioning profiles generated; next build uses new cert</td><td>EAS managed</td><td>Within 24h of renewal</td></tr>
+        <tr><td>Android upload key suspected compromise</td><td>Immediate: notify Google Play, generate new upload key, use emergency reset flow</td><td>Release Manager</td><td>Within 4h of detection</td></tr>
+        <tr><td>Apple Developer Program renewal</td><td>Annual fee paid; membership renewed before expiry; all certs re-validated</td><td>Release Manager</td><td>60 days before expiry</td></tr>
+        <tr><td>Team member with signing access departs</td><td>EAS access revoked; CI token rotated; Apple Developer access removed</td><td>Release Manager</td><td>Within 24h of departure</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Backup Strategy</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Android Upload Keystore</div>
+      <div class="card-body">Encrypted backup of the upload keystore in EAS credential store (primary) and in an encrypted hardware security module or password manager vault (offline backup). Two named custodians hold decryption access. Tested quarterly.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Apple Credentials</div>
+      <div class="card-body">Managed by EAS. Apple Developer Program credentials held by Release Manager. App-specific passwords for automated submissions stored in EAS secrets. Apple ID 2FA backup codes held by two named custodians in encrypted vault.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Emergency Recovery</div>
+      <div class="card-body">If EAS access is lost: Android upload key is available from offline backup; Apple certs can be regenerated from Apple Developer account. Recovery SLA: 4 hours for signing restoration. Tested annually in a DR drill.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── §9 App Store Release ── -->
+<section id="s9">
+  <div class="sec-eyebrow">Section 9</div>
+  <div class="sec-title">App Store Release Workflow</div>
+  <div class="sec-sub">End-to-end process for submitting, reviewing, approving, and monitoring releases on Google Play Console and Apple App Store Connect.</div>
+
+  <h3>Pre-Submission Checklist</h3>
+  <div class="check-section">
+    <div class="check-hdr">Build Verification</div>
+    <div class="check-item"><div class="check-box"></div>Production AAB / IPA built from the tagged release commit</div>
+    <div class="check-item"><div class="check-box"></div>Version name and build number are correct and monotonically increased</div>
+    <div class="check-item"><div class="check-box"></div>All CI stages passed on the release branch</div>
+    <div class="check-item"><div class="check-box"></div>Security scan completed with zero high/critical findings</div>
+    <div class="check-item"><div class="check-box"></div>Signing verified (Android upload key SHA256 confirmed; iOS cert validated)</div>
+  </div>
+  <div class="check-section">
+    <div class="check-hdr">Store Assets</div>
+    <div class="check-item"><div class="check-box"></div>Release notes written in all supported languages (en-US minimum; all locales for full release)</div>
+    <div class="check-item"><div class="check-box"></div>Screenshots updated if any UI changed (all required sizes per platform)</div>
+    <div class="check-item"><div class="check-box"></div>Privacy policy URL confirmed accessible and current</div>
+    <div class="check-item"><div class="check-box"></div>Privacy nutrition labels reviewed and updated (iOS App Privacy; Play Data Safety)</div>
+    <div class="check-item"><div class="check-box"></div>Age rating confirmed correct</div>
+    <div class="check-item"><div class="check-box"></div>Content advisory answers reviewed for accuracy</div>
+  </div>
+  <div class="check-section">
+    <div class="check-hdr">Compliance Review</div>
+    <div class="check-item"><div class="check-box"></div>Export compliance declaration reviewed (cryptography usage declared)</div>
+    <div class="check-item"><div class="check-box"></div>Open-source license compliance confirmed (no GPL in production binary)</div>
+    <div class="check-item"><div class="check-box"></div>GDPR / CCPA disclosures accurate and current</div>
+    <div class="check-item"><div class="check-box"></div>Accessibility compliance reviewed (WCAG 2.1 AA)</div>
+  </div>
+
+  <h3>Google Play Submission Workflow</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Step</th><th>Action</th><th>Owner</th><th>Duration</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>EAS Submit uploads AAB to Play Internal Testing track</td><td>Automated (Release Manager triggers)</td><td>&lt; 30 min upload</td></tr>
+        <tr><td>2</td><td>Internal testing validation (core team, ≤100 testers)</td><td>QA team</td><td>48h</td></tr>
+        <tr><td>3</td><td>Promote to Closed Testing (beta group)</td><td>Release Manager</td><td>1 week</td></tr>
+        <tr><td>4</td><td>Promote to Open Testing (public opt-in)</td><td>Release Manager + PM</td><td>1 week</td></tr>
+        <tr><td>5</td><td>Submit for Production review with staged rollout 5%</td><td>Release Manager (dual approval)</td><td>Play review: 1–3 days</td></tr>
+        <tr><td>6</td><td>Staged rollout expansion (5% → 20% → 50% → 100%)</td><td>Automated + health gates</td><td>3–4 days total</td></tr>
+        <tr><td>7</td><td>Full production release declared stable</td><td>Release Manager</td><td>Post 100% confirmation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Apple App Store Submission Workflow</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Step</th><th>Action</th><th>Owner</th><th>Duration</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>EAS Submit uploads IPA to App Store Connect</td><td>Automated (Release Manager triggers)</td><td>&lt; 1h processing</td></tr>
+        <tr><td>2</td><td>TestFlight internal testing (team members, immediate)</td><td>QA team</td><td>48h</td></tr>
+        <tr><td>3</td><td>TestFlight external testing (public beta, up to 10,000 testers)</td><td>Release Manager</td><td>Beta review: 1–2 days</td></tr>
+        <tr><td>4</td><td>Submit to App Store Review</td><td>Release Manager (complete App Store listing)</td><td>App Review: 1–3 days</td></tr>
+        <tr><td>5</td><td>Release manually (held after approval) or automatic</td><td>Release Manager decision</td><td>Immediate on approval</td></tr>
+        <tr><td>6</td><td>Phased release (7-day phased release, or manual percentage)</td><td>Automated</td><td>7 days to 100%</td></tr>
+        <tr><td>7</td><td>Full release declared stable</td><td>Release Manager</td><td>Post crash-free rate confirmation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Store Review Preparation</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Demo Account</div>
+      <div class="card-body">A pre-populated demo account is prepared for App Store reviewers. It contains synthetic data demonstrating all major features. Credentials are provided in the review notes. The demo account is refreshed before each review submission.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Review Notes</div>
+      <div class="card-body">Review notes explain: any non-obvious UI flows, the AI feature and its data privacy implications, the encryption model, and offline-first behavior. Notes are updated each release to reflect what changed.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Rejection Response</div>
+      <div class="card-body">A store rejection triggers an immediate response within 24 hours. Common rejections (missing privacy disclosure, demo account issues, metadata) are pre-documented with standard responses. Rejections requiring code change enter the hotfix pipeline.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Rollback Planning</div>
+      <div class="card-body">The previous production version is always available for rollback. For Android: staged rollout can be halted and reverted via Play Console. For iOS: a previous version can be submitted for expedited review. Maximum rollback time target: 4 hours.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── §10 Feature Flag Architecture ── -->
+<section id="s10">
+  <div class="sec-eyebrow">Section 10</div>
+  <div class="sec-title">Feature Flag Architecture</div>
+  <div class="sec-sub">Gradual rollout, emergency kill switches, regional targeting, and A/B experimentation framework using a local-first feature flag system.</div>
+
+  <h3>Feature Flag Approach</h3>
+  <p>Finance Bag is an offline-first application. Feature flags must therefore function without network connectivity. The primary flag evaluation engine is local — flags are bundled with the app build and evaluated at runtime without a network call. A remote configuration layer (fetched on app launch when online) can override local defaults, but the app functions correctly with local defaults when offline.</p>
+
+  <div class="callout-cyan callout">
+    <strong>Local-First Flag Evaluation:</strong> All feature flags have a hardcoded local default that is the safe/stable behavior. Remote flag values are cached after fetch and used for the session. If no remote fetch has occurred (fresh install, offline), local defaults apply. A flag cannot make a feature unavailable for an offline user who previously had it enabled — deactivation only takes effect on the next successful remote fetch.
+  </div>
+
+  <h3>Flag Categories</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Category</th><th>Local Default</th><th>Remote Override</th><th>Scope</th></tr></thead>
+      <tbody>
+        <tr><td>Kill Switch</td><td>Feature enabled</td><td>Can disable with instant effect on next launch</td><td>Global, regional, or per-user-segment</td></tr>
+        <tr><td>Gradual Rollout</td><td>Feature disabled (new features)</td><td>Percentage-based enable by user hash bucket</td><td>Global percentage</td></tr>
+        <tr><td>Internal Testing</td><td>Feature disabled</td><td>Enabled for internal tester user IDs only</td><td>User ID allowlist</td></tr>
+        <tr><td>Regional Rollout</td><td>Feature disabled</td><td>Enabled by device locale/region</td><td>Locale list</td></tr>
+        <tr><td>Experimental</td><td>Feature disabled</td><td>Enabled for A/B bucket (future)</td><td>Experiment cohort</td></tr>
+        <tr><td>Version Gate</td><td>Evaluated at build time</td><td>Cannot override — compile-time constant</td><td>Per app version</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Flag Naming & Governance</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Rule</th><th>Requirement</th></tr></thead>
+      <tbody>
+        <tr><td>Naming format</td><td><code>{module}_{feature}_{v{version}}</code> — e.g., <code>ai_budget_analysis_v1</code>, <code>accounts_multi_currency_v2</code></td></tr>
+        <tr><td>Flag lifecycle</td><td>Every flag has a defined owner and an expiry target. Flags with no associated active rollout are removed within one sprint of full rollout completion.</td></tr>
+        <tr><td>Flag inventory</td><td>A flags registry document lists all active flags, their owner, current rollout percentage, target date for full rollout or removal, and the kill switch authority.</td></tr>
+        <tr><td>Flag removal</td><td>After full rollout, the flag is hardcoded to its final value (feature always on or always off) in the next sprint. Dead flag accumulation is a code quality issue.</td></tr>
+        <tr><td>Kill switch authority</td><td>Any on-call engineer may activate a kill switch for any feature in response to an incident. Activation is logged with reason. PM notification required within 30 minutes.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Flag Evaluation Flow</h3>
+  <div class="pipeline">
+    <div class="pipe-stage pipe-ok">
+      <div class="pipe-num">F-1</div>
+      <div class="pipe-name">App Launch</div>
+      <div class="pipe-dur">Local defaults active</div>
+    </div>
+    <div class="pipe-stage pipe-ok">
+      <div class="pipe-num">F-2</div>
+      <div class="pipe-name">Remote Fetch</div>
+      <div class="pipe-dur">Background, async</div>
+    </div>
+    <div class="pipe-stage pipe-acc">
+      <div class="pipe-num">F-3</div>
+      <div class="pipe-name">Cache Update</div>
+      <div class="pipe-dur">SQLite flag cache</div>
+    </div>
+    <div class="pipe-stage pipe-gate">
+      <div class="pipe-num">F-4</div>
+      <div class="pipe-name">Session Apply</div>
+      <div class="pipe-dur">Next session</div>
+    </div>
+    <div class="pipe-stage pipe-ok">
+      <div class="pipe-num">F-5</div>
+      <div class="pipe-name">Evaluate</div>
+      <div class="pipe-dur">At feature entry point</div>
+    </div>
+  </div>
+
+  <p>Remote flag values take effect at the start of the next app session (not mid-session) to avoid inconsistent UI states. Kill switch activations are the exception — they take effect within 60 seconds of remote fetch on the next flag evaluation call in the current session.</p>
+
+  <h3>Future A/B Testing Framework</h3>
+  <p>The flag infrastructure is designed to support A/B experimentation in v2.x. User IDs (ULIDs) are hashed into stable buckets. An experiment definition specifies the bucket assignment, variant configuration, and metric collection hook. Experiment results are collected as anonymised analytics events. The infrastructure is built in Phase 10 (AI Platform); A/B testing activation is a v1.1+ feature.</p>
+</section>
+
+<!-- ── §11 Operational Monitoring ── -->
+<section id="s11">
+  <div class="sec-eyebrow">Section 11</div>
+  <div class="sec-title">Operational Monitoring</div>
+  <div class="sec-sub">Post-release observability, crash monitoring, performance tracking, store health, and the automated triggers that drive incident escalation.</div>
+
+  <h3>Monitoring Stack</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Layer</th><th>Tool</th><th>Retention</th><th>Alert Destination</th></tr></thead>
+      <tbody>
+        <tr><td>Crash & error monitoring</td><td>Sentry (React Native SDK)</td><td>90 days error history</td><td>On-call engineer + Slack #incidents</td></tr>
+        <tr><td>Performance monitoring</td><td>Sentry Performance + custom spans</td><td>30 days traces</td><td>Weekly digest + threshold alerts</td></tr>
+        <tr><td>Android Vitals</td><td>Google Play Console built-in</td><td>Google-managed</td><td>Email to Release Manager</td></tr>
+        <tr><td>iOS crash reports</td><td>App Store Connect Crashes + Sentry</td><td>Apple-managed + 90 days</td><td>On-call engineer</td></tr>
+        <tr><td>Store ratings monitoring</td><td>Manual weekly review (automated in v1.1+)</td><td>Ongoing</td><td>PM + weekly ops review</td></tr>
+        <tr><td>AI API health</td><td>Anthropic API status + custom uptime check</td><td>30 days</td><td>On-call engineer on outage</td></tr>
+        <tr><td>Feature flag health</td><td>Custom telemetry on flag evaluations</td><td>14 days</td><td>Release Manager on anomaly</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Alert Severity Matrix</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Severity</th><th>Definition</th><th>Response Time</th><th>Escalation</th></tr></thead>
+      <tbody>
+        <tr><td class="status-danger">P0 — Critical</td><td>Crash-free rate &lt; 99%; data loss detected; security breach; app removed from store</td><td>15 minutes</td><td>On-call engineer → Tech Lead → PM → all within 30 min</td></tr>
+        <tr><td class="status-warn">P1 — High</td><td>Crash rate &gt; 0.5%; feature fully broken for &gt;5% users; store rating drop &gt; 0.5 stars</td><td>1 hour</td><td>On-call engineer → Tech Lead within 2h</td></tr>
+        <tr><td class="status-info">P2 — Medium</td><td>Performance regression &gt; 20%; AI feature error rate &gt; 10%; non-critical feature broken</td><td>Next business day</td><td>Assigned engineer, tracked in sprint</td></tr>
+        <tr><td>P3 — Low</td><td>Minor UI glitch; cosmetic issue; single-user report</td><td>Next sprint</td><td>Added to bug backlog</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Post-Release Monitoring Schedule</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Period</th><th>Monitoring Intensity</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td>First 2 hours post-release</td><td>Continuous real-time dashboard review. Any P0/P1 alert triggers immediate response.</td><td>Release Manager + on-call engineer</td></tr>
+        <tr><td>First 24 hours (phased rollout)</td><td>Hourly crash-free rate check. Staged rollout expansion requires explicit health gate pass.</td><td>On-call engineer</td></tr>
+        <tr><td>Days 2–7</td><td>4x daily automated health check. Store rating and review monitoring once daily.</td><td>On-call engineer (rotates)</td></tr>
+        <tr><td>Weeks 2–4</td><td>Daily automated health check. Weekly ops review meeting. User feedback aggregation.</td><td>PM + Tech Lead</td></tr>
+        <tr><td>Ongoing (post-stabilisation)</td><td>Weekly ops digest. Monthly performance baseline review. Quarterly DR drill.</td><td>Tech Lead + DevOps</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Release Health Dashboard</h3>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Crash-Free Rate</div>
+      <div class="kpi-val">≥99.5%</div>
+      <div class="kpi-desc">Target; &lt;99% = P0</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">ANR Rate (Android)</div>
+      <div class="kpi-val">≤0.2%</div>
+      <div class="kpi-desc">Target; &gt;0.5% = P1</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Cold Launch p95</div>
+      <div class="kpi-val">≤2.5s</div>
+      <div class="kpi-desc">&gt;3s = warn; &gt;5s = P1</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">AI Error Rate</div>
+      <div class="kpi-val">≤2%</div>
+      <div class="kpi-desc">&gt;5% = P1 in production</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Store Rating</div>
+      <div class="kpi-val">≥4.5★</div>
+      <div class="kpi-desc">Drop &gt;0.3 = P2 review</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Day-7 Retention</div>
+      <div class="kpi-val">≥55%</div>
+      <div class="kpi-desc">Below = PM review</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── §12 Incident Response ── -->
+<section id="s12">
+  <div class="sec-eyebrow">Section 12</div>
+  <div class="sec-title">Incident Response</div>
+  <div class="sec-sub">Operational procedures for critical bugs, production outages, security incidents, store rejections, and the postmortem process that drives systemic improvement.</div>
+
+  <h3>Incident Classification</h3>
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">INC-TYPE-01</span>
+      <span class="risk-name">Critical Production Bug</span>
+      <span class="risk-pill rp-high">P0</span>
+    </div>
+    <div class="risk-detail"><strong>Definition:</strong> Crash affecting &gt;1% of daily active users, or any crash that results in data loss. <strong>Response:</strong> On-call engineer paged within 5 minutes via automated alert. Rollout halted immediately. Root cause investigation begins. Hotfix pipeline activated if fix is identified. If no fix within 2 hours, full rollback initiated. <strong>Communication:</strong> Status update in internal Slack every 30 minutes during active incident. PM notified immediately.</div>
+  </div>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">INC-TYPE-02</span>
+      <span class="risk-name">Security Incident</span>
+      <span class="risk-pill rp-high">P0</span>
+    </div>
+    <div class="risk-detail"><strong>Definition:</strong> Any confirmed or suspected breach of user data, credential exposure, or vulnerability that could lead to unauthorized access. <strong>Response:</strong> Immediate notification to Tech Lead and Release Manager. App taken offline if data breach is confirmed (emergency update submitted to stores). Legal/privacy counsel notified within 2 hours. Regulatory notification initiated within 72 hours per GDPR Article 33. No public communication without legal review. <strong>Forensics:</strong> All logs preserved immediately; no system modifications until forensic snapshot is captured.</div>
+  </div>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">INC-TYPE-03</span>
+      <span class="risk-name">Store Rejection</span>
+      <span class="risk-pill rp-med">P1</span>
+    </div>
+    <div class="risk-detail"><strong>Definition:</strong> App Review rejection from Apple or Google Play preventing the current release from reaching users. <strong>Response:</strong> Release Manager reviews rejection reason within 4 hours. If metadata/policy issue: resolve and resubmit within 24 hours. If code change required: hotfix pipeline or next release depending on severity. If rejection is disputed: App Review Appeal initiated with detailed explanation and evidence. <strong>Communication:</strong> PM notified; planned release date updated; no external communication about delay unless explicitly requested.</div>
+  </div>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">INC-TYPE-04</span>
+      <span class="risk-name">Broken Release (Non-Critical)</span>
+      <span class="risk-pill rp-med">P1</span>
+    </div>
+    <div class="risk-detail"><strong>Definition:</strong> A released version contains a bug that significantly degrades the experience for a specific flow or user segment but does not cause data loss or crashes above P0 threshold. <strong>Response:</strong> Assessment within 2 hours of detection. Decision: fix in next scheduled release (if minor, workaround available) or expedited patch release (if impactful). Feature kill switch activated if the broken feature can be disabled safely. Users affected &gt;10%: patch release initiated within 5 business days.</div>
+  </div>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">INC-TYPE-05</span>
+      <span class="risk-name">Third-Party Service Outage</span>
+      <span class="risk-pill rp-med">P1/P2</span>
+    </div>
+    <div class="risk-detail"><strong>Definition:</strong> Anthropic API unavailability, or any external dependency that degrades Finance Bag's functionality. <strong>Response:</strong> AI features degrade gracefully to manual mode (per SPEC-ARC-001 offline design). User communication within the app (subtle indicator that AI is temporarily unavailable). No code change required for temporary outages. If outage exceeds 24 hours: assess impact and communicate via in-app notice. Monitor Anthropic status page; resume when restored.</div>
+  </div>
+
+  <h3>Incident Response Workflow</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Phase</th><th>Actions</th><th>Owner</th><th>Time Limit</th></tr></thead>
+      <tbody>
+        <tr><td>Detect</td><td>Alert fires; on-call engineer acknowledges</td><td>On-call engineer</td><td>15 minutes</td></tr>
+        <tr><td>Assess</td><td>Classify severity; determine user impact; check if rollout halt is needed</td><td>On-call engineer</td><td>30 minutes</td></tr>
+        <tr><td>Contain</td><td>Halt staged rollout; activate kill switch if applicable; preserve logs</td><td>On-call engineer + Tech Lead</td><td>1 hour</td></tr>
+        <tr><td>Diagnose</td><td>Root cause analysis; identify fix or rollback path</td><td>Tech Lead + assigned engineer</td><td>2 hours (P0); 1 day (P1)</td></tr>
+        <tr><td>Resolve</td><td>Deploy fix via hotfix pipeline or initiate rollback</td><td>Release Manager + Tech Lead</td><td>4 hours (P0); 5 days (P1)</td></tr>
+        <tr><td>Communicate</td><td>Internal update to team; external (if needed) via store update notes or in-app notice</td><td>PM + Release Manager</td><td>During or after resolution</td></tr>
+        <tr><td>Postmortem</td><td>Written postmortem within 5 days (P0) or 14 days (P1)</td><td>Tech Lead</td><td>5/14 days</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Postmortem Requirements</h3>
+  <p>All P0 incidents and selected P1 incidents require a written blameless postmortem. The postmortem document includes: incident timeline, root cause analysis, impact measurement, contributing factors, corrective actions (with owners and deadlines), and process improvements. Postmortems are stored in the team wiki and reviewed in the next retrospective.</p>
+
+  <div class="callout-ok callout">
+    <strong>Blameless Culture:</strong> Postmortems identify systemic failure points, not individual errors. The question is always "why did the system allow this to happen?" not "who made this mistake?" Action items target process, tooling, and automation improvements that prevent recurrence — not disciplinary measures.
+  </div>
+</section>
+
+<!-- ── §13 Versioning Strategy ── -->
+<section id="s13">
+  <div class="sec-eyebrow">Section 13</div>
+  <div class="sec-title">Versioning Strategy</div>
+  <div class="sec-sub">Semantic versioning policy, version lifecycle, long-term support planning, deprecation process, and migration strategy across the Finance Bag product lifecycle.</div>
+
+  <h3>Semantic Versioning Policy</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Version Component</th><th>Increment Trigger</th><th>Example</th><th>Backward Compatibility</th></tr></thead>
+      <tbody>
+        <tr><td>MAJOR (x.0.0)</td><td>Breaking change to user-visible behavior; breaking database migration that cannot auto-upgrade; platform minimum OS bump</td><td>2.0.0</td><td>Migration required; may break data imports from prior major</td></tr>
+        <tr><td>MINOR (0.x.0)</td><td>New user-facing feature; new module; new AI capability; significant UX change</td><td>1.3.0</td><td>Fully backward compatible; existing data preserved</td></tr>
+        <tr><td>PATCH (0.0.x)</td><td>Bug fix; performance improvement; security patch; translation update; crash fix</td><td>1.2.4</td><td>Fully backward compatible; no schema changes</td></tr>
+        <tr><td>Pre-release</td><td>Alpha, beta, and RC phases</td><td>1.0.0-rc.1</td><td>Not for production; data migration from pre-release to release not guaranteed</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Version Lifecycle</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Phase</th><th>Duration</th><th>Support Level</th><th>End-of-Life Signal</th></tr></thead>
+      <tbody>
+        <tr><td>Active (current release)</td><td>Until next minor/major</td><td>Full: bug fixes, security patches, new features</td><td>New minor version release</td></tr>
+        <tr><td>Maintenance (N-1 minor)</td><td>3 months after superseded</td><td>Security patches and P0 bug fixes only</td><td>End of maintenance window</td></tr>
+        <tr><td>End of Life</td><td>After maintenance window</td><td>None — users are prompted to upgrade</td><td>In-app deprecation notice shown</td></tr>
+        <tr><td>Major Version Support</td><td>12 months minimum</td><td>Security patches for v{N-1} for 12 months after v{N} ships</td><td>Public announcement 90 days in advance</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Minimum Supported OS Policy</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Platform</th><th>v1.0 Minimum</th><th>Review Cadence</th><th>Drop Policy</th></tr></thead>
+      <tbody>
+        <tr><td>Android</td><td>Android 8.0 (API 26)</td><td>Annually, aligned with Expo SDK requirements</td><td>Drop OS version when its market share falls below 5% AND Expo/React Native drops support</td></tr>
+        <tr><td>iOS</td><td>iOS 16.0</td><td>Annually, after Apple releases new major iOS</td><td>Drop iOS version that is no longer supported by Apple (typically N-2 policy)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Database Schema Versioning</h3>
+  <p>SQLite schema version is independent of application version but coupled to it. Each schema migration is numbered (migration_001, migration_002, ...) and run sequentially on app upgrade. Drizzle ORM manages migration generation and execution. Rules: migrations are append-only (never modify historical migrations); every migration has a corresponding test; migrations are verified in the integration test suite before release.</p>
+
+  <div class="callout-violet callout">
+    <strong>Irreversible Constraint:</strong> Database migrations are one-directional. There is no rollback migration. If a released schema change causes issues, the fix is a new forward migration, not a reversal. This is enforced by the soft-delete-only design — data is never physically removed, making forward migration always possible without data loss.
+  </div>
+
+  <h3>API Versioning (Future)</h3>
+  <p>Finance Bag v1.0 has no backend API. When cloud sync is introduced in v2.0, the API will follow versioned URL paths (<code>/api/v1/</code>, <code>/api/v2/</code>). The mobile client will explicitly version its API requests. A minimum of two API versions will be supported simultaneously during transition periods. This architecture is defined in SPEC-ARC-001 §7 (Scalability) and will be specified fully in the v2.0 architecture addendum.</p>
+</section>
+
+<!-- ── §14 Compliance Framework ── -->
+<section id="s14">
+  <div class="sec-eyebrow">Section 14</div>
+  <div class="sec-title">Compliance Framework</div>
+  <div class="sec-sub">Store policy compliance, privacy regulation requirements, open-source license management, accessibility standards, and export compliance for a multi-region finance application.</div>
+
+  <h3>Google Play Policy Compliance</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Policy Area</th><th>Requirement</th><th>Finance Bag Approach</th><th>Review Frequency</th></tr></thead>
+      <tbody>
+        <tr><td>Financial Services</td><td>Must not provide regulated financial advice</td><td>All AI responses include mandatory "not financial advice" disclosure. No investment recommendations.</td><td>Each AI feature release</td></tr>
+        <tr><td>Data Safety Form</td><td>Accurate disclosure of data collected and shared</td><td>All data stays on-device in v1.0. Data Safety Form declares: no data shared with third parties; data encrypted; user can delete all data.</td><td>On any change to data handling</td></tr>
+        <tr><td>Permissions</td><td>Request only necessary permissions with clear rationale</td><td>No camera (v1.0), no contacts, no location. Biometric only for authentication with clear disclosure.</td><td>Each new permission considered</td></tr>
+        <tr><td>Sensitive Data</td><td>Financial data classified as sensitive</td><td>Encrypted at rest (SQLCipher AES-256); encryption disclosed in Privacy Policy and Data Safety Form.</td><td>Annual review</td></tr>
+        <tr><td>AI / Generative Content</td><td>Must label AI-generated content</td><td>All AI analysis responses display a persistent "AI-generated" indicator.</td><td>Each AI release</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Apple App Store Review Guidelines Compliance</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Guideline</th><th>Requirement</th><th>Finance Bag Approach</th></tr></thead>
+      <tbody>
+        <tr><td>Guideline 5.1 — Privacy</td><td>Privacy Policy required; data collection disclosed</td><td>Privacy Policy linked in app and App Store listing. App Tracking Transparency not required (no third-party tracking).</td></tr>
+        <tr><td>Guideline 5.1.1 — Data Collection</td>
+        <td>Privacy Nutrition Label accurate</td><td>App Privacy section: no data linked to user identity (all on-device). No data collected by developer.</td></tr>
+        <tr><td>Guideline 3.1 — Payments</td><td>In-app purchases through App Store</td><td>v1.0 has no in-app purchases. Any future premium features will use StoreKit 2.</td></tr>
+        <tr><td>Guideline 4.2 — Minimum Functionality</td><td>Apps must be functional and useful</td><td>Full offline functionality with no dependency on external services for core features. Demo mode available for reviewers.</td></tr>
+        <tr><td>Guideline 2.5.13 — App Extensions</td><td>Extensions must comply independently</td><td>No App Extensions in v1.0. Widget consideration for v1.2+.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Privacy Regulation Compliance</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Regulation</th><th>Jurisdiction</th><th>Key Requirement</th><th>Finance Bag Compliance</th></tr></thead>
+      <tbody>
+        <tr><td>GDPR</td><td>EU / EEA</td><td>Data minimisation, right to erasure, data portability</td><td>All data on-device; delete account = wipe device database; export as JSON (v1.0 feature)</td></tr>
+        <tr><td>CCPA</td><td>California, USA</td><td>Right to know, right to delete, no sale of personal data</td><td>No data leaves device in v1.0; delete function clears all data</td></tr>
+        <tr><td>LGPD</td><td>Brazil</td><td>Similar to GDPR; consent and purpose limitation</td><td>On-device design means no data transfer; Privacy Policy available in Portuguese</td></tr>
+        <tr><td>PIPEDA</td><td>Canada</td><td>Consent and accountability</td><td>On-device data; clear Privacy Policy in English and French</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Open-Source License Compliance</h3>
+  <p>All dependencies are scanned by the CI license-checker at every build. The allowlist of approved licenses includes: MIT, Apache 2.0, BSD-2-Clause, BSD-3-Clause, ISC, 0BSD, and Unlicense. GPL, AGPL, LGPL, EUPL, and CDDL licenses in any production dependency are a hard CI failure. A license compliance report is generated quarterly and stored in the team wiki.</p>
+
+  <h3>Export Compliance</h3>
+  <p>Finance Bag uses AES-256-CBC encryption (SQLCipher) and is therefore subject to US export regulations under EAR (Export Administration Regulations). The app qualifies for exemption under EAR 740.17(b)(1) — mass-market encryption. Both stores require an export compliance declaration confirming this exemption. The declaration is reviewed at each major version release and whenever the encryption implementation changes.</p>
+
+  <h3>Accessibility Compliance</h3>
+  <p>WCAG 2.1 AA compliance is a release gate (per SPEC-ARC-001). Accessibility audit is performed before each major and minor release. Automated accessibility testing (Detox + a11y assertions) runs in CI. Manual screen reader testing on VoiceOver (iOS) and TalkBack (Android) is performed by QA before RC promotion.</p>
+</section>
+
+<!-- ── §15 Operations Dashboard ── -->
+<section id="s15">
+  <div class="sec-eyebrow">Section 15</div>
+  <div class="sec-title">Operations Dashboard</div>
+  <div class="sec-sub">The centralized operations visibility layer: deployment history, pipeline health, environment status, incident tracking, crash trends, and performance indicators.</div>
+
+  <h3>Dashboard Architecture</h3>
+  <p>The operations dashboard is an internal web view (not a public-facing product) that aggregates signals from GitHub Actions, EAS, Sentry, Google Play Console, and App Store Connect APIs. It is the single operational status page for the release team. In v1.0, it is assembled from existing tool dashboards and a shared team ops document. A unified custom dashboard is a v1.2 internal tooling priority.</p>
+
+  <h3>Dashboard Panels</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Panel</th><th>Signals</th><th>Update Frequency</th><th>Alert Threshold</th></tr></thead>
+      <tbody>
+        <tr><td>Pipeline Health</td><td>CI pass rate (7-day rolling), average pipeline duration, queue depth, stage-level failure breakdown</td><td>Real-time</td><td>Pass rate &lt; 90% in 7 days</td></tr>
+        <tr><td>Build Status</td><td>Last 10 EAS builds per profile: status, duration, artifact link, commit SHA</td><td>Real-time via EAS webhook</td><td>Two consecutive failures</td></tr>
+        <tr><td>Environment Status</td><td>Current deployed version per environment, last deployment time, promotion queue status</td><td>Per deployment event</td><td>Staging/RC drift from develop &gt; 5 days</td></tr>
+        <tr><td>Release Progress</td><td>Current version rollout percentage (Android staged, iOS phased), active rollout status, next promotion schedule</td><td>Hourly during rollout</td><td>Any health gate breach</td></tr>
+        <tr><td>Crash Trends</td><td>Crash-free rate by platform by version (30-day chart), top-5 crash signatures, new crashes in last 24h</td><td>Every 15 minutes from Sentry</td><td>Crash-free rate &lt; 99.5%</td></tr>
+        <tr><td>Performance Trends</td><td>Cold launch p50/p95 by platform, frame drop rate, ANR rate (Android), DB operation latency</td><td>Daily aggregation</td><td>Cold launch p95 &gt; 3,000ms</td></tr>
+        <tr><td>Incident Status</td><td>Active incidents with severity, assignee, time open, and current status; last 30-day incident count by severity</td><td>Real-time via incident tracker</td><td>Any active P0 incident</td></tr>
+        <tr><td>Operational Alerts</td><td>All active monitoring alerts, alert history (7 days), false-positive rate tracking</td><td>Real-time</td><td>Any unacknowledged P0/P1 alert &gt; 15 min</td></tr>
+        <tr><td>Store Health</td><td>Current store rating (Android + iOS), rating trend (30 days), recent review sentiment</td><td>Daily</td><td>Rating drop &gt; 0.3 stars in 7 days</td></tr>
+        <tr><td>Deployment History</td><td>Full deployment log: version, environment, timestamp, approver, outcome, rollback events</td><td>Append-only, per event</td><td>Audit only — no threshold</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Operational Metrics SLOs</h3>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Pipeline Pass Rate</div>
+      <div class="kpi-val">≥95%</div>
+      <div class="kpi-desc">7-day rolling average</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Build Success Rate</div>
+      <div class="kpi-val">≥98%</div>
+      <div class="kpi-desc">EAS builds per profile</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">CI Pipeline p95</div>
+      <div class="kpi-val">≤18 min</div>
+      <div class="kpi-desc">S-1 through S-6</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">MTTD P0 Incidents</div>
+      <div class="kpi-val">≤5 min</div>
+      <div class="kpi-desc">Alert to acknowledgement</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">MTTR P0 Incidents</div>
+      <div class="kpi-val">≤4 hours</div>
+      <div class="kpi-desc">Contain-to-resolve</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Release Cycle</div>
+      <div class="kpi-val">2 weeks</div>
+      <div class="kpi-desc">Sprint-aligned cadence</div>
+    </div>
+  </div>
+
+  <h3>Access Control</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Dashboard Panel</th><th>Developer</th><th>QA</th><th>PM</th><th>Release Manager</th></tr></thead>
+      <tbody>
+        <tr><td>Pipeline Health, Build Status</td><td class="status-ok">Full</td><td class="status-ok">Read</td><td class="status-ok">Read</td><td class="status-ok">Full</td></tr>
+        <tr><td>Environment Status, Release Progress</td><td class="status-ok">Read</td><td class="status-ok">Read</td><td class="status-ok">Full</td><td class="status-ok">Full</td></tr>
+        <tr><td>Crash Trends, Performance Trends</td><td class="status-ok">Full</td><td class="status-ok">Full</td><td class="status-ok">Read</td><td class="status-ok">Full</td></tr>
+        <tr><td>Incident Status, Alerts</td><td class="status-ok">Full (own)</td><td class="status-ok">Read</td><td class="status-ok">Full</td><td class="status-ok">Full</td></tr>
+        <tr><td>Store Health, Deployment History</td><td class="status-info">Read</td><td class="status-info">Read</td><td class="status-ok">Full</td><td class="status-ok">Full</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── §16 Team Responsibilities ── -->
+<section id="s16">
+  <div class="sec-eyebrow">Section 16</div>
+  <div class="sec-title">Team Responsibilities</div>
+  <div class="sec-sub">Operational ownership matrix, approval flows, on-call rotation, and responsibility boundaries across all delivery and operations functions.</div>
+
+  <h3>Operational Roles</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Tech Lead</div>
+      <div class="card-body">Final technical decision authority. Owns architecture, code review standards, CI pipeline configuration, CODEOWNERS. Approver for: QA→Staging promotion, all CODEOWNERS-blocked PRs, technical incident postmortems. On-call rotation: primary during business hours.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Release Manager</div>
+      <div class="card-body">Single owner of production releases. Controls all promotions from Staging onward. Holds signing credential access. Manages store submissions, phased rollout expansion, rollback decisions. Approves all hotfix bypasses. On-call for P0 incidents regardless of time.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Senior Engineer #1</div>
+      <div class="card-body">Core feature development. PR reviewer for financial domain code (accounts, transactions, budgets). On-call rotation: secondary. Covers Tech Lead absence for routine CI/pipeline issues. No deployment authority without explicit delegation.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Senior Engineer #2</div>
+      <div class="card-body">Infrastructure and cross-cutting concerns. Primary owner of CI pipeline YAML, EAS configuration, and build tooling. On-call rotation: tertiary. Responds to build failures and pipeline degradation.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">QA Engineer</div>
+      <div class="card-body">Sprint acceptance sign-off authority. Controls QA environment. Owns E2E test suite. Escalates P0/P1 issues discovered in QA to Tech Lead. Participates in RC validation. No deployment authority.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Product Manager</div>
+      <div class="card-body">Feature prioritisation, store listing content, release notes, store asset approval. Co-approver for production releases alongside Release Manager. Owns post-launch user feedback triage. Primary contact for store review communications.</div>
+    </div>
+  </div>
+
+  <h3>RACI Matrix — Deployment Operations</h3>
+  <div class="raci-wrap">
+    <table class="raci-table">
+      <thead>
+        <tr>
+          <th>Activity</th>
+          <th>Developer</th>
+          <th>QA</th>
+          <th>PM</th>
+          <th>Release Mgr</th>
+          <th>Tech Lead</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>PR creation and CI fix</td><td class="raci-r">R</td><td class="raci-i">I</td><td>—</td><td class="raci-i">I</td><td class="raci-c">C</td></tr>
+        <tr><td>PR review and approval</td><td class="raci-c">C</td><td>—</td><td>—</td><td class="raci-i">I</td><td class="raci-a">A</td></tr>
+        <tr><td>QA environment promotion</td><td class="raci-i">I</td><td class="raci-c">C</td><td class="raci-i">I</td><td class="raci-i">I</td><td class="raci-r">R/A</td></tr>
+        <tr><td>Sprint acceptance sign-off</td><td class="raci-i">I</td><td class="raci-r">R</td><td class="raci-a">A</td><td class="raci-c">C</td><td class="raci-c">C</td></tr>
+        <tr><td>Staging promotion</td><td class="raci-i">I</td><td class="raci-c">C</td><td class="raci-c">C</td><td class="raci-r">R/A</td><td class="raci-c">C</td></tr>
+        <tr><td>RC build creation</td><td class="raci-i">I</td><td class="raci-c">C</td><td class="raci-i">I</td><td class="raci-r">R/A</td><td class="raci-c">C</td></tr>
+        <tr><td>Store submission</td><td>—</td><td class="raci-i">I</td><td class="raci-a">A</td><td class="raci-r">R</td><td class="raci-c">C</td></tr>
+        <tr><td>Production rollout expansion</td><td>—</td><td>—</td><td class="raci-c">C</td><td class="raci-r">R/A</td><td class="raci-c">C</td></tr>
+        <tr><td>P0 incident response</td><td class="raci-c">C</td><td class="raci-c">C</td><td class="raci-i">I</td><td class="raci-r">R</td><td class="raci-a">A</td></tr>
+        <tr><td>Rollback decision</td><td class="raci-i">I</td><td class="raci-i">I</td><td class="raci-c">C</td><td class="raci-a">A</td><td class="raci-r">R</td></tr>
+        <tr><td>Hotfix pipeline initiation</td><td class="raci-c">C</td><td class="raci-c">C</td><td class="raci-c">C</td><td class="raci-r">R/A</td><td class="raci-r">R</td></tr>
+        <tr><td>Postmortem authorship</td><td class="raci-c">C</td><td class="raci-c">C</td><td class="raci-i">I</td><td class="raci-c">C</td><td class="raci-r">R/A</td></tr>
+        <tr><td>Secret rotation</td><td>—</td><td>—</td><td>—</td><td class="raci-r">R/A</td><td class="raci-c">C</td></tr>
+        <tr><td>Certificate renewal</td><td>—</td><td>—</td><td>—</td><td class="raci-r">R/A</td><td class="raci-i">I</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size:.75rem;color:var(--txt3);margin-top:.5rem">R = Responsible, A = Accountable, C = Consulted, I = Informed</p>
+
+  <h3>On-Call Rotation</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Rotation Slot</th><th>Primary</th><th>Secondary</th><th>Coverage</th></tr></thead>
+      <tbody>
+        <tr><td>Business hours</td><td>Tech Lead</td><td>Senior Engineer #1</td><td>Mon–Fri 09:00–18:00 local</td></tr>
+        <tr><td>After-hours weekday</td><td>Senior Engineer #1 (rotating)</td><td>Release Manager</td><td>Mon–Fri 18:00–09:00</td></tr>
+        <tr><td>Weekend</td><td>Senior Engineer #2 (rotating)</td><td>Tech Lead</td><td>Sat–Sun all hours</td></tr>
+        <tr><td>P0 override (any time)</td><td>Release Manager</td><td>Tech Lead</td><td>24/7 for P0 only</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── §17 Future Compatibility ── -->
+<section id="s17">
+  <div class="sec-eyebrow">Section 17</div>
+  <div class="sec-title">Future Compatibility</div>
+  <div class="sec-sub">Architectural provisions in the delivery platform that support multi-app, white-label, desktop, wearable, enterprise, and cloud-native expansion without pipeline redesign.</div>
+
+  <h3>Multi-Application Support</h3>
+  <p>The CI/CD pipeline is parameterized by application identifier from the first commit. GitHub Actions workflow files accept an <code>app_id</code> input. EAS profiles are namespaced per application. Adding a second application requires: a new EAS project, a new set of signing credentials (following the same secret management patterns), a new app store listing, and a new set of GitHub environment secrets. The pipeline infrastructure itself requires no modification.</p>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Future Application</th><th>Pipeline Change Required</th><th>New Infrastructure</th><th>Shared</th></tr></thead>
+      <tbody>
+        <tr><td>White-label edition</td><td>New EAS project + theme config</td><td>New app store listings, new signing credentials</td><td>Full CI pipeline, quality gates, secret management patterns</td></tr>
+        <tr><td>Desktop (Electron/Tauri)</td><td>New build workflow (desktop-specific)</td><td>Desktop signing (macOS notarization, Windows Authenticode)</td><td>Source repo, TypeScript codebase, CI quality gates, CD promotion model</td></tr>
+        <tr><td>Wearable (WearOS/watchOS)</td><td>New EAS build profile + platform config</td><td>Companion app submission flow</td><td>Main app signing credentials, store accounts</td></tr>
+        <tr><td>Enterprise deployment</td><td>New EAS profile (enterprise distribution)</td><td>MDM distribution, enterprise signing</td><td>Build pipeline, CI quality gates</td></tr>
+        <tr><td>Cloud-native backend (v2.0)</td><td>New backend CD pipeline (separate repo)</td><td>Cloud infra (TBD), backend CI/CD, infrastructure-as-code</td><td>GitHub org, secret management patterns, monitoring approach</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Multi-Region Infrastructure (v2.0+)</h3>
+  <p>When a backend is introduced in v2.0, the infrastructure pipeline supports multi-region deployment from the start. The CD pipeline will include a region selection matrix, region-specific environment secrets, and health gates per region before cross-region promotion. The mobile app pipeline is unaffected by backend regionalization — it targets an API endpoint that resolves regionally at the DNS level.</p>
+
+  <h3>Pipeline Versioning</h3>
+  <p>The CI/CD pipeline configuration itself is versioned and change-controlled. Pipeline changes require a PR reviewed by both the Tech Lead and the assigned DevOps owner. Pipeline changes are not exempt from the quality gate — a broken pipeline workflow is treated as a P1 operational incident. Quarterly pipeline audits review for deprecated actions, outdated runners, and security advisories.</p>
+
+  <h3>Architectural Stability Guarantee</h3>
+  <div class="callout-violet callout">
+    <strong>Invariant for Future Expansion:</strong> The following architectural decisions are locked for all future applications and expansions built on this pipeline: (1) GitHub Actions as the CI orchestrator, (2) EAS as the mobile build platform, (3) single-artifact promotion model (no rebuilds for environment promotion), (4) dual-approval for production releases, (5) phased rollout with automated health gates, (6) zero-secret-in-code policy, (7) EAS Managed Credentials for signing. These may only be changed by a formal Architecture Decision Record with sign-off from the Tech Lead and Release Manager.
+  </div>
+</section>
+
+<!-- ── §18 Final Production Checklist + Business Rules ── -->
+<section id="s18">
+  <div class="sec-eyebrow">Section 18</div>
+  <div class="sec-title">Final Production Checklist & Business Rules</div>
+  <div class="sec-sub">Comprehensive production readiness checklist covering all operational domains, plus the 15 binding business rules governing the delivery platform.</div>
+
+  <h3>Production Readiness Checklist</h3>
+
+  <div class="check-section">
+    <div class="check-hdr">Architecture & Build</div>
+    <div class="check-item"><div class="check-box"></div>All 8 environments defined with isolation, data policy, and promotion gate documented</div>
+    <div class="check-item"><div class="check-box"></div>EAS build profiles defined for all 5 tiers (development, qa, preview, beta, production)</div>
+    <div class="check-item"><div class="check-box"></div>Single-artifact promotion verified: same AAB/IPA from RC is submitted to stores</div>
+    <div class="check-item"><div class="check-box"></div>Version numbering scheme implemented and validated with monotonic counter</div>
+    <div class="check-item"><div class="check-box"></div>Git commit SHA embedded in binary and visible in About screen</div>
+    <div class="check-item"><div class="check-box"></div>CI pipeline (S-1 through S-7) operational and all quality gates enforced</div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Source Control</div>
+    <div class="check-item"><div class="check-box"></div>main and develop branch protection rules configured and verified</div>
+    <div class="check-item"><div class="check-box"></div>CODEOWNERS file defining domain-specific mandatory reviewers</div>
+    <div class="check-item"><div class="check-box"></div>commitlint configured and enforced in CI pre-flight</div>
+    <div class="check-item"><div class="check-box"></div>Signed commits required on main</div>
+    <div class="check-item"><div class="check-box"></div>Squash-merge-only policy enforced on both protected branches</div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Security & Secrets</div>
+    <div class="check-item"><div class="check-box"></div>Gitleaks and TruffleHog running in CI with hard-fail on any detection</div>
+    <div class="check-item"><div class="check-box"></div>All production secrets in GitHub Actions environment-scoped secrets (not repository level)</div>
+    <div class="check-item"><div class="check-box"></div>EAS Managed Credentials activated for both Android (upload key) and iOS (distribution cert)</div>
+    <div class="check-item"><div class="check-box"></div>Android enrolled in Google Play App Signing (upload key ≠ app signing key)</div>
+    <div class="check-item"><div class="check-box"></div>Offline backup of Android upload keystore confirmed accessible with tested decryption</div>
+    <div class="check-item"><div class="check-box"></div>Two named custodians for signing credential recovery</div>
+    <div class="check-item"><div class="check-box"></div>SAST (Semgrep) and dependency CVE (npm audit + Snyk) running in CI with blocking thresholds</div>
+    <div class="check-item"><div class="check-box"></div>Secret rotation schedule documented and calendar-reminders set for 90-day API keys</div>
+    <div class="check-item"><div class="check-box"></div>Export compliance declaration prepared and reviewed by legal</div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Testing & Quality</div>
+    <div class="check-item"><div class="check-box"></div>Unit test coverage ≥85% lines / ≥80% branches enforced as CI gate</div>
+    <div class="check-item"><div class="check-box"></div>Integration tests (cross-module, migration, crypto, E2E smoke) 100% pass required</div>
+    <div class="check-item"><div class="check-box"></div>Detox E2E smoke tests covering critical paths on Android emulator and iOS simulator</div>
+    <div class="check-item"><div class="check-box"></div>Performance baselines established and regression detection active</div>
+    <div class="check-item"><div class="check-box"></div>QA sprint acceptance sign-off process documented and rehearsed</div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Monitoring & Observability</div>
+    <div class="check-item"><div class="check-box"></div>Sentry React Native SDK integrated with source maps configured for production</div>
+    <div class="check-item"><div class="check-box"></div>Crash-free rate alert configured (threshold: &lt;99.5%)</div>
+    <div class="check-item"><div class="check-box"></div>Cold launch p95 performance alert configured (threshold: &gt;3,000ms)</div>
+    <div class="check-item"><div class="check-box"></div>AI API health check and error rate alert active</div>
+    <div class="check-item"><div class="check-box"></div>On-call rotation schedule published with escalation contact list</div>
+    <div class="check-item"><div class="check-box"></div>Operations dashboard accessible to all release team members</div>
+    <div class="check-item"><div class="check-box"></div>Incident response runbooks published in team wiki</div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Store & Compliance</div>
+    <div class="check-item"><div class="check-box"></div>Google Play Data Safety Form completed and accurate</div>
+    <div class="check-item"><div class="check-box"></div>Apple App Privacy nutrition labels completed and accurate</div>
+    <div class="check-item"><div class="check-box"></div>Privacy Policy published at a live, accessible URL and linked in both store listings</div>
+    <div class="check-item"><div class="check-box"></div>All required screenshot sizes provided for both stores (all locales at launch)</div>
+    <div class="check-item"><div class="check-box"></div>Release notes written in all supported launch languages</div>
+    <div class="check-item"><div class="check-box"></div>Demo account prepared and credentials included in App Review notes</div>
+    <div class="check-item"><div class="check-box"></div>Age rating questionnaire completed on both stores</div>
+    <div class="check-item"><div class="check-box"></div>WCAG 2.1 AA accessibility audit passed and documented</div>
+    <div class="check-item"><div class="check-box"></div>Open-source license compliance scan clean (no GPL in production binary)</div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Release Operations</div>
+    <div class="check-item"><div class="check-box"></div>Phased rollout configuration ready (5% → 20% → 50% → 100%) on both stores</div>
+    <div class="check-item"><div class="check-box"></div>Health gate automated checks confirmed operational before first production promotion</div>
+    <div class="check-item"><div class="check-box"></div>Rollback procedure documented and rehearsed in DR drill</div>
+    <div class="check-item"><div class="check-box"></div>Hotfix pipeline tested and confirmed functional before v1.0 launch</div>
+    <div class="check-item"><div class="check-box"></div>Feature kill switch inventory reviewed and all flags have named owners</div>
+    <div class="check-item"><div class="check-box"></div>48-hour release war room schedule confirmed with Release Manager, PM, Tech Lead</div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Disaster Recovery</div>
+    <div class="check-item"><div class="check-box"></div>Production artifact retention confirmed (24-month minimum)</div>
+    <div class="check-item"><div class="check-box"></div>Signing key recovery procedure documented and two named custodians verified</div>
+    <div class="check-item"><div class="check-box"></div>DR drill scheduled (annual) with documented scope: signing recovery, environment rebuild, artifact recovery</div>
+    <div class="check-item"><div class="check-box"></div>Apple Developer Program renewal scheduled with 60-day advance reminder</div>
+    <div class="check-item"><div class="check-box"></div>Google Play account ownership verified with at least two organization owners</div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Documentation</div>
+    <div class="check-item"><div class="check-box"></div>SPEC-OPS-001 (this document) reviewed and signed off by Tech Lead and Release Manager</div>
+    <div class="check-item"><div class="check-box"></div>Runbook: new environment setup</div>
+    <div class="check-item"><div class="check-box"></div>Runbook: production release procedure (step-by-step)</div>
+    <div class="check-item"><div class="check-box"></div>Runbook: emergency hotfix procedure</div>
+    <div class="check-item"><div class="check-box"></div>Runbook: signing key rotation</div>
+    <div class="check-item"><div class="check-box"></div>Runbook: rollback from production</div>
+    <div class="check-item"><div class="check-box"></div>Onboarding guide for new team members covering pipeline access and on-call setup</div>
+  </div>
+
+  <h3>Business Rules</h3>
+
+  <div class="br-block">
+    <span class="br-id">BR-OPS-01</span>
+    <span class="br-body">Every production release artifact must be built exactly once from a tagged commit on the release branch or main branch and promoted through all environments unchanged. No environment-specific rebuild of a production artifact is permitted.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-02</span>
+    <span class="br-body">No code may be merged to develop or main without passing all mandatory CI quality gates (S-1 through S-6). No human override of a failing quality gate is permitted — the gate must be fixed and the pipeline re-run in its entirety.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-03</span>
+    <span class="br-body">Production deployment requires dual approval from the Release Manager and the Product Manager. Neither may approve their own submission. This rule applies to every production promotion including hotfixes, with no exception.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-04</span>
+    <span class="br-body">Staged rollout must proceed in rings (5% → 20% → 50% → 100%) with a minimum 24-hour health gate between each ring. Skipping a ring or shortening a gate requires a formal exception documented by the Release Manager with stated justification.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-05</span>
+    <span class="br-body">Any breach of a health gate metric during staged rollout immediately and automatically halts the rollout at its current percentage. Rollout expansion may not resume until the root cause is identified and documented, and the Release Manager approves continuation.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-06</span>
+    <span class="br-body">No secret — API key, certificate, password, token, or encryption key — may appear in source code, CI logs, build artifacts, or any version-controlled file. Detection of any secret in any of these locations triggers an immediate security incident and mandatory rotation regardless of whether the secret is "real" or a placeholder.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-07</span>
+    <span class="br-body">Android App Signing must remain enrolled in Google Play App Signing. The upload key and app signing key are different keys. The app signing key is managed by Google. This enrollment may not be revoked. Alternatives requiring a new package name are not acceptable.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-08</span>
+    <span class="br-body">No production data may flow into any environment below STAGING. Any environment below STAGING that receives production data must be immediately isolated, quarantined, wiped, and reported as a security incident within 30 minutes of detection.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-09</span>
+    <span class="br-body">All P0 incidents require a written blameless postmortem completed within 5 business days. All P1 incidents require a written postmortem within 14 days. Postmortems must include a timeline, root cause, impact measurement, and at least one actionable process improvement with a named owner and deadline.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-10</span>
+    <span class="br-body">All feature flags must have a named owner, an expiry target, and a documented kill switch authority. Flags with no active rollout purpose must be removed (hardcoded to their final state) within one sprint of their rollout completion. Flag accumulation is treated as technical debt.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-11</span>
+    <span class="br-body">The hotfix pipeline may not bypass any CI quality gate. Speed in a hotfix is achieved through prioritisation (immediate reviewer availability, expedited store review submission) — not through skipping validation. A hotfix with a failing CI gate is not deployable regardless of business urgency.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-12</span>
+    <span class="br-body">Production release artifacts must be retained for a minimum of 24 months with their associated build metadata (commit SHA, pipeline run ID, signing certificate used, EAS build number). Retention shorter than 24 months requires a documented regulatory review justifying the reduction.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-13</span>
+    <span class="br-body">The Apple Developer Program and Google Play Developer Account must each have at least two named organization owners at all times. Single-owner accounts represent a business continuity risk and are not acceptable. Ownership transfers are documented and tested annually.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-14</span>
+    <span class="br-body">Emergency DR drills must be conducted at minimum annually and must include: signing key recovery simulation, artifact retrieval from archive, environment rebuild from infrastructure-as-code, and rollback execution from the previous production version. All drill outcomes are documented.</span>
+  </div>
+  <div class="br-block">
+    <span class="br-id">BR-OPS-15</span>
+    <span class="br-body">Changes to the CI/CD pipeline configuration require PR review by both the Tech Lead and the DevOps-responsible engineer, with the same quality gate applied to pipeline changes as to application changes. Pipeline-as-code is not exempt from the review and quality standards applied to application code.</span>
+  </div>
+
+  <h3>Document Metadata</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Field</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Document ID</td><td>SPEC-OPS-001</td></tr>
+        <tr><td>Version</td><td>1.0.0</td></tr>
+        <tr><td>Status</td><td class="status-ok">Approved</td></tr>
+        <tr><td>Application</td><td>Finance Bag</td></tr>
+        <tr><td>Roles</td><td>Principal DevOps Architect, Mobile Release Manager, Cloud Infrastructure Architect, SRE, FinTech Operations Specialist</td></tr>
+        <tr><td>Sections</td><td>18 (§1–§18)</td></tr>
+        <tr><td>Business Rules</td><td>BR-OPS-01 through BR-OPS-15</td></tr>
+        <tr><td>CI Platform</td><td>GitHub Actions + EAS Build</td></tr>
+        <tr><td>Distribution</td><td>Google Play Console + Apple App Store Connect</td></tr>
+        <tr><td>Environments</td><td>8 (Local, Dev, Integration, QA, Staging, RC, Production, Sandbox)</td></tr>
+        <tr><td>Upstream Specs</td><td>SPEC-ARC-001, SPEC-RDM-001, SPEC-SEC-001, SPEC-QA-001, SPEC-PMO-001</td></tr>
+        <tr><td>Constraint</td><td>No implementation code. DevOps architecture, release engineering, and operational strategy only.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const key = 'fb-ops-theme';
+  const saved = localStorage.getItem(key);
+  if (saved) { root.setAttribute('data-theme', saved); btn.textContent = saved === 'dark' ? 'Light Mode' : 'Dark Mode'; }
+  else { btn.textContent = 'Light Mode'; }
+  btn.addEventListener('click', () => {
+    const cur = root.getAttribute('data-theme');
+    const next = cur === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem(key, next);
+    btn.textContent = next === 'dark' ? 'Light Mode' : 'Dark Mode';
+  });
+
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('#sidebar nav a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`#sidebar nav a[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
