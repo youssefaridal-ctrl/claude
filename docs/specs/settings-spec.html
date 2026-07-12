@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPEC-SET-001 — Settings, Personalization & User Preferences</title>
+<style>
+  :root{--bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;--text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;--accent:#FB7185;--accent-dim:rgba(251,113,133,0.13);--accent-glow:rgba(251,113,133,0.06);--sidebar-w:274px;}
+  @media(prefers-color-scheme:light){:root{--bg:#FAFAFA;--surface:#FFFFFF;--surface2:#FFF1F2;--border:#E4E4E7;--text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;--accent-dim:rgba(251,113,133,0.10);--accent-glow:rgba(251,113,133,0.04);}}
+  :root[data-theme="dark"]{--bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;--text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;--accent-dim:rgba(251,113,133,0.13);--accent-glow:rgba(251,113,133,0.06);}
+  :root[data-theme="light"]{--bg:#FAFAFA;--surface:#FFFFFF;--surface2:#FFF1F2;--border:#E4E4E7;--text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;--accent-dim:rgba(251,113,133,0.10);--accent-glow:rgba(251,113,133,0.04);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:15px;line-height:1.65;}
+  .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;display:flex;flex-direction:column;z-index:100;}
+  .sb-head{padding:20px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;}
+  .mod-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid rgba(251,113,133,0.3);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+  .sb-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.3;}
+  .sb-sub{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .nav-list{list-style:none;padding:10px 8px;flex:1;}
+  .nav-item a{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:12.5px;color:var(--text-muted);text-decoration:none;transition:all .15s;}
+  .nav-item a:hover{background:var(--surface2);color:var(--text);}
+  .nav-item a.active{background:var(--accent-dim);color:var(--accent);font-weight:600;}
+  .nav-num{font-size:10px;font-weight:700;color:var(--accent);min-width:20px;font-variant-numeric:tabular-nums;}
+  .theme-area{padding:12px 16px;border-top:1px solid var(--border);}
+  .theme-btn{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text-muted);font-size:12px;cursor:pointer;transition:color .15s;}
+  .theme-btn:hover{color:var(--text);}
+  .main{margin-left:var(--sidebar-w);flex:1;max-width:960px;padding:48px 52px 120px;}
+  .doc-header{border-bottom:2px solid var(--border);padding-bottom:36px;margin-bottom:56px;}
+  .doc-eyebrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .spec-id{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
+  .spec-ver{font-size:11px;color:var(--text-dim);background:var(--surface2);border-radius:4px;padding:2px 8px;}
+  .status-pill{font-size:11px;font-weight:600;border-radius:20px;padding:3px 10px;background:rgba(245,158,11,.15);color:#F59E0B;border:1px solid rgba(245,158,11,.3);}
+  .doc-title{font-size:32px;font-weight:800;letter-spacing:-.025em;line-height:1.15;color:var(--text);text-wrap:balance;margin-bottom:12px;}
+  .doc-sub{font-size:16px;color:var(--text-muted);text-wrap:balance;max-width:680px;margin-bottom:24px;}
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .meta-item{background:var(--surface2);border-radius:8px;padding:10px 14px;}
+  .meta-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;}
+  .meta-val{font-size:13px;font-weight:600;color:var(--text);}
+  section{margin-bottom:64px;scroll-margin-top:28px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:26px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+  .sec-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:var(--accent);color:#fff;font-size:12px;font-weight:800;border-radius:6px;flex-shrink:0;}
+  .sec-title{font-size:21px;font-weight:700;letter-spacing:-.015em;color:var(--text);}
+  h3{font-size:15px;font-weight:700;color:var(--text);margin:28px 0 10px;letter-spacing:-.01em;}
+  h4{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin:20px 0 8px;}
+  p{color:var(--text-muted);margin-bottom:12px;}
+  strong{color:var(--text);font-weight:600;}
+  .tw{overflow-x:auto;margin:14px 0;border-radius:8px;border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead{background:var(--surface2);}
+  th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:9px 14px;border-bottom:1px solid var(--border);color:var(--text-muted);vertical-align:top;font-variant-numeric:tabular-nums;font-size:13px;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--accent-glow);}
+  td code,p code,li code{font-family:'SF Mono',ui-monospace,monospace;font-size:11.5px;background:var(--surface2);padding:1px 5px;border-radius:3px;color:var(--text);}
+  .rc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:14px 16px;margin:10px 0;}
+  .rc-id{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}
+  .rc-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;}
+  .rc-body{font-size:13px;color:var(--text-muted);line-height:1.6;}
+  .rc-body code{font-family:'SF Mono',ui-monospace,monospace;font-size:11.5px;background:var(--surface2);padding:1px 5px;border-radius:3px;color:var(--text);}
+  .note{background:rgba(251,113,133,.07);border:1px solid rgba(251,113,133,.2);border-radius:7px;padding:12px 16px;margin:14px 0;font-size:13px;color:var(--text-muted);}
+  .warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:7px;padding:12px 16px;margin:14px 0;font-size:13px;color:var(--text-muted);}
+  .danger{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.25);border-radius:7px;padding:12px 16px;margin:14px 0;font-size:13px;color:var(--text-muted);}
+  .xref{background:var(--accent-glow);border:1px solid rgba(251,113,133,.2);border-radius:7px;padding:10px 14px;margin:16px 0;font-size:12.5px;color:var(--text-muted);}
+  .xref strong{color:var(--accent);}
+  ul.sl{list-style:none;padding:0;margin:10px 0;}
+  ul.sl li{padding:5px 0 5px 16px;position:relative;color:var(--text-muted);font-size:13.5px;}
+  ul.sl li::before{content:'–';position:absolute;left:0;color:var(--accent);}
+  ul.ol{list-style:none;counter-reset:ol;padding:0;margin:10px 0;}
+  ul.ol li{counter-increment:ol;padding:5px 0 5px 26px;position:relative;color:var(--text-muted);font-size:13.5px;}
+  ul.ol li::before{content:counter(ol)'.';position:absolute;left:0;font-weight:700;color:var(--accent);font-size:12px;}
+  .tree{font-family:'SF Mono',ui-monospace,monospace;font-size:12.5px;line-height:1.9;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin:14px 0;overflow-x:auto;white-space:pre;}
+  .tree .cat{color:var(--accent);font-weight:700;}
+  .tree .item{color:var(--text-muted);}
+  .tree .sub{color:var(--text-dim);}
+  .pref-row{display:flex;align-items:flex-start;gap:14px;padding:11px 0;border-bottom:1px solid var(--border);}
+  .pref-row:last-child{border-bottom:none;}
+  .pref-key{font-family:'SF Mono',ui-monospace,monospace;font-size:11.5px;color:var(--accent);min-width:200px;padding-top:1px;}
+  .pref-type{font-size:10px;font-weight:700;background:var(--surface2);color:var(--text-dim);border-radius:3px;padding:1px 5px;white-space:nowrap;align-self:flex-start;margin-top:2px;}
+  .pref-desc{font-size:12.5px;color:var(--text-muted);flex:1;}
+  .pref-default{font-size:11px;color:var(--text-dim);white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .setting-group{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin:16px 0;overflow:hidden;}
+  .sg-head{background:var(--accent-dim);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:10px;}
+  .sg-icon{font-size:16px;}
+  .sg-title{font-size:13px;font-weight:700;color:var(--accent);}
+  .sg-body{padding:4px 0;}
+  .si{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--border);}
+  .si:last-child{border-bottom:none;}
+  .si-icon{font-size:14px;width:22px;text-align:center;flex-shrink:0;}
+  .si-text{flex:1;}
+  .si-label{font-size:13px;color:var(--text);font-weight:500;}
+  .si-desc{font-size:11.5px;color:var(--text-dim);line-height:1.4;}
+  .si-value{font-size:12px;color:var(--text-muted);white-space:nowrap;}
+  .si-control{font-size:11px;color:var(--text-dim);}
+  .badge-auth{font-size:10px;font-weight:700;background:rgba(239,68,68,.15);color:#F87171;border-radius:3px;padding:1px 5px;border:1px solid rgba(239,68,68,.25);}
+  .badge-restart{font-size:10px;font-weight:700;background:rgba(245,158,11,.12);color:#FBBF24;border-radius:3px;padding:1px 5px;border:1px solid rgba(245,158,11,.25);}
+  .badge-sync{font-size:10px;font-weight:700;background:rgba(251,113,133,.12);color:var(--accent);border-radius:3px;padding:1px 5px;border:1px solid rgba(251,113,133,.25);}
+  .accent-palette{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0;}
+  .accent-swatch{width:36px;height:36px;border-radius:8px;border:2px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;transition:transform .1s;}
+  .accent-swatch.sel{border-color:var(--text);transform:scale(1.1);}
+  @media(max-width:900px){.main{padding:28px 18px 80px;margin-left:0;}.sidebar{display:none;}}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="mod-badge">⚙️ SET</div>
+    <div class="sb-title">Settings & Personalization</div>
+    <div class="sb-sub">SPEC-SET-001 v1.0</div>
+  </div>
+  <ul class="nav-list" id="nav-list">
+    <li class="nav-item"><a href="#s1"><span class="nav-num">01</span>Overview & Philosophy</a></li>
+    <li class="nav-item"><a href="#s2"><span class="nav-num">02</span>Architecture & Preference Model</a></li>
+    <li class="nav-item"><a href="#s3"><span class="nav-num">03</span>Complete Settings Hierarchy</a></li>
+    <li class="nav-item"><a href="#s4"><span class="nav-num">04</span>Account & Profile</a></li>
+    <li class="nav-item"><a href="#s5"><span class="nav-num">05</span>Language, Localization & Currency</a></li>
+    <li class="nav-item"><a href="#s6"><span class="nav-num">06</span>Appearance & Theming</a></li>
+    <li class="nav-item"><a href="#s7"><span class="nav-num">07</span>Dashboard Personalization</a></li>
+    <li class="nav-item"><a href="#s8"><span class="nav-num">08</span>Notifications & Reminders</a></li>
+    <li class="nav-item"><a href="#s9"><span class="nav-num">09</span>Security & Authentication</a></li>
+    <li class="nav-item"><a href="#s10"><span class="nav-num">10</span>Privacy Controls</a></li>
+    <li class="nav-item"><a href="#s11"><span class="nav-num">11</span>Backup, Sync & Export</a></li>
+    <li class="nav-item"><a href="#s12"><span class="nav-num">12</span>Data Management</a></li>
+    <li class="nav-item"><a href="#s13"><span class="nav-num">13</span>Accessibility</a></li>
+    <li class="nav-item"><a href="#s14"><span class="nav-num">14</span>Help, Support & About</a></li>
+    <li class="nav-item"><a href="#s15"><span class="nav-num">15</span>Settings Search</a></li>
+    <li class="nav-item"><a href="#s16"><span class="nav-num">16</span>Business Rules</a></li>
+    <li class="nav-item"><a href="#s17"><span class="nav-num">17</span>Edge Cases & Future Compatibility</a></li>
+  </ul>
+  <div class="theme-area"><button class="theme-btn" id="theme-btn">Toggle Light / Dark</button></div>
+</nav>
+
+<main class="main">
+<header class="doc-header">
+  <div class="doc-eyebrow">
+    <span class="spec-id">SPEC-SET-001</span>
+    <span class="spec-ver">v1.0</span>
+    <span class="status-pill">DRAFT</span>
+  </div>
+  <h1 class="doc-title">Settings, Personalization<br>&amp; User Preferences</h1>
+  <p class="doc-sub">The complete specification for Finance Bag's configuration center — a unified, searchable, and deeply personalized settings experience that gives every user full control without overwhelming them.</p>
+  <div class="meta-grid">
+    <div class="meta-item"><div class="meta-label">Module</div><div class="meta-val">SET</div></div>
+    <div class="meta-item"><div class="meta-label">Accent</div><div class="meta-val">#FB7185</div></div>
+    <div class="meta-item"><div class="meta-label">Setting Keys</div><div class="meta-val">80+ defined</div></div>
+    <div class="meta-item"><div class="meta-label">Categories</div><div class="meta-val">17 sections</div></div>
+    <div class="meta-item"><div class="meta-label">Auth-Required</div><div class="meta-val">12 operations</div></div>
+    <div class="meta-item"><div class="meta-label">Version</div><div class="meta-val">1.0 — Full Spec</div></div>
+  </div>
+</header>
+
+<!-- S1 -->
+<section id="s1">
+  <div class="sec-head"><span class="sec-num">1</span><h2 class="sec-title">Overview &amp; Philosophy</h2></div>
+
+  <p>The Settings & Personalization Center (module: SET) is the user's control panel for every aspect of Finance Bag's behavior, appearance, and data management. It is designed to be immediately approachable for first-time users who never touch it, while offering the depth that power users expect from a premium financial application.</p>
+
+  <div class="note"><strong>Core Design Principle: Sensible Defaults First.</strong> Every setting has a carefully chosen default that works well for the majority of users without any configuration. The Settings screen is optional — a user who never opens it should still have a great experience. Advanced options exist for those who seek them, but are never in the way of those who don't.</div>
+
+  <h3>1.1 Five UX Principles</h3>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Principle</th><th>What It Means in Practice</th></tr></thead>
+    <tbody>
+      <tr><td>I</td><td><strong>Purpose Before Option</strong></td><td>Every setting must have a documented reason for existing. Settings that can't be justified are removed. The user should never wonder "what does this do?"</td></tr>
+      <tr><td>II</td><td><strong>Instant Feedback</strong></td><td>Non-destructive settings apply immediately — theme changes, font size, obscure amounts. The user sees the effect before leaving the settings screen. No "Apply" button is needed for these.</td></tr>
+      <tr><td>III</td><td><strong>Progressive Disclosure</strong></td><td>Common settings are immediately visible. Advanced options are grouped under "Advanced" sub-sections. Developer options are hidden by default and require a deliberate unlock gesture (7 taps on the version number).</td></tr>
+      <tr><td>IV</td><td><strong>Safe by Default</strong></td><td>Destructive operations (delete data, factory reset, account deletion) require: (1) explicit authentication, (2) a confirmation dialog that describes exactly what will be lost, (3) a typed confirmation string for irreversible operations.</td></tr>
+      <tr><td>V</td><td><strong>Searchable Always</strong></td><td>Every setting is discoverable via the SCH module's search system. Users who know what they want but don't know where it lives can type it in the search bar and navigate directly.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1.2 Relationship to Other Modules</h3>
+  <p>The SET module is the owner of user preferences. Other modules consume preferences but do not write to them directly. The consumption pattern is read-only: a module reads a preference value at runtime but never updates it except through the SET module's public API. This ensures consistent change tracking and audit logging for all preference changes.</p>
+
+  <ul class="sl">
+    <li><strong>DSH</strong> reads <code>dashboard.widget_order</code>, <code>dashboard.startup_screen</code>, and <code>appearance.theme</code>.</li>
+    <li><strong>EVT</strong> reads all <code>notifications.*</code> preferences to enforce quiet hours and channel preferences.</li>
+    <li><strong>SCH</strong> reads <code>search.save_history</code> and is responsible for indexing all settings as searchable entities.</li>
+    <li><strong>BUD / DBT / GOL</strong> read <code>locale.*</code> preferences for date/number formatting.</li>
+    <li><strong>SYS</strong> reads <code>security.*</code> preferences for biometric lock behavior.</li>
+  </ul>
+</section>
+
+<!-- S2 -->
+<section id="s2">
+  <div class="sec-head"><span class="sec-num">2</span><h2 class="sec-title">Architecture &amp; Preference Model</h2></div>
+
+  <p>The preference model is a typed key-value store with a schema registry. It extends the existing <code>settings</code> singleton from SPEC-DB-001 by moving to a purpose-built <code>preferences</code> table that supports richer types, default management, and future sync.</p>
+
+  <h3>2.1 Preference Storage Architecture</h3>
+  <p>Three storage layers serve different preference needs:</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Layer</th><th>Table / Store</th><th>Contents</th><th>Owned By</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Structured Preferences</strong></td><td><code>preferences</code> (new)</td><td>All typed user-configurable settings. Key-value with schema. The canonical preference store.</td><td>SET</td></tr>
+      <tr><td><strong>Operational State</strong></td><td><code>app_state</code> (existing)</td><td>Non-user-configurable runtime state: dashboard_snapshot, db_schema_version, onboarding_complete. Not shown in Settings UI.</td><td>SYS</td></tr>
+      <tr><td><strong>Legacy Singleton</strong></td><td><code>settings</code> (existing)</td><td>Deprecated in favor of <code>preferences</code>. Migrated to preferences table at upgrade time. Retained for schema migration backward compatibility.</td><td>SET</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>2.2 preferences Table Schema</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>key</code></td><td>TEXT PK</td><td>Namespaced preference key (e.g. <code>appearance.theme</code>, <code>security.biometric_lock</code>). Dot-notation, category prefix required.</td></tr>
+      <tr><td><code>value_json</code></td><td>TEXT NOT NULL</td><td>JSON-serialized current value. Type determined by schema.</td></tr>
+      <tr><td><code>updated_at</code></td><td>INTEGER NOT NULL</td><td>Unix ms of last user-initiated change.</td></tr>
+      <tr><td><code>sync_eligible</code></td><td>INTEGER DEFAULT 1</td><td>0 = device-specific (do not sync across devices). e.g. biometric_lock is device-specific; theme preference is sync-eligible.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>2.3 Preference Schema Registry (In-Memory)</h3>
+  <p>The schema registry is a static in-memory definition of every preference key. It is not stored in SQLite — it is bundled in the app. Each entry defines:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>key</code></td><td>string</td><td>Preference key (must match <code>preferences.key</code>)</td></tr>
+      <tr><td><code>label</code></td><td>LocalizedString</td><td>Display label shown in Settings UI (localized)</td></tr>
+      <tr><td><code>description</code></td><td>LocalizedString | null</td><td>Help text shown below the setting (localized)</td></tr>
+      <tr><td><code>type</code></td><td>enum</td><td><code>'boolean'</code> | <code>'string'</code> | <code>'integer'</code> | <code>'enum'</code> | <code>'json'</code></td></tr>
+      <tr><td><code>default</code></td><td>any</td><td>Default value used on first launch or after factory reset</td></tr>
+      <tr><td><code>allowed_values</code></td><td>any[] | null</td><td>For enum type: the valid values. Null for other types.</td></tr>
+      <tr><td><code>validation</code></td><td>ValidationRule | null</td><td>For integer: min/max. For string: maxLength, pattern. Null for boolean/enum.</td></tr>
+      <tr><td><code>requires_auth</code></td><td>boolean</td><td>If true, biometric/PIN re-authentication is required before the change is written.</td></tr>
+      <tr><td><code>requires_restart</code></td><td>boolean</td><td>If true, app must restart for the change to take effect (rare — language change is the main case).</td></tr>
+      <tr><td><code>category</code></td><td>string</td><td>Category key for grouping in the Settings UI (e.g. <code>'appearance'</code>, <code>'security'</code>)</td></tr>
+      <tr><td><code>sync_eligible</code></td><td>boolean</td><td>Whether this preference should sync across devices in future cloud sync.</td></tr>
+      <tr><td><code>visible_in_ui</code></td><td>boolean</td><td>False for preferences that exist but are managed programmatically, not shown to the user.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>2.4 Preference Read / Write Flow</h3>
+  <ul class="ol">
+    <li><strong>Read.</strong> Modules call <code>PreferenceService.get(key)</code>. The service reads from an in-memory cache (populated at startup). On cache miss, reads from <code>preferences</code> table. If no row exists for the key, returns the schema default.</li>
+    <li><strong>Write.</strong> Modules call <code>PreferenceService.set(key, value)</code>. The service (a) validates the value against the schema, (b) checks <code>requires_auth</code> and triggers re-auth if needed, (c) writes to <code>preferences</code> table, (d) updates the in-memory cache, (e) publishes a <code>PREFERENCE_CHANGED</code> event to the EVT bus with the key and new value so subscribing modules can react.</li>
+    <li><strong>Reset to default.</strong> <code>PreferenceService.reset(key)</code> deletes the row from <code>preferences</code> table. Subsequent reads return the schema default.</li>
+    <li><strong>Reset all.</strong> Deletes all rows from <code>preferences</code> table. All reads return defaults. Used by Factory Reset.</li>
+  </ul>
+
+  <h3>2.5 Change Propagation via Events</h3>
+  <p>When a preference changes, the EVT module broadcasts a <code>PREFERENCE_CHANGED</code> event with payload <code>{ key, oldValue, newValue, changedAt }</code>. Subscribing modules react without polling:</p>
+  <ul class="sl">
+    <li>DSH subscribes to <code>appearance.theme</code>, <code>dashboard.*</code> changes.</li>
+    <li>EVT subscribes to <code>notifications.*</code> changes to rebuild reminder schedules.</li>
+    <li>SCH subscribes to <code>search.save_history</code> changes.</li>
+    <li>All modules subscribe to <code>locale.*</code> changes to re-format displayed values.</li>
+  </ul>
+</section>
+
+<!-- S3 -->
+<section id="s3">
+  <div class="sec-head"><span class="sec-num">3</span><h2 class="sec-title">Complete Settings Hierarchy</h2></div>
+
+  <p>The Settings screen presents categories as a navigable list. Each category opens a dedicated sub-screen. This section documents the complete two-level hierarchy: categories and their individual settings.</p>
+
+  <div class="tree"><span class="cat">⚙️  SETTINGS</span>
+├── <span class="cat">👤  Account & Profile</span>
+│   ├── <span class="item">Display Name</span>
+│   ├── <span class="item">Avatar Emoji</span>
+│   ├── <span class="item">Salary Day (1–28)</span>
+│   ├── <span class="item">Connected Accounts (future)</span>
+│   └── <span class="item">Delete Account  🔴</span>
+│
+├── <span class="cat">🌍  Language & Region</span>
+│   ├── <span class="item">App Language  ↺ restart</span>
+│   ├── <span class="item">Date Format</span>
+│   ├── <span class="item">Time Format (12h / 24h)</span>
+│   ├── <span class="item">Number Format</span>
+│   └── <span class="item">Week Start Day</span>
+│
+├── <span class="cat">💱  Currency</span>
+│   ├── <span class="item">Primary Currency</span>
+│   ├── <span class="item">Symbol Display</span>
+│   └── <span class="item">Decimal Places</span>
+│
+├── <span class="cat">🎨  Appearance</span>
+│   ├── <span class="item">Theme (Light / Dark / System)</span>
+│   ├── <span class="item">Accent Color (6 choices)</span>
+│   ├── <span class="item">Font Size</span>
+│   ├── <span class="item">Display Density</span>
+│   └── <span class="item">Animation Level</span>
+│
+├── <span class="cat">🏠  Dashboard</span>
+│   ├── <span class="item">Widget Visibility (per widget)</span>
+│   ├── <span class="item">Widget Order</span>
+│   ├── <span class="item">Startup Screen</span>
+│   ├── <span class="item">Quick Action Shortcuts</span>
+│   └── <span class="item">Reset Layout</span>
+│
+├── <span class="cat">🔔  Notifications</span>
+│   ├── <span class="item">Master Toggle</span>
+│   ├── <span class="item">Quiet Hours (start / end)</span>
+│   ├── <span class="item">Weekend Quiet Mode</span>
+│   ├── <span class="item">Sound</span>
+│   ├── <span class="item">Vibration / Haptic</span>
+│   ├── <span class="item">Badge Count</span>
+│   └── <span class="item">Per-Category Toggles</span>
+│
+├── <span class="cat">⏰  Reminders</span>
+│   ├── <span class="item">Salary Reminder</span>
+│   ├── <span class="item">Debt Payment Reminder</span>
+│   ├── <span class="item">EMF Contribution Reminder</span>
+│   ├── <span class="item">Goal Contribution Reminder</span>
+│   └── <span class="item">Period End Reminder</span>
+│
+├── <span class="cat">🔒  Security</span>
+│   ├── <span class="item">Biometric Lock  🔐</span>
+│   ├── <span class="item">Auto-Lock Timeout</span>
+│   ├── <span class="item">Obscure Amounts</span>
+│   └── <span class="item">Re-Auth for Sensitive Actions  🔐</span>
+│
+├── <span class="cat">🛡️  Privacy</span>
+│   ├── <span class="item">Save Search History</span>
+│   ├── <span class="item">Analytics (future)</span>
+│   ├── <span class="item">Crash Reports (future)</span>
+│   ├── <span class="item">Export My Data  🔐</span>
+│   └── <span class="item">Delete My Data  🔴 🔐</span>
+│
+├── <span class="cat">💾  Backup</span>
+│   ├── <span class="item">Auto Backup</span>
+│   ├── <span class="item">Backup Frequency</span>
+│   ├── <span class="item">Last Backup Info</span>
+│   ├── <span class="item">Back Up Now  🔐</span>
+│   └── <span class="item">Restore from Backup  🔴 🔐</span>
+│
+├── <span class="cat">🗃️  Data Management</span>
+│   ├── <span class="item">Export CSV  🔐</span>
+│   ├── <span class="item">Export JSON  🔐</span>
+│   ├── <span class="item">Import Data  🔴 🔐</span>
+│   ├── <span class="item">Storage Usage</span>
+│   ├── <span class="item">Clear Search Index Cache</span>
+│   └── <span class="item">Factory Reset  🔴 🔐</span>
+│
+├── <span class="cat">♿  Accessibility</span>
+│   ├── <span class="item">Large Text</span>
+│   ├── <span class="item">Bold Text</span>
+│   ├── <span class="item">High Contrast Mode</span>
+│   ├── <span class="item">Reduce Motion</span>
+│   ├── <span class="item">Haptic Feedback</span>
+│   └── <span class="item">Color Blind Mode</span>
+│
+├── <span class="cat">🔍  Search</span>
+│   ├── <span class="item">Save Search History</span>
+│   ├── <span class="item">Show Recent Searches</span>
+│   ├── <span class="item">Clear Search History</span>
+│   └── <span class="item">Rebuild Search Index</span>
+│
+├── <span class="cat">❓  Help & Support</span>
+│   ├── <span class="item">FAQ & Documentation</span>
+│   ├── <span class="item">Restart Tutorial</span>
+│   ├── <span class="item">Send Feedback</span>
+│   ├── <span class="item">Report a Bug</span>
+│   └── <span class="item">Request a Feature</span>
+│
+└── <span class="cat">ℹ️  About</span>
+    ├── <span class="item">App Version / Build</span>
+    ├── <span class="item">Privacy Policy</span>
+    ├── <span class="item">Terms of Service</span>
+    ├── <span class="item">Open Source Licenses</span>
+    └── <span class="item">Developer Options  (hidden)</span>
+
+<span class="sub">  🔐 = requires re-authentication before applying
+  🔴 = destructive / irreversible action
+  ↺ = requires app restart</span></div>
+
+  <h3>3.1 Category Navigation Pattern</h3>
+  <p>The Settings root screen is a flat list of category rows. Each row shows the category icon, name, and a brief descriptor (e.g. "Appearance — Dark mode, accent color, font size"). Tapping a category pushes a sub-screen with the category's individual settings. No accordion / expand-in-place on the root screen — navigation is always push.</p>
+  <p>The root screen has a persistent search bar at the top (delegates to SCH module). The search bar is always visible, not hidden behind scroll.</p>
+</section>
+
+<!-- S4 -->
+<section id="s4">
+  <div class="sec-head"><span class="sec-num">4</span><h2 class="sec-title">Account &amp; Profile Settings</h2></div>
+
+  <p>Account settings are the user's personal identity within Finance Bag. In v1, Finance Bag is a single-user, local-only app — there is no cloud account in the traditional sense. "Account" here means the user's profile data, not an online account. Future versions may introduce optional cloud accounts.</p>
+
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">👤</span><span class="sg-title">Profile</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">✏️</span><div class="si-text"><div class="si-label">Display Name</div><div class="si-desc">Your name shown on the dashboard greeting</div></div><span class="si-value">Text field</span></div>
+      <div class="si"><span class="si-icon">😀</span><div class="si-text"><div class="si-label">Avatar Emoji</div><div class="si-desc">Single emoji used as your profile avatar</div></div><span class="si-value">Emoji picker</span></div>
+      <div class="si"><span class="si-icon">📅</span><div class="si-text"><div class="si-label">Salary Day</div><div class="si-desc">Day of month your salary typically arrives (1–28). Used to define salary period boundaries.</div></div><span class="si-value">Number (1–28)</span></div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">🔗</span><span class="sg-title">Connected Accounts (Future)</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">🏦</span><div class="si-text"><div class="si-label">Bank Connection</div><div class="si-desc">Connect a bank for automatic transaction import. Not available in v1.</div></div><span class="si-value si-control">Coming soon</span></div>
+      <div class="si"><span class="si-icon">☁️</span><div class="si-text"><div class="si-label">Cloud Account</div><div class="si-desc">Optional cloud account for backup and cross-device sync. Not available in v1.</div></div><span class="si-value si-control">Coming soon</span></div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">⚠️</span><span class="sg-title">Danger Zone</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">📦</span><div class="si-text"><div class="si-label">Export My Data <span class="badge-auth">AUTH</span></div><div class="si-desc">Download a complete copy of all your financial data</div></div><span class="si-value">→</span></div>
+      <div class="si"><span class="si-icon">🗑️</span><div class="si-text"><div class="si-label">Delete Account <span class="badge-auth">AUTH</span></div><div class="si-desc">Permanently delete your profile and all financial data. Cannot be undone.</div></div><span class="si-value">🔴</span></div>
+    </div>
+  </div>
+
+  <h3>4.1 Profile Preference Keys</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>profile.display_name</code></td><td>string</td><td><code>""</code></td><td>Max 50 chars. Shown on dashboard greeting. Stored in users.display_name (mirrors DB).</td></tr>
+      <tr><td><code>profile.avatar_emoji</code></td><td>string</td><td><code>"💰"</code></td><td>Single emoji. Stored in profiles.avatar_emoji (mirrors DB).</td></tr>
+      <tr><td><code>profile.salary_day</code></td><td>integer</td><td><code>1</code></td><td>1–28. Stored in profiles.salary_day (mirrors DB). Changing this does not retroactively alter existing periods.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>4.2 Account Deletion Flow</h3>
+  <div class="warn"><strong>This is the most consequential action in the app.</strong> Account deletion must be designed to be impossible to trigger accidentally.</div>
+  <ul class="ol">
+    <li>User taps "Delete Account". A full-screen warning screen replaces the settings screen (not a modal sheet).</li>
+    <li>Warning screen clearly lists everything that will be deleted: all salary records, all expenses, all debts, all goals, all archives, all settings.</li>
+    <li>User must re-authenticate with biometric or PIN.</li>
+    <li>User must type the phrase <strong>"DELETE MY DATA"</strong> exactly (localized equivalent in French/Arabic).</li>
+    <li>A final "I understand, delete everything" destructive button becomes enabled only after steps 3 and 4 are complete.</li>
+    <li>On confirmation: all rows in all financial tables are hard-deleted (an exception to the soft-delete rule — this is an explicit user-initiated wipe). The <code>preferences</code>, <code>app_state</code>, <code>search.db</code>, and the main <code>finance.db</code> files are deleted. The app resets to first-launch state.</li>
+  </ul>
+
+  <div class="xref"><strong>Cross-References:</strong> SPEC-DB-001 §11 (security model), SPEC-DB-001 §13 (backup before delete), SPEC-EVT-001 (SEC.DATA_EXPORT_REQUESTED, AUTH events)</div>
+</section>
+
+<!-- S5 -->
+<section id="s5">
+  <div class="sec-head"><span class="sec-num">5</span><h2 class="sec-title">Language, Localization &amp; Currency</h2></div>
+
+  <p>Finance Bag is designed for a multi-locale audience from day one. Localization is not an afterthought — it affects date formatting, number formatting, RTL layout, currency display, and the order of settings groups themselves. All locale-dependent values are formatted at render time using the user's locale preference, never stored as formatted strings.</p>
+
+  <h3>5.1 Language Settings</h3>
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">🌍</span><span class="sg-title">Language</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">🇫🇷</span><div class="si-text"><div class="si-label">App Language <span class="badge-restart">RESTART</span></div><div class="si-desc">Language used for all text, labels, and notifications in the app</div></div><span class="si-value">Select</span></div>
+      <div class="si"><span class="si-icon">📱</span><div class="si-text"><div class="si-label">Auto-Detect</div><div class="si-desc">Use the device's system language automatically</div></div><span class="si-value">Toggle</span></div>
+    </div>
+  </div>
+
+  <h4>Supported Languages</h4>
+  <div class="tw"><table>
+    <thead><tr><th>Language</th><th>Code</th><th>Direction</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>French</td><td><code>fr</code></td><td>LTR</td><td>v1 — Default</td><td>Primary language. All strings authored in French first.</td></tr>
+      <tr><td>English</td><td><code>en</code></td><td>LTR</td><td>v1</td><td>Full parity with French. Separate translation file.</td></tr>
+      <tr><td>Arabic</td><td><code>ar</code></td><td>RTL</td><td>v1</td><td>Full RTL layout support required. Numerals: Eastern Arabic or Western Arabic per user preference.</td></tr>
+      <tr><td>Device Default</td><td><code>system</code></td><td>Inherited</td><td>v1</td><td>Falls back to English if device language is unsupported.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.2 RTL (Right-to-Left) Support</h3>
+  <p>When language = Arabic, the entire layout mirrors horizontally. Specific RTL rules:</p>
+  <ul class="sl">
+    <li>Navigation arrows point left instead of right (back arrows point right).</li>
+    <li>Sidebar (if shown) appears on the right edge.</li>
+    <li>Text alignment flips to right-align for body text.</li>
+    <li>Icon positions mirror (left-icon rows become right-icon rows).</li>
+    <li>Charts and progress bars fill from right-to-left.</li>
+    <li>Number formatting stays LTR within RTL text (numbers are always displayed in the reading direction of the numeral system, not the surrounding text).</li>
+    <li>The <code>locale.direction</code> preference (computed, not user-set) is derived from the language selection and consumed by all UI components.</li>
+  </ul>
+
+  <h3>5.3 Regional Format Settings</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Type</th><th>Options</th><th>Default (fr)</th></tr></thead>
+    <tbody>
+      <tr><td><code>locale.date_format</code></td><td>enum</td><td><code>'DD/MM/YYYY'</code> · <code>'MM/DD/YYYY'</code> · <code>'YYYY-MM-DD'</code></td><td><code>'DD/MM/YYYY'</code></td></tr>
+      <tr><td><code>locale.time_format</code></td><td>enum</td><td><code>'12h'</code> · <code>'24h'</code></td><td><code>'24h'</code></td></tr>
+      <tr><td><code>locale.number_format</code></td><td>enum</td><td><code>'1,000.00'</code> (EN) · <code>'1.000,00'</code> (DE/FR) · <code>'1 000,00'</code> (FR space)</td><td><code>'1 000,00'</code></td></tr>
+      <tr><td><code>locale.week_start</code></td><td>enum</td><td><code>'monday'</code> · <code>'sunday'</code></td><td><code>'monday'</code></td></tr>
+      <tr><td><code>locale.language</code></td><td>enum</td><td><code>'fr'</code> · <code>'en'</code> · <code>'ar'</code> · <code>'system'</code></td><td><code>'system'</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note"><strong>All dates and numbers are stored as raw values (Unix ms integers, centimes integers, ISO strings). Locale formatting is always applied at render time and never persisted. Changing locale formatting retroactively updates the display of all historical data — no migration needed.</strong></div>
+
+  <h3>5.4 Currency Settings</h3>
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">💱</span><span class="sg-title">Currency</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">🏷️</span><div class="si-text"><div class="si-label">Primary Currency</div><div class="si-desc">Your main currency for all financial entries. Changing this does not convert existing values.</div></div><span class="si-value">ISO selector</span></div>
+      <div class="si"><span class="si-icon">🔣</span><div class="si-text"><div class="si-label">Symbol Display</div><div class="si-desc">How the currency is displayed: symbol only (€), code only (EUR), or both (€ EUR)</div></div><span class="si-value">Select</span></div>
+      <div class="si"><span class="si-icon">#️⃣</span><div class="si-text"><div class="si-label">Decimal Places</div><div class="si-desc">Number of decimal places shown. Default is the currency standard (EUR = 2, JPY = 0).</div></div><span class="si-value">Select</span></div>
+    </div>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>currency.code</code></td><td>string (ISO 4217)</td><td><code>'EUR'</code></td><td>FK→currencies table. Changing this updates profiles.currency_code. Existing centimes values are NOT converted.</td></tr>
+      <tr><td><code>currency.symbol_display</code></td><td>enum</td><td><code>'symbol'</code></td><td><code>'symbol'</code> | <code>'code'</code> | <code>'both'</code></td></tr>
+      <tr><td><code>currency.decimal_places</code></td><td>integer</td><td><code>-1</code></td><td>-1 = use currency default from currencies table. 0–4 = explicit override.</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="warn"><strong>Currency Change Warning.</strong> When the user changes <code>currency.code</code>, a confirmation dialog must explain that all existing amounts remain unchanged (they are in the old currency's centimes). The user must confirm they understand they are changing the currency label, not converting values. This is by design for v1 — multi-currency conversion is a future feature.</div>
+</section>
+
+<!-- S6 -->
+<section id="s6">
+  <div class="sec-head"><span class="sec-num">6</span><h2 class="sec-title">Appearance &amp; Theming</h2></div>
+
+  <p>Appearance settings are the most immediately satisfying settings to change. Every change applies instantly with a smooth transition — no app restart, no loading screen. The appearance system is fully self-contained: changing a theme setting never touches financial data.</p>
+
+  <h3>6.1 Theme Settings</h3>
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">🎨</span><span class="sg-title">Theme</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">🌙</span><div class="si-text"><div class="si-label">App Theme</div><div class="si-desc">Light, Dark, or follow the device system setting</div></div><span class="si-value">3-way segment</span></div>
+      <div class="si"><span class="si-icon">🎨</span><div class="si-text"><div class="si-label">Accent Color</div><div class="si-desc">Primary color used for highlights, buttons, and interactive elements</div></div><span class="si-value">Color picker</span></div>
+      <div class="si"><span class="si-icon">🔠</span><div class="si-text"><div class="si-label">Font Size</div><div class="si-desc">Text size throughout the app. "Large" increases all text by 20%, "Extra Large" by 40%.</div></div><span class="si-value">Select</span></div>
+      <div class="si"><span class="si-icon">⬛</span><div class="si-text"><div class="si-label">Display Density</div><div class="si-desc">Comfortable (more spacing) or Compact (more information per screen)</div></div><span class="si-value">2-way toggle</span></div>
+      <div class="si"><span class="si-icon">✨</span><div class="si-text"><div class="si-label">Animation Level</div><div class="si-desc">Full, Reduced, or None. "None" is for users who prefer no motion.</div></div><span class="si-value">Select</span></div>
+    </div>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Type</th><th>Options</th><th>Default</th><th>Apply</th></tr></thead>
+    <tbody>
+      <tr><td><code>appearance.theme</code></td><td>enum</td><td><code>'light'</code> · <code>'dark'</code> · <code>'system'</code></td><td><code>'system'</code></td><td>Instant</td></tr>
+      <tr><td><code>appearance.accent_color</code></td><td>enum</td><td><code>'indigo'</code> · <code>'rose'</code> · <code>'emerald'</code> · <code>'amber'</code> · <code>'sky'</code> · <code>'violet'</code></td><td><code>'indigo'</code></td><td>Instant</td></tr>
+      <tr><td><code>appearance.font_size</code></td><td>enum</td><td><code>'default'</code> · <code>'large'</code> · <code>'xl'</code></td><td><code>'default'</code></td><td>Instant</td></tr>
+      <tr><td><code>appearance.density</code></td><td>enum</td><td><code>'comfortable'</code> · <code>'compact'</code></td><td><code>'comfortable'</code></td><td>Instant</td></tr>
+      <tr><td><code>appearance.animation_level</code></td><td>enum</td><td><code>'full'</code> · <code>'reduced'</code> · <code>'none'</code></td><td><code>'full'</code></td><td>Instant</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>6.2 Accent Color Palette</h3>
+  <p>Users select from 6 curated accent colors. The accent color affects interactive elements (buttons, active states, progress bars, chart highlights, link text). It does not change the per-module accent colors used in module headers — those are fixed per module identity.</p>
+  <div class="accent-palette">
+    <div class="accent-swatch sel" style="background:#6366F1;">Ind</div>
+    <div class="accent-swatch" style="background:#FB7185;">Rose</div>
+    <div class="accent-swatch" style="background:#22C55E;">Grn</div>
+    <div class="accent-swatch" style="background:#F59E0B;">Amb</div>
+    <div class="accent-swatch" style="background:#0EA5E9;">Sky</div>
+    <div class="accent-swatch" style="background:#8B5CF6;">Vlt</div>
+  </div>
+  <p style="margin-top:8px;">Each accent color is defined as a full palette (light and dark variants) so it works correctly in both themes. The accent color is stored as a semantic name (<code>'indigo'</code>), not a hex value, so future theme changes can re-derive the appropriate shade.</p>
+
+  <h3>6.3 Theme Application Rules</h3>
+  <ul class="sl">
+    <li><strong>System mode</strong> reads <code>Appearance.colorScheme</code> from React Native and responds to OS-level dark/light changes in real time without restarting.</li>
+    <li><strong>Manual override</strong> (Light or Dark) ignores the system setting until changed back to System.</li>
+    <li>Theme preference is the most frequently synced preference — when cloud sync is added, this is the first preference to propagate so users see their preferred theme on a new device immediately.</li>
+    <li>The Settings screen itself reflects the theme setting change immediately (live preview), so users see the effect before they navigate away.</li>
+  </ul>
+
+  <h3>6.4 Font Size Scaling</h3>
+  <p>Font size scaling uses a root scale factor applied to all typographic elements through a design token cascade:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Setting</th><th>Scale Factor</th><th>Example: Body Text</th><th>Example: Heading</th></tr></thead>
+    <tbody>
+      <tr><td>Default</td><td>1.0×</td><td>15px</td><td>21px</td></tr>
+      <tr><td>Large</td><td>1.2×</td><td>18px</td><td>25px</td></tr>
+      <tr><td>Extra Large</td><td>1.4×</td><td>21px</td><td>29px</td></tr>
+    </tbody>
+  </table></div>
+  <p>Scaling is additive with the OS accessibility text size setting (iOS Dynamic Type / Android Font Scale). If the user has both set to large, the result is the combined scale. The app clamps at 2.0× total scale to prevent layout overflow.</p>
+</section>
+
+<!-- S7 -->
+<section id="s7">
+  <div class="sec-head"><span class="sec-num">7</span><h2 class="sec-title">Dashboard Personalization</h2></div>
+
+  <p>The Dashboard is the app's home screen and the user's first daily touchpoint. Dashboard personalization allows users to shape it around their priorities — some users want the FHS gauge front and center; others care only about the budget summary. All customization is non-destructive and reversible.</p>
+
+  <h3>7.1 Widget Catalog</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Widget ID</th><th>Name</th><th>Default Visible</th><th>Default Order</th><th>Resizable</th></tr></thead>
+    <tbody>
+      <tr><td><code>fhs_gauge</code></td><td>Financial Health Score</td><td>Yes</td><td>1</td><td>No (always full-width)</td></tr>
+      <tr><td><code>period_summary</code></td><td>Current Period Summary</td><td>Yes</td><td>2</td><td>No</td></tr>
+      <tr><td><code>budget_overview</code></td><td>Budget Overview</td><td>Yes</td><td>3</td><td>No</td></tr>
+      <tr><td><code>debt_tracker</code></td><td>Debt Progress</td><td>Yes</td><td>4</td><td>No</td></tr>
+      <tr><td><code>emf_progress</code></td><td>Emergency Fund</td><td>Yes</td><td>5</td><td>No</td></tr>
+      <tr><td><code>goal_highlight</code></td><td>Top Goal</td><td>Yes</td><td>6</td><td>No</td></tr>
+      <tr><td><code>spending_chart</code></td><td>Spending Trend</td><td>Yes</td><td>7</td><td>No</td></tr>
+      <tr><td><code>quick_actions</code></td><td>Quick Action Row</td><td>Yes</td><td>8</td><td>No</td></tr>
+      <tr><td><code>recent_expenses</code></td><td>Recent Expenses</td><td>Yes</td><td>9</td><td>No</td></tr>
+      <tr><td><code>roadmap_status</code></td><td>Roadmap Snapshot</td><td>No</td><td>10</td><td>No</td></tr>
+      <tr><td><code>fhs_trend</code></td><td>FHS 30-Day Trend</td><td>No</td><td>11</td><td>No</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>7.2 Dashboard Preference Keys</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>dashboard.widget_visibility</code></td><td>json</td><td>All true except roadmap_status, fhs_trend</td><td>Object mapping widget ID → boolean. Hidden widgets are not rendered, not computed.</td></tr>
+      <tr><td><code>dashboard.widget_order</code></td><td>json</td><td>Ordered array of widget IDs</td><td>Array of widget IDs in display order. Only visible widget IDs need to be present.</td></tr>
+      <tr><td><code>dashboard.startup_screen</code></td><td>enum</td><td><code>'dashboard'</code></td><td><code>'dashboard'</code> · <code>'budget'</code> · <code>'goals'</code> · <code>'roadmap'</code>. The screen shown on app launch (after auth).</td></tr>
+      <tr><td><code>dashboard.quick_actions</code></td><td>json</td><td>['add_expense', 'add_salary', 'record_payment', 'add_contribution']</td><td>Ordered array of quick action IDs shown in the quick_actions widget. Max 4.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>7.3 Widget Reordering UX</h3>
+  <ul class="sl">
+    <li>The widget reorder screen presents all widgets as a drag-and-drop list. Dragging a widget to a new position updates <code>dashboard.widget_order</code> in real time.</li>
+    <li>A toggle to the right of each widget controls <code>dashboard.widget_visibility</code>. Hidden widgets move to a "Hidden" section at the bottom of the list.</li>
+    <li>The dashboard preview (a miniaturized, non-interactive preview of the dashboard) updates live as the user reorders and hides widgets.</li>
+    <li>"Reset Layout" reverts both <code>widget_order</code> and <code>widget_visibility</code> to their defaults with a confirmation dialog.</li>
+  </ul>
+
+  <h3>7.4 Quick Action Customization</h3>
+  <p>The Quick Action row shows up to 4 tappable shortcuts on the Dashboard. Users choose which 4 (from a catalog of 8 available actions) and in what order. Available quick actions:</p>
+  <ul class="sl">
+    <li>Add Expense, Add Salary, Record Payment, Add EMF Contribution, Add Goal Contribution, View Budget, Generate Report, Open Search</li>
+  </ul>
+  <p>The quick action customization screen shows all 8 available actions in a drag-reorder list with checkboxes. Selecting more than 4 unchecks the least recently selected action. The 4 checked actions appear in the dashboard widget in the listed order.</p>
+</section>
+
+<!-- S8 -->
+<section id="s8">
+  <div class="sec-head"><span class="sec-num">8</span><h2 class="sec-title">Notifications &amp; Reminders</h2></div>
+
+  <p>Notification settings govern when and how Finance Bag communicates with the user. The system integrates directly with SPEC-EVT-001's priority-channel matrix and notification preferences model — this section defines the Settings UI and preference keys that feed that system.</p>
+
+  <h3>8.1 Master Notification Settings</h3>
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">🔔</span><span class="sg-title">General</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">🔔</span><div class="si-text"><div class="si-label">Push Notifications</div><div class="si-desc">Master toggle. Disabling this silences all push notifications regardless of other settings.</div></div><span class="si-value">Toggle (ON)</span></div>
+      <div class="si"><span class="si-icon">🎵</span><div class="si-text"><div class="si-label">Notification Sound</div><div class="si-desc">Play a sound with push notifications</div></div><span class="si-value">Toggle (ON)</span></div>
+      <div class="si"><span class="si-icon">📳</span><div class="si-text"><div class="si-label">Vibration / Haptic</div><div class="si-desc">Vibrate when a notification arrives</div></div><span class="si-value">Toggle (ON)</span></div>
+      <div class="si"><span class="si-icon">🔴</span><div class="si-text"><div class="si-label">Badge Count</div><div class="si-desc">Show unread notification count badge on the app icon</div></div><span class="si-value">Toggle (ON)</span></div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">🌙</span><span class="sg-title">Quiet Hours</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">🌙</span><div class="si-text"><div class="si-label">Enable Quiet Hours</div><div class="si-desc">Suppress non-critical notifications during quiet hours</div></div><span class="si-value">Toggle (ON)</span></div>
+      <div class="si"><span class="si-icon">🕙</span><div class="si-text"><div class="si-label">Quiet Hours Start</div><div class="si-desc">Time when quiet hours begin</div></div><span class="si-value">22:00</span></div>
+      <div class="si"><span class="si-icon">🌅</span><div class="si-text"><div class="si-label">Quiet Hours End</div><div class="si-desc">Time when quiet hours end</div></div><span class="si-value">08:00</span></div>
+      <div class="si"><span class="si-icon">📅</span><div class="si-text"><div class="si-label">Quiet on Weekends</div><div class="si-desc">Extend quiet hours to cover all of Saturday and Sunday</div></div><span class="si-value">Toggle (OFF)</span></div>
+    </div>
+  </div>
+
+  <h3>8.2 Per-Category Notification Toggles</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Category</th><th>Default</th><th>EVT Priority</th></tr></thead>
+    <tbody>
+      <tr><td><code>notifications.salary_alerts</code></td><td>Salary &amp; Income alerts</td><td>ON</td><td>P2 HIGH</td></tr>
+      <tr><td><code>notifications.debt_alerts</code></td><td>Debt overdue &amp; upcoming</td><td>ON</td><td>P1 CRITICAL (overdue) / P2 HIGH (upcoming)</td></tr>
+      <tr><td><code>notifications.goal_alerts</code></td><td>Goal milestones &amp; completion</td><td>ON</td><td>P2 HIGH</td></tr>
+      <tr><td><code>notifications.emf_alerts</code></td><td>EMF milestones</td><td>ON</td><td>P2 HIGH</td></tr>
+      <tr><td><code>notifications.budget_alerts</code></td><td>Budget overruns &amp; near-limit</td><td>ON</td><td>P3 MEDIUM</td></tr>
+      <tr><td><code>notifications.fhs_alerts</code></td><td>FHS significant changes</td><td>ON</td><td>P3 MEDIUM</td></tr>
+      <tr><td><code>notifications.report_alerts</code></td><td>Monthly report ready</td><td>ON</td><td>P3 MEDIUM</td></tr>
+      <tr><td><code>notifications.reminder_alerts</code></td><td>Scheduled reminders</td><td>ON</td><td>P3 MEDIUM</td></tr>
+      <tr><td><code>notifications.system_alerts</code></td><td>System notices (backup, index)</td><td>OFF</td><td>P4 LOW</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>8.3 Reminder-Specific Settings</h3>
+  <p>Each reminder type has its own granular settings. All reminders respect the global quiet hours setting.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Reminder</th><th>Key Prefix</th><th>Settings</th><th>Default</th></tr></thead>
+    <tbody>
+      <tr><td>Salary Reminder</td><td><code>reminders.salary</code></td><td>enabled, days_before (0–7), time_of_day</td><td>ON, 1 day before, 09:00</td></tr>
+      <tr><td>Debt Payment</td><td><code>reminders.debt_payment</code></td><td>enabled, days_before (0–7), time_of_day</td><td>ON, 3 days before, 09:00</td></tr>
+      <tr><td>EMF Contribution</td><td><code>reminders.emf</code></td><td>enabled, time_of_day</td><td>ON, 10:00 on contribution day</td></tr>
+      <tr><td>Goal Contribution</td><td><code>reminders.goal</code></td><td>enabled, time_of_day</td><td>ON, 10:00 on contribution day</td></tr>
+      <tr><td>Period End</td><td><code>reminders.period_end</code></td><td>enabled, days_before (0–3), time_of_day</td><td>ON, 1 day before, 18:00</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note"><strong>Connection to EVT module.</strong> When any reminder preference changes, the EVT module receives a <code>PREFERENCE_CHANGED</code> event and calls <code>REBUILD_REMINDER_SCHEDULE</code> automation. The scheduled_reminders table is rebuilt based on the updated preference values. Users see the change reflected immediately in their next reminder cycle.</div>
+
+  <div class="xref"><strong>Cross-References:</strong> SPEC-EVT-001 §5 (Reminder System), §6 (Notification Engine), §8 (User Preferences section of EVT), Priority-to-Channel Matrix.</div>
+</section>
+
+<!-- S9 -->
+<section id="s9">
+  <div class="sec-head"><span class="sec-num">9</span><h2 class="sec-title">Security &amp; Authentication</h2></div>
+
+  <p>Security settings control access to the application and to sensitive operations within it. These settings interact directly with the platform's biometric and PIN authentication APIs and with SPEC-DB-001's encryption model.</p>
+
+  <h3>9.1 Security Setting Catalog</h3>
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">🔒</span><span class="sg-title">Access Control</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">👆</span><div class="si-text"><div class="si-label">Biometric Lock <span class="badge-auth">AUTH</span></div><div class="si-desc">Require Face ID, Touch ID, or fingerprint to open the app</div></div><span class="si-value">Toggle (OFF)</span></div>
+      <div class="si"><span class="si-icon">⏱️</span><div class="si-text"><div class="si-label">Auto-Lock Timeout</div><div class="si-desc">Lock the app after this period of inactivity. Only available when Biometric Lock is on.</div></div><span class="si-value">5 min</span></div>
+      <div class="si"><span class="si-icon">🔐</span><div class="si-text"><div class="si-label">Re-Auth for Sensitive Actions <span class="badge-auth">AUTH</span></div><div class="si-desc">Require authentication before exporting data, deleting records, or restoring backups — even within an active session.</div></div><span class="si-value">Toggle (ON)</span></div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">👁️</span><span class="sg-title">Visibility</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">👁️</span><div class="si-text"><div class="si-label">Obscure Amounts</div><div class="si-desc">Replace all monetary values with •••• for shoulder-surfing protection</div></div><span class="si-value">Toggle (OFF)</span></div>
+      <div class="si"><span class="si-icon">📵</span><div class="si-text"><div class="si-label">Notification Preview</div><div class="si-desc">Show notification content on lock screen. Disable for privacy.</div></div><span class="si-value">Toggle (ON)</span></div>
+    </div>
+  </div>
+
+  <h3>9.2 Security Preference Keys</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Auth?</th><th>Sync?</th></tr></thead>
+    <tbody>
+      <tr><td><code>security.biometric_lock</code></td><td>boolean</td><td><code>false</code></td><td>Yes — to enable</td><td>No (device-specific)</td></tr>
+      <tr><td><code>security.auto_lock_timeout</code></td><td>enum</td><td><code>'5min'</code></td><td>No</td><td>No (device-specific)</td></tr>
+      <tr><td><code>security.reauth_sensitive</code></td><td>boolean</td><td><code>true</code></td><td>Yes — to disable</td><td>No (device-specific)</td></tr>
+      <tr><td><code>security.obscure_amounts</code></td><td>boolean</td><td><code>false</code></td><td>No</td><td>Yes</td></tr>
+      <tr><td><code>security.notification_preview</code></td><td>boolean</td><td><code>true</code></td><td>No</td><td>Yes</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.3 Auto-Lock Timeout Options</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Value</th><th>Behavior</th></tr></thead>
+    <tbody>
+      <tr><td><code>'immediately'</code></td><td>Locks as soon as the app is backgrounded</td></tr>
+      <tr><td><code>'1min'</code></td><td>Locks 1 minute after last interaction or backgrounding</td></tr>
+      <tr><td><code>'5min'</code></td><td>Default. Locks 5 minutes after last interaction or backgrounding</td></tr>
+      <tr><td><code>'15min'</code></td><td>Locks 15 minutes after last interaction or backgrounding</td></tr>
+      <tr><td><code>'1hour'</code></td><td>Locks 1 hour after last interaction or backgrounding</td></tr>
+      <tr><td><code>'never'</code></td><td>Never auto-locks. Biometric auth only required on cold start.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.4 Operations Requiring Re-Authentication</h3>
+  <p>When <code>security.reauth_sensitive = true</code>, the following operations trigger a biometric/PIN challenge before proceeding, regardless of how recently the user authenticated to open the app:</p>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Operation</th><th>Module</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Export data (CSV, JSON, DB backup)</td><td>SET / Data Management</td></tr>
+      <tr><td>2</td><td>Restore from backup</td><td>SET / Backup</td></tr>
+      <tr><td>3</td><td>Factory reset</td><td>SET / Data Management</td></tr>
+      <tr><td>4</td><td>Delete account</td><td>SET / Account</td></tr>
+      <tr><td>5</td><td>Delete all data (privacy control)</td><td>SET / Privacy</td></tr>
+      <tr><td>6</td><td>Enable/disable biometric lock</td><td>SET / Security</td></tr>
+      <tr><td>7</td><td>Disable re-auth for sensitive actions</td><td>SET / Security</td></tr>
+      <tr><td>8</td><td>View active sessions (future cloud)</td><td>SET / Account</td></tr>
+      <tr><td>9</td><td>Revoke connected account (future)</td><td>SET / Account</td></tr>
+      <tr><td>10</td><td>Import data</td><td>SET / Data Management</td></tr>
+      <tr><td>11</td><td>Back up now (manual)</td><td>SET / Backup</td></tr>
+      <tr><td>12</td><td>Change salary day</td><td>SET / Profile</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="xref"><strong>Cross-References:</strong> SPEC-DB-001 §11 (encryption, biometric key derivation), SPEC-EVT-001 §10.6 (SEC event types)</div>
+</section>
+
+<!-- S10 -->
+<section id="s10">
+  <div class="sec-head"><span class="sec-num">10</span><h2 class="sec-title">Privacy Controls</h2></div>
+
+  <p>Privacy settings give users complete visibility and control over what Finance Bag records about their behavior. In v1, Finance Bag is fully local — no data ever leaves the device without explicit user action. These settings govern local privacy behaviors and lay the groundwork for informed consent when optional cloud features are introduced.</p>
+
+  <h3>10.1 Privacy Setting Catalog</h3>
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">🛡️</span><span class="sg-title">Local Data</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">🔍</span><div class="si-text"><div class="si-label">Save Search History</div><div class="si-desc">Record your search queries for auto-complete and recent searches</div></div><span class="si-value">Toggle (ON)</span></div>
+      <div class="si"><span class="si-icon">📋</span><div class="si-text"><div class="si-label">Clear Search History</div><div class="si-desc">Delete all recorded search queries immediately</div></div><span class="si-value">Action →</span></div>
+      <div class="si"><span class="si-icon">🖱️</span><div class="si-text"><div class="si-label">Click Signal Logging</div><div class="si-desc">Record which search results you select to improve result ranking. Stored locally only.</div></div><span class="si-value">Toggle (ON)</span></div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">📡</span><span class="sg-title">Future: Telemetry (Disabled in v1)</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">📊</span><div class="si-text"><div class="si-label">Usage Analytics</div><div class="si-desc">Share anonymous usage patterns to help improve the app. Off until explicitly enabled by the user. Requires opt-in consent — not opt-out.</div></div><span class="si-value">Toggle (OFF)</span></div>
+      <div class="si"><span class="si-icon">🐛</span><div class="si-text"><div class="si-label">Crash Reports</div><div class="si-desc">Automatically send crash reports to the development team. No financial data is included.</div></div><span class="si-value">Toggle (OFF)</span></div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">⚠️</span><span class="sg-title">Your Data</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">📦</span><div class="si-text"><div class="si-label">Export My Data <span class="badge-auth">AUTH</span></div><div class="si-desc">Download a complete copy of all your financial records</div></div><span class="si-value">→</span></div>
+      <div class="si"><span class="si-icon">🗑️</span><div class="si-text"><div class="si-label">Delete All My Data <span class="badge-auth">AUTH</span></div><div class="si-desc">Permanently delete all financial records. Keeps the app installed. Cannot be undone.</div></div><span class="si-value">🔴</span></div>
+    </div>
+  </div>
+
+  <h3>10.2 Privacy Preference Keys</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Sync?</th></tr></thead>
+    <tbody>
+      <tr><td><code>privacy.save_search_history</code></td><td>boolean</td><td><code>true</code></td><td>No</td></tr>
+      <tr><td><code>privacy.click_signal_logging</code></td><td>boolean</td><td><code>true</code></td><td>No</td></tr>
+      <tr><td><code>privacy.analytics_consent</code></td><td>boolean</td><td><code>false</code></td><td>No (consent is per-device)</td></tr>
+      <tr><td><code>privacy.crash_reports</code></td><td>boolean</td><td><code>false</code></td><td>No</td></tr>
+      <tr><td><code>privacy.consent_version</code></td><td>string</td><td><code>null</code></td><td>No</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>10.3 Delete All My Data Flow</h3>
+  <p>"Delete All My Data" is distinct from "Delete Account" (§4.2): it wipes all financial records but leaves the app in a configured state (profile, preferences, settings are retained). Use case: a user wants a clean slate without re-configuring appearance, language, or security settings.</p>
+  <ul class="ol">
+    <li>Re-authentication required.</li>
+    <li>Warning dialog lists what will be deleted: all salary records, expenses, debts, goals, EMF records, archives, and search history. Settings, profile, and preferences are retained.</li>
+    <li>User must type <strong>"SUPPRIMER"</strong> (French) / "DELETE" (English) / "حذف" (Arabic) to confirm.</li>
+    <li>On confirmation: all financial transaction tables are hard-deleted. The salary_periods table is reset to a single new ACTIVE period. The search index is rebuilt (empty). Preferences are untouched.</li>
+  </ul>
+
+  <h3>10.4 Consent Management (Future)</h3>
+  <p>When analytics or cloud features are introduced, a consent management layer is added. Consent is: explicit (requires affirmative action, not pre-checked), granular (per feature type), revocable (can be withdrawn at any time), and versioned (re-consent required when data use changes). The <code>privacy.consent_version</code> key tracks which consent version the user has accepted.</p>
+</section>
+
+<!-- S11 -->
+<section id="s11">
+  <div class="sec-head"><span class="sec-num">11</span><h2 class="sec-title">Backup, Sync &amp; Export</h2></div>
+
+  <p>Backup settings govern how and when Finance Bag preserves its data. In v1, all backup is local or manual-export-to-cloud-drive. Cloud sync is a future capability documented here for architectural completeness.</p>
+
+  <h3>11.1 Backup Settings</h3>
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">💾</span><span class="sg-title">Automatic Backup</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">🔄</span><div class="si-text"><div class="si-label">Auto Backup</div><div class="si-desc">Automatically create a backup after significant data changes</div></div><span class="si-value">Toggle (ON)</span></div>
+      <div class="si"><span class="si-icon">📅</span><div class="si-text"><div class="si-label">Backup Frequency</div><div class="si-desc">How often to create automatic backups</div></div><span class="si-value">Weekly</span></div>
+      <div class="si"><span class="si-icon">📍</span><div class="si-text"><div class="si-label">Backup Destination</div><div class="si-desc">Where auto-backups are saved: device storage, iCloud, or Google Drive</div></div><span class="si-value">iCloud / GDrive</span></div>
+      <div class="si"><span class="si-icon">✅</span><div class="si-text"><div class="si-label">Last Backup</div><div class="si-desc">When the last successful backup was created</div></div><span class="si-value">Info display</span></div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">⚡</span><span class="sg-title">Manual Actions</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">💾</span><div class="si-text"><div class="si-label">Back Up Now <span class="badge-auth">AUTH</span></div><div class="si-desc">Create a backup immediately and save it</div></div><span class="si-value">Action →</span></div>
+      <div class="si"><span class="si-icon">📥</span><div class="si-text"><div class="si-label">Restore from Backup <span class="badge-auth">AUTH</span></div><div class="si-desc">Replace all current data with a previously saved backup. Current data will be lost.</div></div><span class="si-value">🔴 →</span></div>
+    </div>
+  </div>
+
+  <h3>11.2 Backup Preference Keys</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><code>backup.auto_enabled</code></td><td>boolean</td><td><code>true</code></td><td>Triggers on significant events: period advanced, archive sealed, 7 days since last backup</td></tr>
+      <tr><td><code>backup.frequency</code></td><td>enum</td><td><code>'weekly'</code></td><td><code>'daily'</code> · <code>'weekly'</code> · <code>'monthly'</code> · <code>'on_period_close'</code></td></tr>
+      <tr><td><code>backup.destination</code></td><td>enum</td><td><code>'local'</code></td><td><code>'local'</code> · <code>'icloud'</code> · <code>'gdrive'</code>. iCloud/GDrive use the OS file provider APIs.</td></tr>
+      <tr><td><code>backup.last_backup_at</code></td><td>integer</td><td><code>null</code></td><td>Unix ms of last successful backup. Read-only display field, written by backup system.</td></tr>
+      <tr><td><code>backup.last_backup_size_bytes</code></td><td>integer</td><td><code>null</code></td><td>Size of the last backup file in bytes. Displayed as human-readable (e.g. "4.2 MB").</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>11.3 Restore Conflict Resolution</h3>
+  <p>When restoring from a backup, the app checks schema compatibility (SPEC-DB-001 §13.3). If compatible, the restore proceeds. If the backup's <code>db_schema_version</code> is older than the current app version, forward migrations are applied after the restore. The restore process always creates a pre-restore backup of the current data before overwriting, providing a safety net if the restore is unsatisfactory.</p>
+
+  <h3>11.4 Cloud Sync (Future)</h3>
+  <p>When cloud sync is implemented, an additional sync preferences section appears:</p>
+  <ul class="sl">
+    <li><strong>Enable Cloud Sync</strong> — ON/OFF toggle. Off by default until explicitly enabled.</li>
+    <li><strong>Sync on Wi-Fi Only</strong> — Prevent mobile data usage for sync.</li>
+    <li><strong>Conflict Resolution Policy</strong> — Latest change wins (default) / Ask me / Server wins / Device wins.</li>
+    <li><strong>Last Synced</strong> — Information display: last successful sync timestamp.</li>
+    <li><strong>Sync Now</strong> — Force an immediate sync.</li>
+  </ul>
+  <p>Preferences marked <code>sync_eligible = true</code> in the schema are automatically synced across devices. Device-specific preferences (<code>sync_eligible = false</code>) like biometric lock and auto-lock timeout are never synced — they are per-device by nature.</p>
+</section>
+
+<!-- S12 -->
+<section id="s12">
+  <div class="sec-head"><span class="sec-num">12</span><h2 class="sec-title">Data Management</h2></div>
+
+  <p>Data Management settings give users direct visibility into and control over the storage their data occupies. This section covers export, import, storage inspection, cache management, and the nuclear option: factory reset.</p>
+
+  <h3>12.1 Export Options</h3>
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">📤</span><span class="sg-title">Export Data</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">📊</span><div class="si-text"><div class="si-label">Export as CSV <span class="badge-auth">AUTH</span></div><div class="si-desc">Download all expenses, salary, debts, and goals as spreadsheet-friendly CSV files in a ZIP archive</div></div><span class="si-value">→</span></div>
+      <div class="si"><span class="si-icon">{}</span><div class="si-text"><div class="si-label">Export as JSON <span class="badge-auth">AUTH</span></div><div class="si-desc">Download all data as a structured JSON archive including archive snapshots</div></div><span class="si-value">→</span></div>
+      <div class="si"><span class="si-icon">💾</span><div class="si-text"><div class="si-label">Export Database Backup <span class="badge-auth">AUTH</span></div><div class="si-desc">Full encrypted database file — suitable for restoration on a new device</div></div><span class="si-value">→</span></div>
+    </div>
+  </div>
+
+  <h3>12.2 Storage Usage Display</h3>
+  <p>The Storage Usage screen shows a breakdown of on-device storage consumption:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Category</th><th>What It Includes</th></tr></thead>
+    <tbody>
+      <tr><td>Database (finance.db)</td><td>All financial records, archives, events, audit log</td></tr>
+      <tr><td>Search Index (search.db)</td><td>The FTS5 search index</td></tr>
+      <tr><td>Attachments</td><td>Receipt images and document attachments</td></tr>
+      <tr><td>Backups (local)</td><td>Locally stored backup files (if any)</td></tr>
+      <tr><td>Cache</td><td>Temporary files, search result cache, thumbnail cache</td></tr>
+      <tr><td>Total</td><td>Sum of all categories</td></tr>
+    </tbody>
+  </table></div>
+  <p>Storage values are displayed in human-readable units (KB, MB, GB). They are computed on-demand when the user opens the Storage Usage screen — not cached, since they may change frequently.</p>
+
+  <h3>12.3 Cache and Maintenance Actions</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Action</th><th>What It Deletes</th><th>Auth?</th><th>Reversible?</th></tr></thead>
+    <tbody>
+      <tr><td>Clear Search Cache</td><td>In-memory LRU cache (lost on restart anyway). Also clears click signal log entries older than 30 days.</td><td>No</td><td>Yes (rebuilds automatically)</td></tr>
+      <tr><td>Rebuild Search Index</td><td>Deletes and rebuilds search.db from finance.db. All search history and saved searches are preserved (they're in separate tables).</td><td>No</td><td>Yes (rebuilds immediately)</td></tr>
+      <tr><td>Clear Thumbnail Cache</td><td>Compressed preview images for attachments. Re-generated on next view.</td><td>No</td><td>Yes</td></tr>
+      <tr><td>Delete Old Backups</td><td>Local backup files older than 30 days. User selects which to keep.</td><td>No</td><td>No — but financial data is unaffected</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>12.4 Import Data</h3>
+  <p>Data import allows users to bring data into Finance Bag from an external source. Two import paths exist:</p>
+  <ul class="sl">
+    <li><strong>Restore from .sqlite backup</strong> — Full database restore (covered in §11). Replaces all data.</li>
+    <li><strong>Import CSV (future)</strong> — Import expenses or salary records from a CSV file. Merges with existing data. Duplicate detection by date + amount + description hash. Available in v2.</li>
+  </ul>
+
+  <h3>12.5 Factory Reset Flow</h3>
+  <div class="danger"><strong>Factory reset is the most destructive action in the app.</strong> It cannot be undone. It deletes all financial data AND all preferences and settings, returning the app to exactly the state it was in immediately after installation.</div>
+  <ul class="ol">
+    <li>User taps "Factory Reset". Full-screen warning screen (not a modal).</li>
+    <li>Warning clearly states: all financial data, settings, preferences, search history, and cached backups will be permanently deleted. A database backup file will be offered as a final save option before the reset proceeds.</li>
+    <li>Offer to save a backup first — "Back Up and Reset" / "Reset Without Backup" are the two paths.</li>
+    <li>Re-authentication required for both paths.</li>
+    <li>User types <strong>"RÉINITIALISER"</strong> (French) / "RESET" (English) / "إعادة ضبط" (Arabic) to confirm.</li>
+    <li>On confirmation: all tables hard-deleted. All preference rows deleted. search.db deleted. App restarts into onboarding flow.</li>
+  </ul>
+</section>
+
+<!-- S13 -->
+<section id="s13">
+  <div class="sec-head"><span class="sec-num">13</span><h2 class="sec-title">Accessibility</h2></div>
+
+  <p>Accessibility settings ensure Finance Bag is usable by everyone, regardless of visual, motor, or cognitive differences. The app reads the platform's accessibility settings by default and allows users to override them within the app.</p>
+
+  <h3>13.1 Accessibility Setting Catalog</h3>
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">♿</span><span class="sg-title">Vision</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">🔠</span><div class="si-text"><div class="si-label">Large Text</div><div class="si-desc">Increase text size throughout the app. Also available in Appearance → Font Size.</div></div><span class="si-value">Toggle</span></div>
+      <div class="si"><span class="si-icon">B</span><div class="si-text"><div class="si-label">Bold Text</div><div class="si-desc">Increase font weight for all text. Improves readability on small screens.</div></div><span class="si-value">Toggle (OFF)</span></div>
+      <div class="si"><span class="si-icon">🔆</span><div class="si-text"><div class="si-label">High Contrast Mode</div><div class="si-desc">Increase contrast between text and background. Overrides accent color in favor of higher-contrast values.</div></div><span class="si-value">Toggle (OFF)</span></div>
+      <div class="si"><span class="si-icon">🎨</span><div class="si-text"><div class="si-label">Color Blind Mode</div><div class="si-desc">Adjust the color palette for common color vision deficiencies</div></div><span class="si-value">None</span></div>
+    </div>
+  </div>
+
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">⚡</span><span class="sg-title">Motion & Interaction</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">🎞️</span><div class="si-text"><div class="si-label">Reduce Motion</div><div class="si-desc">Minimize animations and transitions. Reads from device setting by default; can override here.</div></div><span class="si-value">System</span></div>
+      <div class="si"><span class="si-icon">📳</span><div class="si-text"><div class="si-label">Haptic Feedback</div><div class="si-desc">Vibration feedback for interactions, confirmations, and alerts</div></div><span class="si-value">Toggle (ON)</span></div>
+      <div class="si"><span class="si-icon">🎯</span><div class="si-text"><div class="si-label">Larger Touch Targets</div><div class="si-desc">Increase the minimum tappable area for all interactive elements to 48×48dp</div></div><span class="si-value">Toggle (OFF)</span></div>
+    </div>
+  </div>
+
+  <h3>13.2 Accessibility Preference Keys</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Type</th><th>Default</th><th>Override Source</th></tr></thead>
+    <tbody>
+      <tr><td><code>a11y.large_text</code></td><td>boolean</td><td><code>false</code></td><td>Mirrors appearance.font_size: 'large'</td></tr>
+      <tr><td><code>a11y.bold_text</code></td><td>boolean</td><td><code>false</code></td><td>App-level only (not OS bold text)</td></tr>
+      <tr><td><code>a11y.high_contrast</code></td><td>boolean</td><td><code>false</code></td><td>App-level; reads system accessibility setting first</td></tr>
+      <tr><td><code>a11y.color_blind_mode</code></td><td>enum</td><td><code>'none'</code></td><td><code>'none'</code> · <code>'deuteranopia'</code> · <code>'protanopia'</code> · <code>'tritanopia'</code></td></tr>
+      <tr><td><code>a11y.reduce_motion</code></td><td>enum</td><td><code>'system'</code></td><td><code>'system'</code> · <code>'on'</code> · <code>'off'</code>. 'system' reads <code>AccessibilityInfo.isReduceMotionEnabled</code></td></tr>
+      <tr><td><code>a11y.haptic_feedback</code></td><td>boolean</td><td><code>true</code></td><td>App-level</td></tr>
+      <tr><td><code>a11y.larger_touch_targets</code></td><td>boolean</td><td><code>false</code></td><td>App-level; applies 48×48dp minimum hit areas</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>13.3 Color Blind Mode</h3>
+  <p>Color blind modes remap the semantic color system (success/warning/danger/accent) to color combinations that remain distinguishable for each type of color vision deficiency:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Mode</th><th>Deficiency</th><th>Strategy</th></tr></thead>
+    <tbody>
+      <tr><td>None</td><td>—</td><td>Standard palette (#22C55E green, #EF4444 red, #F59E0B amber)</td></tr>
+      <tr><td>Deuteranopia</td><td>Red-green (most common)</td><td>Replace red/green contrast with blue/orange. Use patterns in addition to color for charts.</td></tr>
+      <tr><td>Protanopia</td><td>Red deficiency</td><td>Shift red toward magenta; reinforce with shape/pattern cues for critical alerts.</td></tr>
+      <tr><td>Tritanopia</td><td>Blue-yellow</td><td>Avoid blue/yellow contrast; shift to red/green or use luminance contrast exclusively.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>13.4 Screen Reader Compatibility</h3>
+  <p>Finance Bag is designed to be compatible with VoiceOver (iOS) and TalkBack (Android). All interactive elements must have:</p>
+  <ul class="sl">
+    <li>An <code>accessibilityLabel</code> that describes the element's purpose in natural language.</li>
+    <li>An <code>accessibilityHint</code> for non-obvious interactions (e.g. "Double-tap to record a payment").</li>
+    <li>An <code>accessibilityRole</code> (button, text, header, checkbox, etc.).</li>
+    <li>Monetary amounts read as full words: "€1,234.56" read as "one thousand two hundred thirty-four euros fifty-six centimes".</li>
+    <li>Charts provide a text summary accessible to screen readers: "Spending trend: up 12% compared to last period" rather than just an unlabeled graphic.</li>
+  </ul>
+</section>
+
+<!-- S14 -->
+<section id="s14">
+  <div class="sec-head"><span class="sec-num">14</span><h2 class="sec-title">Help, Support &amp; About</h2></div>
+
+  <p>The Help & Support section and the About screen are the user's doorway to documentation, feedback, legal information, and advanced developer options. These are passive-information screens — they do not modify any application state (except feedback submission and tutorial restart).</p>
+
+  <h3>14.1 Help & Support Content</h3>
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">❓</span><span class="sg-title">Help & Support</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">📖</span><div class="si-text"><div class="si-label">FAQ & Documentation</div><div class="si-desc">Searchable frequently asked questions and feature guides. Bundled in-app — no network required.</div></div><span class="si-value">→</span></div>
+      <div class="si"><span class="si-icon">🎓</span><div class="si-text"><div class="si-label">Restart Tutorial</div><div class="si-desc">Replay the onboarding tutorial. Resets the onboarding_step in app_state to 0.</div></div><span class="si-value">→</span></div>
+      <div class="si"><span class="si-icon">💬</span><div class="si-text"><div class="si-label">Send Feedback</div><div class="si-desc">Share suggestions or comments with the development team. Feedback is sent via device email client.</div></div><span class="si-value">→</span></div>
+      <div class="si"><span class="si-icon">🐛</span><div class="si-text"><div class="si-label">Report a Bug</div><div class="si-desc">Submit a bug report. Optionally attach device diagnostics (no financial data included).</div></div><span class="si-value">→</span></div>
+      <div class="si"><span class="si-icon">💡</span><div class="si-text"><div class="si-label">Request a Feature</div><div class="si-desc">Suggest a new feature. Opens a structured request form.</div></div><span class="si-value">→</span></div>
+    </div>
+  </div>
+
+  <h3>14.2 In-App FAQ Structure</h3>
+  <p>The FAQ is bundled as structured JSON in the app binary — no network required. Categories:</p>
+  <ul class="sl">
+    <li><strong>Getting Started</strong> — Setting up salary day, first expense, first goal</li>
+    <li><strong>Budget & Expenses</strong> — How categories work, recurring expenses, tags</li>
+    <li><strong>Debts</strong> — Adding a debt, recording payments, understanding interest</li>
+    <li><strong>Emergency Fund</strong> — What a target amount means, milestones</li>
+    <li><strong>Goals</strong> — Creating goals, linking to roadmap, contributions</li>
+    <li><strong>Financial Health Score</strong> — What FHS measures, how to improve it</li>
+    <li><strong>Reports & Archives</strong> — What gets archived, how to read reports</li>
+    <li><strong>Privacy & Security</strong> — What data stays on device, biometric lock</li>
+    <li><strong>Backup & Recovery</strong> — How to back up, how to restore</li>
+  </ul>
+  <p>Each FAQ article is fully searchable via the SCH module. Searching "emergency fund target" from the global search bar can surface FAQ articles alongside financial entities.</p>
+
+  <h3>14.3 Bug Report Content</h3>
+  <p>When a bug report is submitted, the following diagnostic data is optionally included (user must explicitly consent before each submission):</p>
+  <ul class="sl">
+    <li>App version and build number</li>
+    <li>Device model and OS version</li>
+    <li>Current app_state keys (excluding financial values)</li>
+    <li>Last 10 audit_log entries (table and operation only, no financial field values)</li>
+    <li>Schema version</li>
+  </ul>
+  <p>No financial data, amounts, names, or dates are included in bug reports under any circumstances.</p>
+
+  <h3>14.4 About Screen</h3>
+  <div class="setting-group">
+    <div class="sg-head"><span class="sg-icon">ℹ️</span><span class="sg-title">About Finance Bag</span></div>
+    <div class="sg-body">
+      <div class="si"><span class="si-icon">📱</span><div class="si-text"><div class="si-label">Version</div><div class="si-desc">App version and build number</div></div><span class="si-value">1.0.0 (42)</span></div>
+      <div class="si"><span class="si-icon">🗄️</span><div class="si-text"><div class="si-label">Schema Version</div><div class="si-desc">Database schema version</div></div><span class="si-value">1.0</span></div>
+      <div class="si"><span class="si-icon">📜</span><div class="si-text"><div class="si-label">Privacy Policy</div><div class="si-desc">Opens in in-app browser</div></div><span class="si-value">→</span></div>
+      <div class="si"><span class="si-icon">📝</span><div class="si-text"><div class="si-label">Terms of Service</div><div class="si-desc">Opens in in-app browser</div></div><span class="si-value">→</span></div>
+      <div class="si"><span class="si-icon">📦</span><div class="si-text"><div class="si-label">Open Source Licenses</div><div class="si-desc">Third-party library acknowledgements, bundled in-app</div></div><span class="si-value">→</span></div>
+    </div>
+  </div>
+
+  <h3>14.5 Developer Options (Hidden)</h3>
+  <p>Developer options are unlocked by tapping the version number 7 times in sequence. A toast confirms unlock. Developer options are shown in a separate section at the bottom of the Settings root screen with a distinctive <code>[DEV]</code> label. They are only available in debug builds by default — in production builds the 7-tap unlock is required.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Option</th><th>Purpose</th><th>Risk</th></tr></thead>
+    <tbody>
+      <tr><td>Debug Logging</td><td>Enable verbose console logging to the device log</td><td>Low — logging only</td></tr>
+      <tr><td>Reset Onboarding</td><td>Set onboarding_step to 0 and show the tutorial</td><td>Low — reversible</td></tr>
+      <tr><td>Simulate Period Advance</td><td>Close the current period and open a new one as if the salary day arrived</td><td>Medium — modifies data</td></tr>
+      <tr><td>Generate Mock Data</td><td>Populate the database with 3 months of synthetic financial data for testing</td><td>High — adds data, requires factory reset to undo</td></tr>
+      <tr><td>Inspect Search Index</td><td>View the raw search index record count and last-indexed-at per entity type</td><td>None — read only</td></tr>
+      <tr><td>View Event Log</td><td>Display last 50 events from the event_log table</td><td>None — read only</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §15 ═══ -->
+<section id="s15">
+  <div class="sec-header">
+    <span class="sec-num">15</span>
+    <div>
+      <h2 class="sec-title">Settings Search</h2>
+      <p class="sec-sub">How preferences are indexed, surfaced, and navigated via the SCH module — making every setting findable in under two keystrokes.</p>
+    </div>
+  </div>
+
+  <h3>15.1 Philosophy</h3>
+  <p>Settings search is not a filter on a list — it is a first-class retrieval experience. Every preference, toggle, and action in the Settings module is indexed as a <code>settings_entry</code> entity in the global search index (search.db). Users never need to recall where a setting lives; they only need to recall what it does. The search bar is permanently visible at the top of the Settings root screen, not tucked behind an icon.</p>
+
+  <h3>15.2 Integration with the SCH Module</h3>
+  <p>Settings entries are owned by SET but served by SCH. SET registers all settings entries into the global search index on first launch and whenever the PreferenceSchemaRegistry is updated. The entity type is <code>settings_entry</code>.</p>
+  <div class="tw"><table>
+    <thead><tr><th>IndexRecord field</th><th>Mapped from SET</th></tr></thead>
+    <tbody>
+      <tr><td><code>entity_type</code></td><td><code>settings_entry</code></td></tr>
+      <tr><td><code>entity_id</code></td><td>Preference key (e.g., <code>security.biometric_lock</code>)</td></tr>
+      <tr><td><code>module</code></td><td><code>SET</code></td></tr>
+      <tr><td><code>searchable_text</code></td><td>label + description + category name + alias keywords</td></tr>
+      <tr><td><code>display_title</code></td><td>Setting label (e.g., "Face ID / Touch ID")</td></tr>
+      <tr><td><code>display_subtitle</code></td><td>Setting category path (e.g., "Security → Biometric Lock")</td></tr>
+      <tr><td><code>priority_boost</code></td><td>1.1× (slightly boosted vs standard entities)</td></tr>
+      <tr><td><code>navigation_target</code></td><td>Deep link to the exact screen + anchor (e.g., <code>settings/security#biometric_lock</code>)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>15.3 Alias Keywords</h3>
+  <p>Each setting in the PreferenceSchemaRegistry carries a <code>search_aliases</code> field — a list of synonyms appended to <code>searchable_text</code> at index time. This lets users find a setting by the way they describe it, not the name Finance Bag uses internally.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Setting</th><th>Canonical label</th><th>Aliases included in index</th></tr></thead>
+    <tbody>
+      <tr><td><code>security.biometric_lock</code></td><td>Face ID / Touch ID</td><td>fingerprint, face unlock, unlock, passcode, biometric</td></tr>
+      <tr><td><code>appearance.theme</code></td><td>App Theme</td><td>dark mode, light mode, color scheme, night mode</td></tr>
+      <tr><td><code>locale.language</code></td><td>Language</td><td>langue, arabic, french, english, RTL</td></tr>
+      <tr><td><code>security.obscure_amounts</code></td><td>Hide Amounts</td><td>privacy, blur, censor, mask, stealth mode</td></tr>
+      <tr><td><code>notifications.master_enabled</code></td><td>Notifications</td><td>alerts, push, reminders, mute, silence</td></tr>
+      <tr><td><code>backup.auto_enabled</code></td><td>Automatic Backup</td><td>cloud, sync, save, iCloud, Google Drive</td></tr>
+      <tr><td><code>currency.code</code></td><td>Currency</td><td>DZD, EUR, USD, dollar, euro, dinar, devise</td></tr>
+      <tr><td><code>a11y.color_blind_mode</code></td><td>Color Blind Mode</td><td>deuteranopia, protanopia, accessibility, vision</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>15.4 Settings-Specific Search UX</h3>
+  <p>The Settings module has its own embedded search entry point in addition to the global search overlay. Both use the same SCH infrastructure but the embedded bar is scoped to <code>module:SET</code> by default.</p>
+  <div class="spec-block">
+    <div class="spec-block-title">Settings Search Bar Behavior</div>
+    <ul>
+      <li><strong>Position:</strong> Pinned at the very top of the Settings root screen, above all category groups, below the screen title.</li>
+      <li><strong>Scope:</strong> Searches <code>settings_entry</code> entities only by default. A "Search all of Finance Bag" chip appears below results to expand scope to the global SCH index.</li>
+      <li><strong>Debounce:</strong> 100ms (tighter than global 150ms — settings index is small and results should feel instant).</li>
+      <li><strong>Minimum query length:</strong> 1 character.</li>
+      <li><strong>Behavior on match:</strong> The Settings category list is replaced by a flat result list. Each result shows the setting label, its category path (as breadcrumb), and its current value (if displayable).</li>
+      <li><strong>Behavior on empty query:</strong> The full category list is restored immediately.</li>
+      <li><strong>Navigation on tap:</strong> Deep links directly to the setting's screen and scrolls to anchor it in view with a 1.5s highlight pulse.</li>
+    </ul>
+  </div>
+
+  <h3>15.5 Recent & Frequently-Used Settings</h3>
+  <p>Settings navigation patterns are tracked locally (never synced) to surface the settings a user changes most often.</p>
+  <div class="spec-block">
+    <div class="spec-block-title">Tracking rules</div>
+    <ul>
+      <li>Every write to a preference key via PreferenceService.set() increments a usage counter for that key stored in app_state.</li>
+      <li><strong>Recent:</strong> The 5 most recently modified settings keys, in reverse-chronological order. Shown as a "Recently Changed" section at the top of the Settings root screen when the search bar is empty and the user has at least one prior setting change.</li>
+      <li><strong>Frequent:</strong> The top 3 settings by usage count over the past 30 days. Shown only if usage count ≥ 3. Displayed as quick-access chips below the search bar.</li>
+      <li><strong>Exclusions:</strong> Developer options, internal state keys, and read-only entries are never tracked or surfaced.</li>
+    </ul>
+  </div>
+
+  <h3>15.6 Favorites</h3>
+  <p>Users can long-press any setting row in search results or any settings screen to mark it as a Favorite. Favorites are stored as a JSON array at preference key <code>set.favorites</code> (a list of preference keys).</p>
+  <ul>
+    <li>Favorites appear as a dedicated "Pinned Settings" section at the top of the Settings root screen, below the quick-access chips and above the category list.</li>
+    <li>Maximum 8 favorites. Attempting to add a 9th triggers an inline error: "You've reached the 8-favourite limit. Remove one to add another."</li>
+    <li>Favorites are <code>sync_eligible = true</code> — they travel with the user across devices if cloud sync is enabled.</li>
+    <li>Favorites are excluded from the required-reauth gate — revealing the existence of a preference as a favorite is not sensitive.</li>
+  </ul>
+
+  <h3>15.7 Search Within Global SCH</h3>
+  <p>When a user types in the global search overlay (SCH module), settings entries are included in results under a "Settings" result group. The group respects the standard per-group default limit of 3 results, expandable. Each settings result shows the category breadcrumb as subtitle and the current value where safe to display (amounts are obscured if <code>security.obscure_amounts = true</code>).</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §16 ═══ -->
+<section id="s16">
+  <div class="sec-header">
+    <span class="sec-num">16</span>
+    <div>
+      <h2 class="sec-title">Business Rules</h2>
+      <p class="sec-sub">Invariants that must hold true in every state of the system — these are non-negotiable constraints, not implementation suggestions.</p>
+    </div>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>ID</th><th>Rule</th><th>Enforcement layer</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>BR-SET-01</strong></td>
+        <td><strong>Default always exists.</strong> PreferenceService.get(key) must never throw or return null. If the key is absent from the preferences table, the value defined in PreferenceSchemaRegistry.default is returned immediately and the row is not written until an explicit set() call.</td>
+        <td>PreferenceService</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-02</strong></td>
+        <td><strong>Unknown keys are rejected.</strong> PreferenceService.set(key, value) throws a PreferenceKeyError if the key does not exist in PreferenceSchemaRegistry. No freeform keys may be persisted outside the registry.</td>
+        <td>PreferenceService</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-03</strong></td>
+        <td><strong>Type and range validation is mandatory.</strong> Every set() call runs the validation function defined in PreferenceSchemaRegistry before persisting. A value that fails validation is rejected with a PreferenceValidationError; the existing value is unchanged.</td>
+        <td>PreferenceService</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-04</strong></td>
+        <td><strong>Destructive actions require explicit user confirmation.</strong> Any action marked <code>destructive: true</code> in the schema (factory reset, delete account, clear search history) must present a confirmation dialog or a typed confirmation before execution. No destructive action may be triggered programmatically without user initiation on the same app session.</td>
+        <td>SET UI layer</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-05</strong></td>
+        <td><strong>Re-authentication gates are not bypassable.</strong> Any preference whose schema sets <code>requires_auth: true</code> must re-authenticate the user before displaying the current value or accepting a new value. A valid biometric or passcode session that is older than 60 seconds does not count as "just authenticated" — a fresh challenge is required.</td>
+        <td>SET UI layer + PreferenceService</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-06</strong></td>
+        <td><strong>Device-specific preferences are never cloud-synced.</strong> Any preference with <code>sync_eligible: false</code> in the schema must not be included in any backup export, cloud sync payload, or cross-device preference propagation. This includes: <code>security.biometric_lock</code>, <code>security.auto_lock_timeout</code>, <code>a11y.haptic_feedback</code>, and all developer options keys.</td>
+        <td>Backup service, sync service</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-07</strong></td>
+        <td><strong>PREFERENCE_CHANGED must always fire.</strong> Every successful set() call must publish a PREFERENCE_CHANGED event to the EventBus containing the key, old value, and new value. Modules that depend on a preference must react to this event, not poll. Firing the event is not optional even if old value === new value (allows forced re-applies).</td>
+        <td>PreferenceService</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-08</strong></td>
+        <td><strong>Salary day is capped at 28.</strong> <code>profile.salary_day</code> accepts only integers 1–28. Any attempt to set a value of 29, 30, or 31 is rejected with a PreferenceValidationError. The UI must not present options above 28 in the salary day picker.</td>
+        <td>PreferenceSchemaRegistry validation + SET UI</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-09</strong></td>
+        <td><strong>Quick actions list has a hard cap of 4.</strong> <code>dashboard.quick_actions</code> stores a JSON array of action IDs. Any array with more than 4 elements is rejected. If the user attempts to add a 5th quick action, the UI must present an inline message: "You can pin up to 4 quick actions. Remove one to add another."</td>
+        <td>PreferenceSchemaRegistry validation + SET UI</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-10</strong></td>
+        <td><strong>Favorites cap is 8.</strong> <code>set.favorites</code> stores a JSON array of preference keys. Maximum 8. Any array with more than 8 elements is rejected. UI enforces this inline before writing.</td>
+        <td>PreferenceSchemaRegistry validation + SET UI</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-11</strong></td>
+        <td><strong>Language change is immediate on restart only.</strong> Changing <code>locale.language</code> must not attempt a hot-reload or partial UI update. The change is written to the preferences table immediately, a toast informs the user "Language will apply after restart", and the app does not restart programmatically. The user chooses when to restart.</td>
+        <td>SET UI, PreferenceService</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-12</strong></td>
+        <td><strong>Currency change is isolated to new entries.</strong> Changing <code>currency.code</code> does not retroactively convert historical amounts. All amounts in the database remain in their original centimes value. The currency symbol and formatting applied at render time changes immediately. A persistent banner must be shown for 72 hours after a currency change: "Currency display changed to [X]. Historical amounts have not been converted."</td>
+        <td>SET UI, render layer</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-13</strong></td>
+        <td><strong>Settings index is always consistent with the registry.</strong> The SCH index for <code>settings_entry</code> entities must be rebuilt whenever the PreferenceSchemaRegistry changes (e.g., on app update). This rebuild is triggered by a REBUILD_SEARCH_INDEX event published by the SET module post-update. Index lag for settings entries must not exceed 5 seconds from app launch (BR-SCH-01 applies).</td>
+        <td>SCH IndexManager, SET module init</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-14</strong></td>
+        <td><strong>Developer options are read-as-production in release builds without unlock.</strong> In production builds where the 7-tap unlock has not been performed in the current session, all developer option keys must return their production-safe defaults (e.g., <code>dev.debug_logging = false</code>). The 7-tap state is never persisted — it resets on every app launch.</td>
+        <td>PreferenceService, SET UI</td>
+      </tr>
+      <tr>
+        <td><strong>BR-SET-15</strong></td>
+        <td><strong>Factory reset is truly total.</strong> Factory reset must: (1) close all DB connections, (2) delete finance.db and search.db, (3) delete all backup files in the app's sandbox, (4) clear all entries from the preferences table, (5) clear app_state, (6) navigate the user to the Onboarding flow. The app must not retain any user-generated data after a factory reset completes successfully.</td>
+        <td>SET UI, DB service</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §17 ═══ -->
+<section id="s17">
+  <div class="sec-header">
+    <span class="sec-num">17</span>
+    <div>
+      <h2 class="sec-title">Edge Cases &amp; Future Compatibility</h2>
+      <p class="sec-sub">Behaviors that must be explicitly defined to prevent undefined states — and forward-compatibility slots that keep the architecture open without requiring a redesign.</p>
+    </div>
+  </div>
+
+  <h3>17.1 Edge Cases</h3>
+  <div class="tw"><table>
+    <thead><tr><th>ID</th><th>Scenario</th><th>Required behavior</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>EC-SET-01</strong></td>
+        <td>App is updated and a new preference key appears in PreferenceSchemaRegistry that has no row in the preferences table.</td>
+        <td>PreferenceService.get() returns the registry default. No migration is required. The row is written lazily on first explicit set() call. The settings index is rebuilt at app launch to include the new entry.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SET-02</strong></td>
+        <td>App is updated and an existing preference key is removed from PreferenceSchemaRegistry (deprecated).</td>
+        <td>The orphan row remains in the preferences table but is invisible to PreferenceService.get() (which consults the registry first). The orphan is purged by the next schema migration that explicitly lists the key for deletion. No runtime errors are raised on the orphan's presence.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SET-03</strong></td>
+        <td>The user changes the language to Arabic (RTL) while the app is open.</td>
+        <td>The new locale is written immediately. A toast confirms: "Arabic will apply after you restart Finance Bag." The current session continues in the previous language. No partial RTL flip occurs mid-session. On next launch the full RTL layout is applied.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SET-04</strong></td>
+        <td>The user initiates a factory reset, but the app is backgrounded and killed by the OS mid-reset (after DB deletion but before clearing preferences).</td>
+        <td>On next launch, the DB files are absent. The launch sequence detects missing finance.db and treats this as a first-time setup state. It proceeds through the Onboarding flow. The leftover preferences table rows will be overwritten or ignored during onboarding. A SPEC-DB-001 §16 EC-DB-10 (First Launch) applies.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SET-05</strong></td>
+        <td>The user changes <code>security.obscure_amounts</code> while the Dashboard is actively visible in the background stack.</td>
+        <td>The PREFERENCE_CHANGED event fires immediately. The Dashboard listens for this event and re-renders all amount fields using the new setting. No navigation away-and-back is needed. The transition is instantaneous.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SET-06</strong></td>
+        <td>The user sets a quiet hours window where end time is before start time (e.g., start 22:00, end 06:00 — a cross-midnight window).</td>
+        <td>The notification system interprets this correctly as a cross-midnight range. The quiet hours window spans 22:00 on day N to 06:00 on day N+1. The UI displays "10:00 PM → 6:00 AM (next day)" to make this explicit. No validation error is raised for end < start.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SET-07</strong></td>
+        <td>The user taps "Delete All Search History" while a search query is in progress.</td>
+        <td>The deletion is deferred until the active query completes (the search_history write from the current query is committed first, then the full deletion runs). If the user taps Delete while no query is in flight, the deletion is immediate. The result set of the current query is not affected by the deletion.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SET-08</strong></td>
+        <td>The user changes <code>appearance.font_size</code> to 1.4× while viewing a data table with many columns.</td>
+        <td>The PREFERENCE_CHANGED event fires. Screens that use the font size token re-render immediately. Tables that cannot fit all columns at 1.4× must respond by enabling horizontal scroll on their overflow container (already required by SPEC-DB-001 §12 and SPEC-SCH-001 §11). No content is truncated without a scroll affordance.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SET-09</strong></td>
+        <td>A backup restore overwrites the preferences table with a backup that contains deprecated keys or keys from a newer schema version than the current app.</td>
+        <td>The restore process runs a preference migration pass after restoring. Keys not in the current registry are orphaned (EC-SET-02 handling). Keys in the registry but absent from the backup receive their current defaults. A post-restore settings audit event (SETTINGS_RESTORED) is published so modules can re-initialize if needed.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SET-10</strong></td>
+        <td>The user enables biometric lock on a device that has no enrolled biometrics.</td>
+        <td>The SET UI queries the biometric availability API before presenting the toggle as enabled. If no biometrics are enrolled, the toggle is shown but tapping it presents a system-level prompt directing the user to enroll a biometric in device Settings. The preference value is not written to <code>true</code> until successful enrollment is confirmed. The toggle visually remains in its previous state.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h3>17.2 Future Compatibility Slots</h3>
+  <p>The following capabilities are intentionally not implemented in v1.0 but the architecture preserves slots for them. No redesign of the preference model, schema, or service layer should be needed to activate any of the following.</p>
+
+  <div class="spec-block">
+    <div class="spec-block-title">AI Personalization & Smart Recommendations</div>
+    <ul>
+      <li>The <code>usage_counter</code> data in app_state for frequently-used settings is the foundation for an AI personalization layer that proactively suggests settings changes. Example: "You've dismissed the budget alert 12 times — would you like to increase your dining threshold?"</li>
+      <li>The PreferenceSchemaRegistry's <code>category</code> field allows a recommendation engine to group related settings and present them in context without knowing their individual keys.</li>
+      <li>AI recommendations must always be presented as suggestions, never applied silently. A suggestion that the user dismisses 3 times must never re-surface.</li>
+    </ul>
+  </div>
+
+  <div class="spec-block">
+    <div class="spec-block-title">Cloud Preferences & Cross-Device Sync</div>
+    <ul>
+      <li>All preferences with <code>sync_eligible: true</code> are ready for cloud sync. The preferences table schema (key, value_json, updated_at) maps naturally to a cloud document store keyed by user ID + preference key.</li>
+      <li>Conflict resolution strategy: last-write-wins on <code>updated_at</code>. For preferences that are sensitive to device context (e.g., <code>dashboard.widget_order</code>), a future per-preference conflict_strategy field can override the default.</li>
+      <li>Device-specific preferences (<code>sync_eligible: false</code>) are stored in a separate device profile document identified by device_id. They are synced per-device, never merged across devices.</li>
+    </ul>
+  </div>
+
+  <div class="spec-block">
+    <div class="spec-block-title">Shared Family Settings &amp; Business Profiles</div>
+    <ul>
+      <li>The settings singleton model currently assumes one user per app installation. A future multi-profile architecture would introduce a <code>profile_id</code> scope on the preferences table (key + profile_id as composite PK).</li>
+      <li>Family profiles would share some preference keys (currency, locale) while keeping others independent (security, notifications). The <code>sync_eligible</code> field would be extended with a <code>scope</code> enum: <code>device | user | family | org</code>.</li>
+      <li>Business profiles require an additional preference tier for organization-level mandates (e.g., "force biometric lock = ON" for all users in an org). Org-level preferences would be read-only and displayed as "Set by your organization."</li>
+    </ul>
+  </div>
+
+  <div class="spec-block">
+    <div class="spec-block-title">Wearables &amp; Desktop Companion</div>
+    <ul>
+      <li>Wearable companions (Apple Watch, Wear OS) require a subset of preferences — specifically <code>security.obscure_amounts</code>, <code>appearance.theme</code>, and notification preferences — to be mirrored to the watch. A future WearPreferenceAdapter subscribes to PREFERENCE_CHANGED and pushes sync_eligible watch-relevant keys via the companion API.</li>
+      <li>A desktop companion (macOS menu bar, Windows widget) would consume the same exported preferences JSON as the backup format uses, with an additional desktop-only preference namespace (<code>desktop.*</code>) handled identically to the existing model.</li>
+    </ul>
+  </div>
+
+  <div class="spec-block">
+    <div class="spec-block-title">Contextual &amp; Scheduled Preferences</div>
+    <ul>
+      <li>A future "Scheduled Settings" feature would allow preferences to change on a schedule (e.g., "Enable hide amounts when away from home WiFi"). The preferences table would gain a <code>schedule_rule_json</code> column. PreferenceService would evaluate rules at access time, returning the schedule-overridden value without writing to the main value.</li>
+      <li>Context-aware preferences (e.g., auto-enable hide amounts when screen sharing is detected) would be driven by OS events forwarded to a ContextPreferenceEvaluator that sits between PreferenceService.get() and the preferences table.</li>
+    </ul>
+  </div>
+
+  <div class="spec-block">
+    <div class="spec-block-title">Preference Audit &amp; Compliance Export</div>
+    <ul>
+      <li>For future regulatory compliance (GDPR, DPDP, etc.), the preferences change history must be auditable. The <code>audit_log</code> table already captures preference changes (action type SETTING_CHANGED). A compliance export would filter this table for all SETTING_CHANGED rows and produce a human-readable preference change history.</li>
+      <li>Consent preferences (<code>privacy.consent_version</code>, <code>privacy.analytics_consent</code>) must be included in any consent audit export with exact timestamps, the consent version presented at the time of acceptance, and the user action taken.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
