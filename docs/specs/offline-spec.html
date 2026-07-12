@@ -1,0 +1,1345 @@
+<!doctype html>
+<title>SPEC-OFL-001 — Offline-First Architecture & Synchronization | Finance Bag</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root {
+    --acc: #3B82F6; --acc-dim: #93C5FD; --acc-bg: rgba(59,130,246,.08);
+    --bg: #18181B; --surf: #27272A; --surf2: #3F3F46;
+    --bd: #3F3F46; --txt: #F4F4F5; --txt2: #A1A1AA; --txt3: #71717A;
+    --green: #22C55E; --amber: #F59E0B; --red: #EF4444; --purple: #8B5CF6;
+    --code-bg: #1A1A1F;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #F8FAFC; --surf: #FFFFFF; --surf2: #F1F5F9;
+      --bd: #E2E8F0; --txt: #0F172A; --txt2: #475569; --txt3: #94A3B8;
+      --acc-bg: rgba(59,130,246,.06); --code-bg: #F1F5F9;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #18181B; --surf: #27272A; --surf2: #3F3F46;
+    --bd: #3F3F46; --txt: #F4F4F5; --txt2: #A1A1AA; --txt3: #71717A;
+    --acc-bg: rgba(59,130,246,.08); --code-bg: #1A1A1F;
+  }
+  :root[data-theme="light"] {
+    --bg: #F8FAFC; --surf: #FFFFFF; --surf2: #F1F5F9;
+    --bd: #E2E8F0; --txt: #0F172A; --txt2: #475569; --txt3: #94A3B8;
+    --acc-bg: rgba(59,130,246,.06); --code-bg: #F1F5F9;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body { background: var(--bg); color: var(--txt); font-family: 'Inter', system-ui, -apple-system, sans-serif; display: flex; min-height: 100vh; }
+  a { color: var(--acc); text-decoration: none; }
+
+  nav { width: 240px; min-width: 240px; background: var(--surf); border-right: 1px solid var(--bd); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .nav-brand { padding: 20px 16px 12px; border-bottom: 1px solid var(--bd); }
+  .nav-logo { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  .nav-title { font-size: .82rem; color: var(--txt2); margin-top: 2px; }
+  .nav-list { list-style: none; padding: 10px 8px; flex: 1; }
+  .nav-item a { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; font-size: .78rem; color: var(--txt2); transition: background .15s, color .15s; }
+  .nav-item a:hover, .nav-item a.active { background: var(--acc-bg); color: var(--acc); }
+  .nav-num { font-size: .66rem; font-weight: 700; letter-spacing: .04em; color: var(--acc); min-width: 20px; font-variant-numeric: tabular-nums; }
+  .theme-area { padding: 12px; border-top: 1px solid var(--bd); }
+  .theme-btn { width: 100%; padding: 7px; border-radius: 6px; background: var(--surf2); border: 1px solid var(--bd); color: var(--txt2); font-size: .73rem; cursor: pointer; }
+
+  .main { flex: 1; min-width: 0; padding: 40px 48px 80px; max-width: 960px; }
+  .doc-header { border-bottom: 1px solid var(--bd); padding-bottom: 28px; margin-bottom: 48px; }
+  .doc-eyebrow { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .spec-id { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--acc); }
+  .spec-ver { font-size: .7rem; color: var(--txt3); }
+  .status-pill { font-size: .65rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: var(--acc-bg); color: var(--acc); border: 1px solid var(--acc); }
+  .doc-title { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; text-wrap: balance; }
+  .doc-sub { margin-top: 10px; font-size: .92rem; color: var(--txt2); line-height: 1.6; max-width: 640px; }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 24px; }
+  .meta-item { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: 10px 14px; }
+  .meta-label { font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--txt3); margin-bottom: 4px; }
+  .meta-val { font-size: .88rem; font-weight: 600; color: var(--txt); }
+
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  .sec-header { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid var(--acc); }
+  .sec-num { font-size: 2rem; font-weight: 900; color: var(--acc); opacity: .25; min-width: 44px; line-height: 1; }
+  .sec-title { font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; }
+  .sec-sub { font-size: .85rem; color: var(--txt2); margin-top: 4px; line-height: 1.5; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 24px 0 10px; color: var(--txt); }
+  h4 { font-size: .88rem; font-weight: 700; margin: 18px 0 8px; color: var(--txt2); text-transform: uppercase; letter-spacing: .05em; }
+  p { font-size: .88rem; line-height: 1.7; color: var(--txt2); margin-bottom: 10px; }
+  ul, ol { padding-left: 20px; margin-bottom: 10px; }
+  li { font-size: .88rem; line-height: 1.7; color: var(--txt2); margin-bottom: 3px; }
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: .79rem; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; color: var(--acc-dim); }
+  strong { color: var(--txt); font-weight: 600; }
+
+  .tw { overflow-x: auto; margin: 14px 0; border-radius: 8px; border: 1px solid var(--bd); }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  thead { background: var(--surf2); }
+  th { padding: 10px 14px; text-align: left; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--txt3); white-space: nowrap; }
+  td { padding: 9px 14px; border-top: 1px solid var(--bd); color: var(--txt2); vertical-align: top; }
+  tr:hover td { background: var(--acc-bg); }
+
+  .spec-block { background: var(--surf); border: 1px solid var(--bd); border-left: 3px solid var(--acc); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .spec-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .warn-block { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.3); border-left: 3px solid var(--amber); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .warn-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; }
+  .ok-block { background: rgba(34,197,94,.07); border: 1px solid rgba(34,197,94,.25); border-left: 3px solid var(--green); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .ok-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+
+  /* Status chips */
+  .s-full { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(34,197,94,.12); color: var(--green); }
+  .s-conn { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(245,158,11,.12); color: var(--amber); }
+  .s-none { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(161,161,170,.12); color: var(--txt3); }
+
+  /* Network state chips */
+  .ns-good { background: rgba(34,197,94,.12); color: var(--green); border-radius: 4px; padding: 1px 7px; font-size: .7rem; font-weight: 700; display: inline-block; }
+  .ns-warn { background: rgba(245,158,11,.12); color: var(--amber); border-radius: 4px; padding: 1px 7px; font-size: .7rem; font-weight: 700; display: inline-block; }
+  .ns-bad { background: rgba(239,68,68,.12); color: var(--red); border-radius: 4px; padding: 1px 7px; font-size: .7rem; font-weight: 700; display: inline-block; }
+
+  /* Conflict chips */
+  .ct-lw { background: rgba(59,130,246,.12); color: var(--acc-dim); border-radius: 4px; padding: 1px 7px; font-size: .7rem; font-weight: 700; display: inline-block; }
+  .ct-m { background: rgba(139,92,246,.12); color: #C4B5FD; border-radius: 4px; padding: 1px 7px; font-size: .7rem; font-weight: 700; display: inline-block; }
+  .ct-u { background: rgba(251,146,60,.12); color: #FCA5A5; border-radius: 4px; padding: 1px 7px; font-size: .7rem; font-weight: 700; display: inline-block; }
+  .ct-dw { background: rgba(239,68,68,.12); color: var(--red); border-radius: 4px; padding: 1px 7px; font-size: .7rem; font-weight: 700; display: inline-block; }
+
+  /* Priority chips */
+  .p1 { background: rgba(239,68,68,.12); color: var(--red); border-radius: 4px; padding: 1px 7px; font-size: .7rem; font-weight: 700; display: inline-block; }
+  .p2 { background: rgba(245,158,11,.12); color: var(--amber); border-radius: 4px; padding: 1px 7px; font-size: .7rem; font-weight: 700; display: inline-block; }
+  .p3 { background: rgba(59,130,246,.12); color: var(--acc-dim); border-radius: 4px; padding: 1px 7px; font-size: .7rem; font-weight: 700; display: inline-block; }
+  .p4 { background: rgba(161,161,170,.12); color: var(--txt3); border-radius: 4px; padding: 1px 7px; font-size: .7rem; font-weight: 700; display: inline-block; }
+
+  .mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: .78rem; font-weight: 700; color: var(--acc); white-space: nowrap; }
+
+  @media (max-width: 800px) {
+    nav { display: none; }
+    .main { padding: 24px 20px 60px; }
+  }
+</style>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">Finance Bag</div>
+    <div class="nav-title">SPEC-OFL-001 · Offline-First</div>
+  </div>
+  <ul class="nav-list" id="nav-list">
+    <li class="nav-item"><a href="#s1"><span class="nav-num">01</span>Overview & Philosophy</a></li>
+    <li class="nav-item"><a href="#s2"><span class="nav-num">02</span>Offline Behavior by Module</a></li>
+    <li class="nav-item"><a href="#s3"><span class="nav-num">03</span>Local Database Strategy</a></li>
+    <li class="nav-item"><a href="#s4"><span class="nav-num">04</span>Synchronization Architecture</a></li>
+    <li class="nav-item"><a href="#s5"><span class="nav-num">05</span>Synchronization Queue</a></li>
+    <li class="nav-item"><a href="#s6"><span class="nav-num">06</span>Conflict Detection</a></li>
+    <li class="nav-item"><a href="#s7"><span class="nav-num">07</span>Conflict Resolution</a></li>
+    <li class="nav-item"><a href="#s8"><span class="nav-num">08</span>Network Awareness</a></li>
+    <li class="nav-item"><a href="#s9"><span class="nav-num">09</span>User Experience & Status</a></li>
+    <li class="nav-item"><a href="#s10"><span class="nav-num">10</span>Error Recovery & Resilience</a></li>
+    <li class="nav-item"><a href="#s11"><span class="nav-num">11</span>Performance Architecture</a></li>
+    <li class="nav-item"><a href="#s12"><span class="nav-num">12</span>Security Considerations</a></li>
+    <li class="nav-item"><a href="#s13"><span class="nav-num">13</span>Future Compatibility</a></li>
+    <li class="nav-item"><a href="#s14"><span class="nav-num">14</span>Edge Cases</a></li>
+    <li class="nav-item"><a href="#s15"><span class="nav-num">15</span>Business Rules</a></li>
+  </ul>
+  <div class="theme-area"><button class="theme-btn" id="theme-btn">Toggle Light / Dark</button></div>
+</nav>
+
+<main class="main">
+<header class="doc-header">
+  <div class="doc-eyebrow">
+    <span class="spec-id">SPEC-OFL-001</span>
+    <span class="spec-ver">v1.0</span>
+    <span class="status-pill">DRAFT</span>
+  </div>
+  <h1 class="doc-title">Offline-First Architecture,<br>Synchronization &amp; Data Consistency</h1>
+  <p class="doc-sub">The complete specification for Finance Bag's offline-first data model — a local-primary architecture where the database on your device is always the truth, network connectivity is an enhancement, and synchronization is an invisible background concern, never a gate on access.</p>
+  <div class="meta-grid">
+    <div class="meta-item"><div class="meta-label">Module</div><div class="meta-val">OFL</div></div>
+    <div class="meta-item"><div class="meta-label">Accent</div><div class="meta-val">#3B82F6</div></div>
+    <div class="meta-item"><div class="meta-label">Primary Source</div><div class="meta-val">finance.db</div></div>
+    <div class="meta-item"><div class="meta-label">Sync Model</div><div class="meta-val">Event-Sourced</div></div>
+    <div class="meta-item"><div class="meta-label">Conflict Strategy</div><div class="meta-val">Hybrid (per-type)</div></div>
+    <div class="meta-item"><div class="meta-label">Network States</div><div class="meta-val">6 defined</div></div>
+    <div class="meta-item"><div class="meta-label">BR Count</div><div class="meta-val">14 defined</div></div>
+    <div class="meta-item"><div class="meta-label">Offline-First</div><div class="meta-val">100% of features</div></div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════ §1 ═══ -->
+<section id="s1">
+  <div class="sec-header">
+    <span class="sec-num">01</span>
+    <div>
+      <h2 class="sec-title">Overview &amp; Architecture Philosophy</h2>
+      <p class="sec-sub">Why offline-first is not a feature but a fundamental design constraint — and the mental model that shapes every decision in this specification.</p>
+    </div>
+  </div>
+
+  <h3>1.1 The Core Premise</h3>
+  <p>A personal finance app that requires internet access to display your account balance has failed its user. Financial data is maximally private and maximally personal — it should be available unconditionally, in airplane mode, in a basement, on a plane, during a network outage, and after months without opening the app. Synchronization with a cloud service is a convenience that multiplies the value of local data. It is never a prerequisite for using Finance Bag.</p>
+
+  <div class="ok-block">
+    <div class="ok-block-title">The Offline-First Guarantee</div>
+    <p style="margin:0">Every Finance Bag feature that exists in v1.0 must function identically whether the device has full connectivity, limited connectivity, or no connectivity at all. The words "Requires internet connection" must never appear in v1.0 features.</p>
+  </div>
+
+  <h3>1.2 Offline-First vs Sync-Enhanced</h3>
+  <p>The distinction between offline-first and "offline fallback" is architectural, not cosmetic:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Property</th><th>Offline Fallback (traditional)</th><th>Offline-First (Finance Bag)</th></tr></thead>
+    <tbody>
+      <tr><td>Source of truth</td><td>Remote server; local is a cache</td><td>Local database; remote is a replica</td></tr>
+      <tr><td>Read path (online)</td><td>Fetch from server, render</td><td>Read from local DB (same path as offline)</td></tr>
+      <tr><td>Read path (offline)</td><td>Serve stale cache; may show error</td><td>Read from local DB (identical to online)</td></tr>
+      <tr><td>Write path (online)</td><td>POST to server; update UI on response</td><td>Write to local DB; enqueue sync operation; update UI immediately</td></tr>
+      <tr><td>Write path (offline)</td><td>Queue or reject; show "offline" message</td><td>Write to local DB; enqueue sync operation; update UI immediately</td></tr>
+      <tr><td>User experience offline</td><td>Degraded — some features disabled</td><td>Identical — no degradation whatsoever</td></tr>
+      <tr><td>Latency per operation</td><td>Bounded by network (100–3000ms)</td><td>Bounded by local I/O (1–20ms)</td></tr>
+      <tr><td>Startup time</td><td>Network round-trip required</td><td>First render from local DB, no network wait</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1.3 Six Architectural Principles</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Principle</th><th>Meaning in Finance Bag context</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Local-Primary</strong></td><td>finance.db on the device is always the authoritative data source. Every read and write targets the local database first and only. The sync engine propagates local changes to other devices — it does not replace the read path.</td></tr>
+      <tr><td><strong>Optimistic Writes</strong></td><td>Every user write is committed to the local DB immediately and reflected in the UI before any sync operation is attempted. The user never waits for a network round-trip to see their own changes take effect.</td></tr>
+      <tr><td><strong>Eventual Consistency</strong></td><td>Multiple devices may hold divergent states temporarily. The sync engine converges them via the conflict resolution model defined in §7. The divergence window is bounded by the sync interval, not by the user's actions.</td></tr>
+      <tr><td><strong>Transparent Sync</strong></td><td>Synchronization is an invisible background process. Users see a sync status indicator but are never blocked by sync. Conflicts, when they occur, are surfaced as gentle notifications — never modal interruptions during active use.</td></tr>
+      <tr><td><strong>Idempotent Operations</strong></td><td>Every sync operation is designed to be safely replayed. If a sync operation is applied twice (due to retry or interrupted sync), the second application produces the same result as the first. This makes the sync queue resilient to interruption.</td></tr>
+      <tr><td><strong>Causally Ordered</strong></td><td>Operations from a single device are applied to other devices in the order they were created on the originating device. ULID ordering ensures causal consistency within a device's operation stream. Cross-device ordering uses vector clocks.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1.4 v1.0 Scope: Fully Local</h3>
+  <p>Finance Bag v1.0 is a single-device, zero-network application. Every principle in this document applies immediately to the local-only architecture. The sync-related sections (§4–§8) describe the architecture for future cloud sync, which is designed now so that the code structure requires no rearchitecting when sync is activated. In v1.0:</p>
+  <ul>
+    <li>The sync queue exists but is never drained to a server — operations accumulate locally until cloud sync is enabled.</li>
+    <li>The conflict detection engine exists but only ever detects conflicts within a single device (which can only occur from programmatic bugs, not from concurrency — so conflicts should never arise in v1.0).</li>
+    <li>Network state monitoring exists for future use and to handle captive portal scenarios on WiFi (relevant for future FAQ updates and crash report uploads).</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §2 ═══ -->
+<section id="s2">
+  <div class="sec-header">
+    <span class="sec-num">02</span>
+    <div>
+      <h2 class="sec-title">Offline Behavior by Module</h2>
+      <p class="sec-sub">Precise capability matrix — what every module can do offline, what requires connectivity, and whether any degradation is ever visible to the user in v1.0.</p>
+    </div>
+  </div>
+
+  <p>Legend: <span class="s-full">Full Offline</span> = identical to online experience &nbsp; <span class="s-conn">Future Sync</span> = works offline in v1.0; sync enhances in future &nbsp; <span class="s-none">No v1.0 Feature</span> = not applicable in v1.0</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Module</th><th>Offline status</th><th>Fully offline operations</th><th>Operations needing future connectivity</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Authentication (SEC)</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>Biometric unlock, PIN unlock, auto-lock, session management, DB key retrieval from Keychain/Keystore — all hardware-local, zero network dependency</td>
+        <td>Magic link email auth (future cloud account only); session token refresh (future); account recovery via email (future)</td>
+      </tr>
+      <tr>
+        <td><strong>Dashboard (DSH)</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>All dashboard widgets: budget status, FHS, salary countdown, debt progress, EMF level, goal progress, recent expenses, quick actions. Dashboard snapshot cache (<200ms render from app_state). Widget reordering and customization.</td>
+        <td>None in v1.0. Future: real-time alerts from cloud if another device adds an expense.</td>
+      </tr>
+      <tr>
+        <td><strong>Salary (DB)</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>Create/edit salary amount, salary day, period management, period sealing, archive access, all salary history reads</td>
+        <td>None in v1.0. Future: salary change sync to other devices.</td>
+      </tr>
+      <tr>
+        <td><strong>Budget (BUD)</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>Create/edit/delete budget categories, set allocations, view spending vs budget, category progress bars, expense categorization, all budget reports</td>
+        <td>None in v1.0. Future: shared budget categories across family devices.</td>
+      </tr>
+      <tr>
+        <td><strong>Expense Tracking</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>Add/edit/delete expenses, attach receipts, categorize, tag, search, filter by period, bulk operations, recurring expense management, CSV import</td>
+        <td>None in v1.0. Future: expense sync to family shared wallet.</td>
+      </tr>
+      <tr>
+        <td><strong>Debt Management (DBT)</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>Create/edit debts, record payments, view progress, payment history, debt analytics, status transitions (ACTIVE → PAID), all debt reads</td>
+        <td>None in v1.0. Future: shared debt visibility across household devices.</td>
+      </tr>
+      <tr>
+        <td><strong>Emergency Fund (EMF)</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>Set EMF target, record contributions/withdrawals, view balance history, FHS contribution, EMF level calculation, all analytics</td>
+        <td>None in v1.0.</td>
+      </tr>
+      <tr>
+        <td><strong>Financial Goals (GOL)</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>Create/edit goals, record contributions, set dependencies, view dependency graph (DAG), goal progress, roadmap view, milestone tracking</td>
+        <td>None in v1.0. Future: shared goal tracking between family members.</td>
+      </tr>
+      <tr>
+        <td><strong>Reports &amp; Analytics (RPT)</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>All report types (spending by category, by period, trends, comparisons, FHS over time), all charts and visualizations, saved report filters, CSV/JSON export of report data</td>
+        <td>None in v1.0. Future: PDF report upload to cloud drive.</td>
+      </tr>
+      <tr>
+        <td><strong>Search (SCH)</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>Full global search, command palette, entity lookup, FTS5 queries, fuzzy matching, smart filters, search history, favorites, recent/frequent settings — all against local search.db</td>
+        <td>None in v1.0 or future — search is always local-only by design (SPEC-SCH-001 §13).</td>
+      </tr>
+      <tr>
+        <td><strong>Settings (SET)</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>All 80+ preference keys, all settings categories, language change, theme, security settings, accessibility, developer options, all reads and writes</td>
+        <td>Future: sync-eligible preferences propagate to other devices when cloud sync is active. Device-specific preferences remain local always.</td>
+      </tr>
+      <tr>
+        <td><strong>Notifications (EVT)</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>All local notifications scheduled via expo-notifications, all EventBus-triggered automations (PERIOD_SEALED → EMF check, etc.), all 6-step notification pipeline stages — fully in-process and local</td>
+        <td>None in v1.0. Future: push notifications from cloud when another device adds an expense (requires APNs/FCM token registration — a one-time online step).</td>
+      </tr>
+      <tr>
+        <td><strong>Reminders</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>All scheduled local reminders (debt payment, EMF contribution, budget check, salary day, goal milestones) via expo-notifications. Scheduling, cancellation, and REBUILD_REMINDER_SCHEDULE automation all local.</td>
+        <td>None in v1.0.</td>
+      </tr>
+      <tr>
+        <td><strong>Archive</strong></td>
+        <td><span class="s-full">Full Offline</span></td>
+        <td>Read all sealed period archives, view archive snapshots, compare periods, access archived expenses — all read from local DB. Archives are immutable so no writes occur after sealing.</td>
+        <td>None. Archives are sealed and immutable — no sync semantics apply after sealing.</td>
+      </tr>
+      <tr>
+        <td><strong>Backup &amp; Export</strong></td>
+        <td><span class="s-conn">Future Sync</span></td>
+        <td>Create local encrypted .fbk backup, restore from local backup, export to CSV/JSON/.sqlite — all local operations with no network dependency</td>
+        <td>Future: upload .fbk to iCloud Drive / Google Drive (requires cloud authentication). Auto-upload on WiFi when cloud backup enabled.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h3>2.1 The v1.0 Reality</h3>
+  <div class="ok-block">
+    <div class="ok-block-title">100% Offline in v1.0</div>
+    <p style="margin:0">In Finance Bag v1.0, every single feature listed above operates in <span class="s-full">Full Offline</span> mode. There is no feature, screen, or data access path that requires a network connection. The app makes zero outbound requests during normal operation (crash reports, if opted in, queue locally and upload opportunistically when connectivity is available).</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §3 ═══ -->
+<section id="s3">
+  <div class="sec-header">
+    <span class="sec-num">03</span>
+    <div>
+      <h2 class="sec-title">Local Database Strategy</h2>
+      <p class="sec-sub">How data is stored, cached, maintained, and protected on-device — the foundation of the offline-first guarantee.</p>
+    </div>
+  </div>
+
+  <h3>3.1 Data Storage Layers</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Layer</th><th>Technology</th><th>Contents</th><th>Persistence</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Primary Store</strong></td><td>SQLite + SQLCipher (finance.db)</td><td>All financial records, preferences, audit log, event log, sync queue, archive snapshots</td><td>Permanent — survives app restart, device reboot. Deleted only on factory reset or account deletion.</td></tr>
+      <tr><td><strong>Search Index</strong></td><td>SQLite + SQLCipher (search.db)</td><td>FTS5 virtual table, IndexRecord table, search_history, click_signal_log</td><td>Permanent but regenerable — can be rebuilt from finance.db at any time without data loss.</td></tr>
+      <tr><td><strong>In-Memory Hot Cache</strong></td><td>Zustand 5 store (React Native JS heap)</td><td>Dashboard state, current period summary, active budget allocations, session auth state, network state</td><td>Session-only — cleared on app kill. Repopulated from finance.db on next session start.</td></tr>
+      <tr><td><strong>Snapshot Cache</strong></td><td>app_state table in finance.db (dashboard_snapshot_json)</td><td>Pre-computed dashboard widget values serialized as JSON — updated on every write that affects dashboard data</td><td>Persistent. Invalidated and recomputed on relevant EventBus events. Survives app restart, enabling sub-200ms dashboard render on cold start.</td></tr>
+      <tr><td><strong>Secure Key Store</strong></td><td>expo-secure-store (iOS Keychain / Android Keystore)</td><td>DB encryption key, PIN hash+salt, future session tokens, device_id</td><td>Permanent until factory reset or device passcode change (per SPEC-SEC-001 §4)</td></tr>
+      <tr><td><strong>Attachment Store</strong></td><td>Encrypted .fbatt files in app sandbox</td><td>Receipt images, document attachments — individually AES-256-GCM encrypted</td><td>Permanent until the parent expense is hard-deleted (factory reset only in v1.0)</td></tr>
+      <tr><td><strong>Backup Store</strong></td><td>Encrypted .fbk files in app sandbox backups/ directory</td><td>Versioned full-database backups</td><td>Retained per rotation policy (7 auto + 3 pre-op + 10 manual max)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>3.2 Cache Strategy</h3>
+  <p>Finance Bag uses two distinct caching mechanisms. Neither uses a TTL (time-to-live) — there is no concept of "stale cache" because all data is local and always fresh. Cache entries are invalidated by events, not by time.</p>
+
+  <h4>Dashboard Snapshot Cache</h4>
+  <div class="spec-block">
+    <div class="spec-block-title">Snapshot Cache Invalidation Rules</div>
+    <ul>
+      <li>The <code>dashboard_snapshot_json</code> field in <code>app_state</code> is recomputed whenever an EventBus event that affects dashboard values fires. Specifically: <code>EXPENSE_CREATED</code>, <code>EXPENSE_UPDATED</code>, <code>EXPENSE_DELETED</code>, <code>PERIOD_SEALED</code>, <code>PAYMENT_RECORDED</code>, <code>EMF_CONTRIBUTION</code>, <code>GOAL_CONTRIBUTION</code>, <code>BUDGET_ALLOCATION_CHANGED</code>, <code>SALARY_CHANGED</code>.</li>
+      <li>The snapshot is written within the same SQLite transaction as the triggering event, ensuring consistency — the snapshot always reflects the database state at the time of the write.</li>
+      <li>On cold start, the snapshot is read before biometric auth completes — so the dashboard shows the correct pre-auth state (amounts obscured if <code>security.obscure_amounts = true</code>) with zero additional query latency.</li>
+      <li>The snapshot schema version is stored alongside the snapshot. If the app version changes the snapshot schema, the snapshot is treated as invalid and recomputed on first post-auth render.</li>
+    </ul>
+  </div>
+
+  <h4>In-Memory Zustand Cache</h4>
+  <ul>
+    <li>The Zustand store is the rendering source — React components never query finance.db directly. They subscribe to Zustand slices.</li>
+    <li>Zustand is populated from finance.db on session open (after biometric auth). Selectors map DB rows to UI-ready state shapes.</li>
+    <li>Write operations update Zustand optimistically (immediately, before the SQLite write completes), then the SQLite write confirms or rolls back. If the write fails, Zustand is reverted to the pre-write state and the user sees an error toast.</li>
+    <li>Zustand is never persisted to disk — it is purely in-memory. finance.db is the persistent record.</li>
+  </ul>
+
+  <h3>3.3 Data Lifecycle</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Data category</th><th>Creation</th><th>Active lifetime</th><th>Archival</th><th>Deletion</th></tr></thead>
+    <tbody>
+      <tr><td>Expenses</td><td>User action</td><td>Current period (ACTIVE)</td><td>Period sealing → archive snapshot</td><td>Soft delete (deleted_at). Hard delete on factory reset only.</td></tr>
+      <tr><td>Budget allocations</td><td>Period creation / user action</td><td>Duration of associated period</td><td>Referenced in archive snapshot at sealing</td><td>Cascade soft-delete when period is sealed (operational copy). Archive copy is immutable.</td></tr>
+      <tr><td>Debt records</td><td>User action</td><td>Until status = PAID or archived</td><td>Included in period archives where payments occurred</td><td>Soft delete only. No hard delete of payment history.</td></tr>
+      <tr><td>Event log rows</td><td>EventBus publish</td><td>90 days</td><td>Not archived</td><td>Purged by nightly maintenance job at 90-day mark</td></tr>
+      <tr><td>Audit log rows</td><td>Security events</td><td>365 days</td><td>Not archived (included in full DB export)</td><td>Purged by nightly maintenance job at 365-day mark</td></tr>
+      <tr><td>Search click signals</td><td>User selects search result</td><td>30 days</td><td>Not archived</td><td>Purged by nightly maintenance job at 30-day mark</td></tr>
+      <tr><td>Sync queue operations</td><td>Every local write</td><td>Until COMPLETED or max retry reached</td><td>Not archived</td><td>COMPLETED operations purged after 7 days. FAILED after 30 days.</td></tr>
+      <tr><td>Archive snapshots</td><td>Period sealing</td><td>Indefinite (immutable)</td><td>Are the archive — no further archival</td><td>Only on factory reset / account deletion</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>3.4 Database Maintenance</h3>
+  <p>A nightly maintenance job runs when the app is open (foreground), triggered by a 24-hour timer. If the app is not opened for more than 24 hours, the job runs at next open after the previous scheduled time has passed.</p>
+  <div class="spec-block">
+    <div class="spec-block-title">Nightly Maintenance Sequence (runs in background thread)</div>
+    <ol>
+      <li><strong>Retention purge:</strong> DELETE from event_log WHERE created_at < NOW() − 90 days. DELETE from audit_log WHERE created_at < NOW() − 365 days. DELETE from click_signal_log WHERE created_at < NOW() − 30 days.</li>
+      <li><strong>Sync queue cleanup:</strong> DELETE from sync_queue WHERE status = 'COMPLETED' AND processed_at < NOW() − 7 days. DELETE from sync_queue WHERE status = 'FAILED' AND created_at < NOW() − 30 days.</li>
+      <li><strong>WAL checkpoint:</strong> PRAGMA wal_checkpoint(PASSIVE) — flushes WAL pages to main DB file without blocking readers. Keeps WAL file size controlled.</li>
+      <li><strong>FTS5 index optimization:</strong> INSERT INTO search_idx(search_idx) VALUES('optimize') — merges FTS5 segment files, improving query performance. Runs only if last_fts_optimize > 7 days ago.</li>
+      <li><strong>Fragmentation check:</strong> Query page_count and freelist_count from sqlite_schema. If freelist_count / page_count > 0.3 (30% fragmentation): schedule VACUUM for next overnight (VACUUM cannot run during active writes — it requires exclusive lock).</li>
+      <li><strong>Snapshot refresh:</strong> Recompute dashboard_snapshot_json to ensure it's consistent with current DB state (catches any edge case where an in-flight crash left it stale).</li>
+      <li><strong>Integrity check:</strong> PRAGMA quick_check (faster than full integrity_check — detects most corruption without full page scan).</li>
+    </ol>
+  </div>
+
+  <h3>3.5 Storage Limits & Monitoring</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Storage category</th><th>Estimated size (1 year, typical user)</th><th>Estimated size (3 years, heavy user)</th></tr></thead>
+    <tbody>
+      <tr><td>finance.db</td><td>~2 MB</td><td>~8 MB</td></tr>
+      <tr><td>search.db</td><td>~2 MB</td><td>~5.5 MB</td></tr>
+      <tr><td>Attachments</td><td>~50 MB (compressed JPEGs)</td><td>~200 MB</td></tr>
+      <tr><td>Local backups (auto × 7)</td><td>~14 MB</td><td>~56 MB</td></tr>
+      <tr><td>Total</td><td>~68 MB</td><td>~270 MB</td></tr>
+    </tbody>
+  </table></div>
+  <p>Storage warnings are shown in Settings → Data Management → Storage Usage when total Finance Bag storage exceeds 500 MB. Actionable recommendations: clear old backups, delete attachment thumbnails, or run VACUUM. The app never silently deletes user data due to storage pressure — it only surfaces warnings and offers user-controlled cleanup actions.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §4 ═══ -->
+<section id="s4">
+  <div class="sec-header">
+    <span class="sec-num">04</span>
+    <div>
+      <h2 class="sec-title">Synchronization Architecture</h2>
+      <p class="sec-sub">An event-sourced, operation-log synchronization model designed for eventual consistency, crash resilience, and zero data loss — ready to activate when cloud accounts launch.</p>
+    </div>
+  </div>
+
+  <h3>4.1 Synchronization Model: Operation Log</h3>
+  <p>Finance Bag uses an <strong>operation-log synchronization model</strong> rather than a state-snapshot model. Instead of comparing database states between devices, the sync engine records every write operation as a discrete, replayable event. Synchronization means exchanging operation logs and replaying them in causal order on each device.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Property</th><th>State-Snapshot Sync</th><th>Operation-Log Sync (Finance Bag)</th></tr></thead>
+    <tbody>
+      <tr><td>Sync payload</td><td>Full or delta database snapshot</td><td>Ordered list of write operations since last sync</td></tr>
+      <tr><td>Conflict detection</td><td>Compare field values between snapshots</td><td>Detect operations that targeted the same entity concurrently</td></tr>
+      <tr><td>Sync after long offline</td><td>Large snapshot diff required</td><td>All accumulated operations replayed in order</td></tr>
+      <tr><td>Bandwidth</td><td>Proportional to amount of data changed</td><td>Proportional to number of operations (usually smaller)</td></tr>
+      <tr><td>Audit trail</td><td>No inherent history</td><td>Operation log is inherently an audit trail</td></tr>
+      <tr><td>Idempotency</td><td>Not naturally idempotent</td><td>Operations carry idempotency keys; safe to replay</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>4.2 Synchronization Phases</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Phase</th><th>Trigger</th><th>What syncs</th><th>Expected duration</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Phase 1 — Preference Sync</strong></td><td>Cloud account creation; every app open with connectivity; preference change while online</td><td>All sync_eligible preferences as a single JSON document (~5KB). Fastest sync type.</td><td>&lt;500ms</td></tr>
+      <tr><td><strong>Phase 2 — Backup Sync</strong></td><td>After successful local backup creation; user-initiated; scheduled (if backup sync enabled)</td><td>Encrypted .fbk file uploaded to user's cloud storage. Server stores opaque ciphertext.</td><td>5–30s depending on file size and upload speed</td></tr>
+      <tr><td><strong>Phase 3 — Incremental Data Sync</strong></td><td>App open with connectivity; background fetch; user-initiated Manual Sync</td><td>All sync_queue operations since last_sync_at, in ULID order. Delta payload only.</td><td>1–10s for typical daily usage deltas</td></tr>
+      <tr><td><strong>Phase 4 — Full Data Sync</strong></td><td>First sync after account creation; sync after months offline (delta > 90 days); after backup restore; sync_vector reset</td><td>Complete operation log from epoch. May be large for users with long offline periods.</td><td>30s–5 min depending on history length</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>4.3 Sync Operation Structure</h3>
+  <p>Every local write to finance.db (except audit_log and event_log, which are device-local) generates a corresponding sync operation that is written to the sync_queue table within the same SQLite transaction:</p>
+  <div class="spec-block">
+    <div class="spec-block-title">SyncOperation fields</div>
+    <ul>
+      <li><code>id</code> — ULID. Globally unique operation identifier. Used as idempotency key on server.</li>
+      <li><code>device_id</code> — The device that originated this operation.</li>
+      <li><code>operation_type</code> — CREATE | UPDATE | SOFT_DELETE | RESTORE | PREFERENCE_CHANGE | ARCHIVE_SEAL</li>
+      <li><code>entity_type</code> — expense | category | goal | goal_dependency | debt | debt_payment | emf_contribution | emf_withdrawal | period | budget_allocation | preference</li>
+      <li><code>entity_id</code> — ULID of the affected record.</li>
+      <li><code>payload_json</code> — For CREATE: full record JSON. For UPDATE: changed fields only (field-level delta). For SOFT_DELETE: <code>{"deleted_at": timestamp}</code>. For PREFERENCE_CHANGE: <code>{"key": "...", "value": ...}</code>.</li>
+      <li><code>vector_clock_json</code> — The device's vector clock at the time this operation was created (used for conflict detection).</li>
+      <li><code>created_at</code> — UNIX timestamp (milliseconds) of when this operation was generated locally.</li>
+      <li><code>status</code> — PENDING | IN_FLIGHT | COMPLETED | FAILED | CANCELLED</li>
+      <li><code>retry_count</code> — INTEGER, 0 initially.</li>
+      <li><code>next_retry_at</code> — UNIX timestamp. NULL for PENDING (immediate). Set on FAILED.</li>
+      <li><code>processed_at</code> — UNIX timestamp. NULL until COMPLETED or FAILED.</li>
+    </ul>
+  </div>
+
+  <h3>4.4 Sync Triggers</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Trigger</th><th>Sync type initiated</th><th>User visible</th></tr></thead>
+    <tbody>
+      <tr><td>App opens and network is ONLINE</td><td>Incremental (Phase 3) — drain pending queue, pull remote delta</td><td>Sync status indicator briefly shows SYNCING → ONLINE_IDLE</td></tr>
+      <tr><td>Network transitions OFFLINE → ONLINE while app is open</td><td>Incremental (Phase 3) — immediate queue drain</td><td>Status indicator transitions from PENDING to SYNCING to ONLINE_IDLE</td></tr>
+      <tr><td>User writes a record while ONLINE</td><td>Operation enqueued and dispatched immediately (foreground incremental)</td><td>Status shows SYNCING briefly; check mark on operation</td></tr>
+      <tr><td>User writes a record while OFFLINE</td><td>Operation enqueued; dispatched when next ONLINE</td><td>Pending badge count increments on status indicator</td></tr>
+      <tr><td>Background fetch fires (every 15 min, OS-permitting)</td><td>Incremental (Phase 3) — silent background sync</td><td>Not visible unless conflicts are detected</td></tr>
+      <tr><td>User taps "Sync Now" in Settings</td><td>Full or Incremental based on last_sync_at age (> 90 days = Full)</td><td>Full progress indicator in Settings → Backup & Sync</td></tr>
+      <tr><td>Backup created locally</td><td>Phase 2 (backup upload) if cloud backup enabled</td><td>Backup sync progress in Settings → Backup</td></tr>
+      <tr><td>Preference changed while ONLINE</td><td>Phase 1 (preference sync) — highest priority, immediate</td><td>Not visible (preference sync is instant)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>4.5 Vector Clock Model</h3>
+  <p>Each device maintains a vector clock — a JSON map of <code>{ device_id: lamport_timestamp }</code> stored in <code>app_state.sync_vector_json</code>. The Lamport timestamp is a monotonically increasing integer incremented on every local write operation.</p>
+  <ul>
+    <li>When Device A writes an operation, it increments its own slot in the vector clock and records the full clock snapshot in the operation's <code>vector_clock_json</code>.</li>
+    <li>When Device A receives operations from Device B, it advances its own clock to <code>max(local_clock, received_clock) + 1</code> for the device B slot.</li>
+    <li>Two operations on the same entity from different devices are concurrent (and therefore conflict candidates) if neither operation's vector clock dominates the other — i.e., they are causally unrelated.</li>
+    <li>Clock comparison: clock A "dominates" clock B if A[device] ≥ B[device] for all devices. If A dominates B, A happened after B; no conflict. If neither dominates, they are concurrent; conflict detected.</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §5 ═══ -->
+<section id="s5">
+  <div class="sec-header">
+    <span class="sec-num">05</span>
+    <div>
+      <h2 class="sec-title">Synchronization Queue</h2>
+      <p class="sec-sub">The durable, ordered, idempotent operation queue that mediates between local writes and cloud synchronization — resilient to interruption, crash, and retry.</p>
+    </div>
+  </div>
+
+  <h3>5.1 Queue Architecture</h3>
+  <p>The sync queue is a table in finance.db rather than a separate queue system. This design choice is critical: it ensures that the enqueue of a sync operation and the write to the operational table (e.g., the expenses table) are atomic. A crash between "write expense" and "enqueue sync operation" is impossible when they share a transaction.</p>
+
+  <div class="spec-block">
+    <div class="spec-block-title">Atomicity Guarantee</div>
+    <p style="margin:0">Every local write to finance.db executes within a single SQLite transaction that includes both the write to the target table AND the INSERT into sync_queue. The transaction either commits both or rolls back both. There is no state where a financial record exists without a corresponding sync operation, and no state where a sync operation exists without a corresponding financial record.</p>
+  </div>
+
+  <h3>5.2 Operation Status Lifecycle</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">Status State Machine</div>
+    <p>PENDING → IN_FLIGHT → COMPLETED (terminal, success)</p>
+    <p>PENDING → IN_FLIGHT → FAILED → PENDING (retry via next_retry_at)</p>
+    <p>PENDING → IN_FLIGHT → FAILED × 5 → DEAD (terminal, requires manual intervention)</p>
+    <p>PENDING → CANCELLED (terminal, if the operation was superseded — e.g., record hard-deleted before sync)</p>
+  </div>
+
+  <h3>5.3 Priority Ordering</h3>
+  <p>Operations in the queue are dispatched in priority order. Within the same priority, ULID ordering is used (chronological, monotonically increasing). The SyncOrchestrator reads from the queue using: <code>ORDER BY priority ASC, id ASC</code>.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Priority</th><th>Operation types</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td><span class="p1">P1 — Critical</span></td><td>ARCHIVE_SEAL, SOFT_DELETE</td><td>Archives are immutable state changes; deletions prevent ghost records. Must reach server before other operations on the same entity.</td></tr>
+      <tr><td><span class="p2">P2 — High</span></td><td>PREFERENCE_CHANGE</td><td>Preference sync payload is tiny and keeps other devices in the right configuration. Fast to sync, high impact.</td></tr>
+      <tr><td><span class="p3">P3 — Normal</span></td><td>UPDATE</td><td>Updates to existing records. Conflict detection applies — ordered processing matters.</td></tr>
+      <tr><td><span class="p4">P4 — Low</span></td><td>CREATE</td><td>New records. Lower conflict risk than updates. Largest payload type but least time-sensitive.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.4 Retry Policy</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Attempt #</th><th>Retry delay</th><th>Condition to retry</th></tr></thead>
+    <tbody>
+      <tr><td>1 (initial)</td><td>Immediate</td><td>Network available</td></tr>
+      <tr><td>2</td><td>30 seconds</td><td>Network available; previous attempt returned network error or 5xx</td></tr>
+      <tr><td>3</td><td>5 minutes</td><td>Network available</td></tr>
+      <tr><td>4</td><td>30 minutes</td><td>Network available</td></tr>
+      <tr><td>5</td><td>2 hours</td><td>Network available</td></tr>
+      <tr><td>After 5 failures</td><td>No more retries (DEAD status)</td><td>User notified: "Some changes could not be synced. View details in Sync Settings."</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Errors that do NOT trigger retry (terminal failures): 401 Unauthorized (session expired — requires re-auth before retry), 409 Conflict with manual resolution required (routed to conflict resolver, not retry queue), 422 Unprocessable (server rejects payload schema — likely a client bug, not a transient failure).</p>
+
+  <h3>5.5 Batch Dispatch</h3>
+  <p>The SyncOrchestrator does not dispatch operations one-by-one. It batches them into payloads of up to 100 operations per HTTP request, ordered by priority then ULID. Batching reduces HTTP overhead and allows the server to process a burst of writes (e.g., after a long offline period) atomically.</p>
+  <ul>
+    <li>Batch size: maximum 100 operations, or maximum 512KB payload, whichever is reached first.</li>
+    <li>Batch atomicity: the server applies all operations in a batch within a single server-side transaction. If any operation in the batch causes a non-conflict error, the entire batch is rejected and the client retries the batch.</li>
+    <li>Conflict operations: if a batch contains a conflicting operation (server returns 409 for that operation specifically), the server applies all non-conflicting operations and returns a partial-success response listing the conflicting operation IDs. The client routes conflicting operations to the conflict resolution flow, marks others as COMPLETED.</li>
+  </ul>
+
+  <h3>5.6 Queue Cancellation Rules</h3>
+  <ul>
+    <li>If an expense is soft-deleted locally before its CREATE operation was synced: cancel the CREATE and enqueue a SOFT_DELETE instead. The server never needs to know about the record's intermediate existence.</li>
+    <li>If an UPDATE operation is superseded by a later UPDATE on the same field of the same entity (both still PENDING): cancel the earlier UPDATE, retain only the latest.</li>
+    <li>If an ARCHIVE_SEAL operation is in the queue and the period is subsequently found to have sealing errors (before the operation is dispatched): cancel the ARCHIVE_SEAL, enqueue a corrective RE_OPEN_PERIOD operation (if periods are re-openable in future).</li>
+    <li>Queue compaction: when the queue drains after a long offline period, compact adjacent UPDATE operations on the same entity into a single merged update payload before dispatch. This reduces bandwidth without changing the end state.</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §6 ═══ -->
+<section id="s6">
+  <div class="sec-header">
+    <span class="sec-num">06</span>
+    <div>
+      <h2 class="sec-title">Conflict Detection</h2>
+      <p class="sec-sub">How Finance Bag identifies that two devices have made incompatible changes to the same data — using vector clocks, operation ordering, and server-side merge validation.</p>
+    </div>
+  </div>
+
+  <h3>6.1 Conflict Classification</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Type</th><th>Scenario</th><th>Detection mechanism</th><th>Frequency</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Type A</strong></td><td>No conflict — two devices write to different entities</td><td>Server detects no entity_id overlap in batch; merges all operations. No conflict state created.</td><td>Very common — most syncs are Type A</td></tr>
+      <tr><td><strong>Type B</strong></td><td>Same entity, non-overlapping fields — Device A edits expense.notes; Device B edits expense.category_id</td><td>Server sees two UPDATE operations on same entity_id with non-overlapping payload_json field keys. Field-level merge applied.</td><td>Occasional</td></tr>
+      <tr><td><strong>Type C</strong></td><td>Same entity, same field, different values — both devices edit expense.amount_cents</td><td>Server sees two UPDATE operations with the same entity_id AND overlapping payload_json field keys, AND their vector_clock_json values show neither dominates the other (concurrent).</td><td>Rare — requires concurrent edits on same field on two devices</td></tr>
+      <tr><td><strong>Type D</strong></td><td>Delete vs. Update — Device A soft-deletes; Device B updates same record</td><td>Server sees a SOFT_DELETE and an UPDATE for the same entity_id with concurrent vector clocks.</td><td>Very rare</td></tr>
+      <tr><td><strong>Type E</strong></td><td>Archive vs. update — Device A seals a period; Device B records an expense in that period</td><td>Server sees ARCHIVE_SEAL and CREATE/UPDATE operations for entities in the same period, with overlapping timestamp ranges. ARCHIVE_SEAL has P1 priority and is applied first.</td><td>Rare</td></tr>
+      <tr><td><strong>Type F</strong></td><td>Duplicate creation — Two devices create a record with the same natural key (e.g., same ULID, which should be impossible due to ULID's device-independent uniqueness, or same budget category name)</td><td>ULID uniqueness prevents true duplicate entity IDs. Natural key duplicates (e.g., category name) detected by server's UNIQUE constraint check on the merge commit.</td><td>Extremely rare for entity_id; possible for named categories</td></tr>
+      <tr><td><strong>Type G</strong></td><td>Clock skew conflict — Device with incorrect clock creates an operation that appears to be in the past</td><td>Server compares operation's created_at with server timestamp on receipt. If skew exceeds ±5 minutes: operation is quarantined for review. Vector clock is still used for conflict detection (not wall clock).</td><td>Rare — modern devices have NTP</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>6.2 Conflict Detection Algorithm</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">Server-Side Conflict Detection (per operation in a batch)</div>
+    <ol>
+      <li>Extract entity_type + entity_id from the incoming operation.</li>
+      <li>Look up the server's current state for that entity: last applied operation's vector_clock and payload.</li>
+      <li>Compare incoming operation's vector_clock with server's last-applied vector_clock:
+        <ul>
+          <li>If incoming DOMINATES server: no conflict — incoming is causally after server state. Apply.</li>
+          <li>If server DOMINATES incoming: no conflict — this is a replay of an already-applied operation. Skip (idempotency).</li>
+          <li>If CONCURRENT (neither dominates): conflict detected. Route to conflict resolver.</li>
+        </ul>
+      </li>
+      <li>If conflict detected: check operation_type overlap:
+        <ul>
+          <li>Non-overlapping fields (Type B): auto-resolve via field merge. No user notification.</li>
+          <li>Same field (Type C): apply Last-Write-Wins rule. Log to conflict history. Optionally notify user.</li>
+          <li>Delete vs. Update (Type D): Delete wins. Discard update. Log to conflict history.</li>
+          <li>Archive conflict (Type E): Archive wins. Discard update. Notify user of discarded change.</li>
+        </ul>
+      </li>
+      <li>Record conflict in server-side conflict_log. Return conflict metadata to client in sync response.</li>
+    </ol>
+  </div>
+
+  <h3>6.3 Offline Conflict Detection (Local)</h3>
+  <p>In v1.0 (single device), conflicts cannot arise from concurrent multi-device edits. However, the local conflict detection machinery must handle one legitimate scenario: a sync operation fails and is retried after the user has made additional local edits to the same entity. The retry queue compaction (§5.6) handles this by merging superseded UPDATE operations, preventing false conflicts.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §7 ═══ -->
+<section id="s7">
+  <div class="sec-header">
+    <span class="sec-num">07</span>
+    <div>
+      <h2 class="sec-title">Conflict Resolution Strategies</h2>
+      <p class="sec-sub">Six resolution strategies — applied based on the data type involved, not uniformly — minimizing data loss while keeping resolution transparent to users wherever possible.</p>
+    </div>
+  </div>
+
+  <h3>7.1 Resolution Strategy Catalog</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Strategy</th><th>Description</th><th>When used</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ct-lw">Last-Write-Wins</span></td><td>The operation with the later <code>updated_at</code> timestamp wins. The other is discarded and logged. Ties (clock skew ≤60s) broken by device_id lexicographic order (deterministic, not semantic).</td><td>Scalar value fields: amounts, dates, text fields, single-select preferences. Used when merging is not meaningful (two different amounts cannot be "merged").</td></tr>
+      <tr><td><span class="ct-m">Union Merge</span></td><td>Both values are combined without dropping either. The result is the superset of both.</td><td>Set-type fields: expense tags (if Device A adds tag X, Device B adds tag Y to the same expense, the merged expense has both X and Y). Goal dependency edges.</td></tr>
+      <tr><td><span class="ct-m">Field Merge</span></td><td>When two updates target different fields of the same entity, both field changes are applied. No data is lost.</td><td>Type B conflicts (non-overlapping fields). The merged entity gets Device A's changes to its fields AND Device B's changes to its fields.</td></tr>
+      <tr><td><span class="ct-dw">Delete-Wins</span></td><td>If one device soft-deletes a record and another device updates it concurrently, the deletion always prevails. The update is silently discarded (logged to conflict_log).</td><td>Type D conflicts. Rationale: a deletion is a more intentional act than an edit. Allowing "ghost resurrection" (where an update on another device un-deletes a record) would be confusing and error-prone.</td></tr>
+      <tr><td><span class="ct-dw">Archive-Wins</span></td><td>A sealed archive cannot be overridden by concurrent writes to the same period. The archive state is the final state.</td><td>Type E conflicts. Expenses added to a sealed period on another device are rejected. The user on that device sees: "This expense was added to a period that has since been sealed on another device. Please re-add it to the current period."</td></tr>
+      <tr><td><span class="ct-u">User Choice</span></td><td>Conflict is surfaced to the user with both values shown side-by-side. User explicitly selects which version to keep. Used sparingly — only when the conflict involves a meaningful financial decision the system cannot make safely.</td><td>Reserved for edge cases where both the automated strategy and the semantic context make LWW feel wrong. Example: two large conflicting changes to the same goal target amount, made on the same day. In practice, User Choice conflicts should be rare (&lt;1% of conflict cases).</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>7.2 Per-Data-Type Resolution Matrix</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Entity / Field</th><th>Resolution strategy</th><th>User notification</th></tr></thead>
+    <tbody>
+      <tr><td>expense.amount_cents</td><td><span class="ct-lw">Last-Write-Wins</span></td><td>Digest notification (once daily if conflicts occurred)</td></tr>
+      <tr><td>expense.notes</td><td><span class="ct-lw">Last-Write-Wins</span></td><td>No notification (notes are low-stakes)</td></tr>
+      <tr><td>expense.category_id</td><td><span class="ct-lw">Last-Write-Wins</span></td><td>No notification</td></tr>
+      <tr><td>expense.tags</td><td><span class="ct-m">Union Merge</span></td><td>No notification (additive, no data lost)</td></tr>
+      <tr><td>expense (soft delete vs update)</td><td><span class="ct-dw">Delete-Wins</span></td><td>Digest notification</td></tr>
+      <tr><td>goal.target_amount_cents</td><td><span class="ct-u">User Choice</span> (if delta &gt;20%) or <span class="ct-lw">Last-Write-Wins</span></td><td>In-app conflict card if User Choice; digest otherwise</td></tr>
+      <tr><td>goal.contribution (new record)</td><td><span class="ct-m">Field Merge</span> (different entity IDs — both contributions kept)</td><td>No notification</td></tr>
+      <tr><td>goal_dependency edges</td><td><span class="ct-m">Union Merge</span></td><td>No notification (DAG gains edges, never loses)</td></tr>
+      <tr><td>debt.amount_cents (principal)</td><td><span class="ct-lw">Last-Write-Wins</span></td><td>Digest notification</td></tr>
+      <tr><td>debt_payment (new record)</td><td><span class="ct-m">Field Merge</span> (different entity IDs — both payments kept)</td><td>No notification</td></tr>
+      <tr><td>budget_allocation.amount_cents</td><td><span class="ct-lw">Last-Write-Wins</span></td><td>No notification</td></tr>
+      <tr><td>category (name collision on create)</td><td><span class="ct-lw">Last-Write-Wins</span> + auto-rename loser: "Category Name (device)"</td><td>Digest notification with rename detail</td></tr>
+      <tr><td>Preference (sync_eligible)</td><td><span class="ct-lw">Last-Write-Wins</span> on updated_at</td><td>No notification (preferences are personal, not collaborative)</td></tr>
+      <tr><td>archive seal (period)</td><td><span class="ct-dw">Archive-Wins</span></td><td>In-app warning on the device whose changes were rejected</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>7.3 Conflict History</h3>
+  <p>All resolved conflicts are recorded in a <code>conflict_log</code> table (part of finance.db) with: operation IDs of both sides, resolution strategy applied, winning value, losing value (retained for 30 days for user review), resolution timestamp. Users can view conflict history in Settings → Sync → Conflict History. After 30 days, losing values are purged from the log (the winning value persists in the financial record itself).</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §8 ═══ -->
+<section id="s8">
+  <div class="sec-header">
+    <span class="sec-num">08</span>
+    <div>
+      <h2 class="sec-title">Network Awareness</h2>
+      <p class="sec-sub">Six precisely defined network states — with automatic detection, state transitions, and Finance Bag's behavior for each condition.</p>
+    </div>
+  </div>
+
+  <h3>8.1 Network State Machine</h3>
+  <div class="tw"><table>
+    <thead><tr><th>State</th><th>Definition</th><th>Detection mechanism</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ns-bad">OFFLINE</span></td><td>No network interface active. Device has no connectivity path.</td><td>React Native NetInfo: <code>isConnected = false</code> OR <code>isInternetReachable = false</code>.</td></tr>
+      <tr><td><span class="ns-good">ONLINE</span></td><td>Network active, internet reachable, latency acceptable (P50 &lt;500ms).</td><td>NetInfo: <code>isConnected = true</code> AND <code>isInternetReachable = true</code> AND connectivity probe succeeds.</td></tr>
+      <tr><td><span class="ns-warn">DEGRADED</span></td><td>Network active but unreliable: high latency (P50 &gt;2000ms), significant packet loss, or multiple consecutive request timeouts.</td><td>NetInfo reports connected + reachable, but SyncOrchestrator's last 3 requests returned timeout or network error. Degraded state persists until 3 consecutive successful requests.</td></tr>
+      <tr><td><span class="ns-warn">CAPTIVE_PORTAL</span></td><td>Connected to a WiFi network that intercepts HTTP and redirects to a login page (airports, hotels, coffee shops).</td><td>NetInfo: <code>isConnected = true</code> AND <code>isInternetReachable = false</code>. Alternative: HTTP request to a known endpoint returns 200 from an unexpected origin (captive portal intercept detected).</td></tr>
+      <tr><td><span class="ns-warn">CELLULAR_CONSTRAINED</span></td><td>Connected via cellular data with user preference to not sync on cellular, or with low data warning from OS.</td><td>NetInfo: <code>type = 'cellular'</code> AND (<code>backup.cellular_sync = false</code> preference OR OS low-data mode flag active).</td></tr>
+      <tr><td><span class="ns-bad">BACKGROUND</span></td><td>App is in background state. Network access limited by OS background execution restrictions.</td><td>React Native AppState: <code>currentState = 'background'</code>. Network requests are limited to background-fetch allocated time slices.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>8.2 Behavior per Network State</h3>
+  <div class="tw"><table>
+    <thead><tr><th>State</th><th>Local reads</th><th>Local writes</th><th>Sync behavior</th><th>User notification</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ns-bad">OFFLINE</span></td><td>Full — from local DB</td><td>Full — to local DB + sync queue</td><td>Sync queue accumulates. No dispatch attempts. Sync scheduled for ONLINE transition.</td><td>Sync status: PENDING (if queue has items). No error — offline is normal.</td></tr>
+      <tr><td><span class="ns-good">ONLINE</span></td><td>Full — from local DB</td><td>Full — to local DB + sync queue + immediate dispatch</td><td>Queue drained immediately on transition. Background sync every 15 min. Foreground sync on every write.</td><td>Sync status: SYNCING → ONLINE_IDLE. No intrusive notification.</td></tr>
+      <tr><td><span class="ns-warn">DEGRADED</span></td><td>Full — from local DB</td><td>Full — to local DB + sync queue</td><td>Sync attempted with aggressive timeout (5s per request vs. 30s normal). Retries use exponential backoff. P1 operations attempted first; P3-P4 deferred until state improves.</td><td>Sync status: SYNCING (with slow indicator) or PENDING. Optional "Slow connection" toast if user is actively syncing.</td></tr>
+      <tr><td><span class="ns-warn">CAPTIVE_PORTAL</span></td><td>Full — from local DB</td><td>Full — to local DB + sync queue</td><td>Sync halted. No dispatch attempts until captive portal is resolved. One-time notification: "Connected to WiFi, but internet access is blocked. Your changes are saved and will sync when you're connected."</td><td>One-time system notification. Status indicator: PENDING.</td></tr>
+      <tr><td><span class="ns-warn">CELLULAR_CONSTRAINED</span></td><td>Full — from local DB</td><td>Full — to local DB + sync queue</td><td>Lightweight operations (Phase 1 preference sync) allowed. Backup upload (Phase 2) and large data sync (Phase 3/4) deferred until WiFi. P1 critical operations (ARCHIVE_SEAL, SOFT_DELETE) allowed on cellular regardless.</td><td>No notification unless user manually initiates sync: "Large sync deferred to WiFi."</td></tr>
+      <tr><td><span class="ns-bad">BACKGROUND</span></td><td>N/A (app not in foreground)</td><td>N/A</td><td>Background fetch (OS-granted): if allocated time ≥ 10s, attempt incremental sync of P1+P2 operations only. Record outcomes in sync_queue for foreground review.</td><td>Silent. No background notifications for sync activity unless a conflict is detected.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>8.3 State Transitions</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">Network State Transition Rules</div>
+    <ul>
+      <li><strong>OFFLINE → ONLINE:</strong> Publish <code>NETWORK_RESTORED</code> event to EventBus. SyncOrchestrator subscribes and immediately begins queue drain. Status transitions PENDING → SYNCING.</li>
+      <li><strong>ONLINE → OFFLINE:</strong> Publish <code>NETWORK_LOST</code> event. SyncOrchestrator pauses dispatch (no retry storm). Any IN_FLIGHT operations are reverted to PENDING status (with retry count preserved).</li>
+      <li><strong>ONLINE → DEGRADED:</strong> SyncOrchestrator switches to timeout-reduced mode. No user interruption. If DEGRADED persists more than 5 minutes: status badge shows degraded indicator.</li>
+      <li><strong>DEGRADED → ONLINE:</strong> After 3 consecutive successful requests. Full sync resumes immediately.</li>
+      <li><strong>Any → CAPTIVE_PORTAL:</strong> SyncOrchestrator halts immediately. One-time user notification. No retry attempts until state changes.</li>
+      <li><strong>CAPTIVE_PORTAL → ONLINE:</strong> User authenticated with portal (external action). NetInfo detects internet reachability restored. Normal sync resumes.</li>
+    </ul>
+  </div>
+
+  <h3>8.4 Connectivity Probe</h3>
+  <p>React Native's <code>NetInfo.isInternetReachable</code> is not perfectly reliable on all Android devices. Finance Bag supplements it with a periodic lightweight connectivity probe:</p>
+  <ul>
+    <li>Probe: HTTP HEAD request to Finance Bag's health endpoint (future: <code>https://api.financebag.app/health</code>). In v1.0: HTTP HEAD to a public CDN URL for app bundle integrity check.</li>
+    <li>Probe interval: every 60 seconds when NetInfo reports connected but isInternetReachable is uncertain (null or false with isConnected = true).</li>
+    <li>Probe success (200 from expected origin): transition to ONLINE.</li>
+    <li>Probe failure (non-200 or unexpected origin): CAPTIVE_PORTAL state.</li>
+    <li>Probe timeout (5s): DEGRADED state.</li>
+    <li>Probe cost: HEAD request is ~200 bytes. Probing once per 60 seconds costs ~288KB/day — negligible.</li>
+  </ul>
+</section>
+
+<section id="s9">
+  <h2>9. User Experience &amp; Status Transparency</h2>
+  <p>Offline-first architecture must be invisible to users who never think about sync, and informative to users who do. The UX layer presents exactly enough information to build trust without overwhelming with technical details.</p>
+
+  <h3>9.1 Sync Status Indicator</h3>
+  <p>A persistent, minimal status pill appears in the top-right corner of every screen (below the module header). It communicates connectivity and sync state at a glance:</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Network State</th><th>Pill Label</th><th>Pill Color</th><th>Icon</th><th>Tap Target</th></tr></thead>
+      <tbody>
+        <tr><td>ONLINE + queue empty</td><td><em>no pill shown</em></td><td>—</td><td>—</td><td>—</td></tr>
+        <tr><td>ONLINE + syncing</td><td>Syncing…</td><td>Blue (#3B82F6)</td><td>Animated spinner</td><td>Opens sync drawer</td></tr>
+        <tr><td>ONLINE + pending</td><td>N pending</td><td>Amber (#F59E0B)</td><td>Upload arrow</td><td>Opens sync drawer</td></tr>
+        <tr><td>DEGRADED</td><td>Slow connection</td><td>Amber (#F59E0B)</td><td>Signal-low</td><td>Opens sync drawer</td></tr>
+        <tr><td>CAPTIVE_PORTAL</td><td>Sign in to Wi-Fi</td><td>Orange (#FB923C)</td><td>Wi-Fi exclamation</td><td>Opens browser to portal URL</td></tr>
+        <tr><td>CELLULAR_CONSTRAINED</td><td>Offline (metered)</td><td>Gray (#6B7280)</td><td>Pause circle</td><td>Opens sync settings</td></tr>
+        <tr><td>OFFLINE</td><td>Offline</td><td>Gray (#6B7280)</td><td>No-wifi</td><td>Opens sync drawer</td></tr>
+        <tr><td>BACKGROUND</td><td><em>no pill shown</em></td><td>—</td><td>—</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The pill is absent when everything is working normally (ONLINE, queue empty). Presence of the pill is itself a signal: something requires attention or awareness. The pill animates in via a 200ms fade+slide — no animation when it disappears (instant removal avoids drawing attention to absence).</p>
+
+  <h3>9.2 Sync Status Drawer</h3>
+  <p>Tapping the sync status pill (or pulling down a dedicated gesture) opens a bottom sheet drawer with expanded sync context. The drawer is informational — no actions are taken from it except "Retry now" and "View conflicts":</p>
+  <ul>
+    <li><strong>Connection row</strong>: Network type (Wi-Fi / Cellular / None), signal strength badge, SSID if available.</li>
+    <li><strong>Last sync row</strong>: "Last synced: 3 minutes ago" with relative timestamp. Tapping shows exact UTC time. Shown as "Never synced" if account has never synced.</li>
+    <li><strong>Pending operations row</strong>: Count of PENDING operations in sync_queue, broken down by entity type (e.g., "12 expenses, 3 goals, 1 preference"). Hidden if 0.</li>
+    <li><strong>In-flight row</strong>: Count of IN_FLIGHT operations and current batch number (e.g., "Uploading batch 2 of 4"). Hidden if 0.</li>
+    <li><strong>Error row</strong>: Count of FAILED operations. Shown in amber. Tapping reveals error list. Hidden if 0.</li>
+    <li><strong>DEAD operations row</strong>: Count of DEAD (unrecoverable) operations. Shown in red. Tapping reveals conflict or error details. Hidden if 0.</li>
+    <li><strong>Retry now button</strong>: Visible only when FAILED operations exist and current state is ONLINE. Triggers immediate retry cycle, starting at attempt 1 (resets retry_count).</li>
+    <li><strong>View conflict history link</strong>: Navigates to Settings → Sync → Conflict History if any conflict_log rows exist.</li>
+  </ul>
+
+  <h3>9.3 Pending Changes Badge</h3>
+  <p>Each module's nav item can display a small numeric badge indicating pending (not-yet-synced) writes for data owned by that module. This is supplementary — the user can still read and write normally. The badge communicates "your data is not yet in the cloud."</p>
+  <ul>
+    <li>Badge appears only when PENDING count &gt; 0 for that module's entity types.</li>
+    <li>Badge is suppressed if the app is ONLINE and currently syncing (so it doesn't flicker during fast syncs).</li>
+    <li>Badge is suppressed entirely in v1.0 (deferred to cloud sync rollout) to avoid confusion when cloud sync doesn't yet exist.</li>
+    <li>Maximum display: "99+" for counts above 99.</li>
+  </ul>
+
+  <h3>9.4 In-App Conflict Notification</h3>
+  <p>When a conflict is detected and requires user resolution (Type F: User Choice strategy), an in-app notification card appears. It does not use a system push notification — conflicts are resolved in-app, not via background alert.</p>
+  <ul>
+    <li><strong>Card location</strong>: Inline card on the affected entity's detail screen (e.g., expense detail, goal detail). The card replaces the normal view of the field(s) in conflict.</li>
+    <li><strong>Card content</strong>: Side-by-side comparison of local value vs. server value, with "This device" / "Cloud" labels and formatted timestamps.</li>
+    <li><strong>Actions</strong>: "Keep mine" / "Use theirs" / "View history" (last 3 values in conflict_log). The chosen value is written immediately as a new operation — no partial states.</li>
+    <li><strong>Dismissal</strong>: Cannot be dismissed without making a choice. Swiping away is disabled. This prevents silent data loss.</li>
+    <li><strong>Unresolved conflicts badge</strong>: The Settings tab nav item shows a red dot badge if unresolved User Choice conflicts exist.</li>
+  </ul>
+
+  <h3>9.5 Last Sync Timestamp</h3>
+  <p>The last successful sync timestamp is stored in <code>app_state.last_sync_at</code> (ISO-8601 UTC). It is displayed in:</p>
+  <ul>
+    <li>Sync status drawer (primary location).</li>
+    <li>Settings → Sync → Sync Status screen (detailed view with per-phase timestamps: last_preference_sync_at, last_backup_sync_at, last_delta_sync_at).</li>
+    <li>Formatted relative ("3 minutes ago", "Yesterday at 2:14 PM", "Jul 3, 2026") for human readability; exact UTC on long-press.</li>
+  </ul>
+
+  <h3>9.6 Data Freshness Indicator</h3>
+  <p>Reports and dashboards display a subtle freshness indicator when the user is viewing data that has not been confirmed synced to the cloud:</p>
+  <ul>
+    <li><strong>Trigger</strong>: User is on a reports or dashboard screen AND PENDING count &gt; 0 AND more than 15 minutes have elapsed since last_sync_at.</li>
+    <li><strong>Indicator</strong>: A small "Local data only" chip below the report header. Not a blocking banner — reports remain fully usable.</li>
+    <li><strong>Suppressed in v1.0</strong> (same as badges — deferred to cloud sync rollout).</li>
+  </ul>
+
+  <h3>9.7 Offline Write Confirmation</h3>
+  <p>When a user saves a financial record while OFFLINE, the save succeeds immediately (optimistic write) and a brief toast confirms it:</p>
+  <ul>
+    <li>Toast text: "Saved · Will sync when online" (max 2 seconds, non-intrusive).</li>
+    <li>Toast is shown only when network state is OFFLINE or CELLULAR_CONSTRAINED.</li>
+    <li>Toast is suppressed if the user has dismissed it more than 3 times in the last 7 days (preference: <code>ofl.show_offline_save_toast</code>).</li>
+    <li>No toast is shown when ONLINE — save is silent (expected behavior).</li>
+  </ul>
+</section>
+
+<section id="s10">
+  <h2>10. Error Recovery &amp; Resilience</h2>
+  <p>A resilient offline-first system anticipates every failure mode and has a defined, tested recovery path for each. No failure scenario should leave the application in an inconsistent state or require user intervention beyond acknowledging a message.</p>
+
+  <h3>10.1 Recovery Procedures by Failure Type</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Failure Scenario</th><th>Detection</th><th>Automatic Recovery</th><th>User Notification</th><th>Data Loss Risk</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Sync interrupted mid-batch</td>
+          <td>App foreground; IN_FLIGHT ops still in queue after 5 min</td>
+          <td>All IN_FLIGHT ops reset to PENDING on app launch; retry from batch start (idempotent)</td>
+          <td>None (transparent)</td>
+          <td>None — no partial state accepted</td>
+        </tr>
+        <tr>
+          <td>Server returns 5xx</td>
+          <td>HTTP response code</td>
+          <td>Exponential backoff retry (5 attempts); DEAD if all fail</td>
+          <td>Toast after 3rd failure; sync drawer shows error</td>
+          <td>None — local data intact</td>
+        </tr>
+        <tr>
+          <td>Server returns 401 (auth expired)</td>
+          <td>HTTP 401 response</td>
+          <td>SyncManager pauses, emits AUTH_EXPIRED event; AuthService attempts silent token refresh</td>
+          <td>If refresh fails: "Sign in again to resume sync" prompt</td>
+          <td>None — local data intact</td>
+        </tr>
+        <tr>
+          <td>Server returns 409 (conflict)</td>
+          <td>HTTP 409 response per operation</td>
+          <td>ConflictResolver applies strategy per entity type; resolved operations re-queued as new UPDATE</td>
+          <td>User Choice conflicts shown in-app</td>
+          <td>None — both versions preserved in conflict_log</td>
+        </tr>
+        <tr>
+          <td>Duplicate operation submitted</td>
+          <td>Server deduplication via idempotency key (ULID)</td>
+          <td>Server returns 200 with original result; client marks COMPLETED</td>
+          <td>None</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td>App crash during local write</td>
+          <td>Incomplete SQLite transaction automatically rolled back by WAL</td>
+          <td>Transaction atomicity ensures DB stays consistent; next open reads correct state</td>
+          <td>None</td>
+          <td>None — WAL guarantees atomicity</td>
+        </tr>
+        <tr>
+          <td>App crash during sync dispatch</td>
+          <td>IN_FLIGHT ops found on next launch (stale IN_FLIGHT detection)</td>
+          <td>IN_FLIGHT ops with no processed_at &gt; 10 minutes are reset to PENDING</td>
+          <td>None</td>
+          <td>None — server deduplication handles re-submission</td>
+        </tr>
+        <tr>
+          <td>Corrupted sync_queue row</td>
+          <td>JSON parse failure on payload_json or vector_clock_json</td>
+          <td>Row moved to DEAD status; error details written to error_detail field; rest of queue continues</td>
+          <td>Sync drawer shows DEAD count</td>
+          <td>That specific operation is lost; underlying local data is intact</td>
+        </tr>
+        <tr>
+          <td>Storage full (device)</td>
+          <td>SQLite SQLITE_FULL error on INSERT</td>
+          <td>Nightly maintenance pre-empts with storage warning at 500MB; emergency cleanup if SQLITE_FULL is hit</td>
+          <td>"Storage almost full — review attachments" warning banner</td>
+          <td>New writes blocked until space freed; existing data safe</td>
+        </tr>
+        <tr>
+          <td>sync_queue table corrupted</td>
+          <td>quick_check integrity failure on sync_queue during nightly maintenance</td>
+          <td>Drop and recreate sync_queue; enqueue full-data Phase 4 sync to rebuild server state</td>
+          <td>"Sync history reset — full re-sync started"</td>
+          <td>Queue history lost; all local data preserved; server sync catches up</td>
+        </tr>
+        <tr>
+          <td>Vector clock corrupted</td>
+          <td>JSON parse failure on app_state.sync_vector_json</td>
+          <td>Reset clock to empty {}; treat all subsequent operations as new (no dominance comparison); re-sync from Phase 4</td>
+          <td>"Sync clock reset — re-syncing"</td>
+          <td>Potential for conflict re-generation on items already resolved; conflict_log preserved for reference</td>
+        </tr>
+        <tr>
+          <td>Cloud service unavailable (&gt;24h)</td>
+          <td>All retry attempts exhausted across multiple sessions; sync_queue has DEAD ops</td>
+          <td>Local app continues fully offline; queue preserved indefinitely (no TTL on PENDING/DEAD)</td>
+          <td>Sync drawer shows "Cloud unavailable — data saved locally" with last successful sync time</td>
+          <td>None — local-primary architecture</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>10.2 Stale IN_FLIGHT Detection</h3>
+  <p>On every app foreground event and every cold launch, SyncManager runs a stale-operation check:</p>
+  <ol>
+    <li>Query sync_queue WHERE status = 'IN_FLIGHT'.</li>
+    <li>For each row: if (now − created_at) &gt; 10 minutes AND processed_at IS NULL: reset status to PENDING, increment retry_count by 1.</li>
+    <li>If retry_count after increment ≥ 5: set status = DEAD, set error_detail = 'Stale IN_FLIGHT timeout'.</li>
+    <li>This runs within a SQLite transaction so the check-and-update is atomic.</li>
+  </ol>
+
+  <h3>10.3 Queue Consistency Invariants</h3>
+  <p>The following invariants must hold at all times. Violation triggers a full sync_queue rebuild (drop + re-enqueue from local DB):</p>
+  <ul>
+    <li><strong>INV-OFL-01</strong>: Every sync_queue row has a valid JSON payload_json parseable to the SyncOperation type.</li>
+    <li><strong>INV-OFL-02</strong>: Every sync_queue row with status = IN_FLIGHT has a corresponding in-progress network request OR was created more than 10 minutes ago (stale detection applies).</li>
+    <li><strong>INV-OFL-03</strong>: No two sync_queue rows share the same id (ULID primary key enforced by SQLite UNIQUE constraint).</li>
+    <li><strong>INV-OFL-04</strong>: For every entity_type + entity_id combination, there is at most one PENDING CREATE row (duplicates are compacted on insert).</li>
+    <li><strong>INV-OFL-05</strong>: A SOFT_DELETE row for entity_type + entity_id cancels all prior PENDING rows for the same entity (queue compaction on insert).</li>
+  </ul>
+
+  <h3>10.4 Manual Recovery Tools</h3>
+  <p>Available under Settings → Developer Options (hidden in production builds; exposed in debug/staging):</p>
+  <ul>
+    <li><strong>Reset sync queue</strong>: Clears all PENDING, FAILED, DEAD rows. Triggers Phase 4 full re-sync. Irreversible — pre-operation backup created automatically before clearing.</li>
+    <li><strong>Force full re-sync</strong>: Keeps sync_queue intact but enqueues a Phase 4 trigger on next foreground.</li>
+    <li><strong>Export sync queue</strong>: Exports all sync_queue rows as JSON for diagnostic submission. Sanitized (no payload_json content) in release builds.</li>
+    <li><strong>Reset vector clock</strong>: Resets app_state.sync_vector_json to {}. Use when persistent clock skew errors are detected.</li>
+  </ul>
+</section>
+
+<section id="s11">
+  <h2>11. Performance Architecture</h2>
+  <p>Offline-first must not mean slow. The architecture enforces strict latency budgets that ensure the app feels fast whether or not the network is available.</p>
+
+  <h3>11.1 Latency Targets</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Operation</th><th>Target P50</th><th>Target P99</th><th>Mechanism</th></tr></thead>
+      <tbody>
+        <tr><td>Cold-start dashboard render</td><td>&lt;200ms</td><td>&lt;500ms</td><td>Pre-computed snapshot in app_state.dashboard_snapshot_json; no DB query on render</td></tr>
+        <tr><td>Expense list load (first 50)</td><td>&lt;100ms</td><td>&lt;250ms</td><td>Indexed query on expenses.period_id; WAL read does not block writes</td></tr>
+        <tr><td>Local write (expense create)</td><td>&lt;30ms</td><td>&lt;80ms</td><td>Single SQLite INSERT + sync_queue INSERT in WAL mode</td></tr>
+        <tr><td>Search query (FTS5)</td><td>&lt;50ms</td><td>&lt;150ms</td><td>BM25 ranking on FTS5 virtual table; search.db separate file (no lock contention)</td></tr>
+        <tr><td>Sync dispatch (100 ops)</td><td>&lt;2s</td><td>&lt;8s</td><td>Single HTTP request per batch; network latency dominates</td></tr>
+        <tr><td>Phase 1 preference sync</td><td>&lt;500ms</td><td>&lt;2s</td><td>Small JSON payload (~5KB); LWW merge is O(n) on key count</td></tr>
+        <tr><td>Nightly maintenance (full)</td><td>&lt;3s</td><td>&lt;8s</td><td>Scheduled in background task; WAL PASSIVE checkpoint is non-blocking</td></tr>
+        <tr><td>Conflict detection per operation</td><td>&lt;1ms</td><td>&lt;5ms</td><td>Vector clock comparison is O(n) on device count (≤5 devices)</td></tr>
+        <tr><td>Dashboard snapshot refresh</td><td>&lt;500ms</td><td>&lt;1.5s</td><td>Triggered on relevant events; aggregation query with indexed fields</td></tr>
+        <tr><td>App resume from background</td><td>&lt;100ms</td><td>&lt;300ms</td><td>DB already open; no re-auth for &lt;auto-lock timeout; snapshot already cached</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>11.2 WAL Mode Optimization</h3>
+  <p>SQLite WAL (Write-Ahead Log) mode is the foundation of Finance Bag's read/write concurrency:</p>
+  <ul>
+    <li>Readers never block writers; writers never block readers. Local UI writes and sync reads can interleave without lock contention.</li>
+    <li>WAL file is checkpointed via PRAGMA wal_checkpoint(PASSIVE) during nightly maintenance — passive mode does not block active readers.</li>
+    <li>WAL file is also checkpointed on app backgrounding (via AppState listener) to prevent unbounded WAL growth between maintenance windows.</li>
+    <li>WAL file maximum size: 10MB before automatic checkpoint is triggered regardless of schedule (PRAGMA wal_autocheckpoint = 2560 pages at 4096 bytes each).</li>
+    <li>finance.db and search.db each have their own WAL file. They are checkpointed independently.</li>
+  </ul>
+
+  <h3>11.3 Large Import Batching</h3>
+  <p>Importing large CSV files (e.g., 500 bank transactions) is a common user workflow. This must not freeze the UI or overwhelm the sync queue:</p>
+  <ul>
+    <li><strong>Batch size</strong>: 50 records per SQLite transaction. Larger batches risk exceeding WAL page limits and cause perceptible UI lag.</li>
+    <li><strong>Inter-batch yield</strong>: After each 50-record transaction commits, the import job yields execution for 16ms (one animation frame) before the next batch. This keeps the UI responsive at 60fps.</li>
+    <li><strong>Sync queue de-duplication during import</strong>: All 500 CREATE operations are enqueued in the sync_queue, but the queue dispatch does not start until import completes. A single sync dispatch then batches them in groups of 100.</li>
+    <li><strong>Progress reporting</strong>: Import UI shows "Saving 50 of 500 expenses…" with a progress bar updated per batch. Cancel is allowed between batches (already-committed batches remain; partial import is valid).</li>
+    <li><strong>Duplicate detection during import</strong>: Before inserting each record, check (amount_cents, date, description_hash) tuple. Existing matches are skipped (not duplicated). A final "3 duplicates skipped" summary is shown.</li>
+  </ul>
+
+  <h3>11.4 Storage Monitoring</h3>
+  <p>Storage is monitored proactively to prevent the SQLITE_FULL failure scenario:</p>
+  <ul>
+    <li>Total storage used is computed during nightly maintenance (sum of file sizes for finance.db, finance.db-wal, search.db, attachments directory, backups directory).</li>
+    <li>Result is stored in app_state.storage_used_bytes.</li>
+    <li>Warning threshold: 500MB. When exceeded, a non-intrusive banner appears on next app open: "Storage at 500MB — review attachments and old backups."</li>
+    <li>Critical threshold: 900MB. When exceeded, a modal appears blocking navigation: "Storage almost full. Finance Bag needs space to save your data." with actions: "Manage attachments", "Delete old backups", "Export and clear data".</li>
+    <li>Free space check: Before any file write (attachment save, backup creation), check that device free space &gt; (file size × 2) + 50MB safety margin. If not, abort the operation with a user-facing error.</li>
+  </ul>
+
+  <h3>11.5 Background Sync Constraints</h3>
+  <p>Background sync (when app is backgrounded or device is locked) is subject to OS restrictions:</p>
+  <ul>
+    <li><strong>iOS (Expo Background Task)</strong>: Background execution limited to ~30 seconds per OS grant. SyncManager prioritizes the highest-priority PENDING operations first (P1, then P2, etc.). If time runs out, IN_FLIGHT operations are reset to PENDING on next foreground.</li>
+    <li><strong>Android (Expo Background Fetch)</strong>: Background fetch interval is OS-managed (minimum ~15 minutes). Finance Bag registers a background fetch task to drain sync_queue when granted time.</li>
+    <li><strong>Network state in background</strong>: Sync is only attempted in BACKGROUND network state if queue has P1 (ARCHIVE_SEAL or SOFT_DELETE) operations. Lower-priority operations wait for foreground.</li>
+    <li><strong>Battery saver mode</strong>: Both platforms restrict background tasks in battery saver mode. Finance Bag does not attempt to circumvent this — local-primary architecture means data is safe even without background sync.</li>
+    <li><strong>Background sync is best-effort</strong>: The architecture makes no guarantees about background sync frequency. Users are informed that sync is faster when the app is open.</li>
+  </ul>
+</section>
+
+<section id="s12">
+  <h2>12. Security Considerations</h2>
+  <p>Offline-first architecture introduces unique security considerations around key availability, sync payload integrity, and the security of the local operation log. These are addressed as first-class concerns, not afterthoughts.</p>
+
+  <h3>12.1 Encrypted Local Database</h3>
+  <p>The sync_queue table resides in finance.db, which is encrypted with SQLCipher (AES-256-CBC, 256,000 PBKDF2 iterations, HMAC-SHA512 per page). The sync payload (payload_json) is encrypted at rest as part of the database encryption — it is never stored in plaintext outside the encrypted DB. This means:</p>
+  <ul>
+    <li>An attacker with physical access to the device cannot read pending sync operations without the DB_KEY.</li>
+    <li>A forensic image of the device storage yields only encrypted bytes for the sync_queue.</li>
+    <li>The sync_queue is excluded from iOS iCloud backup (<code>NSURLIsExcludedFromBackupKey = true</code> on the DB file). Only the .fbk encrypted backup includes sync state, and only indirectly (via WAL checkpoint state).</li>
+  </ul>
+
+  <h3>12.2 Authentication Persistence Across Sync</h3>
+  <p>Sync operations require authentication context (future: JWT or equivalent). The authentication lifecycle interacts with sync as follows:</p>
+  <ul>
+    <li>In v1.0 (offline-only): No authentication token is needed for sync. Sync queue is local-only.</li>
+    <li>In cloud sync phase: A valid session token is required for every HTTP request. Token expiry during a multi-batch sync cycle triggers an AUTH_EXPIRED event. SyncManager pauses, AuthService attempts silent refresh, then resumes. If refresh fails, the sync cycle pauses completely and an in-app prompt notifies the user.</li>
+    <li>Sync does not "borrow" auth from the UI session. SyncManager holds its own token reference, obtained from AuthService, not from Zustand UI state.</li>
+    <li>A force-logout (including app-initiated logout on suspicious activity) cancels all in-flight sync operations before the session is invalidated.</li>
+  </ul>
+
+  <h3>12.3 Sync Payload Security</h3>
+  <p>Zero-knowledge design: the sync payload is structured so the server processes operation logs without needing to decrypt field-level financial data:</p>
+  <ul>
+    <li>All amount_cents, balance values, and user-entered text are field-encrypted within payload_json using AES-256-GCM before the payload is serialized. The server receives an opaque blob for these fields.</li>
+    <li>Entity metadata (entity_type, entity_id, operation_type, timestamps, vector_clock) is transmitted in plaintext — this is the minimum necessary for the server to order operations and detect conflicts.</li>
+    <li>The server cannot reconstruct a user's financial picture from sync payloads alone, even if the transport layer is compromised.</li>
+    <li>Future: End-to-end encryption (E2EE) for the full payload. This requires client-side conflict resolution only (server cannot resolve conflicts it cannot read). The conflict detection algorithm must run client-side in this model.</li>
+  </ul>
+
+  <h3>12.4 Tamper Resistance of Sync Queue</h3>
+  <p>The sync_queue is the authoritative log of what the local device intends to commit. Tampering with it would allow an attacker to submit unauthorized financial operations to the cloud.</p>
+  <ul>
+    <li><strong>SQLite integrity</strong>: quick_check runs nightly to detect DB-level corruption. Corruption triggers queue rebuild, not silent use of corrupted data.</li>
+    <li><strong>Payload signature</strong> (future): Each SyncOperation payload will include an HMAC-SHA256 signature computed using a device-specific signing key stored in the hardware Keystore. The server verifies the signature before accepting any operation. This prevents an attacker who extracts payload_json from the DB from modifying and replaying operations.</li>
+    <li><strong>Sequence integrity</strong>: ULID-ordered operations in the sync_queue cannot be reordered by the server without detection — the vector clock would be inconsistent with the ULID ordering.</li>
+    <li><strong>Rate limiting</strong>: The sync server enforces per-device rate limits (max 1,000 operations per minute). A compromised device cannot flood the server with fabricated operations.</li>
+  </ul>
+
+  <h3>12.5 Offline Key Management</h3>
+  <p>The DB_KEY must be available before the sync_queue can be read or written, since both operations require the decrypted database. Key availability offline is handled as follows:</p>
+  <ul>
+    <li>DB_KEY is stored in expo-secure-store (iOS Keychain / Android Keystore). It is available offline — neither platform requires network access to retrieve hardware-backed secrets.</li>
+    <li>Biometric authentication (required to unlock DB_KEY access) works offline — both Face ID and fingerprint are local sensor operations with no network dependency.</li>
+    <li>PIN fallback (Argon2id hash comparison) also works fully offline.</li>
+    <li>There is no online key escrow in v1.0. Loss of device + loss of backup means data cannot be recovered. This is a deliberate privacy trade-off documented in the user-facing privacy notice.</li>
+    <li>Future key escrow option: an encrypted key shard can be stored in the cloud, recoverable only with a recovery passphrase. This never sends the plaintext key to the server.</li>
+  </ul>
+</section>
+
+<section id="s13">
+  <h2>13. Future Compatibility</h2>
+  <p>The offline-first architecture is designed to accommodate significant feature expansion without requiring a rebuild. The following capabilities are planned and the current architecture specifically leaves room for them.</p>
+
+  <h3>13.1 Real-Time Sync</h3>
+  <p>When cloud sync reaches Phase 3 (incremental delta sync), the architecture supports a real-time upgrade path:</p>
+  <ul>
+    <li>Replace the polling-based sync trigger with a persistent WebSocket connection to the sync server.</li>
+    <li>The operation-log model (SyncOperation rows) maps cleanly to WebSocket event streams — each event is a SyncOperation pushed from the server.</li>
+    <li>The existing ConflictResolver can be reused without modification — real-time sync changes the delivery mechanism, not the conflict model.</li>
+    <li>The vector clock model is specifically designed for multi-device concurrent editing — real-time sync is the operational mode where vector clocks provide the most value.</li>
+    <li>Fallback: if the WebSocket connection drops, the queue-based polling sync automatically takes over. The user never notices the switch.</li>
+  </ul>
+
+  <h3>13.2 Multi-Device Editing</h3>
+  <p>The current architecture supports up to 5 registered devices. Enabling simultaneous edits from multiple devices requires:</p>
+  <ul>
+    <li>Each device already has a device_id in expo-secure-store and a lane in the vector clock JSON.</li>
+    <li>The 7-type conflict classification already handles all multi-device scenarios (Type B through F cover concurrent edits from different devices).</li>
+    <li>The only addition required is cloud sync Phase 3 (incremental delta pull from server to local) — currently planned but not yet active in v1.0.</li>
+    <li>No schema changes are required. The sync_queue, conflict_log, and vector clock tables are already designed for multi-device.</li>
+  </ul>
+
+  <h3>13.3 Shared Family / Business Accounts</h3>
+  <p>Multiple users sharing a Finance Bag account requires a profile_id scoping layer:</p>
+  <ul>
+    <li>All entity tables receive a profile_id foreign key column (migration-safe: defaults to the existing user's implicit single profile).</li>
+    <li>SyncOperation gains a profile_id field in the payload — the server routes operations to the correct profile's sync log.</li>
+    <li>Conflict resolution must consider profile ownership: edits to another profile's data require elevated permission (future P3 or P4 level).</li>
+    <li>The preference scope enum (device | user | family | org) defined in SPEC-SET-001 §17 maps directly to profile types.</li>
+    <li>Each profile gets its own sync_vector_json clock — clocks across profiles are not compared (profiles are not causally ordered).</li>
+  </ul>
+
+  <h3>13.4 Business Workspaces</h3>
+  <p>Business accounts introduce org-level data that multiple users contribute to simultaneously:</p>
+  <ul>
+    <li>A workspace_id replaces or extends profile_id. Each workspace has its own sync log stream on the server.</li>
+    <li>Workspace data may require server-side conflict resolution for shared budgets (e.g., two team members update the same budget allocation simultaneously).</li>
+    <li>The field-merge conflict resolution strategy (already defined) is the correct model for concurrent budget allocation edits.</li>
+    <li>Access control lists (ACLs) per entity type: some users have read-only access to certain modules. The permission level system (P0–P3) maps to workspace roles (viewer / editor / admin / owner).</li>
+  </ul>
+
+  <h3>13.5 AI Sync</h3>
+  <p>AI-powered features (categorization suggestions, anomaly detection, spending forecasts) require embedding vectors that must be synced:</p>
+  <ul>
+    <li>SyncOperation payload gains an optional embeddings field (float32 array). The server stores embeddings in a vector database separate from the relational sync store.</li>
+    <li>Embeddings are computed on-device (future: Core ML / TFLite model) and included in CREATE/UPDATE operations for expense and goal entities.</li>
+    <li>The sync queue already supports arbitrary JSON in payload_json — embeddings are added as a versioned field with backward-compatible schema evolution.</li>
+    <li>Vector clock ordering applies to embeddings as to any other field — concurrent embedding updates use Last-Write-Wins (embeddings are not mergeable).</li>
+  </ul>
+
+  <h3>13.6 Cloud Provider Portability</h3>
+  <p>The sync architecture is designed to be cloud-provider agnostic:</p>
+  <ul>
+    <li>SyncManager communicates with an abstract SyncAdapter interface (v1.0: LocalSyncAdapter that no-ops; v2: RestSyncAdapter for Finance Bag cloud; future: S3SyncAdapter, iCloudSyncAdapter for user-owned storage).</li>
+    <li>The SyncAdapter interface requires only four operations: pushOperations(ops[]), pullOperations(since: vector_clock), resolveConflict(local, remote), uploadBackup(file).</li>
+    <li>Users can choose their own cloud storage provider (S3 bucket, iCloud Drive, Google Drive) for backup sync in particular. Phase 2 backup sync is the first target for this flexibility.</li>
+  </ul>
+
+  <h3>13.7 Wearable Companion</h3>
+  <p>Apple Watch / Wear OS companions would receive a minimal sync vector subset:</p>
+  <ul>
+    <li>Only dashboard snapshot and quick-expense-create capability are synced to the wearable.</li>
+    <li>The wearable device gets its own device_id and vector clock lane, but only for the entity types it can write (expense CREATE).</li>
+    <li>A WearSyncAdapter proxies through the paired phone's SyncManager — the wearable never establishes a direct cloud connection.</li>
+    <li>Sync priority for wearable-originated expenses: P4 (CREATE) — same as any other CREATE operation. No special priority.</li>
+  </ul>
+
+  <h3>13.8 Desktop Companion</h3>
+  <p>A future desktop app (Electron or Tauri) would participate in the same sync network as mobile devices:</p>
+  <ul>
+    <li>Desktop counts as a registered device (increments toward the 5-device max).</li>
+    <li>Desktop uses the same SyncAdapter interface (RestSyncAdapter) and the same operation-log model.</li>
+    <li>Desktop has no hardware Keystore equivalent — DB_KEY is derived from a user-supplied passphrase via Argon2id on desktop (no biometric option in v1.0).</li>
+    <li>Desktop sync queue is a SQLite table in the desktop app's local database — identical schema to the mobile sync_queue.</li>
+  </ul>
+</section>
+
+<section id="s14">
+  <h2>14. Edge Cases</h2>
+
+  <h3>14.1 Device Change (EC-OFL-01)</h3>
+  <p><strong>Scenario</strong>: User buys a new phone. Old device data needs to transfer to the new device.</p>
+  <ul>
+    <li><strong>v1.0 path</strong>: User creates a manual backup on old device (.fbk file), transfers via AirDrop/Files/cable, restores on new device via Settings → Backup → Restore. New device gets all financial data as a point-in-time snapshot. Sync queue from old device is not transferred (PENDING/FAILED ops are abandoned — old device should drain queue before creating backup).</li>
+    <li><strong>Cloud sync path</strong>: New device registers with account, downloads Phase 4 full sync from cloud. Local state is rebuilt from operation log. No manual file transfer required.</li>
+    <li><strong>Constraint</strong>: Old device should be deregistered after transfer to keep device count ≤ 5. If old device count exceeds 5, new registration requires deregistering an existing device via Settings → Sync → Registered Devices.</li>
+  </ul>
+
+  <h3>14.2 App Reinstall (EC-OFL-02)</h3>
+  <p><strong>Scenario</strong>: User deletes and reinstalls the app.</p>
+  <ul>
+    <li>iOS: expo-secure-store survives app uninstall by default (Keychain is app-scoped but persists across installs). DB_KEY and device_id are still available after reinstall. However, finance.db is deleted with the app. Result: keys exist but database does not — DB must be restored from .fbk backup. User is prompted to restore on first launch if keys are present but DB is absent.</li>
+    <li>Android: expo-secure-store (Keystore) data is deleted with app uninstall on most Android versions. DB_KEY and device_id are lost. User must restore from .fbk backup and will need to re-authenticate (PIN setup, biometric re-enrollment). This is clearly communicated in the onboarding flow.</li>
+    <li>No data loss occurs if the user has a current backup. This is why the backup frequency and auto-backup UX are critical.</li>
+  </ul>
+
+  <h3>14.3 Sync After Extended Offline Period (EC-OFL-03)</h3>
+  <p><strong>Scenario</strong>: User has been offline (airplane travel, rural area) for 6 weeks. Device has 10,000+ PENDING sync operations.</p>
+  <ul>
+    <li>The sync_queue has no TTL on PENDING operations. All 10,000 operations are preserved.</li>
+    <li>On reconnect: SyncManager detects ONLINE state and begins batch dispatch. 10,000 ops ÷ 100 per batch = 100 HTTP requests. At 2 seconds per batch: ~3.3 minutes to drain the queue.</li>
+    <li>User is informed: "Syncing 10,000 changes — this may take a few minutes."</li>
+    <li>Sync proceeds in the background while the user continues using the app (local reads/writes are not blocked).</li>
+    <li>If the user backgrounds the app before sync completes, the queue is preserved. Sync resumes on next foreground.</li>
+    <li>Vector clock skew: 6 weeks offline means the server's clock has advanced significantly. All local operations will appear "old" by server clock standards. The vector clock comparison treats this as a causally-ordered batch — no false conflicts if only one device was writing during the offline period.</li>
+  </ul>
+
+  <h3>14.4 Clock Manipulation (EC-OFL-04)</h3>
+  <p><strong>Scenario</strong>: User manually changes device clock (or travels across time zones while offline).</p>
+  <ul>
+    <li>ULID-based entity IDs include a millisecond timestamp prefix. Backward clock adjustment causes new ULIDs to have lower timestamps than recent ones — breaking the monotonic ordering guarantee.</li>
+    <li>Mitigation: SyncManager maintains a monotonic clock (last_known_timestamp in app_state). If device clock moves backward, the monotonic clock prevents ULID timestamp regression. New ULIDs are issued with monotonic_clock + random suffix, not device clock directly.</li>
+    <li>Vector clock Lamport timestamps are logical (integer counters), not wall-clock. Time zone changes and clock adjustments do not affect vector clock correctness.</li>
+    <li>Conflict Type G (clock skew) is defined for cases where the server detects an operation timestamp that is implausibly far in the past or future (defined as &gt; 30 days divergence from server time). Server-side resolution applies.</li>
+  </ul>
+
+  <h3>14.5 Multiple Simultaneous Devices (EC-OFL-05)</h3>
+  <p><strong>Scenario</strong>: User edits the same expense on phone and tablet simultaneously (both offline, then both reconnect).</p>
+  <ul>
+    <li>Both devices enqueue UPDATE operations for the same expense entity_id. Both operations are dispatched to the server when each device reconnects.</li>
+    <li>Vector clock comparison: Device A's clock and Device B's clock are concurrent — neither dominates. Server detects Type B conflict (concurrent field edits).</li>
+    <li>ConflictResolver applies Field Merge strategy: non-conflicting fields (category_id changed on device A only) are merged. Truly conflicting fields (both devices changed amount_cents) trigger User Choice resolution on the device that synced second.</li>
+    <li>The user who synced second sees the in-app conflict card and makes the final decision.</li>
+  </ul>
+
+  <h3>14.6 Cloud Rollback (EC-OFL-06)</h3>
+  <p><strong>Scenario</strong>: Finance Bag cloud service has a bug and rolls back their database to a prior state. Local devices have operations that the server no longer knows about.</p>
+  <ul>
+    <li>On next sync: server returns a lower last_processed_clock than the local vector clock. This indicates the server has lost operations the local device thought were COMPLETED.</li>
+    <li>SyncManager detects this condition (server clock regression) and transitions to Phase 4 (full re-sync). Local COMPLETED operations that are "newer" than the server's rolled-back state are re-queued as PENDING.</li>
+    <li>This is a cloud-side disaster recovery scenario — local data is the authoritative source for re-populating the cloud.</li>
+    <li>User notification: "Cloud sync issue detected — re-uploading your data." No data loss on the user's side.</li>
+  </ul>
+
+  <h3>14.7 Corrupted Sync State (EC-OFL-07)</h3>
+  <p><strong>Scenario</strong>: A bug in a previous version corrupted the sync_queue or vector clock. User upgrades to a fixed version.</p>
+  <ul>
+    <li>Migration scripts (run on DB open, within a transaction) detect and repair known corruption patterns from prior versions.</li>
+    <li>If migration cannot repair: wipe sync_queue, reset vector clock, enqueue Phase 4 full re-sync.</li>
+    <li>All financial data (expenses, goals, budgets) is in the main tables — untouched by sync_queue corruption. Only the sync history is lost, not the data.</li>
+    <li>User sees: "Sync history was reset after an update. Your data is safe — re-syncing now."</li>
+  </ul>
+
+  <h3>14.8 Large Import (EC-OFL-08)</h3>
+  <p><strong>Scenario</strong>: User imports 500 bank transactions via CSV while offline.</p>
+  <ul>
+    <li>500 PENDING CREATE operations are enqueued in sync_queue.</li>
+    <li>Each batch of 50 records takes &lt;200ms (nightly maintenance shows average is ~80ms per 50-record batch on a mid-range device).</li>
+    <li>Total import time: ~2 seconds for the full 500 records (10 batches × 200ms average).</li>
+    <li>Sync queue grows by 500 rows. Each row is ~500 bytes in payload_json (expense entity). Total queue growth: ~250KB — well within storage budget.</li>
+    <li>When reconnected: 500 ops are dispatched in 5 HTTP batches (100 ops each). Total upload time: ~10 seconds on a typical connection.</li>
+    <li>Duplicate detection: The server deduplicates on idempotency key (ULID). If the import is run twice (user error), the second run's ULIDs differ — but the duplicate detection at the application layer (amount_cents + date + description_hash tuple) prevents the second import from creating rows locally.</li>
+  </ul>
+
+  <h3>14.9 Large Export While Syncing (EC-OFL-09)</h3>
+  <p><strong>Scenario</strong>: User exports all data to CSV while a large sync cycle is in progress.</p>
+  <ul>
+    <li>Export reads from finance.db using a read transaction. WAL mode allows this to proceed concurrently with the sync write transaction (no blocking).</li>
+    <li>Export reads a consistent snapshot as of the moment the read transaction starts. Operations that commit to finance.db after the read transaction starts are not included in the export (correct — the export is a point-in-time snapshot).</li>
+    <li>Export and sync can proceed simultaneously without coordination. The WAL isolation model guarantees consistency without explicit locking from the application layer.</li>
+  </ul>
+
+  <h3>14.10 Backup Restoration Mid-Sync (EC-OFL-10)</h3>
+  <p><strong>Scenario</strong>: User restores a .fbk backup while a sync cycle is in progress.</p>
+  <ul>
+    <li>Backup restoration is a pre-operation-backup → close-DB → delete-DB → decrypt-and-restore-DB → reopen-DB sequence. This is incompatible with an active sync cycle.</li>
+    <li>Before beginning restore: SyncManager is signaled to stop immediately. All IN_FLIGHT operations are reset to PENDING (they will be superseded by the restored state anyway).</li>
+    <li>After restore: sync_queue is cleared (it contains operations for the pre-restore state, which is now gone). Vector clock is reset. Phase 4 full re-sync is triggered to reconcile the restored state with the cloud.</li>
+    <li>The user is warned: "Restoring a backup will stop the current sync and restart. Your cloud data will be updated to match the backup. Continue?" — explicit confirmation required.</li>
+  </ul>
+</section>
+
+<section id="s15">
+  <h2>15. Business Rules</h2>
+
+  <h3>15.1 Core Offline Guarantees</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Rule ID</th><th>Rule</th><th>Rationale</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="mono">BR-OFL-01</td>
+          <td><strong>Local-Primary Guarantee</strong>: Every user-initiated write is committed to the local SQLite database before any UI confirmation is shown. The app never shows "saved" before the local transaction commits.</td>
+          <td>Offline-first means local is authoritative. Users must be able to trust that "saved" means durably saved on this device.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-02</td>
+          <td><strong>Optimistic Write Requirement</strong>: All writes are optimistic — the sync queue entry is created in the same transaction as the local DB write. No write is blocked on cloud confirmation.</td>
+          <td>Blocking on network connectivity would break the offline-first guarantee. Every write is local; cloud sync is an eventual background process.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-03</td>
+          <td><strong>Sync Queue Atomicity</strong>: A financial data write and its corresponding sync_queue INSERT must occur within a single SQLite transaction. If either fails, both are rolled back.</td>
+          <td>A data row without a sync_queue entry would silently not sync to cloud. A sync_queue entry without a data row would corrupt the server state. Atomicity prevents both.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-04</td>
+          <td><strong>No Sync Without Account</strong>: Cloud sync only activates when a cloud account is linked. The sync_queue is populated regardless of account state, but dispatch only occurs with valid credentials.</td>
+          <td>New users who have not yet created an account benefit from the queue architecture from day one. Their queue drains automatically when they sign up.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-05</td>
+          <td><strong>ULID Monotonicity</strong>: All entity IDs are ULIDs. New ULIDs are never issued with a timestamp earlier than the most recently issued ULID on this device (monotonic clock enforcement).</td>
+          <td>Non-monotonic ULIDs break B-tree index ordering and cause false "old operation" detection at the server. Monotonicity must be enforced even when device clock moves backward.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-06</td>
+          <td><strong>Soft Delete Only</strong>: No hard DELETE SQL statement is ever issued for user data (expenses, goals, budgets, debts, etc.). Soft delete sets deleted_at timestamp. Hard delete only occurs on factory reset or account deletion.</td>
+          <td>Soft delete enables sync queue cancellation (a SOFT_DELETE operation can be sent to cloud to propagate the delete), conflict recovery (deleted item can be restored), and audit trail.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-07</td>
+          <td><strong>Idempotent Operations</strong>: Every SyncOperation has a unique ULID (id field) used as an idempotency key at the server. Re-submitting the same operation always produces the same result with no side effects.</td>
+          <td>Network retries are guaranteed in the retry policy. Without idempotency, retries would create duplicate records. The ULID ensures the server can recognize and deduplicate re-submitted operations.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-08</td>
+          <td><strong>Causal Ordering</strong>: Operations in the sync_queue are dispatched to the server in ULID order within each entity. A CREATE must be processed before any UPDATE for the same entity.</td>
+          <td>Out-of-order operations would cause server-side failures (UPDATE for a non-existent entity). The ULID timestamp prefix guarantees causal ordering within a device.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-09</td>
+          <td><strong>5-Attempt Retry Maximum</strong>: No sync operation is retried more than 5 times. After 5 failures, status is set to DEAD. DEAD operations are preserved in the queue for diagnostic purposes.</td>
+          <td>Unlimited retries on a malformed operation would block the queue indefinitely. The 5-attempt cap with exponential backoff balances persistence with eventual degradation.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-10</td>
+          <td><strong>Batch Size Limits</strong>: Sync dispatch batches are capped at 100 operations OR 512KB payload, whichever comes first. A single operation cannot exceed 512KB payload.</td>
+          <td>Unbounded batch sizes risk server timeout and mobile memory pressure. The 512KB limit accommodates the largest expected expense payloads (including field-encrypted blobs) with headroom.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-11</td>
+          <td><strong>DEAD Operations Preserved</strong>: DEAD sync_queue rows are never automatically deleted. They are retained until the user explicitly clears them or performs a factory reset.</td>
+          <td>DEAD operations represent failed data sync that the user may want to investigate. Automatic deletion would hide data loss from the user. Manual review is the correct resolution path.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-12</td>
+          <td><strong>Conflict Log Retention</strong>: conflict_log rows are retained for 30 days after resolution. After 30 days, they are purged by nightly maintenance.</td>
+          <td>30 days gives users time to notice unexpected data changes and trace them to a resolved conflict. Indefinite retention would grow the conflict_log unboundedly.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-13</td>
+          <td><strong>No Sync on Metered Network by Default</strong>: When network state is CELLULAR_CONSTRAINED, sync is paused by default. Users can override this in Settings → Sync → Sync on Cellular.</td>
+          <td>Unexpected data charges damage user trust. Sync over cellular is opt-in. The local-primary guarantee means no data is lost while cellular sync is disabled.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-14</td>
+          <td><strong>Backup Before Destructive Sync Operations</strong>: Before executing a Phase 4 (full re-sync) or queue reset, SyncManager automatically triggers a pre-operation backup. The reset cannot proceed if the backup fails.</td>
+          <td>Full re-sync and queue resets are destructive to sync state. A backup checkpoint before proceeding ensures the user can recover if the re-sync introduces unexpected data changes.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-OFL-15</td>
+          <td><strong>Transparency Over Silence</strong>: Sync errors that result in DEAD operations must be surfaced to the user within 24 hours (via sync drawer, not push notification). The user must never be silently losing cloud sync coverage.</td>
+          <td>Silent sync failures erode trust. Users who believe their data is synced but it is not face a data loss risk on device change. Proactive surfacing of sync errors is a trust requirement, not optional UX.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-ofl-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-ofl-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
