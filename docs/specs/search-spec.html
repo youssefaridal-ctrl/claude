@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPEC-SCH-001 — Global Search & Command Center</title>
+<style>
+  :root{--bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;--text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;--accent:#E879F9;--accent-dim:rgba(232,121,249,0.13);--accent-glow:rgba(232,121,249,0.06);--sidebar-w:272px;}
+  @media(prefers-color-scheme:light){:root{--bg:#FAFAFA;--surface:#FFFFFF;--surface2:#FDF4FF;--border:#E4E4E7;--text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;--accent-dim:rgba(232,121,249,0.10);--accent-glow:rgba(232,121,249,0.04);}}
+  :root[data-theme="dark"]{--bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;--text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;--accent-dim:rgba(232,121,249,0.13);--accent-glow:rgba(232,121,249,0.06);}
+  :root[data-theme="light"]{--bg:#FAFAFA;--surface:#FFFFFF;--surface2:#FDF4FF;--border:#E4E4E7;--text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;--accent-dim:rgba(232,121,249,0.10);--accent-glow:rgba(232,121,249,0.04);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:15px;line-height:1.65;}
+  .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;display:flex;flex-direction:column;z-index:100;}
+  .sb-head{padding:20px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;}
+  .mod-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid rgba(232,121,249,0.3);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+  .sb-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.3;}
+  .sb-sub{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .nav-list{list-style:none;padding:10px 8px;flex:1;}
+  .nav-item a{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:12.5px;color:var(--text-muted);text-decoration:none;transition:all .15s;}
+  .nav-item a:hover{background:var(--surface2);color:var(--text);}
+  .nav-item a.active{background:var(--accent-dim);color:var(--accent);font-weight:600;}
+  .nav-num{font-size:10px;font-weight:700;color:var(--accent);min-width:20px;font-variant-numeric:tabular-nums;}
+  .theme-area{padding:12px 16px;border-top:1px solid var(--border);}
+  .theme-btn{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text-muted);font-size:12px;cursor:pointer;transition:color .15s;}
+  .theme-btn:hover{color:var(--text);}
+  .main{margin-left:var(--sidebar-w);flex:1;max-width:960px;padding:48px 52px 120px;}
+  .doc-header{border-bottom:2px solid var(--border);padding-bottom:36px;margin-bottom:56px;}
+  .doc-eyebrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .spec-id{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
+  .spec-ver{font-size:11px;color:var(--text-dim);background:var(--surface2);border-radius:4px;padding:2px 8px;}
+  .status-pill{font-size:11px;font-weight:600;border-radius:20px;padding:3px 10px;background:rgba(245,158,11,.15);color:#F59E0B;border:1px solid rgba(245,158,11,.3);}
+  .doc-title{font-size:32px;font-weight:800;letter-spacing:-.025em;line-height:1.15;color:var(--text);text-wrap:balance;margin-bottom:12px;}
+  .doc-sub{font-size:16px;color:var(--text-muted);text-wrap:balance;max-width:680px;margin-bottom:24px;}
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .meta-item{background:var(--surface2);border-radius:8px;padding:10px 14px;}
+  .meta-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;}
+  .meta-val{font-size:13px;font-weight:600;color:var(--text);}
+  section{margin-bottom:64px;scroll-margin-top:28px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:26px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+  .sec-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:var(--accent);color:#fff;font-size:12px;font-weight:800;border-radius:6px;flex-shrink:0;}
+  .sec-title{font-size:21px;font-weight:700;letter-spacing:-.015em;color:var(--text);}
+  h3{font-size:15px;font-weight:700;color:var(--text);margin:28px 0 10px;letter-spacing:-.01em;}
+  h4{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin:20px 0 8px;}
+  p{color:var(--text-muted);margin-bottom:12px;}
+  strong{color:var(--text);font-weight:600;}
+  .tw{overflow-x:auto;margin:14px 0;border-radius:8px;border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead{background:var(--surface2);}
+  th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:9px 14px;border-bottom:1px solid var(--border);color:var(--text-muted);vertical-align:top;font-variant-numeric:tabular-nums;font-size:13px;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--accent-glow);}
+  td code,p code,li code{font-family:'SF Mono',ui-monospace,monospace;font-size:11.5px;background:var(--surface2);padding:1px 5px;border-radius:3px;color:var(--text);}
+  .cb{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px 18px;font-family:'SF Mono',ui-monospace,'Cascadia Code',monospace;font-size:12.5px;line-height:1.75;margin:14px 0;overflow-x:auto;white-space:pre;}
+  .cb .kw{color:#F0ABFC;}
+  .cb .ty{color:#E879F9;}
+  .cb .st{color:#86EFAC;}
+  .cb .cm{color:var(--text-dim);font-style:italic;}
+  .cb .nu{color:#FCD34D;}
+  .rc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:14px 16px;margin:10px 0;}
+  .rc-id{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}
+  .rc-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;}
+  .rc-body{font-size:13px;color:var(--text-muted);line-height:1.6;}
+  .rc-body code{font-family:'SF Mono',ui-monospace,monospace;font-size:11.5px;background:var(--surface2);padding:1px 5px;border-radius:3px;color:var(--text);}
+  .note{background:rgba(232,121,249,.07);border:1px solid rgba(232,121,249,.2);border-radius:7px;padding:12px 16px;margin:14px 0;font-size:13px;color:var(--text-muted);}
+  .warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:7px;padding:12px 16px;margin:14px 0;font-size:13px;color:var(--text-muted);}
+  .xref{background:var(--accent-glow);border:1px solid rgba(232,121,249,.2);border-radius:7px;padding:10px 14px;margin:16px 0;font-size:12.5px;color:var(--text-muted);}
+  .xref strong{color:var(--accent);}
+  ul.sl{list-style:none;padding:0;margin:10px 0;}
+  ul.sl li{padding:5px 0 5px 16px;position:relative;color:var(--text-muted);font-size:13.5px;}
+  ul.sl li::before{content:'–';position:absolute;left:0;color:var(--accent);}
+  ul.ol{list-style:none;counter-reset:ol;padding:0;margin:10px 0;}
+  ul.ol li{counter-increment:ol;padding:5px 0 5px 26px;position:relative;color:var(--text-muted);font-size:13.5px;}
+  ul.ol li::before{content:counter(ol)'.';position:absolute;left:0;font-weight:700;color:var(--accent);font-size:12px;}
+  .layer-stack{display:flex;flex-direction:column;gap:6px;margin:16px 0;}
+  .layer{display:flex;align-items:center;gap:14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;}
+  .layer-n{font-size:10px;font-weight:800;color:var(--accent);min-width:28px;font-variant-numeric:tabular-nums;}
+  .layer-name{font-size:13px;font-weight:700;color:var(--text);min-width:160px;}
+  .layer-desc{font-size:12.5px;color:var(--text-muted);flex:1;}
+  .pipeline{display:flex;align-items:center;flex-wrap:wrap;gap:0;margin:16px 0;}
+  .pipe-step{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:8px 14px;font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;}
+  .pipe-arrow{color:var(--accent);font-size:14px;padding:0 4px;}
+  .cmd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin:14px 0;}
+  .cmd-card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+  .cmd-icon{font-size:16px;margin-bottom:6px;}
+  .cmd-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+  .cmd-desc{font-size:12px;color:var(--text-muted);line-height:1.4;}
+  .cmd-kbd{display:inline-block;font-size:10px;font-weight:700;background:var(--surface2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;color:var(--text-dim);margin-top:5px;font-family:'SF Mono',ui-monospace,monospace;}
+  .rank-formula{background:var(--surface2);border:1px solid rgba(232,121,249,.25);border-radius:8px;padding:18px 20px;margin:16px 0;font-family:'SF Mono',ui-monospace,monospace;font-size:13px;line-height:2;}
+  .rank-formula .var{color:var(--accent);}
+  .rank-formula .op{color:var(--text-muted);}
+  .rank-formula .label{color:var(--text-dim);font-size:11px;margin-left:8px;}
+  .ux-mockup{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin:20px 0;font-size:13px;}
+  .ux-bar{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .ux-icon{color:var(--accent);font-size:14px;}
+  .ux-placeholder{color:var(--text-dim);flex:1;}
+  .ux-kbd{font-size:10px;color:var(--text-dim);background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:2px 5px;font-family:'SF Mono',ui-monospace,monospace;}
+  .ux-group{margin-bottom:14px;}
+  .ux-group-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px;}
+  .ux-result{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:6px;background:var(--accent-dim);}
+  .ux-result-icon{font-size:16px;}
+  .ux-result-text{flex:1;}
+  .ux-result-title{font-size:13px;font-weight:600;color:var(--text);}
+  .ux-result-sub{font-size:11.5px;color:var(--text-muted);}
+  .ux-result-badge{font-size:10px;background:rgba(232,121,249,.15);color:var(--accent);border-radius:4px;padding:2px 6px;font-weight:700;}
+  .ux-result2{display:flex;align-items:center;gap:12px;padding:8px 10px;border-radius:6px;}
+  .ux-result2:hover{background:var(--surface2);}
+  .syn-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;margin:14px 0;}
+  .syn-card{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:12px 14px;}
+  .syn-term{font-size:13px;font-weight:700;color:var(--accent);font-family:'SF Mono',ui-monospace,monospace;margin-bottom:5px;}
+  .syn-list{font-size:12px;color:var(--text-muted);}
+  @media(max-width:900px){.main{padding:28px 18px 80px;margin-left:0;}.sidebar{display:none;}.pipeline{flex-direction:column;align-items:flex-start;}}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="mod-badge">🔍 SCH</div>
+    <div class="sb-title">Global Search & Command Center</div>
+    <div class="sb-sub">SPEC-SCH-001 v1.0</div>
+  </div>
+  <ul class="nav-list" id="nav-list">
+    <li class="nav-item"><a href="#s1"><span class="nav-num">01</span>Overview & Philosophy</a></li>
+    <li class="nav-item"><a href="#s2"><span class="nav-num">02</span>Search Architecture</a></li>
+    <li class="nav-item"><a href="#s3"><span class="nav-num">03</span>Index Model & Data Catalog</a></li>
+    <li class="nav-item"><a href="#s4"><span class="nav-num">04</span>Ranking Algorithm</a></li>
+    <li class="nav-item"><a href="#s5"><span class="nav-num">05</span>Query Processing Pipeline</a></li>
+    <li class="nav-item"><a href="#s6"><span class="nav-num">06</span>Advanced Filtering System</a></li>
+    <li class="nav-item"><a href="#s7"><span class="nav-num">07</span>Search Results Model</a></li>
+    <li class="nav-item"><a href="#s8"><span class="nav-num">08</span>Command Center</a></li>
+    <li class="nav-item"><a href="#s9"><span class="nav-num">09</span>Search UX & Interaction</a></li>
+    <li class="nav-item"><a href="#s10"><span class="nav-num">10</span>Smart Search & NLP</a></li>
+    <li class="nav-item"><a href="#s11"><span class="nav-num">11</span>Performance Architecture</a></li>
+    <li class="nav-item"><a href="#s12"><span class="nav-num">12</span>Security & Privacy</a></li>
+    <li class="nav-item"><a href="#s13"><span class="nav-num">13</span>Offline Behavior</a></li>
+    <li class="nav-item"><a href="#s14"><span class="nav-num">14</span>Search History & Persistence</a></li>
+    <li class="nav-item"><a href="#s15"><span class="nav-num">15</span>Future AI Compatibility</a></li>
+    <li class="nav-item"><a href="#s16"><span class="nav-num">16</span>Business Rules</a></li>
+    <li class="nav-item"><a href="#s17"><span class="nav-num">17</span>Edge Cases</a></li>
+  </ul>
+  <div class="theme-area"><button class="theme-btn" id="theme-btn">Toggle Light / Dark</button></div>
+</nav>
+
+<main class="main">
+<header class="doc-header">
+  <div class="doc-eyebrow">
+    <span class="spec-id">SPEC-SCH-001</span>
+    <span class="spec-ver">v1.0</span>
+    <span class="status-pill">DRAFT</span>
+  </div>
+  <h1 class="doc-title">Global Search &amp;<br>Command Center</h1>
+  <p class="doc-sub">A unified productivity engine that makes every entity, action, and insight in Finance Bag instantly reachable from a single keystroke — without navigating menus or knowing where things live.</p>
+  <div class="meta-grid">
+    <div class="meta-item"><div class="meta-label">Module</div><div class="meta-val">SCH</div></div>
+    <div class="meta-item"><div class="meta-label">Accent</div><div class="meta-val">#E879F9</div></div>
+    <div class="meta-item"><div class="meta-label">Entity Types</div><div class="meta-val">35+ indexed</div></div>
+    <div class="meta-item"><div class="meta-label">Commands</div><div class="meta-val">50+ built-in</div></div>
+    <div class="meta-item"><div class="meta-label">Search Target</div><div class="meta-val">&lt; 50ms</div></div>
+    <div class="meta-item"><div class="meta-label">Version</div><div class="meta-val">1.0 — Full Spec</div></div>
+  </div>
+</header>
+
+<!-- S1 -->
+<section id="s1">
+  <div class="sec-head"><span class="sec-num">1</span><h2 class="sec-title">Overview &amp; Philosophy</h2></div>
+
+  <p>The Global Search & Command Center (module: SCH) is the single unified entry point through which users access any data, screen, or action in Finance Bag. It operates as a context-aware overlay that can be invoked from anywhere in the application in under 100ms. Users should never need to remember navigation paths — the search box is the navigation.</p>
+
+  <div class="note"><strong>Core Principle: Zero-Friction Information Retrieval.</strong> A user who wants to find March's salary, check a debt's payment history, jump to goal settings, or create a new expense should be able to do all of these from a single interface without knowing which module owns the data. The search system abstracts away the module hierarchy entirely.</div>
+
+  <h3>1.1 Four Foundational Pillars</h3>
+  <div class="layer-stack">
+    <div class="layer"><span class="layer-n">I</span><span class="layer-name">Instant</span><span class="layer-desc">Results appear within 50ms of first keystroke. No loading spinners. No waiting. The index is always warm.</span></div>
+    <div class="layer"><span class="layer-n">II</span><span class="layer-name">Intelligent</span><span class="layer-desc">Typo-tolerant, synonym-aware, context-sensitive. "salaery march" finds salary records from March. "emargency" finds Emergency Fund.</span></div>
+    <div class="layer"><span class="layer-n">III</span><span class="layer-name">Actionable</span><span class="layer-desc">Every result exposes relevant quick actions. Users never need to open a detail screen just to perform a common operation.</span></div>
+    <div class="layer"><span class="layer-n">IV</span><span class="layer-name">Offline-First</span><span class="layer-desc">All search is local. The full index lives on-device. Network is never required and never queried.</span></div>
+  </div>
+
+  <h3>1.2 What Users Can Find</h3>
+  <p>The SCH module indexes data across every Finance Bag module. A non-exhaustive list of searchable entities:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Module</th><th>Searchable Entities</th></tr></thead>
+    <tbody>
+      <tr><td>SAL</td><td>Salary records, salary periods, income sources</td></tr>
+      <tr><td>BUD</td><td>Budget categories, budget allocations, expenses, expense tags, recurring expenses</td></tr>
+      <tr><td>DBT</td><td>Debts (by creditor name), debt payments, payment schedules</td></tr>
+      <tr><td>EMF</td><td>Emergency fund status, EMF contributions, milestone history</td></tr>
+      <tr><td>GOL</td><td>Financial goals (by name), goal contributions, goal dependencies</td></tr>
+      <tr><td>RMP</td><td>Roadmap nodes (by title), roadmap edges, roadmap status</td></tr>
+      <tr><td>DSH</td><td>Dashboard widgets, financial health score snapshots</td></tr>
+      <tr><td>RPT</td><td>Saved report filters, generated reports, archive summaries</td></tr>
+      <tr><td>EVT</td><td>Notifications, scheduled reminders, automation log entries</td></tr>
+      <tr><td>SYS</td><td>Settings keys, profile fields, app preferences, currency codes</td></tr>
+      <tr><td>ARCH</td><td>Monthly archive summaries, historical period data</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1.3 Relationship to Other Modules</h3>
+  <p>SCH is a read-only consumer of all other modules' data. It does not own financial entities. Its ownership is limited to: the search index tables, search history, command registry, and saved searches. When a user performs an action through the Command Center (e.g. "Create Goal"), the request is delegated to the owning module (GOL) for execution — SCH never writes to other modules' tables.</p>
+
+  <div class="xref"><strong>Cross-References:</strong> All 15 prior specs are upstream data sources for SCH. SPEC-DB-001 defines the entity tables SCH indexes. SPEC-EVT-001 governs the events that trigger index updates.</div>
+</section>
+
+<!-- S2 -->
+<section id="s2">
+  <div class="sec-head"><span class="sec-num">2</span><h2 class="sec-title">Search Architecture</h2></div>
+
+  <p>The search architecture is a 7-layer stack running entirely on-device. Each layer has a single responsibility and communicates with adjacent layers through well-defined interfaces. No layer bypasses another.</p>
+
+  <h3>2.1 Architecture Layers</h3>
+  <div class="layer-stack">
+    <div class="layer"><span class="layer-n">L7</span><span class="layer-name">Presentation Layer</span><span class="layer-desc">The search UI overlay. Renders the input bar, result groups, command palette, and quick action menus. Receives <code>SearchResultSet</code> from L6 and renders it. Sends raw query strings to L6.</span></div>
+    <div class="layer"><span class="layer-n">L6</span><span class="layer-name">Search Orchestrator</span><span class="layer-desc">The top-level coordinator. Receives a query from L7, invokes L5 (Query Processor), receives ranked results from L4, applies active filters, and assembles the final <code>SearchResultSet</code> for L7.</span></div>
+    <div class="layer"><span class="layer-n">L5</span><span class="layer-name">Query Processor</span><span class="layer-desc">Tokenizes, sanitizes, classifies, and normalizes the raw query string. Extracts filter intent. Produces a <code>ParsedQuery</code> struct consumed by L4 and L3.</span></div>
+    <div class="layer"><span class="layer-n">L4</span><span class="layer-name">Ranking Engine</span><span class="layer-desc">Scores each candidate result using the multi-factor ranking formula. Produces an ordered list of <code>RankedResult</code> objects. Has no knowledge of the UI.</span></div>
+    <div class="layer"><span class="layer-n">L3</span><span class="layer-name">Index Engine</span><span class="layer-desc">Executes the parsed query against the search index (SQLite FTS5 virtual table + a supplementary inverted index for structured fields). Returns raw candidate matches.</span></div>
+    <div class="layer"><span class="layer-n">L2</span><span class="layer-name">Index Manager</span><span class="layer-desc">Owns the index lifecycle: build, update, and invalidate. Listens to EVT module events to trigger incremental index updates. Runs index writes on a background queue. Exposes read APIs to L3.</span></div>
+    <div class="layer"><span class="layer-n">L1</span><span class="layer-name">Data Source Adapters</span><span class="layer-desc">One adapter per module (SAL, BUD, DBT, etc.). Each adapter knows how to read its module's entities and convert them to <code>IndexRecord</code> objects. Adapters are the only layer that reads from other modules' tables.</span></div>
+  </div>
+
+  <h3>2.2 Core Components</h3>
+
+  <div class="tw"><table>
+    <thead><tr><th>Component</th><th>Layer</th><th>Responsibility</th></tr></thead>
+    <tbody>
+      <tr><td><code>SearchOrchestrator</code></td><td>L6</td><td>Entry point for all search queries. Coordinates query processing, index lookup, ranking, and result assembly.</td></tr>
+      <tr><td><code>QueryParser</code></td><td>L5</td><td>Tokenizes raw input. Extracts filter tokens (e.g. <code>category:food</code>). Expands synonyms. Returns <code>ParsedQuery</code>.</td></tr>
+      <tr><td><code>FuzzyMatcher</code></td><td>L5</td><td>Applies Levenshtein distance (≤ 2) for typo tolerance on tokens not found in the index verbatim.</td></tr>
+      <tr><td><code>IndexEngine</code></td><td>L3</td><td>Queries FTS5 virtual table for text matches. Queries structured index for field matches. Returns raw candidates.</td></tr>
+      <tr><td><code>IndexManager</code></td><td>L2</td><td>Manages incremental index updates triggered by EVT events. Batches writes. Maintains index freshness.</td></tr>
+      <tr><td><code>RankingEngine</code></td><td>L4</td><td>Computes final score for each candidate result using the multi-factor formula.</td></tr>
+      <tr><td><code>CommandRegistry</code></td><td>L6</td><td>In-memory registry of all available commands. Commands are registered by modules at app startup. Queried in parallel with the index during any search.</td></tr>
+      <tr><td><code>SearchCache</code></td><td>L6</td><td>LRU in-memory cache mapping query strings to <code>SearchResultSet</code>. Cache capacity: 50 entries. TTL: 30 seconds (invalidated sooner on index update).</td></tr>
+      <tr><td><code>DataSourceAdapter[]</code></td><td>L1</td><td>Per-module adapters that read entities and produce <code>IndexRecord</code> objects for the IndexManager.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>2.3 Index Storage</h3>
+  <p>The search index is stored in a separate SQLite database file (<code>search.db</code>) co-located with the main <code>finance.db</code>. Using a separate file provides two advantages: (1) index rebuilds do not compete with hot financial writes, and (2) the index can be deleted and fully rebuilt without touching financial data. <code>search.db</code> uses WAL mode like the main database and is encrypted with the same key.</p>
+
+  <p>The index database owns three tables:</p>
+  <ul class="sl">
+    <li><code>search_index</code> — FTS5 virtual table for full-text matching.</li>
+    <li><code>search_index_meta</code> — Structured metadata for each indexed entity (used for filter lookups not suited to FTS5).</li>
+    <li><code>search_history</code> — User's recent and saved search queries.</li>
+  </ul>
+</section>
+
+<!-- S3 -->
+<section id="s3">
+  <div class="sec-head"><span class="sec-num">3</span><h2 class="sec-title">Index Model &amp; Data Catalog</h2></div>
+
+  <p>Every entity that appears in search results must have a corresponding row in the search index. The index is the single catalog of what can be found. If an entity is not in the index, it does not appear in search — there are no fallback table-scan queries at search time.</p>
+
+  <h3>3.1 IndexRecord Schema</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>ULID</td><td>Index record identifier (separate from entity ID)</td></tr>
+      <tr><td><code>entity_type</code></td><td>TEXT</td><td>The entity's type slug (see catalog below). e.g. <code>'expense'</code>, <code>'debt'</code>, <code>'goal'</code></td></tr>
+      <tr><td><code>entity_id</code></td><td>TEXT</td><td>ULID of the source entity in the owning module's table</td></tr>
+      <tr><td><code>module</code></td><td>TEXT</td><td>Owning module code: SAL, BUD, DBT, EMF, GOL, RMP, DSH, RPT, EVT, SYS</td></tr>
+      <tr><td><code>searchable_text</code></td><td>TEXT</td><td>Concatenated, normalized text string fed into FTS5. Includes all searchable fields separated by spaces.</td></tr>
+      <tr><td><code>display_title</code></td><td>TEXT</td><td>Primary display string shown in search results</td></tr>
+      <tr><td><code>display_subtitle</code></td><td>TEXT</td><td>Secondary display string (e.g. amount, date, category)</td></tr>
+      <tr><td><code>metadata_json</code></td><td>TEXT (JSON)</td><td>Structured metadata for filter matching: date, amount, status, tags, category_id, etc.</td></tr>
+      <tr><td><code>priority_boost</code></td><td>REAL</td><td>Static boost applied to ranking. 1.0 = normal. &gt;1.0 = boosted (e.g. active debts get 1.3).</td></tr>
+      <tr><td><code>last_indexed_at</code></td><td>INTEGER</td><td>Unix ms timestamp of last index write for this record</td></tr>
+      <tr><td><code>deleted</code></td><td>INTEGER</td><td>0 = active, 1 = soft-deleted entity (excluded from results but retained for history consistency)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>3.2 Entity Type Catalog (35 Types)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>entity_type</th><th>Module</th><th>Searchable Text Sources</th><th>Priority Boost</th></tr></thead>
+    <tbody>
+      <tr><td><code>salary_record</code></td><td>SAL</td><td>source_label, notes, received_date, period_label</td><td>1.2</td></tr>
+      <tr><td><code>salary_period</code></td><td>SAL</td><td>period_label, status</td><td>1.1</td></tr>
+      <tr><td><code>expense</code></td><td>BUD</td><td>description, notes, category name, tag names, expense_date</td><td>1.0</td></tr>
+      <tr><td><code>budget_category</code></td><td>BUD</td><td>name, category_type</td><td>1.1</td></tr>
+      <tr><td><code>budget_allocation</code></td><td>BUD</td><td>category name, period_label, allocated_amount formatted</td><td>0.9</td></tr>
+      <tr><td><code>tag</code></td><td>BUD</td><td>name</td><td>0.8</td></tr>
+      <tr><td><code>recurring_expense</code></td><td>BUD</td><td>description, category name, recurrence_rule summary</td><td>1.1</td></tr>
+      <tr><td><code>debt</code></td><td>DBT</td><td>creditor_name, debt_type, notes, status</td><td>1.4</td></tr>
+      <tr><td><code>debt_payment</code></td><td>DBT</td><td>creditor_name (denorm), payment_date, notes</td><td>1.0</td></tr>
+      <tr><td><code>emergency_fund</code></td><td>EMF</td><td>"emergency fund", "emf", status, milestone label</td><td>1.3</td></tr>
+      <tr><td><code>emf_contribution</code></td><td>EMF</td><td>contribution_date, milestone_reached, notes</td><td>0.9</td></tr>
+      <tr><td><code>financial_goal</code></td><td>GOL</td><td>name, notes, status, target_date</td><td>1.4</td></tr>
+      <tr><td><code>goal_contribution</code></td><td>GOL</td><td>goal name (denorm), contribution_date, notes</td><td>0.9</td></tr>
+      <tr><td><code>goal_dependency</code></td><td>GOL</td><td>prerequisite goal name + dependent goal name</td><td>0.7</td></tr>
+      <tr><td><code>roadmap_node</code></td><td>RMP</td><td>title, description, node_type, status</td><td>1.2</td></tr>
+      <tr><td><code>fhs_snapshot</code></td><td>DSH</td><td>"financial health score", "fhs", date, fhs_total</td><td>0.9</td></tr>
+      <tr><td><code>saved_report_filter</code></td><td>RPT</td><td>name, filter summary text</td><td>1.0</td></tr>
+      <tr><td><code>monthly_archive</code></td><td>ARCH</td><td>period_label, total_income/spent formatted, start_date, end_date</td><td>1.1</td></tr>
+      <tr><td><code>archive_debt_snapshot</code></td><td>ARCH</td><td>creditor_name (denorm), period_label, balance_at_close</td><td>0.8</td></tr>
+      <tr><td><code>archive_goal_snapshot</code></td><td>ARCH</td><td>goal_name (denorm), period_label, status_at_close</td><td>0.8</td></tr>
+      <tr><td><code>scheduled_reminder</code></td><td>EVT</td><td>reminder type, title, next_fire_at formatted</td><td>0.9</td></tr>
+      <tr><td><code>notification</code></td><td>EVT</td><td>title, body, event_type, created_at formatted</td><td>0.7</td></tr>
+      <tr><td><code>settings_entry</code></td><td>SYS</td><td>setting name, description, current value label</td><td>1.0</td></tr>
+      <tr><td><code>currency</code></td><td>SYS</td><td>code, name, symbol</td><td>0.7</td></tr>
+      <tr><td><code>user_profile</code></td><td>SYS</td><td>display_name, currency_code, locale, language</td><td>1.0</td></tr>
+      <tr><td><code>command</code></td><td>SCH</td><td>command name, description, aliases, keywords</td><td>1.5</td></tr>
+      <tr><td><code>saved_search</code></td><td>SCH</td><td>name, query string, filter summary</td><td>1.1</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>3.3 FTS5 Virtual Table Configuration</h3>
+  <p>The <code>search_index</code> FTS5 table indexes <code>searchable_text</code>, <code>display_title</code>, and <code>display_subtitle</code>. FTS5 configuration:</p>
+  <ul class="sl">
+    <li><strong>tokenizer = unicode61</strong> — supports non-ASCII characters (French accents, Arabic, etc.) for multi-locale support.</li>
+    <li><strong>prefix = '2 3 4'</strong> — builds prefix indexes for 2-, 3-, and 4-character prefixes, enabling fast auto-complete for short queries.</li>
+    <li><strong>content table</strong> — the FTS5 table is a content table backed by <code>search_index_meta</code>, keeping the text stored once.</li>
+    <li><strong>rank = bm25(10.0, 5.0, 1.0)</strong> — title match weight (10x), subtitle match weight (5x), body match weight (1x).</li>
+  </ul>
+
+  <h3>3.4 Structured Metadata Schema (metadata_json)</h3>
+  <p>The <code>metadata_json</code> field in <code>search_index_meta</code> stores structured fields used by the filter layer. Keys are standardized across all entity types:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Type</th><th>Entities Using It</th></tr></thead>
+    <tbody>
+      <tr><td><code>date</code></td><td>ISO string</td><td>expense, salary_record, debt_payment, emf_contribution, goal_contribution, monthly_archive</td></tr>
+      <tr><td><code>amount</code></td><td>Integer centimes</td><td>expense, salary_record, debt_payment, emf_contribution, goal_contribution, debt</td></tr>
+      <tr><td><code>status</code></td><td>String</td><td>debt, financial_goal, emergency_fund, salary_period, roadmap_node</td></tr>
+      <tr><td><code>category_id</code></td><td>ULID</td><td>expense, budget_allocation</td></tr>
+      <tr><td><code>tag_ids</code></td><td>ULID[]</td><td>expense</td></tr>
+      <tr><td><code>period_id</code></td><td>ULID</td><td>expense, salary_record, debt_payment, budget_allocation, emf_contribution, goal_contribution</td></tr>
+      <tr><td><code>module</code></td><td>String</td><td>All entities (redundant with top-level field; here for filter composition)</td></tr>
+      <tr><td><code>year</code></td><td>Integer</td><td>expense, salary_record, monthly_archive</td></tr>
+      <tr><td><code>month</code></td><td>Integer (1–12)</td><td>expense, salary_record, monthly_archive</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S4 -->
+<section id="s4">
+  <div class="sec-head"><span class="sec-num">4</span><h2 class="sec-title">Ranking Algorithm</h2></div>
+
+  <p>Every candidate result receives a numerical relevance score. Results are presented in descending score order within each group. Ties within a group are broken by recency (<code>last_indexed_at DESC</code>). The ranking algorithm is intentionally transparent — it is a deterministic weighted sum, not a black box.</p>
+
+  <h3>4.1 Score Formula</h3>
+  <div class="rank-formula">
+<span class="var">score</span> <span class="op">=</span> <span class="var">fts_score</span>
+     <span class="op">×</span> <span class="var">priority_boost</span>        <span class="label">// static entity type weight (0.7 – 1.5)</span>
+     <span class="op">×</span> <span class="var">recency_factor</span>         <span class="label">// decays from 1.0 toward 0.4 over 90 days</span>
+     <span class="op">×</span> <span class="var">frequency_factor</span>        <span class="label">// 1.0 + (user_clicks / max_clicks × 0.5)</span>
+     <span class="op">×</span> <span class="var">context_factor</span>          <span class="label">// 1.3 if entity belongs to active period</span>
+     <span class="op">+</span> <span class="var">pin_bonus</span>               <span class="label">// flat +5.0 if entity is pinned</span>
+     <span class="op">+</span> <span class="var">favorite_bonus</span>          <span class="label">// flat +2.0 if entity is favorited</span>
+  </div>
+
+  <h3>4.2 Factor Definitions</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Factor</th><th>Range</th><th>Source</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>fts_score</code></td><td>0.0 – ∞</td><td>FTS5 bm25()</td><td>BM25 relevance score from SQLite FTS5. Title match weighted 10×, subtitle 5×, body 1×. Negated (FTS5 returns negative values; multiply by -1).</td></tr>
+      <tr><td><code>priority_boost</code></td><td>0.7 – 1.5</td><td>Index record</td><td>Static per-entity-type multiplier. Commands (1.5) and active debts/goals (1.4) surface above historical records (0.8).</td></tr>
+      <tr><td><code>recency_factor</code></td><td>0.4 – 1.0</td><td>Computed</td><td>Exponential decay: <code>max(0.4, e^(−age_days / 45))</code>. An entity updated today scores 1.0; one updated 90 days ago scores ~0.45. Archive records have a fixed floor of 0.5.</td></tr>
+      <tr><td><code>frequency_factor</code></td><td>1.0 – 1.5</td><td>Click log</td><td>How often the user has clicked this result after a search. Tracks up to 30 days of click events per entity. Normalized relative to the most-clicked entity in the session.</td></tr>
+      <tr><td><code>context_factor</code></td><td>1.0 or 1.3</td><td>App state</td><td>1.3 if the entity's period_id matches the currently active salary period. 1.0 otherwise. Surfaces current-period data ahead of historical data when the query is ambiguous.</td></tr>
+      <tr><td><code>pin_bonus</code></td><td>0 or 5.0</td><td>User preference</td><td>Flat additive bonus for entities the user has pinned (not a multiplier, so it can surface pinned items regardless of text match quality).</td></tr>
+      <tr><td><code>favorite_bonus</code></td><td>0 or 2.0</td><td>User preference</td><td>Flat additive bonus for favorited entities.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>4.3 Group Limits</h3>
+  <p>After ranking, results are grouped by module and capped. Within each group, only the top N results are shown by default. Users can expand a group to see more.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Group</th><th>Default Limit</th><th>Max on Expand</th></tr></thead>
+    <tbody>
+      <tr><td>Commands</td><td>3</td><td>All (typically ≤ 50)</td></tr>
+      <tr><td>Expenses</td><td>5</td><td>50</td></tr>
+      <tr><td>Goals</td><td>3</td><td>20</td></tr>
+      <tr><td>Debts</td><td>3</td><td>20</td></tr>
+      <tr><td>Salary</td><td>3</td><td>20</td></tr>
+      <tr><td>Archive</td><td>3</td><td>30</td></tr>
+      <tr><td>Settings</td><td>2</td><td>All</td></tr>
+      <tr><td>All others</td><td>3</td><td>20</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>4.4 Zero-Query Default State</h3>
+  <p>When the search overlay opens with no query typed, the system renders a curated default screen rather than an empty state. It shows: (1) Recent searches (max 5), (2) Pinned commands (max 3), (3) Suggested commands based on context (e.g. "Add Expense" when in Budget view), and (4) Quick access to the current period's key metrics. The ranking algorithm does not run in zero-query state.</p>
+</section>
+
+<!-- S5 -->
+<section id="s5">
+  <div class="sec-head"><span class="sec-num">5</span><h2 class="sec-title">Query Processing Pipeline</h2></div>
+
+  <p>Every search query — whether typed, auto-completed, or triggered by a saved search — passes through an 8-step pipeline before results are presented. Steps 1–4 run synchronously in under 5ms. Steps 5–8 run within the 50ms performance budget.</p>
+
+  <div class="pipeline">
+    <div class="pipe-step">① Receive</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step">② Sanitize</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step">③ Cache Check</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step">④ Parse &amp; Classify</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step">⑤ Expand</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step">⑥ Execute</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step">⑦ Rank &amp; Filter</div><div class="pipe-arrow">→</div>
+    <div class="pipe-step">⑧ Present</div>
+  </div>
+
+  <h3>5.1 Step Definitions</h3>
+
+  <div class="tw"><table>
+    <thead><tr><th>Step</th><th>Name</th><th>Input</th><th>Output</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>①</td><td>Receive</td><td>Raw string from UI</td><td>Raw string</td><td>Debounced at 150ms from last keystroke. Queries shorter than 1 character skip to zero-query default state.</td></tr>
+      <tr><td>②</td><td>Sanitize</td><td>Raw string</td><td>Sanitized string</td><td>Strip HTML/SQL injection patterns. Truncate to 200 characters. Trim whitespace. Normalize Unicode (NFC form). No query is ever passed to SQLite unsanitized.</td></tr>
+      <tr><td>③</td><td>Cache Check</td><td>Sanitized string</td><td><code>SearchResultSet</code> or miss</td><td>Check LRU cache keyed by (sanitized_query + active_filter_hash). On hit, skip steps 4–7 entirely. Cache TTL: 30s. Invalidated immediately on any index update.</td></tr>
+      <tr><td>④</td><td>Parse &amp; Classify</td><td>Sanitized string</td><td><code>ParsedQuery</code></td><td>Tokenize. Extract filter directives (e.g. <code>category:food</code>, <code>amount:&gt;5000</code>, <code>in:goals</code>). Classify query intent: NAVIGATIONAL, INFORMATIONAL, TRANSACTIONAL, or COMMAND.</td></tr>
+      <tr><td>⑤</td><td>Expand</td><td><code>ParsedQuery</code></td><td>Expanded token set</td><td>Apply synonym dictionary (salary→income→pay). Apply fuzzy expansion (Levenshtein ≤ 2) for tokens not found verbatim in the FTS vocabulary. Add prefix variants for auto-complete.</td></tr>
+      <tr><td>⑥</td><td>Execute</td><td>Expanded token set</td><td>Raw candidate list</td><td>Run FTS5 MATCH query with expanded tokens. Also run CommandRegistry lookup in parallel (separate query path). Merge both candidate lists.</td></tr>
+      <tr><td>⑦</td><td>Rank &amp; Filter</td><td>Raw candidates</td><td>Scored, filtered, grouped results</td><td>Apply ranking formula (§4). Apply active filters from ParsedQuery (date range, amount range, module, status, tags). Remove deleted entities. Apply per-group limits.</td></tr>
+      <tr><td>⑧</td><td>Present</td><td>Final result set</td><td>Rendered UI</td><td>Write to SearchCache. Emit result set to L7 presentation layer. Record query in search_history.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.2 Query Intent Classification</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Intent Type</th><th>Examples</th><th>Behavior</th></tr></thead>
+    <tbody>
+      <tr><td><strong>NAVIGATIONAL</strong></td><td>"Settings", "Dashboard", "Reports", "Goals"</td><td>Surfaces the matching screen or section as a top-ranked navigation command. Opens immediately on single result.</td></tr>
+      <tr><td><strong>INFORMATIONAL</strong></td><td>"Grocery expenses", "March salary", "HSBC debt"</td><td>Returns entity results grouped by module. No special handling.</td></tr>
+      <tr><td><strong>TRANSACTIONAL</strong></td><td>"Add expense", "Create goal", "Record payment"</td><td>Surfaces the creation command prominently. Matched against CommandRegistry action verbs.</td></tr>
+      <tr><td><strong>COMMAND</strong></td><td>"Export", "Change language", "Generate report"</td><td>Routes directly to CommandRegistry. Entity results are still shown but ranked lower.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.3 Filter Directive Syntax</h3>
+  <p>Users can embed filter directives inline in the query string. The parser extracts these before passing remaining tokens to FTS5.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Directive</th><th>Example</th><th>Effect</th></tr></thead>
+    <tbody>
+      <tr><td><code>in:[module]</code></td><td><code>in:goals vacation</code></td><td>Restrict results to the GOL module only</td></tr>
+      <tr><td><code>category:[name]</code></td><td><code>category:food</code></td><td>Filter expenses to a specific category (fuzzy matched on category name)</td></tr>
+      <tr><td><code>amount:[op][value]</code></td><td><code>amount:>500</code>, <code>amount:100-200</code></td><td>Filter by amount in display currency (converted to centimes internally)</td></tr>
+      <tr><td><code>date:[value]</code></td><td><code>date:march</code>, <code>date:2025-03</code>, <code>date:last-month</code></td><td>Filter by date/period. Supports natural language month names and ISO YYYY-MM.</td></tr>
+      <tr><td><code>status:[value]</code></td><td><code>status:active</code>, <code>status:completed</code></td><td>Filter entities by their status field</td></tr>
+      <tr><td><code>tag:[name]</code></td><td><code>tag:recurring</code></td><td>Filter expenses by tag name (fuzzy)</td></tr>
+      <tr><td><code>-[term]</code></td><td><code>food -fast-food</code></td><td>Exclude results containing the negated term</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S6 -->
+<section id="s6">
+  <div class="sec-head"><span class="sec-num">6</span><h2 class="sec-title">Advanced Filtering System</h2></div>
+
+  <p>Filters can be applied via inline query directives (§5.3), via the filter panel UI (a secondary panel accessible from within the search overlay), or via saved searches that embed pre-configured filter states. All filters are additive (AND logic) by default.</p>
+
+  <h3>6.1 Filter Dimensions</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Dimension</th><th>UI Control</th><th>Values</th><th>Entities Affected</th></tr></thead>
+    <tbody>
+      <tr><td>Module</td><td>Multi-select chips</td><td>SAL, BUD, DBT, EMF, GOL, RMP, RPT, EVT, SYS, ARCH</td><td>All</td></tr>
+      <tr><td>Date / Month</td><td>Month picker or range</td><td>Calendar month, ISO YYYY-MM, or relative (this month, last month, last 3 months, this year, last year)</td><td>Transactions, archives</td></tr>
+      <tr><td>Year</td><td>Year picker</td><td>Any year with data</td><td>All time-stamped entities</td></tr>
+      <tr><td>Category</td><td>Multi-select with icons</td><td>All active budget categories</td><td>expenses, budget_allocations</td></tr>
+      <tr><td>Amount range</td><td>Dual slider + text inputs</td><td>Min and max in display currency</td><td>expenses, salary_records, debt_payments, contributions</td></tr>
+      <tr><td>Status</td><td>Multi-select chips</td><td>ACTIVE, PAUSED, COMPLETED, CANCELLED, PAID_OFF, CLOSED, ARCHIVED</td><td>Goals, debts, periods, EMF</td></tr>
+      <tr><td>Tags</td><td>Multi-select</td><td>All active user-created tags</td><td>expenses</td></tr>
+      <tr><td>FHS range</td><td>Range slider (0–100)</td><td>Min and max FHS score</td><td>fhs_snapshots, monthly_archives</td></tr>
+      <tr><td>Priority</td><td>Select</td><td>1–5 (goal priority or debt type)</td><td>financial_goals, debts</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>6.2 Filter Combination Logic</h3>
+  <ul class="sl">
+    <li>Multiple values within the same dimension use <strong>OR</strong> logic (e.g. Category = Food OR Groceries).</li>
+    <li>Multiple dimensions use <strong>AND</strong> logic (e.g. Category = Food AND Status = ACTIVE).</li>
+    <li>Negation prefix (<code>-term</code>) uses <strong>NOT</strong> logic against the text match, not against the metadata filters.</li>
+    <li>Filter state is serialized as a JSON object and stored in the active search session. Navigating away and returning restores the last active filter state for the session.</li>
+  </ul>
+
+  <h3>6.3 Filter Panel UX</h3>
+  <ul class="sl">
+    <li>Accessible via a "Filters" button/chip row below the search input bar.</li>
+    <li>Active filters are shown as dismissible chips in a filter strip above the results.</li>
+    <li>Tapping a chip opens its dimension picker. Tapping the × on a chip removes that filter immediately (live results update).</li>
+    <li>"Clear all filters" resets all dimensions at once.</li>
+    <li>The filter panel does not require a confirmation button — changes apply instantly to results (debounced at 80ms).</li>
+    <li>Active filter count is shown as a badge on the "Filters" button (e.g. "Filters (3)").</li>
+  </ul>
+
+  <h3>6.4 Smart Filter Suggestions</h3>
+  <p>Based on the current query, the system suggests relevant filters. If the user types "grocery", the filter system suggests "Category: Groceries" as a quick-apply chip. If the user types "march", it suggests "Month: March" and "Year: [current year]". Suggestions appear as tappable chips below the input bar and disappear once a filter is applied.</p>
+</section>
+
+<!-- S7 -->
+<section id="s7">
+  <div class="sec-head"><span class="sec-num">7</span><h2 class="sec-title">Search Results Model</h2></div>
+
+  <p>Each item in a search result set is a <code>SearchResult</code> object. The presentation layer renders these objects — it does not re-query the database. All information needed to display a result and execute its actions is embedded in the <code>SearchResult</code>.</p>
+
+  <h3>7.1 SearchResult Schema</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>string</td><td>Index record ID</td></tr>
+      <tr><td><code>entity_type</code></td><td>string</td><td>Type slug (e.g. <code>'expense'</code>, <code>'debt'</code>)</td></tr>
+      <tr><td><code>entity_id</code></td><td>string</td><td>Source entity ULID in the owning module's table</td></tr>
+      <tr><td><code>module</code></td><td>string</td><td>Module code for group header display</td></tr>
+      <tr><td><code>score</code></td><td>number</td><td>Final computed ranking score (not displayed to user)</td></tr>
+      <tr><td><code>title</code></td><td>string</td><td>Primary display text, with matched segments annotated for highlight rendering</td></tr>
+      <tr><td><code>subtitle</code></td><td>string</td><td>Secondary display text (amount, date, category)</td></tr>
+      <tr><td><code>icon</code></td><td>string</td><td>Emoji or icon identifier for the result row</td></tr>
+      <tr><td><code>badge</code></td><td>string | null</td><td>Optional status badge text (e.g. "ACTIVE", "OVERDUE", "COMPLETED")</td></tr>
+      <tr><td><code>badge_color</code></td><td>string | null</td><td>Semantic color for the badge: 'green', 'red', 'amber', 'blue', 'dim'</td></tr>
+      <tr><td><code>navigation_target</code></td><td>string</td><td>App route to navigate to when the result is selected (Expo Router path)</td></tr>
+      <tr><td><code>quick_actions</code></td><td>QuickAction[]</td><td>Array of actions available on this result (see §7.3)</td></tr>
+      <tr><td><code>preview</code></td><td>PreviewData | null</td><td>Structured data for the hover/long-press quick preview card</td></tr>
+      <tr><td><code>highlight_ranges</code></td><td>HighlightRange[]</td><td>Character offset ranges in <code>title</code> and <code>subtitle</code> to bold/highlight</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>7.2 Result Grouping</h3>
+  <p>Results are grouped by module and presented with a group header. Group ordering follows the current context: if the user is in the Budget screen, BUD results appear first. Otherwise, groups are ordered by aggregate group score (the highest-scoring result in each group determines group rank).</p>
+  <p>A special "Commands" group always appears first when the query matches any commands, regardless of context. Commands are never interleaved with entity results.</p>
+
+  <h3>7.3 Quick Actions by Entity Type</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Entity Type</th><th>Quick Actions</th></tr></thead>
+    <tbody>
+      <tr><td>expense</td><td>View Details, Edit, Delete, Duplicate, Change Category, View Period</td></tr>
+      <tr><td>budget_category</td><td>View Expenses, Edit Allocation, View History</td></tr>
+      <tr><td>debt</td><td>View Details, Record Payment, Edit, View Payment History, Mark Paid Off</td></tr>
+      <tr><td>financial_goal</td><td>View Details, Add Contribution, Edit, View Progress, Pause/Resume</td></tr>
+      <tr><td>salary_record</td><td>View Details, Edit, Delete, View Period Summary</td></tr>
+      <tr><td>salary_period</td><td>View Summary, Open Archive (if closed), Set as Active</td></tr>
+      <tr><td>emergency_fund</td><td>View Details, Add Contribution, Edit Settings</td></tr>
+      <tr><td>emf_contribution</td><td>View Details, Edit, Delete</td></tr>
+      <tr><td>monthly_archive</td><td>View Full Archive, Export Period, View FHS at Close</td></tr>
+      <tr><td>roadmap_node</td><td>View Roadmap, Open Linked Entity, Mark Complete</td></tr>
+      <tr><td>saved_report_filter</td><td>Run Report, Edit Filter, Delete</td></tr>
+      <tr><td>scheduled_reminder</td><td>Dismiss, Edit, Snooze, View Related Entity</td></tr>
+      <tr><td>settings_entry</td><td>Open Settings Page, Edit Value</td></tr>
+      <tr><td>command</td><td>[Execute directly — no secondary actions]</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>7.4 Quick Preview Card</h3>
+  <p>On long-press (mobile) or hover-with-delay (>500ms, future desktop), a quick preview card expands without navigating away. The card shows the entity's most relevant structured data:</p>
+  <ul class="sl">
+    <li><strong>expense preview</strong>: amount, category, date, notes excerpt, tags</li>
+    <li><strong>debt preview</strong>: current balance, creditor, interest rate, next due date, total paid</li>
+    <li><strong>goal preview</strong>: progress bar (balance / target), target date, monthly contribution, status</li>
+    <li><strong>monthly_archive preview</strong>: income, spending, savings, FHS at close, top category</li>
+  </ul>
+  <p>The preview card does not navigate. It provides a "read snapshot" that lets users confirm they found the right item before opening it.</p>
+
+  <h3>7.5 Match Highlighting</h3>
+  <p>Matched query tokens are highlighted in result titles and subtitles. Highlighting uses a bold weight and the accent color (<code>#E879F9</code>) for the matching characters. Fuzzy matches (typo-corrected) are highlighted in the correction target — not in the misspelled query token. Highlighting is applied to display strings at render time using the <code>highlight_ranges</code> offsets from the SearchResult object.</p>
+
+  <h3>7.6 Empty State</h3>
+  <p>When no results match the query: (1) Show the query text echoed back clearly. (2) Show "No results for [query]". (3) Surface up to 3 spelling-corrected suggestions ("Did you mean: [correction]?"). (4) Suggest clearing active filters if any are applied. (5) Offer a "Create [entity type]" command if the query looks like a name (no digits, no operators, no filter directives).</p>
+</section>
+
+<!-- S8 -->
+<section id="s8">
+  <div class="sec-head"><span class="sec-num">8</span><h2 class="sec-title">Command Center</h2></div>
+
+  <p>The Command Center is the action layer of the search overlay. Every command registered with the <code>CommandRegistry</code> is searchable and executable without leaving the overlay. Commands are first-class search results — they appear at the top of results when query intent is NAVIGATIONAL or TRANSACTIONAL.</p>
+
+  <div class="note"><strong>Mental model: search IS the navigation.</strong> The Command Center replaces traditional tab-bar navigation for power users. Typing "salary" is faster than tapping Budget → Income → Salary. Typing "create goal" is faster than locating the "+" button on the Goals screen.</div>
+
+  <h3>8.1 Command Taxonomy</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Category</th><th>Examples</th><th>Module Owner</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Navigation</strong></td><td>Open Dashboard, Go to Goals, Open Reports, View Roadmap, Open Settings</td><td>SCH (routes to owning module)</td></tr>
+      <tr><td><strong>Creation</strong></td><td>Add Expense, Create Goal, Add Salary, Add Debt, Add Tag, Record Payment, Add EMF Contribution, Add Recurring Expense</td><td>Respective module</td></tr>
+      <tr><td><strong>Period Actions</strong></td><td>Advance Period, View Current Period, Open Prior Period</td><td>SAL</td></tr>
+      <tr><td><strong>Report Actions</strong></td><td>Generate Monthly Report, Export Data (CSV), Export Data (JSON), View FHS History, Open Saved Filter [name]</td><td>RPT</td></tr>
+      <tr><td><strong>Archive Actions</strong></td><td>Search Archives, View Last Archive, View [Month YYYY] Archive</td><td>ARCH</td></tr>
+      <tr><td><strong>Goal Actions</strong></td><td>View Active Goals, View Completed Goals, Add Contribution to [Goal]</td><td>GOL</td></tr>
+      <tr><td><strong>Debt Actions</strong></td><td>View Active Debts, View Paid-Off Debts, Record Debt Payment</td><td>DBT</td></tr>
+      <tr><td><strong>Settings Actions</strong></td><td>Change Language, Change Currency, Toggle Dark Mode, Toggle Biometric Lock, Toggle Obscure Amounts, Export Backup, Import Backup</td><td>SYS</td></tr>
+      <tr><td><strong>Search Actions</strong></td><td>Clear Search History, View Saved Searches, Save This Search, Clear All Filters</td><td>SCH</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>8.2 CommandRecord Schema</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>string</td><td>Unique command identifier (e.g. <code>'cmd:goal:create'</code>, <code>'cmd:nav:dashboard'</code>)</td></tr>
+      <tr><td><code>name</code></td><td>string</td><td>Display name (e.g. "Create Goal")</td></tr>
+      <tr><td><code>description</code></td><td>string</td><td>One-line description of what the command does</td></tr>
+      <tr><td><code>aliases</code></td><td>string[]</td><td>Alternative search keywords (e.g. ["new goal", "add goal", "goal create"])</td></tr>
+      <tr><td><code>icon</code></td><td>string</td><td>Emoji or icon for the command list row</td></tr>
+      <tr><td><code>module</code></td><td>string</td><td>Module that will execute the command</td></tr>
+      <tr><td><code>action_type</code></td><td>string</td><td>NAVIGATE | OPEN_SHEET | EXECUTE | TOGGLE</td></tr>
+      <tr><td><code>navigation_target</code></td><td>string | null</td><td>Expo Router path for NAVIGATE type</td></tr>
+      <tr><td><code>requires_context</code></td><td>boolean</td><td>If true, command requires an entity to be in context (e.g. "Record Payment" needs a debt selected)</td></tr>
+      <tr><td><code>keyboard_shortcut</code></td><td>string | null</td><td>Future: keyboard shortcut string for desktop (e.g. "⌘G")</td></tr>
+      <tr><td><code>context_key</code></td><td>string | null</td><td>App state key that must be set for context-requiring commands</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>8.3 Built-In Command Catalog (50 commands)</h3>
+  <div class="cmd-grid">
+    <div class="cmd-card"><div class="cmd-icon">🏠</div><div class="cmd-name">Open Dashboard</div><div class="cmd-desc">Navigate to the main dashboard screen</div><div class="cmd-kbd">⌘D</div></div>
+    <div class="cmd-card"><div class="cmd-icon">💰</div><div class="cmd-name">Add Salary</div><div class="cmd-desc">Record a new salary or income entry</div></div>
+    <div class="cmd-card"><div class="cmd-icon">🧾</div><div class="cmd-name">Add Expense</div><div class="cmd-desc">Create a new expense in the current period</div><div class="cmd-kbd">⌘E</div></div>
+    <div class="cmd-card"><div class="cmd-icon">🎯</div><div class="cmd-name">Create Goal</div><div class="cmd-desc">Start a new financial goal</div><div class="cmd-kbd">⌘G</div></div>
+    <div class="cmd-card"><div class="cmd-icon">💳</div><div class="cmd-name">Add Debt</div><div class="cmd-desc">Register a new debt or loan</div></div>
+    <div class="cmd-card"><div class="cmd-icon">📋</div><div class="cmd-name">Record Payment</div><div class="cmd-desc">Log a debt payment</div></div>
+    <div class="cmd-card"><div class="cmd-icon">🏦</div><div class="cmd-name">Add EMF Contribution</div><div class="cmd-desc">Record an emergency fund deposit</div></div>
+    <div class="cmd-card"><div class="cmd-icon">📊</div><div class="cmd-name">Generate Report</div><div class="cmd-desc">Create the monthly financial report</div></div>
+    <div class="cmd-card"><div class="cmd-icon">📦</div><div class="cmd-name">Export CSV</div><div class="cmd-desc">Download all data as CSV files</div></div>
+    <div class="cmd-card"><div class="cmd-icon">🗂️</div><div class="cmd-name">Search Archives</div><div class="cmd-desc">Find data in sealed monthly archives</div></div>
+    <div class="cmd-card"><div class="cmd-icon">📅</div><div class="cmd-name">Advance Period</div><div class="cmd-desc">Close current period and open new one</div></div>
+    <div class="cmd-card"><div class="cmd-icon">🗺️</div><div class="cmd-name">View Roadmap</div><div class="cmd-desc">Open the financial roadmap view</div></div>
+    <div class="cmd-card"><div class="cmd-icon">⚙️</div><div class="cmd-name">Open Settings</div><div class="cmd-desc">Navigate to app settings</div><div class="cmd-kbd">⌘,</div></div>
+    <div class="cmd-card"><div class="cmd-icon">🌙</div><div class="cmd-name">Toggle Dark Mode</div><div class="cmd-desc">Switch between light and dark theme</div></div>
+    <div class="cmd-card"><div class="cmd-icon">👁️</div><div class="cmd-name">Toggle Obscure Amounts</div><div class="cmd-desc">Hide or reveal monetary values</div></div>
+    <div class="cmd-card"><div class="cmd-icon">🔒</div><div class="cmd-name">Lock App</div><div class="cmd-desc">Lock the app and require re-authentication</div></div>
+    <div class="cmd-card"><div class="cmd-icon">💾</div><div class="cmd-name">Export Backup</div><div class="cmd-desc">Create a full database backup file</div></div>
+    <div class="cmd-card"><div class="cmd-icon">🔁</div><div class="cmd-name">Add Recurring Expense</div><div class="cmd-desc">Create a recurring expense template</div></div>
+  </div>
+
+  <h3>8.4 Command Execution Flow</h3>
+  <ul class="ol">
+    <li>User selects a command from the result list (tap or keyboard Enter).</li>
+    <li>SCH closes the search overlay with a dismissal animation (100ms).</li>
+    <li>If <code>action_type = NAVIGATE</code>: SCH fires a navigation event to the Expo Router path in <code>navigation_target</code>.</li>
+    <li>If <code>action_type = OPEN_SHEET</code>: SCH fires a bottom-sheet open event for the creation/edit sheet registered by the owning module.</li>
+    <li>If <code>action_type = EXECUTE</code>: SCH calls the module's registered handler function directly.</li>
+    <li>If <code>action_type = TOGGLE</code>: SCH toggles the setting and shows a toast confirmation.</li>
+    <li>The command execution is recorded in the recent commands list (max 10 recent commands).</li>
+  </ul>
+
+  <h3>8.5 Context-Sensitive Command Surfacing</h3>
+  <p>When the user opens search from a specific screen, the Command Center promotes commands relevant to that context:</p>
+  <ul class="sl">
+    <li><strong>From Budget screen</strong>: "Add Expense", "Edit Category", "View Period Summary" appear first.</li>
+    <li><strong>From Debt detail screen</strong>: "Record Payment", "Edit Debt", "View Payment History" appear first.</li>
+    <li><strong>From Goal detail screen</strong>: "Add Contribution", "Edit Goal", "View Progress" appear first.</li>
+    <li><strong>From Dashboard</strong>: "Add Expense", "Add Salary", "View FHS History" appear first.</li>
+    <li>Context is passed as a <code>source_context</code> parameter when the search overlay is opened. The CommandRegistry uses this to re-rank commands before returning them.</li>
+  </ul>
+</section>
+
+<!-- S9 -->
+<section id="s9">
+  <div class="sec-head"><span class="sec-num">9</span><h2 class="sec-title">Search UX &amp; Interaction Model</h2></div>
+
+  <p>The search overlay is the most frequently accessed surface in the application. Every detail of the interaction model is designed around reducing friction to zero and never surprising the user.</p>
+
+  <h3>9.1 Entry Points</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Entry Point</th><th>Trigger</th><th>Available From</th></tr></thead>
+    <tbody>
+      <tr><td>Search FAB</td><td>Tap the floating search button (bottom-right or header)</td><td>All screens</td></tr>
+      <tr><td>Pull-down gesture</td><td>Swipe down from the top of any main screen</td><td>Dashboard, Budget, Goals, Debt</td></tr>
+      <tr><td>Header search icon</td><td>Tap the magnifier icon in the navigation header</td><td>All screens</td></tr>
+      <tr><td>Keyboard shortcut (future)</td><td>⌘K or ⌘Space (tablet / external keyboard)</td><td>All screens</td></tr>
+      <tr><td>Programmatic (deep link)</td><td>App launched with a <code>/search?q=[query]</code> route</td><td>App startup</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.2 Overlay Behavior</h3>
+  <p>The search overlay is a full-screen modal presented over the current navigation stack. It does not replace the current screen — dismissing the overlay returns to exactly where the user was. Overlay presentation is immediate (no animation delay on open; 150ms ease-out on dismiss).</p>
+  <ul class="sl">
+    <li>The input field receives keyboard focus immediately on open.</li>
+    <li>The overlay has a semi-transparent backdrop that blurs the content behind it (backdrop-filter: blur; or a scrim layer on platforms that don't support it).</li>
+    <li>Tap on the backdrop closes the overlay (same as pressing the back button / swipe-down gesture).</li>
+    <li>The input field has a persistent clear (×) button once the user has typed any character.</li>
+    <li>A "Cancel" button (iOS style) appears to the right of the input field and dismisses the overlay without selecting any result.</li>
+  </ul>
+
+  <h3>9.3 Search UX Wireframe</h3>
+  <div class="ux-mockup">
+    <div class="ux-bar">
+      <span class="ux-icon">🔍</span>
+      <span class="ux-placeholder">Search Finance Bag…</span>
+      <span class="ux-kbd">⌘K</span>
+    </div>
+    <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;">
+      <span style="font-size:11px;background:rgba(232,121,249,.15);color:var(--accent);border-radius:4px;padding:3px 8px;cursor:pointer;">All</span>
+      <span style="font-size:11px;background:var(--surface2);color:var(--text-muted);border-radius:4px;padding:3px 8px;cursor:pointer;">Budget</span>
+      <span style="font-size:11px;background:var(--surface2);color:var(--text-muted);border-radius:4px;padding:3px 8px;cursor:pointer;">Goals</span>
+      <span style="font-size:11px;background:var(--surface2);color:var(--text-muted);border-radius:4px;padding:3px 8px;cursor:pointer;">Debts</span>
+      <span style="font-size:11px;background:var(--surface2);color:var(--text-muted);border-radius:4px;padding:3px 8px;cursor:pointer;">Archive</span>
+      <span style="font-size:11px;background:var(--surface2);color:var(--text-dim);border-radius:4px;padding:3px 8px;cursor:pointer;">Filters ↓</span>
+    </div>
+    <div class="ux-group">
+      <div class="ux-group-label">Recent Searches</div>
+      <div class="ux-result" style="margin-bottom:4px;">
+        <span class="ux-result-icon">🕐</span>
+        <div class="ux-result-text"><div class="ux-result-title">grocery expenses march</div><div class="ux-result-sub">3 results · 2 days ago</div></div>
+      </div>
+    </div>
+    <div class="ux-group">
+      <div class="ux-group-label">Suggested Commands</div>
+      <div class="ux-result2"><span class="ux-result-icon">🧾</span><div class="ux-result-text"><div class="ux-result-title">Add Expense</div><div class="ux-result-sub">Create a new expense in the current period</div></div><span class="ux-result-badge">CMD</span></div>
+      <div class="ux-result2"><span class="ux-result-icon">💰</span><div class="ux-result-text"><div class="ux-result-title">Add Salary</div><div class="ux-result-sub">Record a new income entry</div></div><span class="ux-result-badge">CMD</span></div>
+    </div>
+  </div>
+
+  <h3>9.4 Debounce &amp; Incremental Search</h3>
+  <ul class="sl">
+    <li><strong>Debounce interval: 150ms</strong> from last keystroke. The query pipeline does not run on every character — it runs 150ms after the user stops typing. This prevents unnecessary work on fast typists.</li>
+    <li><strong>Minimum query length: 1 character.</strong> A single character triggers a search (prefix index covers 2, 3, 4-char prefixes; for 1-char queries, auto-complete suggestions and recent searches are shown).</li>
+    <li><strong>Incremental results.</strong> As the user types more characters, results narrow. The result list animates smoothly on update (fade/reorder, not full re-render).</li>
+    <li><strong>Cancel in-flight query.</strong> If the user types a new character while a previous search is processing, the previous result is abandoned. Only the most recent query's results are displayed.</li>
+  </ul>
+
+  <h3>9.5 Keyboard Navigation</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>↓ / ↑</td><td>Move focus between results</td></tr>
+      <tr><td>Enter / Return</td><td>Execute focused result (navigate or run command)</td></tr>
+      <tr><td>Tab</td><td>Move to next result group header</td></tr>
+      <tr><td>→ (on a result)</td><td>Expand quick action menu for the focused result</td></tr>
+      <tr><td>Escape</td><td>Dismiss the overlay and return to prior screen</td></tr>
+      <tr><td>⌘Backspace</td><td>Clear the entire input field</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.6 Auto-Complete</h3>
+  <p>As the user types, up to 3 auto-complete suggestions appear below the input bar as a secondary chip row. These are candidate query completions, not results. They are sourced from: (1) the user's own search history matching the prefix, (2) popular query patterns across all entity display titles, (3) known filter directive completions (typing "category:" shows all category names as completions). Tapping a completion chip replaces the current input with the completion and immediately executes the query.</p>
+</section>
+
+<!-- S10 -->
+<section id="s10">
+  <div class="sec-head"><span class="sec-num">10</span><h2 class="sec-title">Smart Search &amp; NLP</h2></div>
+
+  <p>Smart Search makes the search bar behave like a knowledgeable assistant rather than a text matcher. It understands the user's intent in natural language and maps it to structured queries against the index. In v1, these capabilities operate on local heuristics and synonym expansion — no AI models are required. The architecture is explicitly designed to upgrade to true semantic AI search without redesign.</p>
+
+  <h3>10.1 Synonym Dictionary</h3>
+  <p>The QueryParser applies synonym expansion before querying FTS5. All synonyms for a term are OR'd together in the FTS5 query. The dictionary is hardcoded in v1 and extensible via <code>app_state</code> in future versions.</p>
+
+  <div class="syn-grid">
+    <div class="syn-card"><div class="syn-term">salary</div><div class="syn-list">income, pay, earnings, wage, paycheck, payday, revenue</div></div>
+    <div class="syn-card"><div class="syn-term">expense</div><div class="syn-list">spending, cost, purchase, transaction, payment, buy, spent</div></div>
+    <div class="syn-card"><div class="syn-term">debt</div><div class="syn-list">loan, credit, owe, liability, mortgage, credit card, borrow</div></div>
+    <div class="syn-card"><div class="syn-term">emergency fund</div><div class="syn-list">emf, safety net, rainy day, reserve, savings buffer</div></div>
+    <div class="syn-card"><div class="syn-term">goal</div><div class="syn-list">target, objective, saving, dream, plan, milestone</div></div>
+    <div class="syn-card"><div class="syn-term">budget</div><div class="syn-list">allocation, limit, envelope, planned, category budget</div></div>
+    <div class="syn-card"><div class="syn-term">archive</div><div class="syn-list">history, past, prior, previous, closed period, last month</div></div>
+    <div class="syn-card"><div class="syn-term">roadmap</div><div class="syn-list">plan, steps, path, journey, financial plan</div></div>
+    <div class="syn-card"><div class="syn-term">report</div><div class="syn-list">summary, analysis, overview, statement</div></div>
+    <div class="syn-card"><div class="syn-term">contribution</div><div class="syn-list">deposit, transfer, add money, top up</div></div>
+  </div>
+
+  <h3>10.2 Natural Language Query Patterns (v1 Heuristics)</h3>
+  <p>The QueryParser recognizes a set of sentence-level patterns and rewrites them into structured queries before passing them to FTS5:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Input Pattern</th><th>Rewritten Query</th></tr></thead>
+    <tbody>
+      <tr><td>"show my debts" / "list debts"</td><td>module filter: DBT, entity_type: debt, status: ACTIVE</td></tr>
+      <tr><td>"goals due this year"</td><td>entity_type: financial_goal, status: ACTIVE, metadata.year: [current year]</td></tr>
+      <tr><td>"salary for march" / "march salary"</td><td>entity_type: salary_record, month: 3</td></tr>
+      <tr><td>"emergency fund progress"</td><td>entity_type: emergency_fund, navigate to EMF screen</td></tr>
+      <tr><td>"reports from 2025" / "2025 reports"</td><td>entity_type: monthly_archive OR saved_report_filter, year: 2025</td></tr>
+      <tr><td>"how much did I spend on food"</td><td>entity_type: expense, category: food; show aggregate result card</td></tr>
+      <tr><td>"last month" / "previous period"</td><td>period_id: [prior period ULID from app_state]</td></tr>
+      <tr><td>"paid off debts" / "completed debts"</td><td>entity_type: debt, status: PAID_OFF</td></tr>
+      <tr><td>"overdue payments"</td><td>entity_type: debt_payment, badge: OVERDUE OR entity_type: debt, status: OVERDUE (future)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>10.3 Typo Tolerance</h3>
+  <p>The FuzzyMatcher applies Levenshtein distance correction for tokens not found in the FTS5 vocabulary:</p>
+  <ul class="sl">
+    <li>For tokens ≤ 3 characters: no fuzzy expansion (too many false positives).</li>
+    <li>For tokens 4–6 characters: Levenshtein distance ≤ 1 (one character insertion/deletion/substitution).</li>
+    <li>For tokens 7+ characters: Levenshtein distance ≤ 2 (two character edits).</li>
+    <li>Fuzzy candidates are scored lower than exact matches — the FTS5 BM25 score for the exact term is used; fuzzy matches receive a 0.7× penalty.</li>
+    <li>No more than 5 fuzzy expansions per query to prevent result explosion.</li>
+  </ul>
+
+  <h3>10.4 Amount Recognition</h3>
+  <p>The QueryParser detects numeric tokens that look like monetary amounts and converts them to centimes for structured filter matching:</p>
+  <ul class="sl">
+    <li><code>"500"</code> → amount filter: approximately 50000 centimes ± 20% range</li>
+    <li><code>">500"</code> or <code>"more than 500"</code> → amount filter: > 50000 centimes</li>
+    <li><code>"500-1000"</code> or <code>"between 500 and 1000"</code> → amount filter: 50000–100000 centimes</li>
+    <li>Currency symbols are recognized: "$500", "€500", "₹500" — the symbol is validated against the user's configured currency.</li>
+  </ul>
+
+  <h3>10.5 Date Recognition</h3>
+  <p>The QueryParser recognizes temporal expressions and resolves them to concrete date ranges:</p>
+  <ul class="sl">
+    <li>Month names: "january", "jan", "feb", "february"… → month: [1–12], year: [current year or specified]</li>
+    <li>ISO dates: "2025-03", "2025" → YYYY-MM or YYYY year filter</li>
+    <li>Relative: "this month", "last month", "this year", "last year", "last 3 months" → resolved at query time</li>
+    <li>Quarter: "Q1 2025", "first quarter" → date range January–March 2025</li>
+  </ul>
+
+  <h3>10.6 AI Readiness Architecture</h3>
+  <p>The following hooks in the search architecture allow seamless upgrade to semantic AI search without replacing the pipeline:</p>
+  <ul class="sl">
+    <li><strong>Semantic embedding slot</strong>: <code>search_index_meta</code> includes an <code>embedding_json</code> column (null in v1). When an embedding model is available, the IndexManager populates this column. The RankingEngine adds a cosine similarity term to the ranking formula when embeddings are present.</li>
+    <li><strong>QueryParser AI handoff</strong>: After heuristic parsing, the QueryParser calls a pluggable <code>NLPInterpreter</code> interface. In v1, the implementation is the heuristic pattern matcher. In future versions, an on-device language model fills this role without changing the interface.</li>
+    <li><strong>Voice entry</strong>: Voice input goes through a SpeechToText transcription layer and feeds its transcript directly into the QueryParser at step ④ — the same pipeline handles text and voice without modification.</li>
+    <li><strong>OCR search</strong>: An image OCR layer extracts text from receipts and populates the <code>expense.notes</code> field, making them searchable through the existing FTS5 index without any pipeline changes.</li>
+  </ul>
+</section>
+
+<!-- S11 -->
+<section id="s11">
+  <div class="sec-head"><span class="sec-num">11</span><h2 class="sec-title">Performance Architecture</h2></div>
+
+  <p>Search performance is non-negotiable. A slow search is worse than no search — users will not trust or use a search that feels sluggish. Every architectural decision in the SCH module is evaluated against the 50ms end-to-end target for indexed queries.</p>
+
+  <h3>11.1 Performance Targets</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Operation</th><th>Target</th><th>Worst-Case Bound</th></tr></thead>
+    <tbody>
+      <tr><td>Search overlay open (time to interactive)</td><td>&lt; 80ms</td><td>200ms (cold start, search.db not in page cache)</td></tr>
+      <tr><td>First result render (indexed query)</td><td>&lt; 50ms from last keystroke</td><td>150ms (complex filter + large index)</td></tr>
+      <tr><td>Auto-complete suggestions</td><td>&lt; 30ms</td><td>80ms</td></tr>
+      <tr><td>Command palette (no text query)</td><td>&lt; 20ms</td><td>50ms (CommandRegistry is in-memory)</td></tr>
+      <tr><td>Filter application to existing results</td><td>&lt; 30ms</td><td>80ms</td></tr>
+      <tr><td>Full index rebuild (cold)</td><td>&lt; 3s for 5 years of data</td><td>10s (background, non-blocking)</td></tr>
+      <tr><td>Incremental index update (single entity)</td><td>&lt; 20ms</td><td>50ms</td></tr>
+      <tr><td>Free-text LIKE scan (no index)</td><td>Acceptable up to 500ms</td><td>Only for fallback non-indexed fields</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>11.2 Index Freshness Strategy</h3>
+  <p>The search index must always reflect current data. Stale index entries are a correctness bug, not a performance tradeoff. The IndexManager maintains freshness through two mechanisms:</p>
+  <ul class="sl">
+    <li><strong>Event-driven incremental updates.</strong> The IndexManager subscribes to the EVT module's FINANCIAL_STATE_CHANGED, DEBT_BALANCE_CHANGED, GOAL_STATUS_CHANGED, and all SYNC.* events. On each event, it identifies the affected entity and re-indexes only that entity's row (not the full index).</li>
+    <li><strong>Startup consistency check.</strong> On app launch, the IndexManager compares the <code>last_indexed_at</code> of the most recently modified entity in each module's primary table against the corresponding index row. Any entity modified after its index row was last written is queued for re-indexing. This catch-all handles cases where events were missed (e.g. app killed during a write).</li>
+  </ul>
+
+  <h3>11.3 Index Size Estimation</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Scenario</th><th>Approx Entity Count</th><th>Est. Index Size</th></tr></thead>
+    <tbody>
+      <tr><td>1 year of usage</td><td>~1,200 entities</td><td>~2 MB</td></tr>
+      <tr><td>3 years of usage</td><td>~3,500 entities</td><td>~5.5 MB</td></tr>
+      <tr><td>10 years of usage</td><td>~12,000 entities</td><td>~18 MB</td></tr>
+    </tbody>
+  </table></div>
+  <p>These estimates include FTS5 prefix indexes (2, 3, 4 chars) which add approximately 2× overhead over raw text storage. Even at 10 years, the index remains well within mobile storage budgets (18 MB).</p>
+
+  <h3>11.4 SearchCache</h3>
+  <p>An in-memory LRU cache intercepts repeated queries within a session. Cache characteristics:</p>
+  <ul class="sl">
+    <li>Capacity: 50 query→result mappings.</li>
+    <li>Key: SHA-256 of (sanitized_query + JSON-serialized active filter state).</li>
+    <li>TTL: 30 seconds after last access. Invalidated immediately on any IndexManager write.</li>
+    <li>On cache hit: skip steps 4–7 of the pipeline entirely. Present cached result in &lt;5ms.</li>
+    <li>Cache is not persisted across app sessions — it is warm only for the current session.</li>
+  </ul>
+
+  <h3>11.5 Background Index Operations</h3>
+  <p>All index writes run on a dedicated background serial queue (not the main thread). Reads (during search queries) run on the search query queue (can be concurrent with index writes because WAL mode in <code>search.db</code> allows concurrent readers). The IndexManager ensures writes are batched: if 5 events fire within 200ms of each other, they are coalesced into a single batch index write rather than 5 sequential writes.</p>
+</section>
+
+<!-- S12 -->
+<section id="s12">
+  <div class="sec-head"><span class="sec-num">12</span><h2 class="sec-title">Security &amp; Privacy Model</h2></div>
+
+  <p>The search index contains condensed copies of sensitive financial data. It must be protected with at minimum the same security level as the primary database.</p>
+
+  <h3>12.1 Index Encryption</h3>
+  <p><code>search.db</code> is encrypted with the same key as <code>finance.db</code>. Both files are opened with the same derived key (from the platform Keychain/Keystore). The encryption key is never stored in plaintext. Decryption is required to open either database — raw file reads return ciphertext.</p>
+
+  <h3>12.2 Biometric Lock Integration</h3>
+  <p>When the app is locked (biometric lock triggered), the search overlay cannot be opened. The search entry point (FAB, gesture, header icon) is disabled on the lock screen. Even if the overlay were somehow opened programmatically, the <code>search.db</code> connection is closed at lock time and requires re-authentication to re-open. Search is fully blocked until re-authentication succeeds.</p>
+
+  <h3>12.3 Obscure Amounts in Search Results</h3>
+  <p>When <code>settings.obscure_amounts = TRUE</code>:</p>
+  <ul class="sl">
+    <li>All monetary amounts in search result subtitles are replaced with "•••• [currency symbol]".</li>
+    <li>The <code>display_subtitle</code> in <code>SearchResult</code> replaces formatted amounts with the obscured placeholder at render time.</li>
+    <li>Quick preview cards obscure all amount fields.</li>
+    <li>The obscuring is a render-time transformation — stored index data is unmodified. The index itself stores unobscured values (protected by encryption).</li>
+    <li>Amount-based filter directives (e.g. <code>amount:>500</code>) continue to work correctly — the filter operates on centimes in the index, not the display string.</li>
+  </ul>
+
+  <h3>12.4 Search History Privacy</h3>
+  <ul class="sl">
+    <li>Search history is stored in <code>search.db</code> — same encryption applies.</li>
+    <li>History is never sent off-device in v1. No telemetry, no analytics, no crash reporting that includes query strings.</li>
+    <li>Users can clear history per-query or all at once from within the search overlay.</li>
+    <li>Users can disable history recording entirely via Settings → Search → Save Search History (default: enabled).</li>
+    <li>When disabled, no new queries are written to <code>search_history</code>. Existing history is not cleared — the user must clear it manually.</li>
+  </ul>
+
+  <h3>12.5 Index Content Safety</h3>
+  <p>The index does not contain:</p>
+  <ul class="sl">
+    <li>Full monetary amounts in plaintext in the FTS5 text fields (amounts are in <code>metadata_json</code> only, accessed only by the filter layer, not by FTS5 full-text matching).</li>
+    <li>Authentication credentials, encryption keys, or biometric data.</li>
+    <li>File contents of attachments (only filenames and metadata are indexed).</li>
+    <li>The <code>rollback_sql</code> field from schema_migrations.</li>
+  </ul>
+
+  <h3>12.6 Deleted Entity Handling</h3>
+  <p>When an entity is soft-deleted in the main database, the IndexManager receives the corresponding EVT event and sets <code>search_index_meta.deleted = 1</code> on that entity's index row. Deleted rows are excluded from all search queries (WHERE deleted = 0). The index row is retained (not hard-deleted) for 30 days, then purged in a nightly maintenance pass. This 30-day window allows the "undo soft delete" feature to restore an entity without requiring a full re-index.</p>
+</section>
+
+<!-- S13 -->
+<section id="s13">
+  <div class="sec-head"><span class="sec-num">13</span><h2 class="sec-title">Offline Behavior</h2></div>
+
+  <p>Finance Bag is an offline-first application. The Global Search & Command Center operates with full fidelity offline — no capability is degraded, no features are hidden, no "search not available" messages are shown. Network connectivity is irrelevant to search.</p>
+
+  <h3>13.1 Fully Local Architecture</h3>
+  <p>Every component of the search system lives on-device:</p>
+  <ul class="sl">
+    <li><strong>search.db</strong> — The complete search index. Never requires a network call to populate or query.</li>
+    <li><strong>CommandRegistry</strong> — In-memory, populated at app startup from statically registered commands. No network dependency.</li>
+    <li><strong>SearchCache</strong> — In-memory. No network dependency.</li>
+    <li><strong>Synonym dictionary</strong> — Bundled in the app binary. No network dependency.</li>
+    <li><strong>FuzzyMatcher</strong> — Pure local computation. No network dependency.</li>
+  </ul>
+  <p>There is no fallback mode. Offline IS the mode. A future cloud-sync version would add cloud results as an additive layer on top of local results, never replacing them.</p>
+
+  <h3>13.2 Index Consistency Without Network</h3>
+  <p>Because all data lives locally, the index is always consistent with the main database. The only scenario where the index could be temporarily stale is if the IndexManager's event subscription missed an update due to an app crash. The startup consistency check (§11.2) handles this case by re-indexing any entities whose <code>updated_at</code> timestamp is newer than their <code>last_indexed_at</code> in the index.</p>
+
+  <h3>13.3 No Degraded Features</h3>
+  <p>There are no "requires network" features in v1 search. This table documents that explicitly:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Feature</th><th>Offline Behavior</th></tr></thead>
+    <tbody>
+      <tr><td>Full-text search</td><td>Fully functional</td></tr>
+      <tr><td>Fuzzy matching</td><td>Fully functional</td></tr>
+      <tr><td>Filter panel</td><td>Fully functional</td></tr>
+      <tr><td>Command execution</td><td>Fully functional (all commands operate on local data)</td></tr>
+      <tr><td>Search history</td><td>Fully functional (stored in search.db)</td></tr>
+      <tr><td>Auto-complete</td><td>Fully functional (sourced from search.db prefix index)</td></tr>
+      <tr><td>Quick preview cards</td><td>Fully functional</td></tr>
+      <tr><td>AI semantic search (v2)</td><td>Partial — on-device model works offline; cloud model requires network</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S14 -->
+<section id="s14">
+  <div class="sec-head"><span class="sec-num">14</span><h2 class="sec-title">Search History &amp; Persistence</h2></div>
+
+  <p>The search history system stores the user's past queries to enable fast repetition of common searches, query auto-complete seeding, and personalized ranking signals.</p>
+
+  <h3>14.1 search_history Table Schema</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>id</code></td><td>ULID</td><td>History entry identifier</td></tr>
+      <tr><td><code>query</code></td><td>TEXT NOT NULL</td><td>The sanitized search query string as entered by the user</td></tr>
+      <tr><td><code>filter_state_json</code></td><td>TEXT NULL</td><td>Serialized filter state active when this query was run (null if no filters)</td></tr>
+      <tr><td><code>result_count</code></td><td>INTEGER</td><td>Number of results returned (for display in history list)</td></tr>
+      <tr><td><code>executed_at</code></td><td>INTEGER</td><td>Unix ms timestamp of query execution</td></tr>
+      <tr><td><code>is_pinned</code></td><td>INTEGER DEFAULT 0</td><td>1 = pinned (persists indefinitely, never auto-pruned)</td></tr>
+      <tr><td><code>is_saved</code></td><td>INTEGER DEFAULT 0</td><td>1 = saved search (user gave it a name)</td></tr>
+      <tr><td><code>saved_name</code></td><td>TEXT NULL</td><td>User-provided name for saved searches</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>14.2 History Limits</h3>
+  <ul class="sl">
+    <li><strong>Recent history</strong>: Max 50 non-pinned, non-saved rows. When the 51st is inserted, the oldest unpinned+unsaved row is deleted.</li>
+    <li><strong>Pinned searches</strong>: Max 10 pinned rows. Pinned searches never auto-expire.</li>
+    <li><strong>Saved searches</strong>: Max 10 saved rows (same limit as <code>saved_report_filters</code>). Users must delete one before adding another.</li>
+    <li>Duplicate queries (same query string + filter hash within 1 hour) do not create a new history row — they update the <code>executed_at</code> of the existing row.</li>
+  </ul>
+
+  <h3>14.3 History Display in Zero-Query State</h3>
+  <p>When the search overlay opens with no input, the recent history section shows the last 5 non-pinned queries. Pinned searches are shown in a separate "Pinned" section (max 3 shown, expandable to all 10). Saved searches are shown in a "Saved" section. Tapping any history row immediately executes the query (no typing required).</p>
+
+  <h3>14.4 History Management UX</h3>
+  <ul class="sl">
+    <li>Swipe-left on a history row reveals: Pin / Unpin, Save, Delete.</li>
+    <li>Long-press on a history row opens the same action sheet.</li>
+    <li>"Clear all history" is accessible from Settings → Search → Search History. It deletes all non-pinned, non-saved rows.</li>
+    <li>Pinned and saved rows survive "Clear all history" — they must be individually deleted.</li>
+    <li>If history recording is disabled (§12.4), the history section in the zero-query state shows only pinned and saved searches.</li>
+  </ul>
+
+  <h3>14.5 Click Signal Logging</h3>
+  <p>When a user selects a search result (navigating to an entity or executing a command), the event is logged to a <code>search_click_log</code> table in <code>search.db</code>. This drives the <code>frequency_factor</code> in the ranking algorithm. The click log stores: <code>entity_id</code>, <code>entity_type</code>, <code>query</code>, <code>clicked_at</code>. Rows older than 30 days are hard-deleted in the nightly maintenance pass. The click log is not exported in any user-facing export — it is internal ranking signal data.</p>
+</section>
+
+<!-- S15 -->
+<section id="s15">
+  <div class="sec-head"><span class="sec-num">15</span><h2 class="sec-title">Future AI Compatibility</h2></div>
+
+  <p>The SCH architecture is explicitly designed to remain architecturally stable as AI capabilities are added. Every AI feature described here is additive — it plugs into existing interfaces without restructuring the core pipeline.</p>
+
+  <h3>15.1 Semantic Search Upgrade Path</h3>
+  <p>In a future version with an on-device language model, semantic search adds one step to the pipeline and one field to the index, touching nothing else:</p>
+  <ul class="ol">
+    <li>A background job generates embedding vectors for each entity's <code>searchable_text</code> and stores them in <code>search_index_meta.embedding_json</code>.</li>
+    <li>The QueryParser generates an embedding vector for the user's query using the same model.</li>
+    <li>The IndexEngine performs an approximate nearest-neighbor search across stored embeddings (using SQLite's JSON functions or a compiled extension like sqlite-vss).</li>
+    <li>Semantic match candidates are merged with FTS5 candidates and passed to the RankingEngine, which adds a <code>semantic_similarity</code> term to the scoring formula.</li>
+  </ul>
+  <p>The Presentation layer, SearchOrchestrator, SearchCache, CommandRegistry, and all filter logic remain completely unchanged.</p>
+
+  <h3>15.2 Voice Search Integration</h3>
+  <p>Voice input is a transport mechanism, not a separate search system. When voice input is activated, the SpeechToText module transcribes speech to text and passes the resulting string into the QueryParser at step ④ of the existing 8-step pipeline. The entire downstream pipeline (expand, execute, rank, filter, present) runs identically for voice and typed queries. The only voice-specific UI consideration: the input bar shows a microphone animation instead of a text cursor while recording, and the transcript appears in the text field progressively as words are recognized.</p>
+
+  <h3>15.3 OCR Attachment Search</h3>
+  <p>When receipt/document OCR is implemented, extracted text is stored in <code>expense.notes</code> (or a new <code>expense_ocr_text</code> field added via migration). The DataSourceAdapter for the BUD module includes this field in the entity's <code>searchable_text</code> when building the index record. No changes to the search pipeline are required — the OCR text is just additional FTS5-indexed text.</p>
+
+  <h3>15.4 Predictive Search &amp; Personalized Ranking</h3>
+  <p>A future ML-based ranker replaces the deterministic frequency_factor component with a learned model that predicts which result the user is most likely to select given: query text, time of day, day of week, current screen context, and recent click history. The ranker interface is already abstracted in the RankingEngine (the frequency_factor is computed by a pluggable <code>FrequencySignalProvider</code>). The ML model replaces only this provider — the rest of the scoring formula and all other layers are unchanged.</p>
+
+  <h3>15.5 Bank Transaction Import Search</h3>
+  <p>When bank transaction import is added (a future module), imported transactions become a new entity type in the index. The DataSourceAdapter for the import module produces <code>IndexRecord</code> objects with <code>entity_type: 'bank_transaction'</code>, module: 'BANK'. The index, query pipeline, and presentation layer handle this entity type identically to any other — no special casing required.</p>
+
+  <h3>15.6 Cross-Device Search (Cloud Sync)</h3>
+  <p>When cloud sync is introduced, the index becomes a derived artifact that can be fully rebuilt from the synced database. Each device maintains its own local index. Cross-device search (searching across data that exists only on another device) requires a cloud-hosted index — this is out of scope for v1 and does not affect the local architecture. The <code>entity_id</code> ULID scheme already supports cross-device identity without coordination.</p>
+</section>
+
+<!-- S16 -->
+<section id="s16">
+  <div class="sec-head"><span class="sec-num">16</span><h2 class="sec-title">Business Rules</h2></div>
+
+  <div class="rc">
+    <div class="rc-id">BR-SCH-01</div>
+    <div class="rc-title">Index Freshness Maximum Lag: 5 Seconds</div>
+    <div class="rc-body">After any financial entity is created, updated, or soft-deleted, the corresponding index row must be updated within 5 seconds. The IndexManager's event subscription must process index updates asynchronously but promptly. A user who creates an expense and immediately searches for it should find it within one search attempt (one debounce cycle of 150ms + one pipeline execution of ≤ 50ms + the 5s index lag in worst case).</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-SCH-02</div>
+    <div class="rc-title">No Deleted Entities in Results</div>
+    <div class="rc-body">Soft-deleted entities (those with <code>deleted_at IS NOT NULL</code> in the main database, and <code>deleted = 1</code> in the index) must never appear in search results. This is enforced by a mandatory <code>WHERE deleted = 0</code> clause in every FTS5 query. There is no "show deleted items" toggle in v1.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-SCH-03</div>
+    <div class="rc-title">Query Sanitization Before Any DB Access</div>
+    <div class="rc-body">Every query string must pass through the sanitization step (step ②) before any SQLite query is constructed from it. The sanitized string is HTML-stripped, truncated to 200 characters, and Unicode-normalized. SQLite parameterized queries must be used — string interpolation into SQL is prohibited in the search layer as in all other modules.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-SCH-04</div>
+    <div class="rc-title">Command Execution Delegates to Owning Module</div>
+    <div class="rc-body">The SCH module may never write to another module's tables directly, even during command execution. "Create Goal" from the Command Center calls the GOL module's public creation function. "Add Expense" calls the BUD module's public creation function. SCH is a consumer and delegator — it has no write access to financial tables.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-SCH-05</div>
+    <div class="rc-title">History Disabled = No History Writes</div>
+    <div class="rc-body">When <code>settings.save_search_history = FALSE</code> (a new settings field owned by SCH), no rows are written to <code>search_history</code> for executed queries. Pinned and saved searches that already exist are preserved. The auto-complete suggestion seeding from history is replaced by vocabulary-only suggestions when history is disabled.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-SCH-06</div>
+    <div class="rc-title">Max 10 Saved Searches</div>
+    <div class="rc-body">At most 10 rows with <code>is_saved = 1</code> may exist in <code>search_history</code>. Before saving a new search, the application checks the current count and rejects the save if the limit is reached, surfacing the error: "You've reached the maximum of 10 saved searches. Delete one to save a new one."</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-SCH-07</div>
+    <div class="rc-title">Index Rebuild Must Not Block the UI</div>
+    <div class="rc-body">Full index rebuilds (triggered on first launch, after a database restore, or after index corruption) must run on a background thread. While a rebuild is in progress, the search overlay remains functional — it queries whatever portion of the index has been built so far and shows a subtle "Index updating…" indicator. It does not show a blocking loading screen.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-SCH-08</div>
+    <div class="rc-title">Amounts Never in FTS5 Searchable Text</div>
+    <div class="rc-body">Monetary amounts (in centimes or formatted display strings) must not be included in the <code>searchable_text</code> column fed to FTS5. Amounts are stored exclusively in <code>metadata_json.amount</code> and accessed only by the filter layer. This rule prevents users from finding expenses by typing raw currency amounts into the text search box — amount-based retrieval goes through the structured filter system exclusively.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-SCH-09</div>
+    <div class="rc-title">Single Entry Point — No Module-Level Search</div>
+    <div class="rc-body">Individual modules (BUD, DBT, GOL, etc.) must not implement their own search systems. Any search functionality within a module screen (e.g. filtering an expense list) that goes beyond local in-memory array filtering must be delegated to the SCH module via its public query API. This ensures the index stays as the single source of truth for all search operations.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-SCH-10</div>
+    <div class="rc-title">search.db Recoverable Without Data Loss</div>
+    <div class="rc-body">The <code>search.db</code> file is a derived index — it contains no data that does not already exist in <code>finance.db</code>. If <code>search.db</code> is corrupted or deleted, it can be fully rebuilt from <code>finance.db</code> by triggering a full index rebuild. A "Rebuild Search Index" option must exist in Settings → Advanced. Corruption of <code>search.db</code> must never affect the integrity of <code>finance.db</code>.</div>
+  </div>
+</section>
+
+<!-- S17 -->
+<section id="s17">
+  <div class="sec-head"><span class="sec-num">17</span><h2 class="sec-title">Edge Cases</h2></div>
+
+  <div class="rc">
+    <div class="rc-id">EC-SCH-01</div>
+    <div class="rc-title">Query Containing Only Special Characters or Operators</div>
+    <div class="rc-body">Queries that consist entirely of special characters (<code>!@#$%^&*()</code>), filter operators without values (<code>category: amount:</code>), or negation only (<code>-</code>) are treated as empty queries after sanitization. The system renders the zero-query default state rather than attempting to execute a malformed FTS5 query. No error is shown — the overlay simply shows the default state.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-SCH-02</div>
+    <div class="rc-title">Query Longer Than 200 Characters</div>
+    <div class="rc-body">Queries are truncated to 200 characters at step ②. The truncation happens at the last word boundary before 200 characters (no mid-word cuts). A subtle indicator in the input field shows that the query was truncated (e.g. the character count turns amber at 180 characters). This prevents pathologically long queries from causing excessive FTS5 work.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-SCH-03</div>
+    <div class="rc-title">Index Corrupted or Missing on Launch</div>
+    <div class="rc-body">If <code>search.db</code> fails <code>PRAGMA integrity_check</code> on startup (corruption detected) or the file is missing entirely, the IndexManager creates a fresh empty <code>search.db</code> and triggers a full background rebuild from <code>finance.db</code>. Search is available immediately (returning no results until the rebuild progresses) with a banner notification: "Search is rebuilding your index — results may be incomplete." The banner disappears when the rebuild completes.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-SCH-04</div>
+    <div class="rc-title">Stale Index Entry for a Renamed Entity</div>
+    <div class="rc-body">When a financial_goal is renamed from "Vacation" to "Holiday Fund", the GoalDataSourceAdapter re-indexes the entity with the new name. The stale "Vacation" entry is replaced (upsert by entity_id). During the brief window between the rename and the re-index (≤ 5 seconds per BR-SCH-01), the old name may appear in search results — this is acceptable. The navigation_target in the result still points to the correct entity, so the user is never misdirected.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-SCH-05</div>
+    <div class="rc-title">User Searches for an Amount While Obscure Mode is On</div>
+    <div class="rc-body">Amount-based filter directives (<code>amount:>500</code>) continue to work correctly in obscure mode. The filter operates on the raw centimes value in <code>metadata_json.amount</code> — which is unaffected by obscure mode. The results are returned normally. Only the display of amounts in result subtitles and preview cards is obscured. The user can find expenses by amount even when they cannot see the amounts in results.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-SCH-06</div>
+    <div class="rc-title">User with No Financial Data (First Launch)</div>
+    <div class="rc-body">On first launch, the index is empty. Any query returns zero results. The empty state in this context shows: "Nothing to search yet — start by adding your salary and first expense." The Command Center remains fully functional (commands are registered at startup regardless of data). The user can use the Command Center to navigate to any screen and create their first data.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-SCH-07</div>
+    <div class="rc-title">Two Searches Dispatched Faster Than Debounce</div>
+    <div class="rc-body">If the user pastes text (triggering an instant query) and then immediately types another character before the first query completes, the second query cancels the first. Only the most-recently-dispatched query's results are displayed. The in-flight first query is aborted at the SearchOrchestrator level before it reaches the IndexEngine. The SearchCache may still populate from the first query's result if it completes before cancellation — this is harmless since cache keys are query-specific.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-SCH-08</div>
+    <div class="rc-title">Command Requiring Context Invoked Without Context</div>
+    <div class="rc-body">Commands with <code>requires_context = true</code> (e.g. "Record Payment" needs a debt in context, "Add Contribution" needs a goal in context) may be surfaced in global search without any entity in context. When executed from global search without the required context, these commands open the relevant creation sheet but start in "entity selector" mode — the user first chooses which debt or goal the action applies to, then proceeds with the action. No error is thrown; the command always succeeds by asking for the missing context.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-SCH-09</div>
+    <div class="rc-title">Extremely Large Number of Search Results</div>
+    <div class="rc-body">If a query like "a" matches thousands of expenses (any expense containing the letter "a"), the system caps FTS5 to return at most 500 raw candidates. The RankingEngine scores and sorts these 500 candidates, then applies per-group limits before presentation. The user sees at most 5 expense results (expandable to 50). The "500 candidate" cap is enforced by <code>LIMIT 500</code> in the FTS5 query — the user never waits for thousands of rows to be processed.</div>
+  </div>
+
+  <div class="xref"><strong>Cross-References:</strong> SPEC-DB-001 (entity tables indexed by SCH), SPEC-EVT-001 (events that trigger index updates: FINANCIAL_STATE_CHANGED, DEBT_BALANCE_CHANGED, GOAL_STATUS_CHANGED), SPEC-BUD-001 (expenses, categories, tags), SPEC-DBT-001 (debts, payments), SPEC-GOL-001 (goals, contributions), SPEC-EMF-001 (EMF, contributions), SPEC-RPT-001 (saved filters, archives), SPEC-SAL-001 (salary records, periods).</div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
