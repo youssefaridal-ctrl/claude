@@ -1,0 +1,1753 @@
+<title>SPEC-GAM-001 — Gamification, Achievements & User Motivation Engine</title>
+<style>
+/* ── Token palette ─────────────────────────────────────────────── */
+:root {
+  --acc:     #7C3AED;
+  --acc-dim: rgba(124,58,237,.65);
+  --acc-bg:  rgba(124,58,237,.09);
+  --bg:      #18181B;
+  --surf:    #27272A;
+  --surf2:   #3F3F46;
+  --bd:      #3F3F46;
+  --txt:     #F4F4F5;
+  --txt2:    #A1A1AA;
+  --txt3:    #71717A;
+  --ok:      #059669;
+  --warn:    #D97706;
+  --danger:  #DC2626;
+}
+@media (prefers-color-scheme: light) { :root {
+  --bg: #F9FAFB; --surf: #FFFFFF; --surf2: #F3F4F6; --bd: #E5E7EB;
+  --txt: #111827; --txt2: #6B7280; --txt3: #9CA3AF;
+}}
+:root[data-theme="dark"] {
+  --bg: #18181B; --surf: #27272A; --surf2: #3F3F46; --bd: #3F3F46;
+  --txt: #F4F4F5; --txt2: #A1A1AA; --txt3: #71717A;
+}
+:root[data-theme="light"] {
+  --bg: #F9FAFB; --surf: #FFFFFF; --surf2: #F3F4F6; --bd: #E5E7EB;
+  --txt: #111827; --txt2: #6B7280; --txt3: #9CA3AF;
+}
+
+/* ── Reset & base ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--txt);
+  line-height: 1.65; display: flex; min-height: 100vh;
+}
+
+/* ── Sidebar nav ───────────────────────────────────────────────── */
+#sidebar {
+  position: fixed; top: 0; left: 0; width: 220px; height: 100vh;
+  background: var(--surf); border-right: 1px solid var(--bd);
+  overflow-y: auto; padding: 1.5rem 0; z-index: 100;
+  scrollbar-width: thin;
+}
+#sidebar-header {
+  padding: 0 1.25rem 1.25rem;
+  border-bottom: 1px solid var(--bd);
+  margin-bottom: 0.75rem;
+}
+#sidebar-header .spec-id {
+  font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--acc); margin-bottom: .25rem;
+}
+#sidebar-header .spec-title {
+  font-size: .8rem; color: var(--txt2); line-height: 1.35;
+}
+#nav-list { list-style: none; }
+#nav-list a {
+  display: block; padding: .35rem 1.25rem;
+  font-size: .78rem; color: var(--txt2); text-decoration: none;
+  border-left: 2px solid transparent; transition: all .15s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#nav-list a:hover { color: var(--txt); background: var(--acc-bg); }
+#nav-list a.active {
+  color: var(--acc); border-left-color: var(--acc);
+  background: var(--acc-bg); font-weight: 600;
+}
+
+/* ── Main content ──────────────────────────────────────────────── */
+main {
+  margin-left: 220px; flex: 1;
+  padding: 2.5rem clamp(1.5rem, 5vw, 3.5rem) 4rem;
+  max-width: 980px;
+}
+
+/* ── Page header ───────────────────────────────────────────────── */
+#page-header { margin-bottom: 2.5rem; }
+.eyebrow {
+  font-size: .72rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--acc); margin-bottom: .5rem;
+}
+h1 {
+  font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 700;
+  line-height: 1.2; text-wrap: balance; color: var(--txt);
+  margin-bottom: .75rem;
+}
+.meta-row {
+  display: flex; flex-wrap: wrap; gap: .5rem 1.5rem;
+  font-size: .78rem; color: var(--txt2);
+}
+.meta-row span { display: flex; align-items: center; gap: .35rem; }
+.badge {
+  display: inline-flex; align-items: center; padding: .2rem .6rem;
+  border-radius: 999px; font-size: .7rem; font-weight: 600;
+  background: var(--acc-bg); color: var(--acc); border: 1px solid var(--acc-dim);
+}
+.theme-btn {
+  margin-left: auto; padding: .35rem .85rem;
+  border: 1px solid var(--bd); border-radius: 6px;
+  background: var(--surf); color: var(--txt2);
+  font-size: .75rem; cursor: pointer; transition: border-color .15s;
+}
+.theme-btn:hover { border-color: var(--acc); color: var(--acc); }
+
+/* ── Sections ──────────────────────────────────────────────────── */
+section { padding-top: 2.75rem; margin-bottom: 0; }
+section + section { border-top: 1px solid var(--bd); }
+h2 {
+  font-size: 1.25rem; font-weight: 700; color: var(--txt);
+  margin-bottom: 1.25rem; text-wrap: balance;
+  padding-bottom: .5rem; border-bottom: 2px solid var(--acc);
+  display: inline-block;
+}
+h3 {
+  font-size: .95rem; font-weight: 700; color: var(--txt);
+  margin: 1.5rem 0 .65rem; text-transform: uppercase;
+  letter-spacing: .04em;
+}
+p { color: var(--txt2); margin-bottom: .85rem; font-size: .9rem; }
+ul, ol { margin: .5rem 0 1rem 1.25rem; }
+li { color: var(--txt2); font-size: .88rem; margin-bottom: .3rem; }
+li strong { color: var(--txt); }
+
+/* ── Tables ────────────────────────────────────────────────────── */
+.tbl-wrap { overflow-x: auto; margin: 1rem 0; }
+table {
+  width: 100%; border-collapse: collapse;
+  font-size: .82rem; min-width: 520px;
+}
+th {
+  background: var(--acc-bg); color: var(--acc);
+  font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; font-size: .72rem;
+  padding: .6rem .75rem; text-align: left;
+  border-bottom: 1px solid var(--acc-dim);
+}
+td {
+  padding: .55rem .75rem; color: var(--txt2);
+  border-bottom: 1px solid var(--bd); vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surf2); }
+td strong { color: var(--txt); }
+
+/* ── Cards ─────────────────────────────────────────────────────── */
+.card {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 10px; padding: 1.1rem 1.25rem; margin: .75rem 0;
+}
+.card-title {
+  font-size: .78rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--acc); margin-bottom: .65rem;
+}
+.grid-2 {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: .85rem; margin: .75rem 0;
+}
+.grid-3 {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: .85rem; margin: .75rem 0;
+}
+
+/* ── Achievement card ───────────────────────────────────────────── */
+.ach-card {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 10px; padding: 1rem 1.1rem;
+  border-left: 3px solid var(--acc);
+}
+.ach-id {
+  font-size: .68rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--txt3); margin-bottom: .2rem;
+}
+.ach-name {
+  font-size: .92rem; font-weight: 700; color: var(--txt); margin-bottom: .35rem;
+}
+.ach-meta {
+  display: flex; flex-wrap: wrap; gap: .3rem; margin-bottom: .5rem;
+}
+.tag {
+  font-size: .66rem; font-weight: 600; letter-spacing: .05em;
+  text-transform: uppercase; padding: .15rem .45rem;
+  border-radius: 4px; background: var(--surf2); color: var(--txt3);
+}
+.tag-milestone { background: rgba(5,150,105,.12); color: #059669; }
+.tag-streak    { background: rgba(217,119,6,.12);  color: #D97706; }
+.tag-mastery   { background: rgba(124,58,237,.12); color: #7C3AED; }
+.tag-hidden    { background: rgba(107,114,128,.12); color: #9CA3AF; }
+.tag-education { background: rgba(8,145,178,.12);  color: #0891B2; }
+.tag-onetime   { background: rgba(220,38,38,.12);  color: #DC2626; }
+.tag-progressive { background: rgba(16,185,129,.12); color: #10B981; }
+.ach-desc { font-size: .82rem; color: var(--txt2); }
+
+/* ── Callout boxes ─────────────────────────────────────────────── */
+.callout {
+  border-left: 3px solid var(--acc); background: var(--acc-bg);
+  border-radius: 0 8px 8px 0; padding: .85rem 1rem; margin: 1rem 0;
+  font-size: .85rem; color: var(--txt2);
+}
+.callout strong { color: var(--acc); }
+
+/* ── Behavior pill rows ─────────────────────────────────────────── */
+.pill-row {
+  display: flex; flex-wrap: wrap; gap: .45rem; margin: .75rem 0;
+}
+.pill {
+  font-size: .75rem; font-weight: 600; padding: .3rem .75rem;
+  border-radius: 999px; background: var(--surf2); color: var(--txt2);
+  border: 1px solid var(--bd);
+}
+.pill-acc { background: var(--acc-bg); color: var(--acc); border-color: var(--acc-dim); }
+
+/* ── Streak visual ─────────────────────────────────────────────── */
+.streak-row {
+  display: flex; gap: .4rem; flex-wrap: wrap; margin: .65rem 0;
+}
+.streak-dot {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .65rem; font-weight: 700;
+}
+.dot-hit  { background: var(--acc); color: #fff; }
+.dot-miss { background: var(--surf2); color: var(--txt3); border: 1px solid var(--bd); }
+.dot-grace { background: rgba(217,119,6,.2); color: var(--warn); border: 1px solid var(--warn); }
+.dot-future { background: var(--surf); color: var(--txt3); border: 1px dashed var(--bd); }
+
+/* ── Progress viz ───────────────────────────────────────────────── */
+.progress-bar-wrap { margin: .5rem 0 1rem; }
+.progress-label {
+  display: flex; justify-content: space-between;
+  font-size: .78rem; color: var(--txt2); margin-bottom: .3rem;
+}
+.progress-bar { height: 8px; border-radius: 999px; background: var(--surf2); overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 999px; background: var(--acc); transition: width .4s; }
+
+/* ── Timeline ───────────────────────────────────────────────────── */
+.timeline { position: relative; padding-left: 1.75rem; margin: 1rem 0; }
+.timeline::before {
+  content: ''; position: absolute; left: .55rem; top: 0; bottom: 0;
+  width: 2px; background: var(--bd);
+}
+.tl-item { position: relative; margin-bottom: 1.1rem; }
+.tl-dot {
+  position: absolute; left: -1.2rem; top: .2rem;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--acc); border: 2px solid var(--bg);
+}
+.tl-dot.future { background: var(--surf2); border-color: var(--bd); }
+.tl-title { font-size: .85rem; font-weight: 700; color: var(--txt); }
+.tl-desc  { font-size: .8rem; color: var(--txt2); }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 700px) {
+  #sidebar { display: none; }
+  main { margin-left: 0; padding: 1.5rem 1rem 3rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+
+<header style="position:sticky;top:0;z-index:200;background:var(--bg);border-bottom:1px solid var(--bd);padding:.6rem clamp(1rem,4vw,2rem);display:flex;align-items:center;gap:1rem">
+  <span style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc)">Finance Bag</span>
+  <span style="color:var(--bd)">|</span>
+  <span style="font-size:.78rem;color:var(--txt2)">SPEC-GAM-001</span>
+  <button class="theme-btn" id="theme-btn" aria-label="Toggle theme">Light / Dark</button>
+</header>
+
+<nav id="sidebar" aria-label="Section navigation">
+  <div id="sidebar-header">
+    <div class="spec-id">SPEC-GAM-001</div>
+    <div class="spec-title">Gamification, Achievements &amp; User Motivation Engine</div>
+  </div>
+  <ul id="nav-list">
+    <li><a href="#s1">§1 Overview &amp; Philosophy</a></li>
+    <li><a href="#s2">§2 Behavioral Framework</a></li>
+    <li><a href="#s3">§3 Achievement Architecture</a></li>
+    <li><a href="#s4">§4 Achievement Catalog</a></li>
+    <li><a href="#s5">§5 Streak System</a></li>
+    <li><a href="#s6">§6 Milestone Engine</a></li>
+    <li><a href="#s7">§7 Progress Visualization</a></li>
+    <li><a href="#s8">§8 Motivation Engine</a></li>
+    <li><a href="#s9">§9 Challenge Framework</a></li>
+    <li><a href="#s10">§10 Reward System</a></li>
+    <li><a href="#s11">§11 Motivational Feedback</a></li>
+    <li><a href="#s12">§12 Personalization &amp; Controls</a></li>
+    <li><a href="#s13">§13 Psychological Safety</a></li>
+    <li><a href="#s14">§14 Accessibility</a></li>
+    <li><a href="#s15">§15 Performance &amp; Offline</a></li>
+    <li><a href="#s16">§16 Data Model &amp; Schemas</a></li>
+    <li><a href="#s17">§17 Integration Points</a></li>
+    <li><a href="#s18">§18 Edge Cases &amp; Business Rules</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div id="page-header">
+    <div class="eyebrow">Finance Bag — Specification Series</div>
+    <h1>Gamification, Achievements &amp; User Motivation Engine</h1>
+    <div class="meta-row">
+      <span><strong>Document ID:</strong> SPEC-GAM-001</span>
+      <span><strong>Version:</strong> 1.0</span>
+      <span><strong>Status:</strong> <span class="badge">Approved</span></span>
+      <span><strong>Date:</strong> 2026-07-12</span>
+    </div>
+    <div class="meta-row" style="margin-top:.5rem">
+      <span><strong>Depends on:</strong> SPEC-FHS-001, SPEC-DSN-001, SPEC-QA-001, SPEC-PMO-001</span>
+    </div>
+  </div>
+
+<!-- ============================================================ -->
+<!-- §1 OVERVIEW & PHILOSOPHY                                      -->
+<!-- ============================================================ -->
+<section id="s1">
+  <h2>§1 — Overview &amp; Philosophy</h2>
+  <p>The Finance Bag Gamification, Achievements &amp; User Motivation Engine (GAM Engine) is a behavioral reinforcement system designed to encourage sustainable financial habits through positive recognition, meaningful milestones, and adaptive encouragement. It is not a game layer. It is a behavioral design layer grounded in evidence-based motivation science.</p>
+
+  <h3>1.1 The Fundamental Distinction</h3>
+  <div class="callout">
+    <strong>Core Principle:</strong> The GAM Engine rewards financial reality, not app engagement. A user who enters fewer transactions because they have fewer expenses is doing well — they should not be penalized. A user who enters many transactions because they are overspending should not be rewarded for their input volume. Recognition is always tied to healthy financial behavior, never to raw activity metrics.
+  </div>
+
+  <h3>1.2 Design Pillars</h3>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title">Pillar I — Authenticity</div>
+      <p>Every achievement reflects a genuine financial accomplishment. Badges are earned, not collected. The system celebrates what happened in a user's actual financial life, not their use of app features.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Pillar II — Sustainability</div>
+      <p>Mechanics are designed for long-term engagement across years of use, not for short spikes in session frequency. Streaks have grace periods. Challenges are optional. No achievement expires.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Pillar III — Safety</div>
+      <p>The system never applies pressure, shame, or urgency. It is entirely opt-out-able, never compares users to each other, and surfaces no negative rankings. Users who disengage lose nothing except optional recognition.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Pillar IV — Meaning</div>
+      <p>Rewards carry semantic weight — a badge for paying off a debt means something because the underlying financial event is significant, not because a task counter reached a threshold.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Pillar V — Adaptability</div>
+      <p>The motivation engine adapts to user profile and financial context. Encouragement for a user in debt reduction mode is different from encouragement for a user building long-term savings.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Pillar VI — Privacy</div>
+      <p>Achievement data is private by default. No achievement detail, streak count, or financial milestone is ever shared with other users or surfaced in any social or comparative context.</p>
+    </div>
+  </div>
+
+  <h3>1.3 Behavioral Science Foundation</h3>
+  <p>The GAM Engine draws from three well-validated behavioral frameworks:</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Framework</th><th>Application in GAM Engine</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Self-Determination Theory (SDT)</strong></td><td>Achievement system supports autonomy (user chooses challenges), competence (progressive difficulty with mastery achievements), and relatedness (personal history and journey, not social ranking). Extrinsic rewards (badges) are designed to support, not undermine, intrinsic financial motivation.</td></tr>
+      <tr><td><strong>Operant Conditioning — Variable Ratio + Fixed Ratio</strong></td><td>Milestone achievements use fixed-ratio reinforcement (known targets). Hidden achievements use variable-ratio (surprise). The ratio is kept healthy: no slot-machine-style randomness on frequency; surprises are rare and meaningful.</td></tr>
+      <tr><td><strong>Implementation Intentions</strong></td><td>Challenges translate vague goals ("save more") into specific behavioral commitments ("contribute to savings every month for 3 consecutive months"). The specificity increases follow-through rate.</td></tr>
+      <tr><td><strong>Loss Aversion (managed)</strong></td><td>Streaks are designed to be encouraging to maintain, but their loss causes no penalty, only the absence of ongoing recognition. Grace periods and recovery mechanics prevent loss aversion from becoming anxiety.</td></tr>
+      <tr><td><strong>Progress Principle</strong></td><td>Visible progress toward meaningful goals is a primary intrinsic motivator (Amabile &amp; Kramer). The progress visualization system (§7) is the primary delivery mechanism for this effect.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1.4 What the GAM Engine Is Not</h3>
+  <ul>
+    <li>Not a points economy — there is no currency to earn, spend, or lose.</li>
+    <li>Not a leaderboard — users are never ranked against each other.</li>
+    <li>Not a daily-check-in loop — the app does not require daily engagement to maintain status.</li>
+    <li>Not a notification machine — gamification events generate at most one notification per significant achievement, with full user control over frequency.</li>
+    <li>Not a substitute for financial advice — motivational messages are positive reinforcement only; they never constitute financial guidance.</li>
+  </ul>
+
+  <h3>1.5 Scope</h3>
+  <p>The GAM Engine covers: behavioral event detection, achievement evaluation and unlock, streak tracking, milestone recognition, progress visualization, adaptive motivational messaging, optional challenges, reward assignment, personalization, and the data model supporting all of the above. Integration with the Financial Health Score (FHS), sync engine, AI coach, and backup system is defined in §17.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- §2 BEHAVIORAL FRAMEWORK                                       -->
+<!-- ============================================================ -->
+<section id="s2">
+  <h2>§2 — Behavioral Framework</h2>
+  <p>The behavioral framework defines the complete universe of financial behaviors that the GAM Engine recognizes. Only behaviors from this framework may trigger gamification events. New behaviors require a specification amendment; they cannot be added ad hoc in code.</p>
+
+  <h3>2.1 Behavior Classification System</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Class</th><th>Code</th><th>Description</th><th>Recognition Frequency</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Planning Behaviors</strong></td><td>BHV-P</td><td>Proactive financial organization: budgets, goals, scheduled reviews</td><td>Monthly / on completion</td></tr>
+      <tr><td><strong>Discipline Behaviors</strong></td><td>BHV-D</td><td>Maintaining commitments: respecting budgets, paying debts on schedule</td><td>Monthly / per payment</td></tr>
+      <tr><td><strong>Growth Behaviors</strong></td><td>BHV-G</td><td>Improving financial position: increasing savings, reducing debt, growing emergency fund</td><td>On threshold cross / monthly</td></tr>
+      <tr><td><strong>Awareness Behaviors</strong></td><td>BHV-A</td><td>Engaging with financial information: reviewing reports, reading summaries</td><td>Monthly / on completion</td></tr>
+      <tr><td><strong>Consistency Behaviors</strong></td><td>BHV-C</td><td>Maintaining habits over extended periods: streaks of any of the above</td><td>Per streak milestone</td></tr>
+      <tr><td><strong>Recovery Behaviors</strong></td><td>BHV-R</td><td>Returning to healthy habits after a setback or period of inactivity</td><td>On return detection</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>2.2 Recognized Behavior Catalog</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Behavior ID</th><th>Class</th><th>Behavior</th><th>Trigger Condition</th><th>Evaluation Timing</th></tr></thead>
+    <tbody>
+      <tr><td>BHV-P-01</td><td>Planning</td><td>Monthly budget created</td><td>At least one budget category set for the current month before the 5th of that month</td><td>On save; checked at month start</td></tr>
+      <tr><td>BHV-P-02</td><td>Planning</td><td>Monthly planning completed</td><td>Income entered AND all budget categories set for the current month before the 5th</td><td>On completion of last required field</td></tr>
+      <tr><td>BHV-P-03</td><td>Planning</td><td>Financial goal created</td><td>A new financial goal with target amount and target date is saved</td><td>On goal save</td></tr>
+      <tr><td>BHV-P-04</td><td>Planning</td><td>Salary / income entered</td><td>Income entry for current month recorded</td><td>On transaction save with income type</td></tr>
+      <tr><td>BHV-P-05</td><td>Planning</td><td>Annual planning initiated</td><td>Budgets created for all 12 months of the upcoming year before Dec 31</td><td>On 12th month budget save</td></tr>
+      <tr><td>BHV-D-01</td><td>Discipline</td><td>Budget respected</td><td>Month closes with actual spending ≤ budgeted amount in all categories</td><td>Month-end evaluation (1st of next month)</td></tr>
+      <tr><td>BHV-D-02</td><td>Discipline</td><td>Debt payment on schedule</td><td>Debt repayment transaction recorded within the scheduled payment window</td><td>On transaction save; window checked</td></tr>
+      <tr><td>BHV-D-03</td><td>Discipline</td><td>No impulse category overspend</td><td>Discretionary spending categories all stayed within budget for the month</td><td>Month-end evaluation</td></tr>
+      <tr><td>BHV-D-04</td><td>Discipline</td><td>Consistent record-keeping</td><td>At least one transaction recorded in each of the last N weeks (N configurable, default 4)</td><td>Weekly check</td></tr>
+      <tr><td>BHV-G-01</td><td>Growth</td><td>Emergency fund contribution</td><td>An emergency fund allocation transaction is recorded</td><td>On transaction save</td></tr>
+      <tr><td>BHV-G-02</td><td>Growth</td><td>Emergency fund milestone reached</td><td>Emergency fund balance crosses 1/3/6 months of expenses threshold</td><td>On balance recalculation</td></tr>
+      <tr><td>BHV-G-03</td><td>Growth</td><td>Savings rate improved</td><td>Monthly savings rate (saved/income) exceeds prior month's rate by a meaningful margin (≥5%)</td><td>Month-end evaluation</td></tr>
+      <tr><td>BHV-G-04</td><td>Growth</td><td>Goal contribution made</td><td>A transaction allocated to a financial goal is recorded</td><td>On transaction save</td></tr>
+      <tr><td>BHV-G-05</td><td>Growth</td><td>Goal achieved</td><td>A financial goal's accumulated amount reaches its target</td><td>On balance recalculation</td></tr>
+      <tr><td>BHV-G-06</td><td>Growth</td><td>Debt reduced</td><td>Total debt balance decreases by a defined threshold (configurable) in a single month</td><td>Month-end evaluation</td></tr>
+      <tr><td>BHV-G-07</td><td>Growth</td><td>Debt fully repaid</td><td>A debt account reaches zero balance</td><td>On debt transaction; balance check</td></tr>
+      <tr><td>BHV-G-08</td><td>Growth</td><td>Net worth increased</td><td>Net worth (assets − liabilities) higher at month-end than previous month-end</td><td>Month-end evaluation</td></tr>
+      <tr><td>BHV-G-09</td><td>Growth</td><td>Financial Health Score improved</td><td>FHS increases by ≥5 points vs. prior month</td><td>Month-end FHS recalculation</td></tr>
+      <tr><td>BHV-G-10</td><td>Growth</td><td>FHS milestone reached</td><td>FHS crosses 40/60/75/90 threshold for the first time</td><td>On FHS recalculation</td></tr>
+      <tr><td>BHV-A-01</td><td>Awareness</td><td>Monthly report reviewed</td><td>Monthly report screen opened and viewed for ≥30 seconds</td><td>On screen time threshold</td></tr>
+      <tr><td>BHV-A-02</td><td>Awareness</td><td>Financial summary reviewed</td><td>Dashboard summary card expanded or summary screen opened</td><td>On interaction</td></tr>
+      <tr><td>BHV-A-03</td><td>Awareness</td><td>AI coach consulted</td><td>At least one AI coach interaction completed (response received)</td><td>On AI response receipt</td></tr>
+      <tr><td>BHV-A-04</td><td>Awareness</td><td>Category spending reviewed</td><td>Category detail screen opened for ≥5 categories in a session</td><td>On 5th category open</td></tr>
+      <tr><td>BHV-R-01</td><td>Recovery</td><td>Return after inactivity</td><td>User records a transaction after ≥30 days of no app activity</td><td>On first transaction after gap</td></tr>
+      <tr><td>BHV-R-02</td><td>Recovery</td><td>Budget restarted after miss</td><td>Budget created for current month after a month where no budget existed</td><td>On budget save after gap</td></tr>
+      <tr><td>BHV-R-03</td><td>Recovery</td><td>Streak resumed after grace</td><td>Streak-qualifying behavior resumes after a grace period was used</td><td>On behavior detection after grace</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>2.3 Non-Recognized Behaviors</h3>
+  <div class="callout">
+    <strong>Prohibited from triggering gamification:</strong> Transaction volume (number of entries), session length, time spent in app, number of screens visited, notification interaction rate, feature discovery, social sharing, referrals, in-app feedback submission. These metrics measure engagement with the app, not financial health. Including them would misalign the reward system with the user's actual financial well-being.
+  </div>
+
+  <h3>2.4 Behavior Detection Rules</h3>
+  <ul>
+    <li><strong>Idempotency:</strong> Each behavior evaluation for a given time period produces at most one positive recognition event. BHV-D-01 fires at most once per month, regardless of how many times the budget is checked.</li>
+    <li><strong>Retroactive evaluation:</strong> If a user enters historical data (past months), past behavior evaluations are re-run. Achievements unlocked retroactively are delivered as a summary notification, not as individual pop-ups.</li>
+    <li><strong>Minimum thresholds:</strong> Growth behaviors (BHV-G-03, BHV-G-06) require a minimum absolute delta in addition to a percentage change, to prevent micro-fluctuations from generating recognition. Minimum delta is 1% of average monthly income or 100 centimes, whichever is larger.</li>
+    <li><strong>Time window definitions:</strong> "Month" = calendar month. "Week" = ISO week (Monday–Sunday). All time window evaluations use the device's configured locale for week start, and UTC dates for month boundaries.</li>
+    <li><strong>Deleted data handling:</strong> If a transaction triggering a past behavior is deleted, the achievement or streak credit for that period is revoked silently. No in-app notification for revocation (§18 edge cases).</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §3 ACHIEVEMENT ARCHITECTURE                                   -->
+<!-- ============================================================ -->
+<section id="s3">
+  <h2>§3 — Achievement Architecture</h2>
+
+  <h3>3.1 Achievement Type Taxonomy</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">One-Time Achievements</div>
+      <p>Unlocked exactly once. Celebrate a first meaningful event: first budget, first debt repaid, first goal achieved. Cannot be re-earned. Always displayed as permanently unlocked in the achievement collection.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Progressive Achievements</div>
+      <p>Multi-tier achievements that advance through levels (Bronze → Silver → Gold → Platinum). Each tier has a higher threshold. The user sees their current tier and progress toward the next. E.g., "Debt Fighter" at 1 / 3 / 6 / 12 debt payments on schedule.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Milestone Achievements</div>
+      <p>Celebrate crossing a specific quantitative threshold: FHS = 90, emergency fund = 6 months, first full year of planning. Predefined milestones listed in §6. These are the most emotionally significant achievements in the system.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Consistency Achievements</div>
+      <p>Tied to the streak system (§5). Awarded at streak milestone counts (3, 6, 12, 24, 36 months). Celebrate sustained habit formation over extended periods.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Mastery Achievements</div>
+      <p>Awarded when a user demonstrates expert-level financial management across multiple dimensions simultaneously: budget discipline + savings growth + FHS improvement in the same month.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Hidden Achievements</div>
+      <p>Not shown in the achievement collection until unlocked. Users discover them through natural financial behavior. Unlock message reveals what was achieved and why it was hidden. Examples: logging 100 total transactions (all categories), reaching FHS 90 within 12 months of first use.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Educational Achievements</div>
+      <p>Awarded for engaging with informational features: reading the monthly report, consulting the AI coach 10 times, reviewing the budget summary for 6 consecutive months. Encourage awareness without requiring financial improvement.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Recovery Achievements</div>
+      <p>Awarded for returning after a setback. Celebrate resilience, not perfection. E.g., "Back on Track" for resuming budgets after a missed month; "Phoenix" for restarting after 90+ days of inactivity.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Seasonal Achievements (Future)</div>
+      <p>Time-limited achievements unlocked during specific calendar periods (New Year planning, year-end review). Not implemented in v1; system architecture supports addition without model changes.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Long-Term Achievements</div>
+      <p>Require years of sustained financial management: 1 year of planning, 3 years of data, 5 years of financial history. These are the system's most prestigious recognitions.</p>
+    </div>
+  </div>
+
+  <h3>3.2 Achievement Schema</h3>
+  <p>Every achievement in the system conforms to this schema. The schema is the authoritative contract between the GAM Engine and any consumer (UI, notification, export).</p>
+  <div class="card">
+    <div class="card-title">Achievement Definition Schema</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>achievement_id</td><td>string (enum)</td><td>Stable identifier (e.g., ACH-001). Never changes after publication.</td></tr>
+        <tr><td>type</td><td>AchievementType enum</td><td>ONE_TIME | PROGRESSIVE | MILESTONE | CONSISTENCY | MASTERY | HIDDEN | EDUCATIONAL | RECOVERY | LONG_TERM | SEASONAL</td></tr>
+        <tr><td>category</td><td>string (enum)</td><td>PLANNING | DISCIPLINE | GROWTH | AWARENESS | RECOVERY | MASTERY</td></tr>
+        <tr><td>name</td><td>LocalizedString</td><td>Display name; localized (fr/en/ar). Max 40 chars per locale.</td></tr>
+        <tr><td>description</td><td>LocalizedString</td><td>What this achievement recognizes. Max 120 chars per locale.</td></tr>
+        <tr><td>unlock_message</td><td>LocalizedString</td><td>Personalized congratulations shown at unlock. Max 160 chars.</td></tr>
+        <tr><td>icon_key</td><td>string</td><td>References icon from design system icon set. Never an emoji directly in data model.</td></tr>
+        <tr><td>tier</td><td>Tier enum | null</td><td>BRONZE | SILVER | GOLD | PLATINUM | null (for non-progressive)</td></tr>
+        <tr><td>tier_thresholds</td><td>number[] | null</td><td>For progressive achievements: [bronze_n, silver_n, gold_n, platinum_n]</td></tr>
+        <tr><td>unlock_conditions</td><td>UnlockCondition[]</td><td>Array of behavior IDs and threshold values that must all be satisfied</td></tr>
+        <tr><td>progress_metric</td><td>ProgressMetric | null</td><td>For progressive/consistency: what to count toward the next tier</td></tr>
+        <tr><td>is_hidden</td><td>boolean</td><td>If true, achievement not shown in collection until unlocked</td></tr>
+        <tr><td>is_repeatable</td><td>boolean</td><td>Always false for ONE_TIME; true for PROGRESSIVE (new tier)</td></tr>
+        <tr><td>reward_type</td><td>RewardType enum</td><td>BADGE | TITLE | CERTIFICATE | VISUAL_CELEBRATION | STAT_UNLOCK | THEME_UNLOCK</td></tr>
+        <tr><td>motivational_tags</td><td>string[]</td><td>Profile tags for motivation engine routing (e.g., ["debt_focused", "beginner"])</td></tr>
+        <tr><td>version_added</td><td>semver string</td><td>App version in which this achievement was introduced</td></tr>
+        <tr><td>deprecated_in</td><td>semver string | null</td><td>If achievement is retired: version when deprecated. Past unlocks are preserved.</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h3>3.3 Achievement State Machine</h3>
+  <p>Each user-achievement pair exists in one of four states:</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>State</th><th>Description</th><th>Visible in Collection?</th><th>Transitions To</th></tr></thead>
+    <tbody>
+      <tr><td><strong>LOCKED</strong></td><td>Default state. Conditions not met. No progress recorded yet.</td><td>Only if is_hidden = false</td><td>IN_PROGRESS, UNLOCKED (direct if no progress step)</td></tr>
+      <tr><td><strong>IN_PROGRESS</strong></td><td>At least one unlock condition partially satisfied. Progress tracked.</td><td>Yes (with progress bar)</td><td>UNLOCKED</td></tr>
+      <tr><td><strong>UNLOCKED</strong></td><td>All unlock conditions satisfied. Reward delivered. Timestamp recorded.</td><td>Yes (with unlock date)</td><td>REVOKED (rare; §18 edge cases)</td></tr>
+      <tr><td><strong>REVOKED</strong></td><td>Achievement unlocked then underlying data deleted. Returns to LOCKED or IN_PROGRESS. Silent transition.</td><td>Returns to LOCKED display</td><td>LOCKED, IN_PROGRESS, UNLOCKED</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>3.4 Achievement Evaluation Engine</h3>
+  <ul>
+    <li><strong>Trigger points:</strong> Achievement conditions are evaluated on: (1) every behavior event (BHV-*) fired, (2) month-end evaluation pass, (3) week-end evaluation pass, (4) FHS recalculation, (5) app launch (deferred evaluation for any pending events while offline).</li>
+    <li><strong>Evaluation order:</strong> ONE_TIME → MILESTONE → RECOVERY → PROGRESSIVE → CONSISTENCY → MASTERY → EDUCATIONAL → HIDDEN. This order ensures single-session unlocks are processed in a meaningful narrative sequence.</li>
+    <li><strong>Batch presentation:</strong> If multiple achievements unlock in the same evaluation pass, they are queued and presented to the user one at a time via the celebration modal, with a max of 3 per session. Overflow is delivered as a summary notification.</li>
+    <li><strong>Deduplication:</strong> Each achievement_id can appear at most once in UNLOCKED state per tier. Duplicate evaluation results are silently discarded.</li>
+    <li><strong>Offline evaluation:</strong> All evaluation runs locally. When the app is offline, achievement evaluations queue and fire on next app launch. No evaluation is blocked by connectivity state.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §4 ACHIEVEMENT CATALOG                                        -->
+<!-- ============================================================ -->
+<section id="s4">
+  <h2>§4 — Achievement Catalog</h2>
+  <p>The following is the complete v1 achievement catalog. Each entry shows the ID, type, category, unlock conditions, and reward. Motivational messages are illustrative — final copy is defined in the localization system.</p>
+
+  <h3>4.1 Planning Achievements</h3>
+  <div class="grid-2">
+    <div class="ach-card">
+      <div class="ach-id">ACH-001</div>
+      <div class="ach-name">First Budget</div>
+      <div class="ach-meta"><span class="tag tag-onetime">One-Time</span><span class="tag">Planning</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-P-01 fires for the first time ever.<br><strong>Reward:</strong> Badge — "Architect" icon.<br><strong>Message:</strong> "You've created your first budget. Planning is the foundation of financial freedom."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-002</div>
+      <div class="ach-name">Complete Planner</div>
+      <div class="ach-meta"><span class="tag tag-onetime">One-Time</span><span class="tag">Planning</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-P-02 fires for the first time (income + all budgets before 5th).<br><strong>Reward:</strong> Badge — "Blueprint" icon.<br><strong>Message:</strong> "A complete monthly plan — income and all budgets set before the month begins. Excellent preparation."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-003</div>
+      <div class="ach-name">Goal Setter</div>
+      <div class="ach-meta"><span class="tag tag-onetime">One-Time</span><span class="tag">Planning</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-P-03 fires for the first time.<br><strong>Reward:</strong> Badge — "Target" icon.<br><strong>Message:</strong> "Your first financial goal is set. Goals transform dreams into plans."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-004</div>
+      <div class="ach-name">Annual Visionary</div>
+      <div class="ach-meta"><span class="tag tag-onetime">One-Time</span><span class="tag">Planning</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-P-05 fires (12-month plan created before year end).<br><strong>Reward:</strong> Badge — "Calendar" icon + Title: "Visionary".<br><strong>Message:</strong> "You've planned the entire year ahead. That's not discipline — that's mastery."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-005</div>
+      <div class="ach-name">Consistent Planner</div>
+      <div class="ach-meta"><span class="tag tag-progressive">Progressive</span><span class="tag">Planning</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-P-02 fires for 3/6/12/24 consecutive months.<br><strong>Tiers:</strong> Bronze (3mo) → Silver (6mo) → Gold (12mo) → Platinum (24mo).<br><strong>Reward:</strong> Progressive badge upgrades.<br><strong>Message:</strong> Tier-specific; see §11.</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-006</div>
+      <div class="ach-name">Multi-Goal Manager</div>
+      <div class="ach-meta"><span class="tag tag-progressive">Progressive</span><span class="tag">Planning</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> 3/5/8/12 active financial goals simultaneously.<br><strong>Tiers:</strong> Bronze → Silver → Gold → Platinum.<br><strong>Reward:</strong> Badge + "Strategist" title at Gold.<br><strong>Message:</strong> "You're managing multiple goals at once — a mark of serious financial planning."</div>
+    </div>
+  </div>
+
+  <h3>4.2 Discipline Achievements</h3>
+  <div class="grid-2">
+    <div class="ach-card">
+      <div class="ach-id">ACH-010</div>
+      <div class="ach-name">Budget Keeper</div>
+      <div class="ach-meta"><span class="tag tag-onetime">One-Time</span><span class="tag">Discipline</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-D-01 fires for the first time (month closes within all budget limits).<br><strong>Reward:</strong> Badge — "Shield" icon.<br><strong>Message:</strong> "You finished the month within every budget. Financial discipline, demonstrated."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-011</div>
+      <div class="ach-name">Budget Master</div>
+      <div class="ach-meta"><span class="tag tag-progressive">Progressive</span><span class="tag">Discipline</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-D-01 fires for 3/6/12/24 months (not necessarily consecutive).<br><strong>Tiers:</strong> Bronze (3) → Silver (6) → Gold (12) → Platinum (24).<br><strong>Reward:</strong> Progressive badge. "Guardian" title at Gold.<br><strong>Message:</strong> Tier-specific. Gold: "12 months of living within budget. That's not luck — that's character."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-012</div>
+      <div class="ach-name">Debt Fighter</div>
+      <div class="ach-meta"><span class="tag tag-progressive">Progressive</span><span class="tag">Discipline</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-D-02 fires (debt payment on schedule) 1/3/6/12 times.<br><strong>Tiers:</strong> Bronze (1) → Silver (3) → Gold (6) → Platinum (12).<br><strong>Reward:</strong> Progressive badge.<br><strong>Message:</strong> "Every scheduled debt payment is a step toward freedom."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-013</div>
+      <div class="ach-name">Record Keeper</div>
+      <div class="ach-meta"><span class="tag tag-progressive">Progressive</span><span class="tag">Discipline</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-D-04 fires for 4/8/16/26 consecutive weeks.<br><strong>Tiers:</strong> Bronze (4wk) → Silver (8wk) → Gold (16wk) → Platinum (26wk = 6mo).<br><strong>Reward:</strong> Badge. "Chronicler" title at Platinum.<br><strong>Message:</strong> "Consistent record-keeping is the foundation of financial self-awareness."</div>
+    </div>
+  </div>
+
+  <h3>4.3 Growth Achievements</h3>
+  <div class="grid-2">
+    <div class="ach-card">
+      <div class="ach-id">ACH-020</div>
+      <div class="ach-name">Safety Net Builder</div>
+      <div class="ach-meta"><span class="tag tag-milestone">Milestone</span><span class="tag">Growth</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-G-02 fires for 1-month emergency fund threshold.<br><strong>Reward:</strong> Badge — "Umbrella" icon + Certificate: "1 Month Emergency Fund".<br><strong>Message:</strong> "One month of expenses saved. You've taken the single most important step in personal finance."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-021</div>
+      <div class="ach-name">Resilience Fund</div>
+      <div class="ach-meta"><span class="tag tag-milestone">Milestone</span><span class="tag">Growth</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-G-02 fires for 3-month emergency fund threshold.<br><strong>Reward:</strong> Badge — "Anchor" icon + Certificate + Visual celebration.<br><strong>Message:</strong> "Three months of security. Most people never build this. You have."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-022</div>
+      <div class="ach-name">Full Shield</div>
+      <div class="ach-meta"><span class="tag tag-milestone">Milestone</span><span class="tag">Growth</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-G-02 fires for 6-month emergency fund threshold.<br><strong>Reward:</strong> Badge — "Fortress" icon + Certificate + Full-screen visual celebration + Title: "Secured".<br><strong>Message:</strong> "Six months of emergency fund. You've achieved what financial advisors consider the gold standard of personal security."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-023</div>
+      <div class="ach-name">Dream Achieved</div>
+      <div class="ach-meta"><span class="tag tag-milestone">Milestone</span><span class="tag">Growth</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-G-05 fires (financial goal reached).<br><strong>Reward:</strong> Badge — "Star" icon + Certificate: "[Goal Name] Achieved" + Visual celebration.<br><strong>Message:</strong> "Your goal is complete. This is what financial planning makes possible."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-024</div>
+      <div class="ach-name">Debt Free</div>
+      <div class="ach-meta"><span class="tag tag-milestone">Milestone</span><span class="tag">Growth</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-G-07 fires AND total outstanding debt = 0.<br><strong>Reward:</strong> Full-screen visual celebration + Badge — "Liberation" icon + Title: "Debt Free" + Certificate.<br><strong>Message:</strong> "Every debt repaid. You are financially free of obligation. Few people reach this point. You have."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-025</div>
+      <div class="ach-name">FHS Milestones</div>
+      <div class="ach-meta"><span class="tag tag-milestone">Milestone</span><span class="tag">Growth</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-G-10 fires at FHS 40/60/75/90. Four separate achievements.<br><strong>Reward:</strong> Badge per threshold. "Excellence" title at FHS 90.<br><strong>Message at 90:</strong> "Financial Health Score 90+. You are in the top tier of financial health. Remarkable."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-026</div>
+      <div class="ach-name">Net Worth Grower</div>
+      <div class="ach-meta"><span class="tag tag-progressive">Progressive</span><span class="tag">Growth</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-G-08 fires for 3/6/12/18 months (net worth increased).<br><strong>Tiers:</strong> Bronze → Silver → Gold → Platinum.<br><strong>Reward:</strong> Badge. "Builder" title at Gold.<br><strong>Message:</strong> "Your net worth is growing — consistently, month over month."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-027</div>
+      <div class="ach-name">Savings Accelerator</div>
+      <div class="ach-meta"><span class="tag tag-progressive">Progressive</span><span class="tag">Growth</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-G-03 fires for 2/4/6/12 months (savings rate improved).<br><strong>Tiers:</strong> Bronze → Silver → Gold → Platinum.<br><strong>Reward:</strong> Badge. "Momentum" title at Gold.<br><strong>Message:</strong> "Your savings rate is consistently improving. The direction matters as much as the number."</div>
+    </div>
+  </div>
+
+  <h3>4.4 Long-Term Achievements</h3>
+  <div class="grid-2">
+    <div class="ach-card">
+      <div class="ach-id">ACH-040</div>
+      <div class="ach-name">One Full Year</div>
+      <div class="ach-meta"><span class="tag tag-milestone">Long-Term</span><span class="tag">Mastery</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> 12 consecutive months of BHV-P-01 (budget created every month).<br><strong>Reward:</strong> Badge — "Year Ring" icon + Certificate + "Devoted" title.<br><strong>Message:</strong> "Twelve months of financial planning. A full year of commitment to your future."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-041</div>
+      <div class="ach-name">Three-Year Veteran</div>
+      <div class="ach-meta"><span class="tag tag-milestone">Long-Term</span><span class="tag">Mastery</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> First financial record date is ≥3 years before today AND at least 30 months contain financial data.<br><strong>Reward:</strong> Badge + Certificate + "Veteran" title.<br><strong>Message:</strong> "Three years of financial history. You've built something rare: a long-term financial picture."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-042</div>
+      <div class="ach-name">Five-Year Legacy</div>
+      <div class="ach-meta"><span class="tag tag-milestone">Long-Term</span><span class="tag">Mastery</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> First financial record date ≥5 years before today AND ≥50 months contain data.<br><strong>Reward:</strong> Full-screen celebration + Badge + Certificate + "Legacy" title.<br><strong>Message:</strong> "Five years of financial records. A truly rare achievement."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-043</div>
+      <div class="ach-name">All Goals Achieved</div>
+      <div class="ach-meta"><span class="tag tag-mastery">Mastery</span><span class="tag">Growth</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> User has had at least 3 financial goals and all of them are in ACHIEVED or ARCHIVED:COMPLETED state (minimum 3 achieved goals lifetime).<br><strong>Reward:</strong> Badge + "Goal Conqueror" title + Visual celebration.<br><strong>Message:</strong> "Every goal you set, you achieved. That is an exceptional record."</div>
+    </div>
+  </div>
+
+  <h3>4.5 Hidden Achievements</h3>
+  <div class="grid-2">
+    <div class="ach-card">
+      <div class="ach-id">ACH-050</div>
+      <div class="ach-name">Night Owl Planner</div>
+      <div class="ach-meta"><span class="tag tag-hidden">Hidden</span><span class="tag">Planning</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> Monthly plan (BHV-P-02) completed between 22:00–04:00 local time on 3 separate occasions.<br><strong>Reveal message:</strong> "You plan your finances at night. Dedication doesn't have office hours."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-051</div>
+      <div class="ach-name">Fast Starter</div>
+      <div class="ach-meta"><span class="tag tag-hidden">Hidden</span><span class="tag">Growth</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> FHS reaches 75 within the first 6 months of use.<br><strong>Reveal message:</strong> "FHS 75 in under 6 months. You started strong and kept going."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-052</div>
+      <div class="ach-name">Total Recall</div>
+      <div class="ach-meta"><span class="tag tag-hidden">Hidden</span><span class="tag">Awareness</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> 100 total transactions recorded (cumulative lifetime).<br><strong>Reveal message:</strong> "100 transactions recorded. Every one of them is a data point in your financial story."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-053</div>
+      <div class="ach-name">Perfect Month</div>
+      <div class="ach-meta"><span class="tag tag-hidden">Hidden</span><span class="tag tag-mastery">Mastery</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> In a single month: BHV-P-02 (complete plan), BHV-D-01 (all budgets respected), BHV-D-02 (debt payment on schedule), BHV-G-01 (emergency fund contribution), BHV-A-01 (report reviewed).<br><strong>Reveal message:</strong> "A perfect month. Every dimension of financial health, addressed."</div>
+    </div>
+  </div>
+
+  <h3>4.6 Educational Achievements</h3>
+  <div class="grid-2">
+    <div class="ach-card">
+      <div class="ach-id">ACH-060</div>
+      <div class="ach-name">Report Reader</div>
+      <div class="ach-meta"><span class="tag tag-education">Educational</span><span class="tag">Awareness</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-A-01 fires for 6 months (monthly report reviewed each month).<br><strong>Reward:</strong> Badge — "Lens" icon.<br><strong>Message:</strong> "Six months of reviewing your monthly reports. You are your own financial analyst."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-061</div>
+      <div class="ach-name">Coach's Apprentice</div>
+      <div class="ach-meta"><span class="tag tag-education">Educational</span><span class="tag">Awareness</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-A-03 fires 10 times (10 AI coach interactions).<br><strong>Reward:</strong> Badge — "Dialogue" icon.<br><strong>Message:</strong> "10 conversations with your financial coach. Curiosity is the engine of financial growth."</div>
+    </div>
+  </div>
+
+  <h3>4.7 Recovery Achievements</h3>
+  <div class="grid-2">
+    <div class="ach-card">
+      <div class="ach-id">ACH-070</div>
+      <div class="ach-name">Back on Track</div>
+      <div class="ach-meta"><span class="tag">Recovery</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-R-02 fires (budget created after a missed month).<br><strong>Reward:</strong> Badge — "Return" icon.<br><strong>Message:</strong> "You're back. Missing one month doesn't define your financial journey — coming back does."</div>
+    </div>
+    <div class="ach-card">
+      <div class="ach-id">ACH-071</div>
+      <div class="ach-name">Phoenix</div>
+      <div class="ach-meta"><span class="tag">Recovery</span><span class="tag tag-hidden">Hidden</span></div>
+      <div class="ach-desc"><strong>Unlock:</strong> BHV-R-01 fires after ≥90 days of inactivity AND a complete monthly plan (BHV-P-02) is submitted within 7 days of return.<br><strong>Reveal message:</strong> "Three months away, and you came back stronger. The Phoenix rises."</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §5 STREAK SYSTEM                                              -->
+<!-- ============================================================ -->
+<section id="s5">
+  <h2>§5 — Streak System</h2>
+  <p>Streaks track sustained repetition of a specific financial behavior over consecutive time periods. The system is designed to encourage healthy habit formation without creating anxiety when a period is missed.</p>
+
+  <h3>5.1 Streak Catalog</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Streak ID</th><th>Name</th><th>Behavior Tracked</th><th>Period Unit</th><th>Grace Period</th><th>Milestone Counts</th></tr></thead>
+    <tbody>
+      <tr><td>STK-01</td><td>Monthly Planning</td><td>BHV-P-02 (complete plan: income + all budgets)</td><td>Calendar month</td><td>1 month</td><td>3, 6, 12, 24, 36 months</td></tr>
+      <tr><td>STK-02</td><td>Debt Payment</td><td>BHV-D-02 (scheduled debt payment recorded)</td><td>Payment schedule period</td><td>1 period</td><td>3, 6, 12, 24 payments</td></tr>
+      <tr><td>STK-03</td><td>Savings Contribution</td><td>BHV-G-01 or BHV-G-04 (any savings or goal contribution)</td><td>Calendar month</td><td>1 month</td><td>3, 6, 12, 24 months</td></tr>
+      <tr><td>STK-04</td><td>Emergency Fund Growth</td><td>BHV-G-01 (emergency fund contribution)</td><td>Calendar month</td><td>1 month</td><td>3, 6, 12 months</td></tr>
+      <tr><td>STK-05</td><td>Financial Review</td><td>BHV-A-01 (monthly report reviewed)</td><td>Calendar month</td><td>1 month</td><td>3, 6, 12 months</td></tr>
+      <tr><td>STK-06</td><td>Budget Discipline</td><td>BHV-D-01 (month closed within all budget limits)</td><td>Calendar month</td><td>1 month</td><td>3, 6, 12, 24 months</td></tr>
+      <tr><td>STK-07</td><td>Weekly Record Keeping</td><td>BHV-D-04 (at least one transaction per week)</td><td>ISO week</td><td>1 week</td><td>4, 8, 16, 26, 52 weeks</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.2 Streak Visual Representation</h3>
+  <p>Streak history is displayed as a dot timeline — each dot represents one period. This provides an honest, non-pressuring view of the user's habit history.</p>
+  <div class="streak-row">
+    <div class="streak-dot dot-hit">✓</div>
+    <div class="streak-dot dot-hit">✓</div>
+    <div class="streak-dot dot-hit">✓</div>
+    <div class="streak-dot dot-grace">~</div>
+    <div class="streak-dot dot-hit">✓</div>
+    <div class="streak-dot dot-hit">✓</div>
+    <div class="streak-dot dot-miss">✕</div>
+    <div class="streak-dot dot-hit">✓</div>
+    <div class="streak-dot dot-hit">✓</div>
+    <div class="streak-dot dot-future">○</div>
+    <div class="streak-dot dot-future">○</div>
+    <div class="streak-dot dot-future">○</div>
+  </div>
+  <p style="font-size:.78rem;color:var(--txt3)">● = Completed &nbsp;&nbsp; ~ = Grace period used &nbsp;&nbsp; ✕ = Missed (streak reset) &nbsp;&nbsp; ○ = Future period</p>
+
+  <h3>5.3 Grace Period Rules</h3>
+  <div class="card">
+    <div class="card-title">Grace Period Design Principles</div>
+    <ul>
+      <li>Each streak allows exactly <strong>one grace period per 6-period window</strong>. Using two grace periods within 6 months resets the streak.</li>
+      <li>Grace periods are applied <strong>automatically</strong> — the user does not need to invoke them or explain themselves.</li>
+      <li>A grace period is <strong>shown differently</strong> in the streak history (the "~" dot above) — not hidden, not treated as a hit. Honest representation of the history.</li>
+      <li>Grace periods <strong>do not reset</strong> the streak count. A streak of 5 with one grace used shows as a 5-streak, not 4.</li>
+      <li>Grace periods cannot be <strong>stacked</strong>. If a second consecutive period is missed, the streak resets regardless of grace availability.</li>
+      <li>After a streak resets, grace periods <strong>refresh</strong> on the new streak. The 6-period window starts fresh.</li>
+      <li>STK-07 (weekly) has the same grace rules but measured in weeks — one missed week per 6-week window.</li>
+    </ul>
+  </div>
+
+  <h3>5.4 Streak Reset Rules</h3>
+  <ul>
+    <li><strong>Two consecutive misses:</strong> Streak resets to 0. Grace cannot be applied to the second consecutive miss.</li>
+    <li><strong>Second grace within 6 periods:</strong> The second grace attempt is treated as a miss. Streak resets.</li>
+    <li><strong>Reset is silent:</strong> No negative notification, no shame message. The streak counter quietly returns to 0. The next qualifying period starts a new streak from 1.</li>
+    <li><strong>Reset is recorded:</strong> Streak history is retained (the ✕ dot persists in the visual history) so the user can see their long-term pattern honestly.</li>
+    <li><strong>No penalty:</strong> A reset streak has no impact on any achievement progress. Consistency achievements (STK-01 at 12 months) require 12 consecutive qualifying periods — a reset simply means starting again, with no other consequence.</li>
+  </ul>
+
+  <h3>5.5 Streak Milestone Recognition</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Streak</th><th>Milestone Count</th><th>Recognition</th><th>Achievement Unlocked</th></tr></thead>
+    <tbody>
+      <tr><td>STK-01 (Monthly Planning)</td><td>3 months</td><td>Toast notification + streak card highlight</td><td>ACH-005 Bronze</td></tr>
+      <tr><td>STK-01</td><td>6 months</td><td>In-app celebration modal</td><td>ACH-005 Silver</td></tr>
+      <tr><td>STK-01</td><td>12 months</td><td>Full celebration + ACH-040</td><td>ACH-005 Gold + ACH-040</td></tr>
+      <tr><td>STK-01</td><td>24 months</td><td>Full celebration + certificate</td><td>ACH-005 Platinum</td></tr>
+      <tr><td>STK-01</td><td>36 months</td><td>Full celebration + title: "Legend"</td><td>ACH-041 (if data age qualifies)</td></tr>
+      <tr><td>STK-06 (Budget Discipline)</td><td>3 months</td><td>Toast + highlight</td><td>ACH-011 Bronze</td></tr>
+      <tr><td>STK-06</td><td>6 months</td><td>Celebration modal</td><td>ACH-011 Silver</td></tr>
+      <tr><td>STK-06</td><td>12 months</td><td>Full celebration</td><td>ACH-011 Gold</td></tr>
+      <tr><td>STK-07 (Weekly Records)</td><td>52 weeks</td><td>Full celebration + certificate</td><td>ACH-013 Platinum</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.6 Streak Anti-Patterns Prohibited</h3>
+  <ul>
+    <li>No "streak freeze" purchasable or earnable items — they encourage app engagement over financial behavior.</li>
+    <li>No notifications that create urgency ("Your streak ends in 2 hours!").</li>
+    <li>No visual degradation (fire dying, meter depleting) as a period approaches without the behavior — negative pressure mechanics.</li>
+    <li>No negative messaging on streak reset.</li>
+    <li>No comparison of streak counts between users.</li>
+    <li>No streak leaderboard.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §6 MILESTONE ENGINE                                           -->
+<!-- ============================================================ -->
+<section id="s6">
+  <h2>§6 — Milestone Engine</h2>
+  <p>The Milestone Engine detects and celebrates significant quantitative thresholds in a user's financial life. Unlike streak-based consistency achievements, milestones are event-driven and may fire at any time when a threshold is crossed.</p>
+
+  <h3>6.1 Financial Milestone Catalog</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Milestone ID</th><th>Event</th><th>Trigger</th><th>Celebration Level</th><th>Achievement</th></tr></thead>
+    <tbody>
+      <tr><td>MST-001</td><td>First Budget Completed</td><td>BHV-P-01 fires, first time ever</td><td>Toast + badge reveal</td><td>ACH-001</td></tr>
+      <tr><td>MST-002</td><td>First Month Completed Within Budget</td><td>BHV-D-01, first time ever</td><td>Modal celebration</td><td>ACH-010</td></tr>
+      <tr><td>MST-003</td><td>First Debt Paid</td><td>BHV-G-07, first time</td><td>Full celebration</td><td>ACH-024 (partial toward)</td></tr>
+      <tr><td>MST-004</td><td>All Debts Repaid</td><td>BHV-G-07 AND total debt = 0</td><td>Maximum celebration (full-screen)</td><td>ACH-024</td></tr>
+      <tr><td>MST-005</td><td>Emergency Fund — 1 Month</td><td>BHV-G-02 at 1mo threshold</td><td>Full celebration + certificate</td><td>ACH-020</td></tr>
+      <tr><td>MST-006</td><td>Emergency Fund — 3 Months</td><td>BHV-G-02 at 3mo threshold</td><td>Full celebration + certificate</td><td>ACH-021</td></tr>
+      <tr><td>MST-007</td><td>Emergency Fund — 6 Months</td><td>BHV-G-02 at 6mo threshold</td><td>Maximum celebration</td><td>ACH-022</td></tr>
+      <tr><td>MST-008</td><td>First Financial Goal Achieved</td><td>BHV-G-05, first time</td><td>Full celebration + certificate</td><td>ACH-023</td></tr>
+      <tr><td>MST-009</td><td>FHS First Reaches 40</td><td>BHV-G-10 at FHS 40 threshold</td><td>Toast + badge reveal</td><td>ACH-025 (tier 1)</td></tr>
+      <tr><td>MST-010</td><td>FHS First Reaches 60</td><td>BHV-G-10 at FHS 60</td><td>Modal celebration</td><td>ACH-025 (tier 2)</td></tr>
+      <tr><td>MST-011</td><td>FHS First Reaches 75</td><td>BHV-G-10 at FHS 75</td><td>Full celebration</td><td>ACH-025 (tier 3)</td></tr>
+      <tr><td>MST-012</td><td>FHS First Reaches 90</td><td>BHV-G-10 at FHS 90</td><td>Maximum celebration</td><td>ACH-025 (tier 4)</td></tr>
+      <tr><td>MST-013</td><td>One Full Year of Planning</td><td>12 consecutive BHV-P-01</td><td>Maximum celebration + certificate</td><td>ACH-040</td></tr>
+      <tr><td>MST-014</td><td>Three Years of History</td><td>First record ≥3yr ago, ≥30 data months</td><td>Full celebration + certificate</td><td>ACH-041</td></tr>
+      <tr><td>MST-015</td><td>Five Years of History</td><td>First record ≥5yr ago, ≥50 data months</td><td>Maximum celebration + certificate</td><td>ACH-042</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>6.2 Celebration Level Definitions</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Level 1 — Toast</div>
+      <p>Non-blocking notification bar at bottom of screen. Badge icon + short text. Disappears after 4 seconds or on tap. Used for minor milestones and progressive tier advances.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Level 2 — Modal Celebration</div>
+      <p>Bottom sheet or modal dialog. Badge display, achievement name, unlock message, "View in collection" link. User must dismiss it. Used for significant one-time achievements and streak milestones.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Level 3 — Full Celebration</div>
+      <p>Full-content panel with badge, achievement name, description, personal impact statement (calculated from user's data: "You've contributed X over Y months"), certificate preview, and share option (share to self only — export as image). Subtle particle animation (respects reduced motion).</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Level 4 — Maximum Celebration</div>
+      <p>Reserved for the most significant life-change milestones: All Debts Repaid (MST-004), Emergency Fund 6 Months (MST-007), FHS 90 (MST-012), Five-Year Legacy (MST-015). Full-screen takeover with animated visual, personal journey summary (years of data, total contributions), certificate generation, exportable achievement card.</p>
+    </div>
+  </div>
+
+  <h3>6.3 Milestone Journey Map</h3>
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-title">First Budget Created</div><div class="tl-desc">The starting point of every financial journey</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-title">First Month Within Budget</div><div class="tl-desc">Discipline meets reality</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-title">Emergency Fund — 1 Month</div><div class="tl-desc">First layer of financial security</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-title">First Financial Goal Achieved</div><div class="tl-desc">Proof that goals become reality</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-title">FHS 60</div><div class="tl-desc">Solid financial health</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-title">Emergency Fund — 3 Months</div><div class="tl-desc">True resilience</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-title">One Full Year of Planning</div><div class="tl-desc">A complete financial cycle</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-title">Emergency Fund — 6 Months</div><div class="tl-desc">Gold standard of personal security</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-title">FHS 90</div><div class="tl-desc">Financial excellence</div></div>
+    <div class="tl-item"><span class="tl-dot"></span><div class="tl-title">All Debts Repaid</div><div class="tl-desc">Financial freedom</div></div>
+    <div class="tl-item"><span class="tl-dot future"></span><div class="tl-title">Five-Year Legacy</div><div class="tl-desc">A rare and lasting achievement</div></div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §7 PROGRESS VISUALIZATION SYSTEM                              -->
+<!-- ============================================================ -->
+<section id="s7">
+  <h2>§7 — Progress Visualization System</h2>
+  <p>The progress visualization system makes financial progress visceral and motivating without relying on numbers alone. Each visualization type is designed to communicate a specific aspect of progress in an intuitive, accessible way.</p>
+
+  <h3>7.1 Visualization Component Catalog</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Component</th><th>Used For</th><th>Visual Type</th><th>Accessibility</th></tr></thead>
+    <tbody>
+      <tr><td>Achievement Progress Bar</td><td>Progressive achievements: current count toward next tier</td><td>Linear bar, filled left-to-right, labeled with N/M and %</td><td>ARIA progressbar; screen reader announces "X of Y completed"</td></tr>
+      <tr><td>Emergency Fund Ring</td><td>Emergency fund vs. 1/3/6-month targets</td><td>Concentric ring chart; inner ring = current months covered; outer ring = 6-month target</td><td>ARIA described; SVG with role="img" and descriptive title</td></tr>
+      <tr><td>Streak Dot Timeline</td><td>Streak history per behavior</td><td>Row of colored dots (§5.2); scrollable horizontally for long histories</td><td>ARIA list with each dot labeled by date and status</td></tr>
+      <tr><td>FHS Gauge</td><td>Financial Health Score visualization</td><td>Semicircular gauge 0–100; needle + color zones (red/amber/green)</td><td>Score and zone described in text below gauge; no color-only information</td></tr>
+      <tr><td>Goal Progress Ring</td><td>Individual goal: amount saved vs. target</td><td>Single ring; fill = completion %; center shows % and estimated completion date</td><td>ARIA progressbar with text alternative</td></tr>
+      <tr><td>Financial Journey Timeline</td><td>Long-term milestone history</td><td>Vertical timeline with milestone dots and dates; scrollable</td><td>Semantic list structure; each milestone labeled with name and date</td></tr>
+      <tr><td>Achievement Collection Grid</td><td>All achievements: locked and unlocked</td><td>3-column grid of achievement cards; locked cards grayscale with progress indicator</td><td>Each card labeled with name and status; locked cards noted as "Not yet unlocked"</td></tr>
+      <tr><td>Monthly Progress Card</td><td>Current month: budget progress, savings, debt</td><td>Card with 3 mini-bars (budget used, savings contributed, debt reduced)</td><td>Values available as text; bars supplementary</td></tr>
+      <tr><td>Behavior Heatmap</td><td>Long-term activity pattern (calendar view)</td><td>Calendar grid; color intensity = activity level per week; year view</td><td>No color-only information; values in text tooltip; non-color legend</td></tr>
+      <tr><td>Savings Growth Chart</td><td>Cumulative savings over time</td><td>Area chart; monthly savings rate line overlay</td><td>ARIA chart role; data table available as alternative</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>7.2 Progress System Design Rules</h3>
+  <ul>
+    <li><strong>Always show the destination:</strong> Every progress element shows both the current state and the target. A progress bar with no endpoint teaches nothing about goals.</li>
+    <li><strong>Upward-only framing:</strong> Visualizations frame history as accumulation (what has been built) not depletion (what's missing). The emergency fund ring shows "months covered" not "months to go."</li>
+    <li><strong>Personal records:</strong> The system tracks personal bests for key metrics (highest savings rate in a month, longest streak, highest FHS) and highlights them in the visualizations as motivational reference points.</li>
+    <li><strong>No comparative baselines:</strong> No visualization compares the user to "other users," "people like you," or any external cohort. All progress is measured against the user's own history and stated goals.</li>
+    <li><strong>Sparse is better than dense:</strong> The main dashboard shows at most 3 progress indicators. Full collection and detailed progress accessible via deliberate navigation (Settings → Achievements, or dedicated screen). No unsolicited progress push.</li>
+  </ul>
+
+  <h3>7.3 Long-Term Financial Growth Visualization</h3>
+  <p>The Financial Journey view (accessible from the Achievements section) presents a multi-year picture of the user's financial life, combining milestone history, FHS trend, savings growth, and debt reduction into a single scrollable timeline narrative.</p>
+  <ul>
+    <li>Milestone events are plotted as named events on a vertical timeline with the date achieved.</li>
+    <li>FHS trend is shown as a sparkline alongside the timeline, keyed to months.</li>
+    <li>Net worth trend (if sufficient data) shown as an area below the timeline.</li>
+    <li>Achievement unlocks are layered as visual markers on the timeline — the user can see exactly when each achievement was earned relative to their financial trajectory.</li>
+    <li>A "beginning" marker shows the user's first recorded month, giving a sense of how far they have traveled.</li>
+    <li>This view is read-only and does not surface any underlying transaction values.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §8 MOTIVATION ENGINE                                          -->
+<!-- ============================================================ -->
+<section id="s8">
+  <h2>§8 — Motivation Engine</h2>
+  <p>The Motivation Engine adapts the frequency, tone, and content of recognition to each user's financial profile and current context. A user in active debt reduction mode needs different encouragement than a user in long-term wealth building mode.</p>
+
+  <h3>8.1 User Financial Profile Classification</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Profile</th><th>Code</th><th>Detection Signals</th><th>Primary Motivation Focus</th></tr></thead>
+    <tbody>
+      <tr><td><strong>New User</strong></td><td>PROF-NEW</td><td>Account age &lt;60 days; &lt;2 complete months; no FHS baseline</td><td>Quick wins; foundational habit formation; celebrate every first</td></tr>
+      <tr><td><strong>Beginner</strong></td><td>PROF-BEG</td><td>FHS &lt;40; &lt;6 months of data; some months without budgets</td><td>Encourage planning; celebrate consistency over outcomes; reduce overwhelm</td></tr>
+      <tr><td><strong>Building Habits</strong></td><td>PROF-BLD</td><td>FHS 40–60; 6–18 months of data; ≥3 consecutive planned months</td><td>Reinforce streaks; highlight improvement trends; introduce growth behaviors</td></tr>
+      <tr><td><strong>Debt-Focused</strong></td><td>PROF-DBT</td><td>Outstanding debt &gt;0; debt payment behaviors active; BHV-D-02 in last 3 months</td><td>Celebrate every payment; highlight remaining journey; reinforce debt reduction progress</td></tr>
+      <tr><td><strong>Savings-Focused</strong></td><td>PROF-SAV</td><td>No outstanding debt or minimal; BHV-G-01 / BHV-G-04 active; emergency fund &lt;6 months</td><td>Growth milestones; savings rate trends; emergency fund progress</td></tr>
+      <tr><td><strong>Intermediate</strong></td><td>PROF-INT</td><td>FHS 60–75; 12–36 months of data; regular planning habit established</td><td>Mastery challenges; long-term milestones; advanced achievement pursuit</td></tr>
+      <tr><td><strong>Advanced</strong></td><td>PROF-ADV</td><td>FHS &gt;75; 24+ months of data; most core achievements unlocked</td><td>Long-term legacy milestones; hidden achievement discovery; excellence recognition</td></tr>
+      <tr><td><strong>Recovering</strong></td><td>PROF-RCV</td><td>BHV-R-01 or BHV-R-02 fired in last 60 days; streak recently reset; gap in planning history</td><td>Resilience framing; no emphasis on what was missed; celebrate return immediately</td></tr>
+      <tr><td><strong>Multi-Goal</strong></td><td>PROF-MLT</td><td>3+ active financial goals simultaneously</td><td>Goal juggling recognition; progress across multiple goals surfaced; milestone convergence</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>8.2 Profile Detection Algorithm</h3>
+  <p>Profile classification runs at each month-end evaluation and on first app launch of the day. A user may match multiple profiles; the engine applies priority ordering: PROF-RCV &gt; PROF-NEW &gt; PROF-DBT &gt; PROF-SAV &gt; PROF-MLT &gt; PROF-ADV &gt; PROF-INT &gt; PROF-BLD &gt; PROF-BEG. Recovery and newness take precedence to ensure the messaging context is always appropriate.</p>
+
+  <h3>8.3 Motivation Tone Adaptation</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Profile</th><th>Tone</th><th>Celebration Frequency</th><th>Message Style</th></tr></thead>
+    <tbody>
+      <tr><td>PROF-NEW</td><td>Warm, encouraging, patient</td><td>High — celebrate every first</td><td>"You've taken the first step…" / "This is how it begins…"</td></tr>
+      <tr><td>PROF-BEG</td><td>Supportive, low-pressure</td><td>Medium — celebrate achievements, not attempts</td><td>"Every month you plan is progress…" / "Building habits takes time…"</td></tr>
+      <tr><td>PROF-DBT</td><td>Focused, respectful of difficulty</td><td>Medium — debt payments are hard; acknowledge that</td><td>"Each payment is a step toward freedom…" / "The number is getting smaller…"</td></tr>
+      <tr><td>PROF-SAV</td><td>Growth-oriented, forward-looking</td><td>Medium — milestone-driven</td><td>"Your safety net is growing…" / "One more month of security built…"</td></tr>
+      <tr><td>PROF-INT</td><td>Confident, peer-level</td><td>Selective — only meaningful achievements</td><td>"Consistent. Month after month…" / "This is what discipline looks like…"</td></tr>
+      <tr><td>PROF-ADV</td><td>Calm, respectful of expertise</td><td>Low — only major milestones</td><td>"Rare. Few reach this…" / "Years of consistency, visible here…"</td></tr>
+      <tr><td>PROF-RCV</td><td>Warm, non-judgmental, resilience-focused</td><td>High at return — immediate positive reinforcement</td><td>"You're back — that's the only thing that matters…" / "Setbacks are part of the journey…"</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>8.4 Contextual Motivation Triggers</h3>
+  <p>Beyond achievement unlocks, the motivation engine generates encouragement at specific contextual moments:</p>
+  <ul>
+    <li><strong>Month-end summary:</strong> After closing a month, a brief summary message is shown (if enabled in personalization). For PROF-DBT, highlights debt reduction. For PROF-SAV, highlights savings growth. For PROF-RCV, highlights that the month was completed.</li>
+    <li><strong>Approaching a milestone:</strong> When a user is within 10% of a significant threshold (FHS approaching 90, emergency fund approaching 3 months), a subtle contextual card appears on the relevant screen with the distance remaining. No push notification; never urgent framing.</li>
+    <li><strong>Personal record moment:</strong> When the user achieves a personal best (highest savings rate this month, longest streak ever), a brief contextual toast highlights the record. Only fires once per record, not on every qualifying month.</li>
+    <li><strong>Long-inactivity return:</strong> The first session after ≥30 days of inactivity shows a gentle "Welcome back" moment — no mention of what was missed, only acknowledgment of the return and a summary of where they stand.</li>
+    <li><strong>Streak continuation:</strong> No "you maintained your streak" notification for each period unless it's a milestone count. Normalizing healthy behavior means not congratulating it every single time.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §9 CHALLENGE FRAMEWORK                                        -->
+<!-- ============================================================ -->
+<section id="s9">
+  <h2>§9 — Challenge Framework</h2>
+  <p>Challenges are optional, time-bounded behavioral commitments that the user explicitly opts into. They are entirely voluntary — declining, abandoning, or never starting a challenge has no negative consequence. Challenges translate good intentions into specific behavioral targets.</p>
+
+  <h3>9.1 Challenge Design Principles</h3>
+  <div class="callout">
+    <strong>Opt-in only:</strong> No challenge is ever started automatically. No challenge is ever suggested with urgency framing. Challenges are discoverable from a dedicated "Challenges" section, never pushed via notification without permission.
+  </div>
+  <ul>
+    <li>Each challenge has a clear behavioral target, duration, and success criterion defined upfront.</li>
+    <li>Progress is visible to the user at any time during the challenge.</li>
+    <li>Abandoning a challenge silently removes it — no negative feedback, no "failed" state shown.</li>
+    <li>Challenges never require spending money, increasing debt, or any financially harmful action.</li>
+    <li>Challenges may adapt to the user's scale (e.g., "Save X% of income" not "Save €500").</li>
+  </ul>
+
+  <h3>9.2 Challenge Catalog</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Challenge ID</th><th>Name</th><th>Duration</th><th>Target</th><th>Success Criterion</th><th>Reward</th></tr></thead>
+    <tbody>
+      <tr><td>CHG-01</td><td>30-Day Savings Sprint</td><td>1 calendar month</td><td>Contribute to savings (any amount) at least once per week for 4 weeks</td><td>BHV-G-01 or BHV-G-04 fires for all 4 ISO weeks within the month</td><td>Badge: "Sprint Finisher" + STK-03 credit for the month</td></tr>
+      <tr><td>CHG-02</td><td>Debt Dent Challenge</td><td>3 months</td><td>Make a scheduled debt payment every month for 3 consecutive months (above minimum if applicable)</td><td>BHV-D-02 fires in 3 consecutive calendar months</td><td>Badge: "Debt Denter" + ACH-012 Bronze (if not already earned)</td></tr>
+      <tr><td>CHG-03</td><td>Emergency Fund Kickstart</td><td>3 months</td><td>Contribute to emergency fund for 3 consecutive months, with increasing contributions (each month ≥ prior)</td><td>BHV-G-01 fires with increasing amounts for 3 months</td><td>Badge: "Foundation Builder" + MST-005 acceleration check</td></tr>
+      <tr><td>CHG-04</td><td>Budget Discipline Month</td><td>1 calendar month</td><td>End the month with all budget categories at or below budget</td><td>BHV-D-01 fires for that month</td><td>Badge: "Disciplined" + ACH-010 (if not already earned)</td></tr>
+      <tr><td>CHG-05</td><td>Expense Awareness Week</td><td>7 days</td><td>Record every expense, no matter how small, for 7 consecutive days</td><td>At least 1 transaction recorded per day for 7 consecutive days (does not require budget)</td><td>Badge: "Aware" + STK-07 credit</td></tr>
+      <tr><td>CHG-06</td><td>Goal Completion Push</td><td>User-defined (matches nearest goal deadline)</td><td>Make at least one contribution to a specific goal every 2 weeks until it is achieved</td><td>BHV-G-04 fires bi-weekly until BHV-G-05 fires (goal achieved)</td><td>Badge: "Finisher" + ACH-023 (if not already earned)</td></tr>
+      <tr><td>CHG-07</td><td>No New Debt Month</td><td>1 calendar month</td><td>End the month with total debt balance equal to or lower than the start of month</td><td>Debt balance (all accounts) at month-end ≤ month-start balance</td><td>Badge: "Contained" + PROF-DBT recognition message</td></tr>
+      <tr><td>CHG-08</td><td>Financial Review Streak</td><td>3 months</td><td>Review the monthly report within the first 7 days of each of 3 consecutive months</td><td>BHV-A-01 fires in the first 7 days of 3 consecutive months</td><td>Badge: "Analyst" + ACH-060 progress credit</td></tr>
+      <tr><td>CHG-09</td><td>Complete Planner Streak</td><td>3 months</td><td>Complete a full monthly plan (income + all budgets) before the 5th of 3 consecutive months</td><td>BHV-P-02 fires before the 5th day for 3 months</td><td>Badge: "Prepared" + ACH-005 Bronze (if not already earned)</td></tr>
+      <tr><td>CHG-10</td><td>AI Coach Exploration</td><td>30 days</td><td>Have 5 AI coach conversations about 5 different financial topics within 30 days</td><td>BHV-A-03 fires 5 times with ≥5 distinct conversation contexts (topic tags)</td><td>Badge: "Curious" + ACH-061 progress credit</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.3 Challenge Lifecycle</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>State</th><th>Description</th><th>User Action</th><th>Next State</th></tr></thead>
+    <tbody>
+      <tr><td>AVAILABLE</td><td>Challenge visible in catalog; not started</td><td>Tap "Start Challenge"</td><td>ACTIVE</td></tr>
+      <tr><td>ACTIVE</td><td>User has committed; progress tracked</td><td>Complete behaviors / Tap "Abandon"</td><td>COMPLETED / ABANDONED</td></tr>
+      <tr><td>COMPLETED</td><td>All success criteria met within duration</td><td>View result; receive reward</td><td>Terminal (can restart)</td></tr>
+      <tr><td>ABANDONED</td><td>User explicitly quit; or duration expired without completion</td><td>—</td><td>AVAILABLE (can restart)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.4 Challenge Restart &amp; Repeat Rules</h3>
+  <ul>
+    <li>All challenges may be restarted an unlimited number of times. Previous attempts (completed or abandoned) are shown in the challenge history as context, never as shame.</li>
+    <li>A completed challenge shows "Completed" with the date in the catalog. The user may run it again ("Repeat Challenge") to earn progress credit toward related achievements even if the badge reward was already earned.</li>
+    <li>No more than 3 challenges may be active simultaneously. This constraint protects against overwhelm and ensures each challenge receives genuine attention.</li>
+    <li>The system does not suggest resuming an abandoned challenge. If the user wants to restart, they do so deliberately from the catalog.</li>
+  </ul>
+
+  <h3>9.5 Future Challenge Types</h3>
+  <ul>
+    <li><strong>AI-Generated Personalized Challenges (future):</strong> The AI coach can generate a challenge tailored to the user's current financial profile and stated goals. Schema is compatible with existing catalog; only the source differs.</li>
+    <li><strong>Family Challenges (future):</strong> Challenges shared across a family/household unit with shared goals. Requires multi-user data model; architecture supports addition.</li>
+    <li><strong>Seasonal Challenges (future):</strong> Time-limited challenges tied to specific calendar periods (January planning, summer saving). Same schema; time-window added.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §10 REWARD SYSTEM                                             -->
+<!-- ============================================================ -->
+<section id="s10">
+  <h2>§10 — Reward System</h2>
+  <p>The reward system defines what users receive when they unlock achievements, complete milestones, and finish challenges. All rewards are non-monetary. No reward changes the app's core functionality in ways that disadvantage non-rewarded users — rewards are recognition and enrichment, never gatekeeping.</p>
+
+  <h3>10.1 Reward Type Catalog</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Reward Type</th><th>Code</th><th>Description</th><th>Persistent?</th><th>User-Visible Location</th></tr></thead>
+    <tbody>
+      <tr><td>Achievement Badge</td><td>RWD-BADGE</td><td>Illustrated icon representing the achievement. Displayed in the achievement collection and on the user's profile summary card. Each badge is unique in design; badges are never generic check marks.</td><td>Yes — permanently in collection</td><td>Achievement Collection, Profile Summary</td></tr>
+      <tr><td>Title</td><td>RWD-TITLE</td><td>A word or short phrase displayed below the user's name on the profile screen and optionally in the app header. Examples: "Debt Free", "Visionary", "Legacy", "Secured". User selects which title to display if multiple are earned.</td><td>Yes</td><td>Profile screen; optional app header</td></tr>
+      <tr><td>Digital Certificate</td><td>RWD-CERT</td><td>A designed certificate document (exportable as PNG/PDF) commemorating a major milestone. Contains the milestone name, the date achieved, and contextual detail (e.g., "Emergency Fund: 6 months of expenses secured"). No financial amounts displayed.</td><td>Yes — stored in app</td><td>Achievement detail; Settings → Certificates</td></tr>
+      <tr><td>Visual Celebration</td><td>RWD-ANIM</td><td>In-app animation at unlock moment. Level 1: particle burst. Level 2: confetti rain. Level 3: custom milestone animation. Respects prefers-reduced-motion — falls back to static display with visual highlight.</td><td>No — shown at unlock only</td><td>At unlock moment; replayable once from achievement detail</td></tr>
+      <tr><td>Achievement Card Export</td><td>RWD-CARD</td><td>For Level 3–4 milestones: a designed shareable image (PNG) with the achievement name, date, and a non-identifying summary. User can export to camera roll for personal use. No automatic sharing; no social platform integration.</td><td>Yes — regenerable</td><td>Achievement detail page</td></tr>
+      <tr><td>Stat Unlock — Advanced</td><td>RWD-STAT</td><td>Certain mastery achievements unlock additional analytical views: e.g., multi-year trend charts, financial efficiency scores, historical savings rate charts. These are contextual enrichments, not essential features.</td><td>Yes</td><td>Reports section; unlocked views appear after achievement</td></tr>
+      <tr><td>Dashboard Theme</td><td>RWD-THEME</td><td>(Future v2) Cosmetic dashboard color themes earned through long-term achievements. Implementation deferred; the achievement system records "theme unlock" reward type from v1 so future builds can honor past achievements.</td><td>Yes (future)</td><td>Settings → Appearance (future)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>10.2 Reward Assignment Matrix</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Achievement Type</th><th>Badge</th><th>Title</th><th>Certificate</th><th>Celebration Level</th><th>Card Export</th><th>Stat Unlock</th></tr></thead>
+    <tbody>
+      <tr><td>One-Time</td><td>✓</td><td>Selected only</td><td>Selected only</td><td>1–2</td><td>No</td><td>No</td></tr>
+      <tr><td>Progressive — Bronze</td><td>✓ (bronze variant)</td><td>No</td><td>No</td><td>1 (toast)</td><td>No</td><td>No</td></tr>
+      <tr><td>Progressive — Silver</td><td>✓ (silver variant)</td><td>No</td><td>No</td><td>2 (modal)</td><td>No</td><td>No</td></tr>
+      <tr><td>Progressive — Gold</td><td>✓ (gold variant)</td><td>Selected only</td><td>No</td><td>2 (modal)</td><td>No</td><td>No</td></tr>
+      <tr><td>Progressive — Platinum</td><td>✓ (platinum variant)</td><td>Selected only</td><td>✓</td><td>3 (full)</td><td>No</td><td>No</td></tr>
+      <tr><td>Milestone — Major</td><td>✓</td><td>Selected only</td><td>✓</td><td>3 (full)</td><td>✓</td><td>No</td></tr>
+      <tr><td>Milestone — Life-changing</td><td>✓</td><td>✓ (always)</td><td>✓</td><td>4 (maximum)</td><td>✓</td><td>No</td></tr>
+      <tr><td>Consistency</td><td>✓</td><td>At 12mo+</td><td>At 24mo+</td><td>2–3</td><td>No</td><td>No</td></tr>
+      <tr><td>Mastery</td><td>✓</td><td>✓</td><td>✓</td><td>3–4</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Hidden</td><td>✓ (revealed)</td><td>No</td><td>No</td><td>2 (reveal modal)</td><td>No</td><td>No</td></tr>
+      <tr><td>Educational</td><td>✓</td><td>No</td><td>No</td><td>1 (toast)</td><td>No</td><td>No</td></tr>
+      <tr><td>Recovery</td><td>✓</td><td>No</td><td>No</td><td>2 (warm modal)</td><td>No</td><td>No</td></tr>
+      <tr><td>Long-Term</td><td>✓</td><td>✓</td><td>✓</td><td>4 (maximum)</td><td>✓</td><td>✓</td></tr>
+      <tr><td>Challenge Completion</td><td>✓</td><td>No</td><td>No</td><td>2 (modal)</td><td>No</td><td>No</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>10.3 Anti-Reward Rules</h3>
+  <div class="callout">
+    <strong>Prohibited reward types:</strong> In-app currency; points that can be spent; features locked behind achievement gates that affect financial tracking capability; time-limited rewards that expire; rewards earned by referral; rewards tied to sharing on social media; rewards that depend on other users' behavior; any reward with monetary or financial value. The reward system is about recognition, not incentive distortion.
+  </div>
+
+  <h3>10.4 Certificate Design Specification</h3>
+  <p>Digital certificates are designed as premium-feeling personal documents — not gamified trophies. Design requirements:</p>
+  <ul>
+    <li>Clean, minimal layout with the Finance Bag wordmark and the achievement name as the primary headline.</li>
+    <li>Date of achievement in a secondary typographic style.</li>
+    <li>A one-sentence description of what was achieved (from the achievement definition).</li>
+    <li>No financial amounts on the certificate. No account balances. No transaction data.</li>
+    <li>Available in both light and dark variants matching the user's current theme.</li>
+    <li>Exportable at 2× resolution (print-quality PNG) and as a single-page PDF.</li>
+    <li>Certificate ID encoded as a non-sequential opaque string (not achievement_id) to prevent inference about the user's complete achievement history from a shared certificate.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §11 MOTIVATIONAL FEEDBACK & MESSAGING                         -->
+<!-- ============================================================ -->
+<section id="s11">
+  <h2>§11 — Motivational Feedback &amp; Messaging</h2>
+  <p>Motivational messages are the primary voice of the GAM Engine. They appear at achievement unlocks, month-end summaries, challenge completions, streak milestones, and contextual encouragement moments. All messages are written to strict guidelines and localized for fr/en/ar.</p>
+
+  <h3>11.1 Message Writing Guidelines</h3>
+  <div class="card">
+    <div class="card-title">Mandatory Rules for All Messages</div>
+    <ul>
+      <li><strong>No financial amounts:</strong> Messages never state or imply specific amounts, percentages, or balances. "Your savings grew" is correct; "You saved €250" is prohibited.</li>
+      <li><strong>No comparisons to others:</strong> No "most people don't…", no "better than average," no cohort framing.</li>
+      <li><strong>No urgency or FOMO:</strong> No "Don't miss out on…", no countdown framing, no "before it's too late."</li>
+      <li><strong>No shame or guilt:</strong> Even in recovery contexts, messages celebrate the return, never reference the absence.</li>
+      <li><strong>Active voice:</strong> "You built security" not "Security was built."</li>
+      <li><strong>Present tense for achievement:</strong> Describe what the user has now accomplished, not what they did.</li>
+      <li><strong>Under 160 characters per message:</strong> Enforced at the localization layer. Messages must be concise enough to read in a glance.</li>
+      <li><strong>Culturally neutral:</strong> No idioms, sports metaphors, or culturally specific references that may not translate. Reviewed by native speakers for each locale.</li>
+    </ul>
+  </div>
+
+  <h3>11.2 Message Categories</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Category</th><th>Trigger</th><th>Tone</th><th>Example (EN)</th></tr></thead>
+    <tbody>
+      <tr><td>Achievement Unlock</td><td>Any achievement unlocked</td><td>Warm, celebratory, specific</td><td>"Emergency Fund — 3 Months. You've built what most people never do: real financial resilience."</td></tr>
+      <tr><td>Streak Milestone</td><td>Streak reaches defined count</td><td>Affirming, matter-of-fact</td><td>"Six months of planning. Not a streak — a habit."</td></tr>
+      <tr><td>Month-End Summary</td><td>End of each tracked month</td><td>Reflective, profile-adapted</td><td>PROF-DBT: "Another payment made. The balance is lower. You're doing it." / PROF-SAV: "Savings added this month. Consistent. Building."</td></tr>
+      <tr><td>Milestone Approach</td><td>Within 10% of a major threshold</td><td>Quiet, forward-looking</td><td>"Your emergency fund is close to 3 months of expenses." [No urgency — just context]</td></tr>
+      <tr><td>Personal Record</td><td>User achieves personal best metric</td><td>Surprised, appreciative</td><td>"Your highest savings rate yet this month. A personal record."</td></tr>
+      <tr><td>Recovery / Return</td><td>BHV-R-* fires</td><td>Unconditionally welcoming</td><td>"You're back. That's what matters."</td></tr>
+      <tr><td>Challenge Completion</td><td>Challenge success criterion met</td><td>Specific to the challenge</td><td>"30-Day Savings Sprint complete. Four weeks, consistent contributions. Done."</td></tr>
+      <tr><td>Progressive Tier Advance</td><td>Progressive achievement tier upgraded</td><td>Progressive, building</td><td>"Budget Master — Silver. Six months within budget. The discipline is becoming second nature."</td></tr>
+      <tr><td>Encouragement (quiet)</td><td>Month-end; no major achievement this month; PROF-BEG</td><td>Patient, non-pressuring</td><td>"A recorded month. Every month of data is progress, even the quiet ones."</td></tr>
+      <tr><td>Hidden Achievement Reveal</td><td>Hidden achievement unlocked</td><td>Surprised, discovery-toned</td><td>"You found one. 'Perfect Month' — every financial habit, completed in a single month. Rare."</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>11.3 Progressive Tier Message Templates</h3>
+  <p>For ACH-005 (Consistent Planner) as a template — all progressive achievements follow this pattern:</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Bronze (3 months)</div>
+      <p>"Three months of complete planning. You've started a habit. The next three months will make it a pattern."</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Silver (6 months)</div>
+      <p>"Six consecutive months with a complete financial plan. Half a year of intentional living."</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Gold (12 months)</div>
+      <p>"Twelve months. A full year of planning. What started as effort is now simply how you live."</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Platinum (24 months)</div>
+      <p>"Two years of complete monthly planning. Financial discipline at this level is genuinely rare."</p>
+    </div>
+  </div>
+
+  <h3>11.4 Monthly Summary Format</h3>
+  <p>The month-end summary (displayed as a card at the start of the following month, if the feature is enabled) contains:</p>
+  <ol>
+    <li><strong>Headline:</strong> One profile-adapted sentence summarizing the month's character (e.g., "A planning month" / "A savings month" / "A debt reduction month").</li>
+    <li><strong>Highlights:</strong> 2–3 bullet points, each one sentence, referencing only relative progress (not absolute values): "Budget respected in all categories" / "Emergency fund contribution made" / "Goal progress continued."</li>
+    <li><strong>Achievement summary:</strong> If achievements were unlocked this month, a brief "You earned:" row with badge icons.</li>
+    <li><strong>Looking ahead:</strong> One forward-facing sentence relevant to the user's profile: "Next month: keep the planning streak going" or "Your emergency fund is approaching 3 months."</li>
+  </ol>
+  <p>The summary is never more than 5 lines of content. It is shown once at the start of the next month and accessible from the history view for 90 days.</p>
+
+  <h3>11.5 Notification Copy Rules</h3>
+  <ul>
+    <li>Push notifications for gamification events are opt-in and subject to the same message guidelines as in-app messages.</li>
+    <li>Notification copy is shorter than in-app copy: max 80 characters for the notification title, max 120 for the body.</li>
+    <li>Notification must specify what happened (achievement unlocked) not what action to take (no CTAs in notification body).</li>
+    <li>No more than 1 gamification push notification per day, regardless of how many achievements unlock.</li>
+    <li>Batching rule: if multiple achievements unlock on the same day, one notification is sent with "You earned N achievements today" and the most significant is named.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §12 PERSONALIZATION & CONTROLS                                -->
+<!-- ============================================================ -->
+<section id="s12">
+  <h2>§12 — Personalization &amp; Controls</h2>
+  <p>Every aspect of the gamification system is user-configurable. The system defaults to a balanced experience, but users may customize or completely disable all motivational features without any loss of core financial functionality.</p>
+
+  <h3>12.1 Gamification Settings Screen</h3>
+  <p>Located at: Settings → Motivation &amp; Achievements. Contains the following configurable options:</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Setting</th><th>Default</th><th>Options</th><th>Effect of Off/Minimum</th></tr></thead>
+    <tbody>
+      <tr><td>Enable Gamification</td><td>ON</td><td>ON / OFF</td><td>All achievement evaluations suspended. No recognition events fired. Achievement collection hidden. Streaks not tracked. Existing achievements preserved — re-enabling restores full history.</td></tr>
+      <tr><td>Show Achievement Collection</td><td>ON</td><td>ON / OFF</td><td>Achievement Collection tab/section hidden from navigation. Achievements still earned (if gamification ON) but not surfaced unless user re-enables.</td></tr>
+      <tr><td>Celebration Intensity</td><td>Standard</td><td>Full / Standard / Minimal / Off</td><td>Full = Level 4 unlocked. Standard = Level 3 max. Minimal = Toast only for all events. Off = No in-app celebration; badges still awarded silently.</td></tr>
+      <tr><td>Month-End Summary</td><td>ON</td><td>ON / OFF</td><td>No month-end summary card displayed. Achievements and streaks still tracked.</td></tr>
+      <tr><td>Milestone Approach Hints</td><td>ON</td><td>ON / OFF</td><td>No "approaching milestone" contextual cards shown on relevant screens.</td></tr>
+      <tr><td>Motivational Tone</td><td>Standard</td><td>Standard / Concise / Minimal</td><td>Standard = full messages per §11. Concise = messages ≤60 chars. Minimal = achievement name only, no message body.</td></tr>
+      <tr><td>Gamification Notifications</td><td>OFF</td><td>ON / OFF</td><td>No push notifications for any gamification event. In-app events still fire.</td></tr>
+      <tr><td>Achievement Reminder Frequency</td><td>Monthly</td><td>Monthly / Quarterly / Never</td><td>How often "here's your achievement progress" in-app prompt appears (not a push notification).</td></tr>
+      <tr><td>Quiet Mode</td><td>OFF</td><td>ON / OFF</td><td>Equivalent to: Celebration Intensity = Off, Month-End Summary = OFF, Milestone Approach Hints = OFF, Motivational Tone = Minimal. Single toggle for users who want zero gamification noise but want achievements tracked passively.</td></tr>
+      <tr><td>Challenge Suggestions</td><td>OFF</td><td>ON / OFF</td><td>If ON: AI coach may suggest relevant challenges during coaching sessions (not push). If OFF: challenges discoverable manually only.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>12.2 Achievement Collection Customization</h3>
+  <ul>
+    <li><strong>Hide individual achievements:</strong> User can hide any specific achievement from their collection view. Hidden achievements still count for completion statistics but are not displayed in the grid. Useful if a user finds certain achievements irrelevant or distracting.</li>
+    <li><strong>Reorder collection:</strong> Default order: recently unlocked first. User can switch to: category grouping, achievement type, alphabetical, or custom manual order.</li>
+    <li><strong>Active title selection:</strong> If multiple titles have been earned, user selects which one displays on their profile. Changing the active title is instant and free.</li>
+    <li><strong>Streak display:</strong> User can collapse the streak history to show only the current count and longest streak, hiding the dot timeline if they find it anxiety-inducing.</li>
+  </ul>
+
+  <h3>12.3 Complete Gamification Opt-Out</h3>
+  <p>When "Enable Gamification" is set to OFF:</p>
+  <ul>
+    <li>All achievement evaluation logic is suspended — zero computation overhead.</li>
+    <li>All streak tracking stops — streaks are frozen at their current count, not reset.</li>
+    <li>The Achievements section disappears from navigation.</li>
+    <li>The Profile screen shows no title, no badge count, no achievement summary.</li>
+    <li>Month-end summary and milestone cards do not appear.</li>
+    <li>Challenge catalog is inaccessible (no active challenges can run).</li>
+    <li>When re-enabled: the engine performs a retroactive evaluation pass for all months during the disabled period, awards any achievements that would have been earned, and delivers them as a single silent update (no individual celebrations for past events).</li>
+    <li>Streaks during the disabled period are treated as "paused" — they resume from where they stopped, with the disabled period treated as a grace period (one period tolerance applies).</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §13 PSYCHOLOGICAL SAFETY                                      -->
+<!-- ============================================================ -->
+<section id="s13">
+  <h2>§13 — Psychological Safety</h2>
+  <p>Responsible gamification requires explicit attention to the psychological risks that engagement mechanics can introduce. This section defines both the prohibited design patterns and the active design decisions taken to protect user well-being.</p>
+
+  <h3>13.1 Prohibited Design Patterns</h3>
+  <div class="card">
+    <div class="card-title">Design patterns explicitly prohibited from Finance Bag's GAM Engine</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Anti-Pattern</th><th>Why Prohibited</th><th>Alternative</th></tr></thead>
+      <tbody>
+        <tr><td>Shame-based messaging ("You missed your budget", "Another month without planning")</td><td>Shame is a demotivator; it correlates with withdrawal from the app, not improvement</td><td>Recovery achievements that celebrate return; no-message approach to misses</td></tr>
+        <tr><td>Fear-based urgency ("Your streak ends tonight!")</td><td>Creates anxiety; trains users to open the app from fear, not genuine intention</td><td>Grace periods; no countdown notifications; streak milestones without temporal pressure</td></tr>
+        <tr><td>Social comparison ("You're behind 85% of users like you")</td><td>External comparison is demotivating for the majority; it compares personal progress to a constructed cohort</td><td>Personal bests only; user's own history as the only benchmark</td></tr>
+        <tr><td>Loss framing ("You've lost your N-month streak")</td><td>Loss aversion weaponized creates anxiety disproportionate to the actual stakes</td><td>Streak shows what was built, not what was lost; reset is silent, not announced</td></tr>
+        <tr><td>Addictive variable reward loops (random achievement drops, mystery boxes)</td><td>Slot-machine mechanics exploit neurological reward circuitry in ways that prioritize app time over user wellbeing</td><td>Hidden achievements exist but are triggered by genuine financial behavior, not random chance</td></tr>
+        <tr><td>Negative ranking (leaderboards, rank positions)</td><td>Any system where most users are "losing" is a system that demotivates most users</td><td>No ranking of any kind; no leaderboard; no cohort percentiles</td></tr>
+        <tr><td>Artificial scarcity ("Limited achievement unlockable only this month")</td><td>Creates FOMO; punishes users who were busy or had other financial priorities</td><td>No achievement expires; seasonal achievements (future) available for replay</td></tr>
+        <tr><td>Punishment mechanics (losing progress points, regression in tier)</td><td>Financial life has real setbacks; the app should not add artificial setbacks on top</td><td>Achievement progress never decreases; streak resets to zero but never negative</td></tr>
+        <tr><td>Mandatory engagement (achievements require daily opens)</td><td>Healthy financial management is not a daily app activity; rewards should track financial behavior, not app usage frequency</td><td>All behaviors are weekly or monthly minimum; no daily-action requirements</td></tr>
+        <tr><td>Financial comparison ("Your savings are lower than your goal peer group")</td><td>Financial comparison breeds shame and resentment; individual financial situations are not comparable</td><td>Percentage of user's own targets; no absolute amount comparisons</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h3>13.2 Active Safety Design Decisions</h3>
+  <ul>
+    <li><strong>Grace periods as default:</strong> The grace period system (§5.3) is not a concession to imperfection — it is an active signal that financial life is not always consistent, and the app respects that.</li>
+    <li><strong>Recovery achievements as first-class citizens:</strong> ACH-070 and ACH-071 are not consolation prizes — they are genuine recognition that returning after a setback is harder and more meaningful than uninterrupted streaks.</li>
+    <li><strong>No achievement for high transaction volume:</strong> A user who enters 200 transactions in a month may be overspending. Rewarding transaction volume would reward potentially harmful financial behavior. This is explicitly excluded (§2.3).</li>
+    <li><strong>Quiet Mode as a dignified exit:</strong> Users who feel overwhelmed by motivational features can exit cleanly and completely. The option is presented without question and without consequences (§12.3).</li>
+    <li><strong>Messages reviewed by behavioral psychologists:</strong> All achievement and motivational messages are reviewed against the message guidelines (§11.1) by at least one person trained in behavioral health before publication.</li>
+    <li><strong>No engagement metrics in the GAM Engine's own success criteria:</strong> The GAM Engine's success is measured by behavioral improvement indicators (savings rate trends, FHS improvement, debt reduction rates) — not by session frequency, achievement collection rate, or notification open rate.</li>
+    <li><strong>Debt framing is never punishing:</strong> For PROF-DBT users, messaging always frames debt management as progress and autonomy ("you are choosing to reduce this"), never as deficiency or failure.</li>
+  </ul>
+
+  <h3>13.3 Distress Signal Handling</h3>
+  <p>The GAM Engine is not a mental health system, but it operates in a domain (personal finances) that can be a source of significant stress. The following design decisions acknowledge this:</p>
+  <ul>
+    <li>If a user has not interacted with the app for 90+ days and then returns, the recovery flow (BHV-R-01) fires without any reference to the gap duration or what was missed.</li>
+    <li>Month-end summaries for months with no budgets and no recorded transactions are not generated — there is nothing to summarize, and generating an empty summary would function as a reminder of absence.</li>
+    <li>The AI coach is the appropriate place for users to discuss financial stress or difficulty. The GAM Engine does not attempt to handle emotional content — it routes to encouragement, not advice.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §14 ACCESSIBILITY                                             -->
+<!-- ============================================================ -->
+<section id="s14">
+  <h2>§14 — Accessibility</h2>
+  <p>All gamification features meet WCAG 2.1 AA standards and are fully usable with screen readers, in high-contrast mode, in RTL layouts, and across all supported locales. Accessibility is not an afterthought in gamification — it is a core requirement, as motivational recognition must reach all users equally.</p>
+
+  <h3>14.1 Screen Reader Compatibility</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Component</th><th>Screen Reader Requirement</th><th>VoiceOver / TalkBack Behavior</th></tr></thead>
+    <tbody>
+      <tr><td>Achievement Badge</td><td>Each badge has an accessible label: "[Achievement Name] — Unlocked on [Date]" or "[Achievement Name] — Not yet unlocked, [N]% complete"</td><td>Single tap reads the label; double tap opens achievement detail</td></tr>
+      <tr><td>Progress Bars</td><td>ARIA progressbar role with value, min, max, and descriptive label. Screen reader announces: "[Achievement Name] progress: [N] of [M] completed"</td><td>Reads value and percentage on focus</td></tr>
+      <tr><td>Streak Dot Timeline</td><td>ARIA list. Each dot labeled: "[Month/Week] — Completed" / "Grace period used" / "Missed" / "Future"</td><td>Linear navigation through dot history</td></tr>
+      <tr><td>Celebration Modal</td><td>Focus moves to modal on appear. Achievement name is the modal heading (h2). Dismiss button is first interactive element after content.</td><td>Reads achievement name, description, and unlock message in sequence</td></tr>
+      <tr><td>FHS Gauge</td><td>Score and zone (e.g., "Financial Health Score: 72 — Good") available as text beneath gauge. Gauge is decorative (aria-hidden).</td><td>Reads text equivalent; gauge not announced</td></tr>
+      <tr><td>Goal Progress Ring</td><td>Ring is aria-hidden. Adjacent text states: "[Goal Name]: [N]% complete. Estimated completion: [date]"</td><td>Reads text equivalent</td></tr>
+      <tr><td>Animation / Celebration</td><td>All celebration animations have aria-live="polite" announcement of the achievement name when they trigger</td><td>Announces "Achievement unlocked: [Name]" when celebration fires</td></tr>
+      <tr><td>Certificate Export</td><td>Export button labeled "Export [Achievement Name] certificate as image"</td><td>Button purpose clear without visual context</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>14.2 Color Independence</h3>
+  <ul>
+    <li>Achievement badge states (locked/unlocked) are indicated by color AND a visual pattern (locked badges use a lock icon overlay, not only grayscale).</li>
+    <li>Streak dot states are distinguished by color AND symbol (✓ / ~ / ✕ / ○) — color-blind users can read the state from the symbol alone.</li>
+    <li>FHS gauge color zones (red/amber/green) are supplemented by zone labels ("Needs attention" / "Building" / "Good" / "Excellent") displayed as text.</li>
+    <li>Progressive achievement tiers (Bronze/Silver/Gold/Platinum) use distinct icons in addition to the metallic color treatment.</li>
+    <li>All text contrast ratios meet WCAG AA minimums (4.5:1 for body text, 3:1 for large text) in both light and dark themes.</li>
+    <li>All interactive elements (buttons, interactive cards) have a visible focus ring that meets WCAG 2.1 SC 2.4.11 minimum size requirements.</li>
+  </ul>
+
+  <h3>14.3 Motion &amp; Animation Accessibility</h3>
+  <ul>
+    <li>All celebration animations check <code>prefers-reduced-motion</code> before playing. In reduced-motion mode, animations are replaced with a static visual highlight (border accent, badge reveal without particle effect).</li>
+    <li>No gamification animation lasts longer than 3 seconds.</li>
+    <li>No animation autoplays in a loop — celebrations play once and stop.</li>
+    <li>The "Celebration Intensity" setting (§12.1) provides a user-level control independent of the OS-level reduced-motion preference.</li>
+    <li>Screen readers announce the completion of a celebration via aria-live="polite", not via timing that could conflict with active narration.</li>
+  </ul>
+
+  <h3>14.4 Localization &amp; RTL Requirements</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Requirement</th><th>Implementation Note</th></tr></thead>
+    <tbody>
+      <tr><td>All achievement names and messages localized in fr/en/ar</td><td>Localization keys follow the pattern gam.[achievement_id].[field]. Native speakers review each locale for naturalness, not just accuracy.</td></tr>
+      <tr><td>RTL layout for Arabic locale</td><td>Achievement grid, streak timeline, progress bars, milestone timeline all mirror horizontally in RTL. Icons that have directional meaning (arrows) are mirrored. Badge layout uses start/end instead of left/right.</td></tr>
+      <tr><td>Date formatting in achievement unlock dates</td><td>Uses locale-appropriate date format (DD/MM/YYYY for fr, MM/DD/YYYY for en, Arabic calendar option for ar). Expo's Intl.DateTimeFormat with locale.</td></tr>
+      <tr><td>Number formatting in progress displays (N/M counts)</td><td>Uses locale-appropriate digit separators and number formatting.</td></tr>
+      <tr><td>Certificate content in user's locale</td><td>Certificate generates in the user's current app locale. If locale changes after generation, user can regenerate in the new locale.</td></tr>
+      <tr><td>Screen reader support in Arabic</td><td>All aria labels provided in Arabic when locale is ar. RTL reading order confirmed for critical path (achievement unlock, progress bar).</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §15 PERFORMANCE & OFFLINE BEHAVIOR                            -->
+<!-- ============================================================ -->
+<section id="s15">
+  <h2>§15 — Performance &amp; Offline Behavior</h2>
+  <p>The GAM Engine is a local-first subsystem. It must operate fully offline, consume minimal resources compared to the core financial data layer, and scale gracefully to years of achievement history and thousands of evaluations.</p>
+
+  <h3>15.1 Performance Targets</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Operation</th><th>P95 Target</th><th>Dataset Context</th><th>Thread</th></tr></thead>
+    <tbody>
+      <tr><td>Behavior event evaluation (single event)</td><td>&lt;20ms</td><td>Any dataset size</td><td>Background (never main thread)</td></tr>
+      <tr><td>Month-end full evaluation pass</td><td>&lt;500ms</td><td>DS-STANDARD (3yr history)</td><td>Background task</td></tr>
+      <tr><td>Achievement collection load</td><td>&lt;100ms</td><td>Full catalog (50+ achievements)</td><td>Background; result delivered to main</td></tr>
+      <tr><td>Streak history render (12 months)</td><td>&lt;50ms</td><td>Any</td><td>Main thread (lightweight)</td></tr>
+      <tr><td>Streak history render (36 months)</td><td>&lt;100ms</td><td>Long-term user</td><td>Main thread (paginated)</td></tr>
+      <tr><td>Retroactive evaluation (re-enabled after disable)</td><td>&lt;5s</td><td>DS-HEAVY (10yr history)</td><td>Background task with progress indicator</td></tr>
+      <tr><td>Certificate generation (PNG export)</td><td>&lt;2s</td><td>Any</td><td>Background</td></tr>
+      <tr><td>Achievement card export (shareable PNG)</td><td>&lt;3s</td><td>Any</td><td>Background</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>15.2 Offline Operation</h3>
+  <ul>
+    <li>All achievement evaluation logic operates on data stored locally in SQLite — no network request is required for any gamification function.</li>
+    <li>Behavior events generated offline are queued in the GAM event queue and processed at next app launch (or immediately if the app is running and the queue is processed).</li>
+    <li>Celebration animations and achievement displays do not require network access — all assets (icons, animation definitions) are bundled with the app.</li>
+    <li>Certificate and card exports work offline — the export is generated from local data and local assets only.</li>
+    <li>The Achievement Collection is fully available offline — no online check for achievement state.</li>
+  </ul>
+
+  <h3>15.3 Synchronization</h3>
+  <p>Achievement state is part of the user's data and must be synchronized correctly across devices when multi-device support is added in future versions. Design decisions for sync-readiness:</p>
+  <ul>
+    <li>Each achievement unlock event is stored as an immutable record with a ULID, a timestamp, the achievement_id, and the device_id that generated the unlock. This enables conflict-free merging (last-write-wins per achievement_id is inappropriate — earliest-unlock-wins is the correct policy).</li>
+    <li>Streak state is derived from behavior event history, not stored as a mutable counter. If behavior events sync correctly, streak state is automatically consistent across devices.</li>
+    <li>The GAM Engine's SQLite tables are included in the app's standard backup and restore process (§17.2).</li>
+    <li>In the event of a conflict (same achievement unlocked on two devices at different times), the earliest unlock timestamp is canonical.</li>
+  </ul>
+
+  <h3>15.4 Scalability to Long-Term Use</h3>
+  <ul>
+    <li><strong>Achievement history:</strong> The achievement catalog is designed to grow — new achievements can be added in future versions. The evaluation engine processes only the active catalog for each evaluation pass; deprecated achievements are excluded from live evaluation but preserved in unlock history.</li>
+    <li><strong>Streak history pagination:</strong> Streak dot timelines for users with 5+ years of data are paginated. Default view shows last 12 periods; full history accessible via scroll with virtualized rendering.</li>
+    <li><strong>Behavior event queue:</strong> The GAM event queue is bounded — processed events are archived after the evaluation pass. The archive is compacted monthly (events summarized by month, raw events discarded after 90 days). This prevents unbounded growth in long-lived installations.</li>
+    <li><strong>Month-end evaluation chunking:</strong> For retroactive evaluation (e.g., after re-enabling gamification), the engine processes months in reverse-chronological chunks of 6 months, yielding between chunks to prevent blocking the app for long-history users.</li>
+    <li><strong>Achievement catalog upper bound:</strong> The v1 catalog contains ~70 achievements. The data model and evaluation engine are designed to handle up to 1,000 achievement definitions without schema changes.</li>
+  </ul>
+
+  <h3>15.5 Resource Consumption Targets</h3>
+  <ul>
+    <li><strong>Memory:</strong> GAM Engine in-memory state ≤5MB during normal operation (active streak states, current evaluation context). Achievement collection loaded on demand, not permanently cached.</li>
+    <li><strong>Storage:</strong> GAM Engine SQLite tables target ≤10MB for a 5-year user with full history. Event archive compaction ensures this bound is maintained.</li>
+    <li><strong>CPU:</strong> Month-end evaluation pass must not consume more than 500ms of background CPU time. All GAM Engine processing is classified as P3 Normal priority in the background task queue (SPEC-PMO-001 §3.4).</li>
+    <li><strong>Network:</strong> Zero network consumption for GAM Engine in v1. Analytics events for aggregate product insights (total achievement unlocks per type) use the opt-in anonymous business analytics pipeline defined in SPEC-PMO-001 §9.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §16 DATA MODEL & SCHEMAS                                      -->
+<!-- ============================================================ -->
+<section id="s16">
+  <h2>§16 — Data Model &amp; Schemas</h2>
+
+  <h3>16.1 Core Tables</h3>
+  <div class="card">
+    <div class="card-title">gam_achievement_state — Per-user achievement state</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>ULID (PK)</td><td>Unique state record ID</td></tr>
+        <tr><td>achievement_id</td><td>TEXT (FK → catalog)</td><td>References achievement definition</td></tr>
+        <tr><td>tier</td><td>TEXT nullable</td><td>Current tier for progressive achievements: BRONZE/SILVER/GOLD/PLATINUM</td></tr>
+        <tr><td>state</td><td>TEXT enum</td><td>LOCKED / IN_PROGRESS / UNLOCKED / REVOKED</td></tr>
+        <tr><td>progress_value</td><td>INTEGER nullable</td><td>Current count toward next tier/unlock</td></tr>
+        <tr><td>progress_target</td><td>INTEGER nullable</td><td>Required count for next tier/unlock</td></tr>
+        <tr><td>unlocked_at</td><td>TEXT (ISO8601) nullable</td><td>When achievement first reached UNLOCKED state</td></tr>
+        <tr><td>last_evaluated_at</td><td>TEXT (ISO8601)</td><td>When this state was last re-evaluated</td></tr>
+        <tr><td>unlock_device_id</td><td>TEXT nullable</td><td>Device that generated the unlock event (for future multi-device conflict resolution)</td></tr>
+        <tr><td>is_hidden_from_collection</td><td>INTEGER (0/1)</td><td>User-controlled: 1 = hidden from UI, still tracked</td></tr>
+        <tr><td>created_at</td><td>TEXT (ISO8601)</td><td>Record creation timestamp</td></tr>
+        <tr><td>updated_at</td><td>TEXT (ISO8601)</td><td>Last modification timestamp</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">gam_streak_state — Per-streak tracking</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>ULID (PK)</td><td>Unique state record</td></tr>
+        <tr><td>streak_id</td><td>TEXT enum</td><td>STK-01 through STK-07</td></tr>
+        <tr><td>current_count</td><td>INTEGER</td><td>Current consecutive qualifying periods</td></tr>
+        <tr><td>longest_count</td><td>INTEGER</td><td>All-time longest streak for this behavior</td></tr>
+        <tr><td>grace_used_in_window</td><td>INTEGER (0/1)</td><td>Whether a grace has been used in the current 6-period window</td></tr>
+        <tr><td>window_start_period</td><td>TEXT</td><td>Start of the current 6-period grace window (YYYY-MM or YYYY-Www format)</td></tr>
+        <tr><td>last_qualifying_period</td><td>TEXT nullable</td><td>Most recent period where behavior qualified (YYYY-MM or YYYY-Www)</td></tr>
+        <tr><td>last_evaluated_period</td><td>TEXT nullable</td><td>Most recent period that was evaluated (qualifying or not)</td></tr>
+        <tr><td>is_paused</td><td>INTEGER (0/1)</td><td>Set when gamification is disabled; resumes without reset on re-enable</td></tr>
+        <tr><td>created_at</td><td>TEXT (ISO8601)</td><td>Record creation timestamp</td></tr>
+        <tr><td>updated_at</td><td>TEXT (ISO8601)</td><td>Last modification timestamp</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">gam_streak_history — Immutable period-by-period log</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>ULID (PK)</td><td>Unique history record</td></tr>
+        <tr><td>streak_id</td><td>TEXT</td><td>Which streak this period belongs to</td></tr>
+        <tr><td>period</td><td>TEXT</td><td>YYYY-MM or YYYY-Www — the period this record describes</td></tr>
+        <tr><td>period_status</td><td>TEXT enum</td><td>HIT / GRACE / MISS / PAUSED / FUTURE</td></tr>
+        <tr><td>created_at</td><td>TEXT (ISO8601)</td><td>When this record was written</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">gam_challenge_state — Active and historical challenges</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>ULID (PK)</td><td>Unique challenge instance</td></tr>
+        <tr><td>challenge_id</td><td>TEXT</td><td>CHG-01 through CHG-10</td></tr>
+        <tr><td>state</td><td>TEXT enum</td><td>ACTIVE / COMPLETED / ABANDONED</td></tr>
+        <tr><td>started_at</td><td>TEXT (ISO8601)</td><td>When user started this challenge instance</td></tr>
+        <tr><td>completed_at</td><td>TEXT (ISO8601) nullable</td><td>When COMPLETED state was reached</td></tr>
+        <tr><td>abandoned_at</td><td>TEXT (ISO8601) nullable</td><td>When ABANDONED state was reached</td></tr>
+        <tr><td>progress_value</td><td>INTEGER</td><td>Current progress toward success criterion</td></tr>
+        <tr><td>progress_target</td><td>INTEGER</td><td>Success criterion target value</td></tr>
+        <tr><td>attempt_number</td><td>INTEGER</td><td>Which attempt this is (1 = first time, 2 = restart, etc.)</td></tr>
+        <tr><td>created_at</td><td>TEXT (ISO8601)</td><td>Record creation</td></tr>
+        <tr><td>updated_at</td><td>TEXT (ISO8601)</td><td>Last update</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">gam_milestone_history — Milestone event log</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>ULID (PK)</td><td>Unique milestone record</td></tr>
+        <tr><td>milestone_id</td><td>TEXT</td><td>MST-001 through MST-015</td></tr>
+        <tr><td>achieved_at</td><td>TEXT (ISO8601)</td><td>When milestone was first crossed</td></tr>
+        <tr><td>celebration_delivered</td><td>INTEGER (0/1)</td><td>Whether the celebration UI was shown to user</td></tr>
+        <tr><td>certificate_generated</td><td>INTEGER (0/1)</td><td>Whether a certificate was generated</td></tr>
+        <tr><td>is_revoked</td><td>INTEGER (0/1)</td><td>Set if underlying data deletion makes milestone no longer valid</td></tr>
+        <tr><td>created_at</td><td>TEXT (ISO8601)</td><td>Record creation</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">gam_behavior_event_queue — Pending events awaiting evaluation</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>id</td><td>ULID (PK)</td><td>Unique event record</td></tr>
+        <tr><td>behavior_id</td><td>TEXT</td><td>BHV-P-01 through BHV-R-03</td></tr>
+        <tr><td>event_period</td><td>TEXT</td><td>YYYY-MM or YYYY-Www — the period this event belongs to</td></tr>
+        <tr><td>triggered_at</td><td>TEXT (ISO8601)</td><td>Wall clock time the behavior was detected</td></tr>
+        <tr><td>source_entity_id</td><td>TEXT nullable</td><td>ULID of the source record (transaction, budget, goal) that triggered the behavior. No financial values stored — ID only.</td></tr>
+        <tr><td>is_processed</td><td>INTEGER (0/1)</td><td>Whether the evaluation engine has processed this event</td></tr>
+        <tr><td>processed_at</td><td>TEXT (ISO8601) nullable</td><td>When processing completed</td></tr>
+        <tr><td>created_at</td><td>TEXT (ISO8601)</td><td>Record creation</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h3>16.2 GAM Settings Schema</h3>
+  <p>All personalization settings from §12 are stored in the existing app settings table (SQLite) under the namespace "gam.*". No new table is required. Key names follow the pattern: <code>gam.enabled</code>, <code>gam.celebration_intensity</code>, <code>gam.quiet_mode</code>, etc. All settings are included in backup/restore.</p>
+
+  <h3>16.3 Data Isolation</h3>
+  <p>All GAM Engine tables are stored in the main app SQLite database alongside financial data, sharing the same AES-256-CBC encryption and WAL mode configuration. Achievement data is user data — it deserves the same protection as financial records. No financial values are stored in any GAM Engine table. The <code>source_entity_id</code> in the behavior event queue is a ULID reference, not a financial value or description.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- §17 INTEGRATION POINTS                                        -->
+<!-- ============================================================ -->
+<section id="s17">
+  <h2>§17 — Integration Points</h2>
+  <p>The GAM Engine integrates with the other Finance Bag subsystems as a consumer of their events. It never modifies financial data; it only reads and reacts to financial state changes.</p>
+
+  <h3>17.1 Financial Health Score (FHS) Integration</h3>
+  <ul>
+    <li>The GAM Engine subscribes to FHS recalculation events. On each FHS update, it checks whether any BHV-G-09 (FHS improved) or BHV-G-10 (FHS milestone) conditions are met.</li>
+    <li>The FHS value used for gamification is the same value displayed to the user — no separate calculation.</li>
+    <li>FHS improvements during gamification-disabled periods are evaluated retroactively when gamification is re-enabled, using the stored FHS history.</li>
+    <li>The GAM Engine reads FHS history for the motivation engine profile classification (§8.1) — PROF-ADV requires FHS &gt;75 sustained over 24+ months.</li>
+  </ul>
+
+  <h3>17.2 Backup &amp; Restore Integration</h3>
+  <ul>
+    <li>All GAM Engine tables are included in the standard app backup. A restore includes full achievement history, streak state, challenge history, and milestone history.</li>
+    <li>After a restore, the GAM Engine performs a consistency check: it re-derives streak states from the restored gam_streak_history table and compares to the restored gam_streak_state. Any discrepancy is resolved in favor of the history (the history is the source of truth).</li>
+    <li>Achievement states are not re-evaluated after restore — the restored states are trusted. A full re-evaluation is available as a manual developer action but not triggered automatically.</li>
+    <li>If the backup was created on a different app version with a different achievement catalog, the restore process checks for new achievements added since the backup date and evaluates them retroactively.</li>
+  </ul>
+
+  <h3>17.3 AI Coach Integration</h3>
+  <ul>
+    <li>The AI coach has read access to the user's achievement collection and streak states to provide contextual coaching. For example: if the user has STK-06 (Budget Discipline) at streak 5, the AI coach can acknowledge this when discussing budget performance.</li>
+    <li>The AI coach can suggest challenges (CHG-01 through CHG-10) when the setting "Challenge Suggestions" is enabled (§12.1). Suggestions are framed as offers, not commands: "Would a 30-Day Savings Sprint be useful right now?"</li>
+    <li>AI-generated personalized challenges (future) will use the same challenge schema and the same challenge lifecycle as catalog challenges (§9.3).</li>
+    <li>Achievement unlocks are never surfaced in the AI coach interface — the coach conversation is a separate context from the celebration flow.</li>
+  </ul>
+
+  <h3>17.4 Sync Engine Integration</h3>
+  <ul>
+    <li>GAM Engine tables are synced as part of the standard sync operation. Achievement state changes (unlocks, streak updates, challenge completions) are included in the sync payload.</li>
+    <li>Sync conflicts in GAM Engine data are resolved by the earliest-wins policy for achievement unlocks (the device that first achieved the unlock is canonical) and by history-merge policy for streak history (all period records from all devices are merged; the streak state is then re-derived from the merged history).</li>
+    <li>Behavior events that were queued while offline are evaluated when the app comes online, but the evaluation is based on the offline timestamp, not the sync timestamp — ensuring achievements are credited to the correct period.</li>
+  </ul>
+
+  <h3>17.5 Monitoring &amp; Analytics Integration (SPEC-PMO-001)</h3>
+  <ul>
+    <li>GAM Engine operations are instrumented with performance traces (§5.3 of SPEC-PMO-001). Key traced operations: behavior event evaluation, month-end evaluation pass, retroactive evaluation, certificate generation.</li>
+    <li>Anonymous business analytics (opt-in) include: achievement unlock count by type (no user ID, no achievement name — category only), challenge start and completion rates, gamification feature enable/disable rate. No specific achievement identity is reported.</li>
+    <li>GAM Engine health is one of the optional health indicator subsystems in the Health Dashboard (SPEC-PMO-001 §8). GAM Engine DEGRADED state = evaluation queue stuck for &gt;24 hours with processed events pending.</li>
+  </ul>
+
+  <h3>17.6 Notification System Integration</h3>
+  <ul>
+    <li>Gamification push notifications use the same notification infrastructure as budget alerts and reminders, governed by the same user notification settings.</li>
+    <li>Gamification notifications are a separate notification category — users can disable them independently of financial alert notifications.</li>
+    <li>The 1-per-day maximum for gamification notifications (§11.5) is enforced in the notification scheduler, not in the GAM Engine itself. The GAM Engine signals "a notable gamification event occurred" and the notification scheduler decides whether and when to surface it.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §18 EDGE CASES & BUSINESS RULES                               -->
+<!-- ============================================================ -->
+<section id="s18">
+  <h2>§18 — Edge Cases &amp; Business Rules</h2>
+
+  <h3>18.1 Edge Case: Deleted Financial Records</h3>
+  <p>Finance Bag uses soft deletes for financial records. A soft-deleted record is not included in calculations but is retained in the database. A hard delete (via data export + account deletion) permanently removes records.</p>
+  <ul>
+    <li><strong>Soft delete of a transaction that triggered BHV-G-01 (emergency fund contribution):</strong> The behavior event is considered retroactively invalid for the affected period. If the streak was maintained solely by that event, the period is reclassified as MISS. Streak counts are recalculated. If this causes an achievement unlock to be invalidated, the achievement state transitions to REVOKED silently.</li>
+    <li><strong>Soft delete of a budget that triggered BHV-D-01 (budget respected):</strong> Same policy — the month's BHV-D-01 credit is removed. Streak and achievement states recalculated.</li>
+    <li><strong>Hard delete (account deletion):</strong> All GAM Engine data is deleted along with all financial data. No achievement history survives account deletion.</li>
+    <li><strong>User notification of revocation:</strong> Achievement revocations are silent — no "Your achievement was removed" message. The achievement collection simply reflects the current state. This avoids the distressing experience of receiving a negative notification about a past achievement.</li>
+  </ul>
+
+  <h3>18.2 Edge Case: Archived Months</h3>
+  <ul>
+    <li>When a month is archived, its financial data is read-only. Behavior evaluations for archived months are finalized and locked — no re-evaluation occurs unless the data is un-archived and modified.</li>
+    <li>Streak history for archived months reflects the state at archive time. If the month was qualifying, it shows as HIT. If not, MISS. Archive does not alter streak history.</li>
+    <li>Achievement progress counts from archived months remain credited. Un-archiving a month and deleting records triggers a retroactive re-evaluation only for the affected month.</li>
+  </ul>
+
+  <h3>18.3 Edge Case: Goal Cancellation</h3>
+  <ul>
+    <li>If a user cancels a financial goal, any BHV-G-04 (goal contribution) events tied to that goal are retained in achievement progress history — contributions were made, regardless of the goal outcome.</li>
+    <li>If the goal is archived as CANCELLED (not COMPLETED), ACH-023 (Dream Achieved) does not fire for that goal. Only COMPLETED goals count toward ACH-023.</li>
+    <li>ACH-043 (All Goals Achieved) requires all goals in ACHIEVED or ARCHIVED:COMPLETED state. A cancelled goal does not satisfy this condition.</li>
+    <li>CHG-06 (Goal Completion Push) that targets a cancelled goal transitions to ABANDONED state automatically when the goal is cancelled.</li>
+  </ul>
+
+  <h3>18.4 Edge Case: Debt Restructuring</h3>
+  <ul>
+    <li>When a debt is restructured (balance changed, schedule changed, existing debt archived and replaced with a new debt record), the streak for STK-02 (Debt Payment) is evaluated against the new schedule from the restructuring date.</li>
+    <li>Past payment streak history is preserved as-is for periods before restructuring. The new schedule defines qualifying behavior going forward.</li>
+    <li>If restructuring results in no outstanding debt (debt forgiven or paid off in restructuring), BHV-G-07 fires and the debt-free check runs.</li>
+  </ul>
+
+  <h3>18.5 Edge Case: Duplicate Achievements</h3>
+  <ul>
+    <li>The evaluation engine includes a deduplication check before writing any UNLOCKED state: if gam_achievement_state already contains an UNLOCKED record for the same achievement_id + tier pair, the duplicate evaluation result is discarded.</li>
+    <li>This prevents race conditions where the same behavior event triggers two evaluation passes simultaneously (e.g., two sync operations completing at the same time).</li>
+    <li>The deduplication check is enforced at the database layer via a UNIQUE constraint on (achievement_id, tier), not only in application logic.</li>
+  </ul>
+
+  <h3>18.6 Edge Case: Long Inactivity &amp; Returning Users</h3>
+  <ul>
+    <li>A user returning after ≥30 days of inactivity: BHV-R-01 fires. The recovery motivation profile (PROF-RCV) activates. The welcome back message is shown on first session. No mention of absence duration or streak loss.</li>
+    <li>A user returning after 90+ days: BHV-R-01 fires + the "Phoenix" hidden achievement evaluates (ACH-071).</li>
+    <li>Streaks during inactivity: each month/week without a qualifying behavior during the inactive period is treated as MISS in the streak history. If consecutive misses exceed one, the streak resets. This is recorded in gam_streak_history but never surfaced to the returning user as a negative notification.</li>
+    <li>If gamification was enabled at departure and the user returns, the GAM Engine runs a catch-up evaluation for all periods during inactivity. Any achievements that would have been earned during inactivity (e.g., a long-term achievement based on account age, not behavior) are awarded in a silent batch on return.</li>
+  </ul>
+
+  <h3>18.7 Edge Case: Backup Restoration</h3>
+  <ul>
+    <li>Restoring from a backup resets all GAM Engine tables to the state at backup time. Any achievements unlocked between backup date and restore date are lost.</li>
+    <li>After restoration, the engine runs a forward evaluation pass from the backup date to the current date using the restored financial data. Achievements that should have been earned in the gap period are awarded retroactively in a silent batch.</li>
+    <li>If the restored backup is from a different app version, new achievements in the current catalog that postdate the backup are evaluated against all available historical data.</li>
+    <li>Certificate files (PNG/PDF) are not stored in the SQLite backup — they are regenerable on demand from the achievement record. No certificate data is lost in a restore; certificates can be regenerated from any UNLOCKED achievement.</li>
+  </ul>
+
+  <h3>18.8 Edge Case: Data Migration</h3>
+  <ul>
+    <li>When a user imports financial history from another app or from a previous version of Finance Bag, the GAM Engine evaluates all imported historical months in a background evaluation pass.</li>
+    <li>Achievements unlocked via imported data are delivered as a summary notification ("You've earned N achievements based on your imported history") rather than individual celebrations — the celebration moment is only meaningful for real-time events.</li>
+    <li>Streaks calculated from imported data use the same rules as live data. If the imported history shows continuous budgets for 14 months, STK-01 begins at 14.</li>
+    <li>The migration evaluation pass is the lowest priority background task (P4) and runs over multiple sessions if needed, to avoid impacting app performance during initial data import.</li>
+  </ul>
+
+  <h3>18.9 Business Rules — SPEC-GAM-001</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">BR-GAM-01 through BR-GAM-05</div>
+      <ul>
+        <li><strong>BR-GAM-01:</strong> No gamification event may fire in response to transaction volume (count of transactions entered). Only behavioral quality metrics (budgets respected, savings contributed, debts paid) may trigger recognition. This is structurally enforced by the behavior catalog (§2.3).</li>
+        <li><strong>BR-GAM-02:</strong> All achievement unlock conditions must be evaluable using only locally available financial data. No achievement requires a server round-trip to evaluate. Gamification must be fully offline-capable.</li>
+        <li><strong>BR-GAM-03:</strong> Achievement progress may never decrease while financial records are unchanged. If a data modification causes a decrease (e.g., record deletion), the decrease is applied silently with no negative notification to the user.</li>
+        <li><strong>BR-GAM-04:</strong> No financial amount, balance, or transaction value may appear in any motivational message, achievement description, certificate, or celebration animation. Messages reference behavior and progress, never specific values.</li>
+        <li><strong>BR-GAM-05:</strong> Streak grace periods are applied automatically, without user action or awareness in the moment. A grace period is not a "skip" that the user manages — it is an inherent feature of healthy streak design. Users see grace periods in their historical dot timeline, but no in-the-moment notification informs them that a grace is being applied.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">BR-GAM-06 through BR-GAM-10</div>
+      <ul>
+        <li><strong>BR-GAM-06:</strong> The gamification system must be fully opt-out-able. Disabling gamification must have zero impact on all financial tracking features, budgets, reports, FHS calculation, AI coach, backup/restore, or sync. Gamification is additive recognition, never a core dependency.</li>
+        <li><strong>BR-GAM-07:</strong> No challenge may be started automatically by the system. Challenges are always user-initiated. The AI coach may suggest a challenge in conversation (if "Challenge Suggestions" is enabled), but the user must explicitly tap "Start Challenge" in the Challenge Catalog — a coach suggestion cannot start a challenge.</li>
+        <li><strong>BR-GAM-08:</strong> A maximum of 3 challenges may be active simultaneously. This limit is enforced at the data layer (the "Start Challenge" action is rejected if 3 ACTIVE challenges already exist) and confirmed in the UI before the limit is reached ("You can run up to 3 challenges at once — you have 1 slot remaining").</li>
+        <li><strong>BR-GAM-09:</strong> No achievement may expire or become inaccessible after being unlocked. All earned achievements, titles, and certificates are permanently available in the user's collection for the lifetime of the account. A deprecated achievement is removed from the catalog (no new users can earn it) but remains visible to users who already earned it.</li>
+        <li><strong>BR-GAM-10:</strong> The motivational message system must have one code path per profile-message category, reviewed and approved by a behavioral health consultant before shipping to production. No message may be shipped that was not included in this review. Ad hoc message additions in code are prohibited.</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">BR-GAM-11 through BR-GAM-15</div>
+      <ul>
+        <li><strong>BR-GAM-11:</strong> The GAM Engine may not compare any user's financial data, achievement count, streak length, or milestone status to any other user's. No inter-user data access is permitted in the GAM Engine's read paths. This constraint is structural: the GAM Engine reads only from the current user's local SQLite database.</li>
+        <li><strong>BR-GAM-12:</strong> Recovery achievements (ACH-070, ACH-071) are held to the same quality standard as all other achievements. They are not consolation prizes — their motivational message must celebrate the act of returning with equal sincerity to any growth achievement's message.</li>
+        <li><strong>BR-GAM-13:</strong> When the gamification system is re-enabled after being disabled, the retroactive evaluation pass must complete silently (no ceremony for past achievements). Only achievements earned in real time (after re-enabling) generate in-app celebrations. This prevents an overwhelming flood of celebration popups on re-enable.</li>
+        <li><strong>BR-GAM-14:</strong> The evaluation engine must be idempotent: running the same evaluation pass twice on the same data must produce the same result and must not double-award any achievement or streak credit. This is enforced by the UNIQUE constraint (§18.5) and by checking existing state before writing new state.</li>
+        <li><strong>BR-GAM-15:</strong> No gamification feature may create a notification that implies urgency, pending loss, or a deadline. Push notifications for gamification events communicate what was earned (positive), never what is at risk (negative). All notification copy must pass the message guidelines review (§11.1) before publication.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Specification Completeness Checklist</div>
+      <ul>
+        <li>✓ Behavioral framework with 27 recognized behaviors across 6 classes (§2)</li>
+        <li>✓ 10 achievement types with schema, state machine, evaluation engine (§3)</li>
+        <li>✓ Full achievement catalog: 30+ achievements across planning/discipline/growth/long-term/hidden/educational/recovery (§4)</li>
+        <li>✓ 7 streak definitions with grace period rules, anti-patterns, milestone recognition (§5)</li>
+        <li>✓ 15 milestone definitions, 4 celebration levels, journey map (§6)</li>
+        <li>✓ 10 visualization components with accessibility notes (§7)</li>
+        <li>✓ 9 user profiles, tone adaptation, contextual trigger catalog (§8)</li>
+        <li>✓ 10 challenge definitions, lifecycle, restart rules, 3-challenge limit (§9)</li>
+        <li>✓ 7 reward types, assignment matrix, anti-reward rules, certificate spec (§10)</li>
+        <li>✓ Message guidelines, 10 message categories, progressive tier templates, notification rules (§11)</li>
+        <li>✓ 10-setting personalization panel, collection customization, full opt-out behavior (§12)</li>
+        <li>✓ 10 prohibited anti-patterns with rationale, active safety decisions, distress handling (§13)</li>
+        <li>✓ Screen reader, color independence, motion, RTL/localization requirements (§14)</li>
+        <li>✓ Performance targets, offline operation, sync, scalability, resource consumption (§15)</li>
+        <li>✓ 6 SQLite table schemas with all columns (§16)</li>
+        <li>✓ FHS, backup, AI coach, sync, monitoring, notification integration points (§17)</li>
+        <li>✓ 8 edge case categories + BR-GAM-01 through BR-GAM-15 (§18)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-gam-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-gam-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
