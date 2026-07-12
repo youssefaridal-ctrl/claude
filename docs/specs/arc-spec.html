@@ -1,0 +1,2028 @@
+<title>SPEC-ARC-001 — Final Software Architecture & Development Blueprint</title>
+<style>
+/* ── Token palette ─────────────────────────────────────────────── */
+:root {
+  --acc:     #1D4ED8;
+  --acc-dim: rgba(29,78,216,.6);
+  --acc-bg:  rgba(29,78,216,.08);
+  --bg:      #0F172A;
+  --surf:    #1E293B;
+  --surf2:   #334155;
+  --bd:      #334155;
+  --txt:     #F1F5F9;
+  --txt2:    #94A3B8;
+  --txt3:    #64748B;
+  --ok:      #059669;
+  --warn:    #D97706;
+  --danger:  #DC2626;
+  --cyan:    #0891B2;
+  --violet:  #7C3AED;
+  --green:   #059669;
+}
+@media (prefers-color-scheme: light) { :root {
+  --bg: #F8FAFC; --surf: #FFFFFF; --surf2: #F1F5F9; --bd: #E2E8F0;
+  --txt: #0F172A; --txt2: #475569; --txt3: #94A3B8;
+}}
+:root[data-theme="dark"] {
+  --bg: #0F172A; --surf: #1E293B; --surf2: #334155; --bd: #334155;
+  --txt: #F1F5F9; --txt2: #94A3B8; --txt3: #64748B;
+}
+:root[data-theme="light"] {
+  --bg: #F8FAFC; --surf: #FFFFFF; --surf2: #F1F5F9; --bd: #E2E8F0;
+  --txt: #0F172A; --txt2: #475569; --txt3: #94A3B8;
+}
+
+/* ── Reset & base ──────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--txt);
+  line-height: 1.65; display: flex; min-height: 100vh;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────────── */
+#sidebar {
+  position: fixed; top: 0; left: 0; width: 230px; height: 100vh;
+  background: var(--surf); border-right: 1px solid var(--bd);
+  overflow-y: auto; padding: 1.5rem 0; z-index: 100;
+  scrollbar-width: thin;
+}
+#sidebar-header {
+  padding: 0 1.25rem 1.25rem;
+  border-bottom: 1px solid var(--bd); margin-bottom: .75rem;
+}
+#sidebar-header .spec-id {
+  font-size: .68rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--acc); margin-bottom: .25rem;
+}
+#sidebar-header .spec-title {
+  font-size: .78rem; color: var(--txt2); line-height: 1.35;
+}
+#nav-list { list-style: none; }
+#nav-list a {
+  display: block; padding: .35rem 1.25rem;
+  font-size: .77rem; color: var(--txt2); text-decoration: none;
+  border-left: 2px solid transparent; transition: all .15s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#nav-list a:hover { color: var(--txt); background: var(--acc-bg); }
+#nav-list a.active {
+  color: var(--acc); border-left-color: var(--acc);
+  background: var(--acc-bg); font-weight: 600;
+}
+
+/* ── Main ──────────────────────────────────────────────────────── */
+main {
+  margin-left: 230px; flex: 1;
+  padding: 2.5rem clamp(1.5rem, 5vw, 3.5rem) 4rem;
+  max-width: 1000px;
+}
+#page-header { margin-bottom: 2.5rem; }
+.eyebrow {
+  font-size: .72rem; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--acc); margin-bottom: .5rem;
+}
+h1 {
+  font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 700;
+  line-height: 1.2; text-wrap: balance; margin-bottom: .75rem;
+}
+.meta-row {
+  display: flex; flex-wrap: wrap; gap: .5rem 1.5rem;
+  font-size: .78rem; color: var(--txt2);
+}
+.badge {
+  display: inline-flex; align-items: center; padding: .2rem .6rem;
+  border-radius: 999px; font-size: .7rem; font-weight: 600;
+  background: var(--acc-bg); color: var(--acc); border: 1px solid var(--acc-dim);
+}
+.theme-btn {
+  margin-left: auto; padding: .35rem .85rem;
+  border: 1px solid var(--bd); border-radius: 6px;
+  background: var(--surf); color: var(--txt2);
+  font-size: .75rem; cursor: pointer; transition: border-color .15s;
+}
+.theme-btn:hover { border-color: var(--acc); color: var(--acc); }
+
+/* ── Sections ──────────────────────────────────────────────────── */
+section { padding-top: 2.75rem; }
+section + section { border-top: 1px solid var(--bd); }
+h2 {
+  font-size: 1.2rem; font-weight: 700;
+  margin-bottom: 1.25rem; text-wrap: balance;
+  padding-bottom: .5rem; border-bottom: 2px solid var(--acc);
+  display: inline-block;
+}
+h3 {
+  font-size: .93rem; font-weight: 700; color: var(--txt);
+  margin: 1.5rem 0 .65rem; text-transform: uppercase;
+  letter-spacing: .05em;
+}
+p { color: var(--txt2); margin-bottom: .85rem; font-size: .88rem; }
+ul, ol { margin: .5rem 0 1rem 1.25rem; }
+li { color: var(--txt2); font-size: .86rem; margin-bottom: .3rem; }
+li strong { color: var(--txt); }
+code {
+  font-family: 'Cascadia Code','Fira Code','Courier New',monospace;
+  font-size: .8em; background: var(--surf2); color: var(--cyan);
+  padding: .1em .35em; border-radius: 3px;
+}
+
+/* ── Tables ────────────────────────────────────────────────────── */
+.tbl-wrap { overflow-x: auto; margin: 1rem 0; }
+table { width: 100%; border-collapse: collapse; font-size: .81rem; min-width: 500px; }
+th {
+  background: var(--acc-bg); color: var(--acc);
+  font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; font-size: .7rem;
+  padding: .6rem .75rem; text-align: left;
+  border-bottom: 1px solid var(--acc-dim);
+}
+td { padding: .55rem .75rem; color: var(--txt2); border-bottom: 1px solid var(--bd); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surf2); }
+td strong { color: var(--txt); }
+
+/* ── Cards ─────────────────────────────────────────────────────── */
+.card {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 10px; padding: 1.1rem 1.25rem; margin: .75rem 0;
+}
+.card-title {
+  font-size: .75rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--acc); margin-bottom: .65rem;
+}
+.grid-2 { display: grid; grid-template-columns: repeat(auto-fit,minmax(280px,1fr)); gap: .85rem; margin: .75rem 0; }
+.grid-3 { display: grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap: .85rem; margin: .75rem 0; }
+
+/* ── Layer diagram ─────────────────────────────────────────────── */
+.layer-stack { display: flex; flex-direction: column; gap: .3rem; margin: 1rem 0; }
+.layer {
+  border-radius: 8px; padding: .75rem 1.1rem;
+  display: flex; align-items: flex-start; gap: 1rem;
+  border: 1px solid var(--bd);
+}
+.layer-label {
+  font-size: .7rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .08em; min-width: 140px; color: var(--acc);
+}
+.layer-desc { font-size: .81rem; color: var(--txt2); }
+.l-presentation { background: rgba(29,78,216,.07); }
+.l-application  { background: rgba(8,145,178,.07); }
+.l-domain       { background: rgba(5,150,105,.07); }
+.l-data         { background: rgba(124,58,237,.07); }
+.l-infra        { background: rgba(217,119,6,.07); }
+.l-ai           { background: rgba(220,38,38,.06); }
+.l-cross        { background: rgba(100,116,139,.07); }
+
+/* ── Module map ─────────────────────────────────────────────────── */
+.module-card {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; padding: .85rem 1rem;
+  border-left: 3px solid var(--acc);
+}
+.module-id {
+  font-size: .66rem; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--txt3); margin-bottom: .15rem;
+}
+.module-name {
+  font-size: .88rem; font-weight: 700; color: var(--txt); margin-bottom: .25rem;
+}
+.module-desc { font-size: .8rem; color: var(--txt2); }
+
+/* ── Callout ───────────────────────────────────────────────────── */
+.callout {
+  border-left: 3px solid var(--acc); background: var(--acc-bg);
+  border-radius: 0 8px 8px 0; padding: .85rem 1rem; margin: 1rem 0;
+  font-size: .84rem; color: var(--txt2);
+}
+.callout strong { color: var(--acc); }
+.callout-warn { border-left-color: var(--warn); background: rgba(217,119,6,.07); }
+.callout-warn strong { color: var(--warn); }
+.callout-ok { border-left-color: var(--ok); background: rgba(5,150,105,.07); }
+.callout-ok strong { color: var(--ok); }
+
+/* ── ADR card ───────────────────────────────────────────────────── */
+.adr {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; padding: 1rem 1.1rem; margin: .6rem 0;
+}
+.adr-header {
+  display: flex; gap: .75rem; align-items: center; margin-bottom: .5rem;
+}
+.adr-id { font-size: .7rem; font-weight: 700; color: var(--txt3); text-transform: uppercase; letter-spacing: .08em; }
+.adr-status {
+  font-size: .66rem; font-weight: 700; padding: .15rem .5rem;
+  border-radius: 4px; text-transform: uppercase;
+}
+.status-accepted { background: rgba(5,150,105,.15); color: var(--ok); }
+.adr-title { font-size: .88rem; font-weight: 700; color: var(--txt); margin-bottom: .35rem; }
+.adr-body { font-size: .81rem; color: var(--txt2); }
+
+/* ── Risk ───────────────────────────────────────────────────────── */
+.risk { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: .85rem 1rem; margin: .6rem 0; }
+.risk-header { display: flex; gap: .6rem; align-items: center; margin-bottom: .35rem; }
+.risk-id { font-size: .68rem; font-weight: 700; color: var(--txt3); letter-spacing: .08em; text-transform: uppercase; }
+.risk-level {
+  font-size: .66rem; font-weight: 700; padding: .15rem .5rem;
+  border-radius: 4px; text-transform: uppercase;
+}
+.r-critical { background: rgba(220,38,38,.15); color: var(--danger); }
+.r-high { background: rgba(217,119,6,.15); color: var(--warn); }
+.r-medium { background: rgba(29,78,216,.12); color: var(--acc); }
+.risk-title { font-size: .86rem; font-weight: 700; color: var(--txt); margin-bottom: .3rem; }
+.risk-body { font-size: .8rem; color: var(--txt2); }
+
+/* ── Pill rows ──────────────────────────────────────────────────── */
+.pill-row { display: flex; flex-wrap: wrap; gap: .4rem; margin: .65rem 0; }
+.pill {
+  font-size: .72rem; font-weight: 600; padding: .25rem .65rem;
+  border-radius: 999px; background: var(--surf2); color: var(--txt2);
+  border: 1px solid var(--bd);
+}
+.pill-acc { background: var(--acc-bg); color: var(--acc); border-color: var(--acc-dim); }
+.pill-cyan { background: rgba(8,145,178,.1); color: var(--cyan); border-color: rgba(8,145,178,.3); }
+.pill-green { background: rgba(5,150,105,.1); color: var(--green); border-color: rgba(5,150,105,.3); }
+.pill-violet { background: rgba(124,58,237,.1); color: var(--violet); border-color: rgba(124,58,237,.3); }
+.pill-warn { background: rgba(217,119,6,.1); color: var(--warn); border-color: rgba(217,119,6,.3); }
+
+/* ── Event flow ─────────────────────────────────────────────────── */
+.event-chain {
+  display: flex; flex-wrap: wrap; align-items: center;
+  gap: .3rem; margin: .5rem 0;
+}
+.ev-node {
+  font-size: .72rem; font-weight: 600; padding: .25rem .6rem;
+  border-radius: 5px; background: var(--surf2); color: var(--txt2);
+  border: 1px solid var(--bd);
+}
+.ev-node-trigger { background: var(--acc-bg); color: var(--acc); border-color: var(--acc-dim); }
+.ev-arrow { color: var(--txt3); font-size: .8rem; }
+
+/* ── Risk level modifiers ───────────────────────────────────────── */
+.risk-high  { border-left: 3px solid var(--danger); }
+.risk-medium { border-left: 3px solid var(--warn); }
+.risk-low   { border-left: 3px solid var(--ok); }
+.risk-high  .risk-level { background: rgba(220,38,38,.15); color: var(--danger); }
+.risk-medium .risk-level { background: rgba(217,119,6,.15); color: var(--warn); }
+.risk-low   .risk-level { background: rgba(5,150,105,.15); color: var(--ok); }
+
+/* ── Callout colour variants ─────────────────────────────────────── */
+.callout-blue   { border-left-color: var(--acc); background: var(--acc-bg); }
+.callout-blue strong { color: var(--acc); }
+.callout-yellow { border-left-color: var(--warn); background: rgba(217,119,6,.07); }
+.callout-yellow strong { color: var(--warn); }
+
+/* ── Business rule block ────────────────────────────────────────── */
+.br-block {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; padding: .85rem 1rem; margin: .55rem 0;
+  display: flex; gap: .9rem; align-items: flex-start;
+}
+.br-id {
+  font-size: .68rem; font-weight: 700; color: var(--acc);
+  letter-spacing: .08em; text-transform: uppercase;
+  white-space: nowrap; padding-top: .05rem;
+}
+.br-body { font-size: .82rem; color: var(--txt2); line-height: 1.6; }
+
+/* ── Status cells ───────────────────────────────────────────────── */
+.status-ok   { color: var(--ok);   font-weight: 600; }
+.status-warn { color: var(--warn); font-weight: 600; }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  #sidebar { display: none; }
+  main { margin-left: 0; padding: 1.5rem 1rem 3rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+
+<header style="position:sticky;top:0;z-index:200;background:var(--bg);border-bottom:1px solid var(--bd);padding:.6rem clamp(1rem,4vw,2rem);display:flex;align-items:center;gap:1rem">
+  <span style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc)">Finance Bag</span>
+  <span style="color:var(--bd)">|</span>
+  <span style="font-size:.78rem;color:var(--txt2)">SPEC-ARC-001</span>
+  <button class="theme-btn" id="theme-btn" aria-label="Toggle theme">Light / Dark</button>
+</header>
+
+<nav id="sidebar" aria-label="Section navigation">
+  <div id="sidebar-header">
+    <div class="spec-id">SPEC-ARC-001</div>
+    <div class="spec-title">Final Software Architecture &amp; Development Blueprint</div>
+  </div>
+  <ul id="nav-list">
+    <li><a href="#s1">§1 Architectural Principles</a></li>
+    <li><a href="#s2">§2 System Overview</a></li>
+    <li><a href="#s3">§3 High-Level Architecture</a></li>
+    <li><a href="#s4">§4 Module Map</a></li>
+    <li><a href="#s5">§5 Domain Model</a></li>
+    <li><a href="#s6">§6 Data Flow</a></li>
+    <li><a href="#s7">§7 Event Flow</a></li>
+    <li><a href="#s8">§8 Dependency Management</a></li>
+    <li><a href="#s9">§9 Error Architecture</a></li>
+    <li><a href="#s10">§10 Configuration Management</a></li>
+    <li><a href="#s11">§11 Development Standards</a></li>
+    <li><a href="#s12">§12 Cross-Cutting Concerns</a></li>
+    <li><a href="#s13">§13 Scalability Strategy</a></li>
+    <li><a href="#s14">§14 Deployment Architecture</a></li>
+    <li><a href="#s15">§15 Risk Analysis</a></li>
+    <li><a href="#s16">§16 Architecture Governance</a></li>
+    <li><a href="#s17">§17 Final Consistency Validation</a></li>
+    <li><a href="#s18">§18 Technical Roadmap &amp; Business Rules</a></li>
+  </ul>
+</nav>
+
+<main>
+  <div id="page-header">
+    <div class="eyebrow">Finance Bag — Master Specification Series</div>
+    <h1>Final Software Architecture &amp; Development Blueprint</h1>
+    <div class="meta-row">
+      <span><strong>Document ID:</strong> SPEC-ARC-001</span>
+      <span><strong>Version:</strong> 1.0</span>
+      <span><strong>Status:</strong> <span class="badge">Approved — Master Reference</span></span>
+      <span><strong>Date:</strong> 2026-07-12</span>
+    </div>
+    <div class="meta-row" style="margin-top:.5rem">
+      <span><strong>Consolidates:</strong> SPEC-SET-001, SPEC-SEC-001, SPEC-OFF-001, SPEC-AI-001, SPEC-DSN-001, SPEC-QA-001, SPEC-PMO-001, SPEC-GAM-001 (Parts 18–24)</span>
+    </div>
+    <div class="callout" style="margin-top:1.25rem">
+      <strong>Authority:</strong> This document supersedes any conflicting architectural guidance in any prior specification. Where this document and a domain-specific spec disagree on architectural structure, this document is authoritative. Where this document and a domain spec disagree on domain rules or feature behavior, the domain spec is authoritative.
+    </div>
+  </div>
+
+<!-- ============================================================ -->
+<!-- §1 ARCHITECTURAL PRINCIPLES                                   -->
+<!-- ============================================================ -->
+<section id="s1">
+  <h2>§1 — Architectural Principles</h2>
+  <p>Every significant architectural decision in Finance Bag flows from a small set of first-order principles. These principles are not aspirational statements — they are operative constraints that govern every design choice.</p>
+
+  <h3>1.1 Core Principles</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Principle</th><th>Operative Definition</th><th>Architectural Impact</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Offline-First</strong></td><td>The application delivers 100% of its core functionality without a network connection. Connectivity enhances, never enables.</td><td>All data stored locally in SQLite. Sync is background, additive. No screen requires a network call to render. Error states for network failure never block the user.</td></tr>
+      <tr><td><strong>Privacy by Design</strong></td><td>Sensitive financial data never exits the device unencrypted. Telemetry is structurally incapable of carrying financial values. Consent is granular and revocable.</td><td>AES-256-CBC encryption at rest (SQLCipher). Financial values excluded from monitoring API surface. Separate encrypted log DB. No financial content in push notification payloads.</td></tr>
+      <tr><td><strong>Security by Design</strong></td><td>Security is a structural property of the architecture, not a layer added afterward. Every boundary has a defined trust model.</td><td>Biometric + PIN auth before any DB access. Keychain-stored encryption keys. No plaintext financial data in memory beyond the active session scope. Certificate pinning for sync API. Auto-lock on background.</td></tr>
+      <tr><td><strong>Data Integrity Above All</strong></td><td>Incorrect financial data is worse than no data. The system prefers failing safely over producing wrong results. Zero tolerance for duplicate financial records.</td><td>All money as integer centimes (no floating-point arithmetic). Transactional writes with rollback. PRAGMA foreign_key enforcement. FHS invariant checks before every calculation. Sync conflict types A–G with deterministic resolution rules.</td></tr>
+      <tr><td><strong>Clean Architecture</strong></td><td>Business logic is independent of frameworks, databases, and UI. Domain rules can be reasoned about, tested, and modified without touching infrastructure code.</td><td>Strict layer boundaries: Domain has zero dependencies on React Native, SQLite, or Expo. Application layer orchestrates; Domain layer decides. Infrastructure adapters implement domain interfaces.</td></tr>
+      <tr><td><strong>Separation of Concerns</strong></td><td>Each module has one reason to change. The sync engine changes when sync protocol changes; the budget domain changes when budget rules change; they never change for each other's reasons.</td><td>22 distinct modules (§4). Each owns its data, its business logic, and its public interface. No module directly reads another module's database tables.</td></tr>
+      <tr><td><strong>Dependency Inversion</strong></td><td>High-level policy (domain) never depends on low-level mechanism (SQLite, network, native APIs). Both depend on abstractions defined by the domain.</td><td>Repository interfaces defined in Domain; implemented in Data. AI provider interface in Domain; Claude adapter in Infrastructure. Sync interface in Domain; CRDT implementation in Infrastructure.</td></tr>
+      <tr><td><strong>Testability</strong></td><td>Every business rule must be exercisable in a unit test without a device, a database, or a network. Test coverage is a first-class design constraint.</td><td>Pure functions for all domain calculations. Repository interfaces allow mock injection. No business logic in React components (only UI state). 90% unit coverage target on domain layer (SPEC-QA-001).</td></tr>
+      <tr><td><strong>Explicit Over Implicit</strong></td><td>System behavior is determined by explicit configuration and code paths, never by convention magic, framework defaults, or environment inference.</td><td>TypeScript strict mode with <code>noUncheckedIndexedAccess</code>, <code>exactOptionalPropertyTypes</code>. No implicit any. No optional chaining as error suppression. All nullable values handled explicitly.</td></tr>
+      <tr><td><strong>Reversibility</strong></td><td>Architecture decisions that are hard to reverse require proportionally more justification. Prefer architectures that keep future options open over those that optimize for one predicted future.</td><td>ULID primary keys (globally unique; no auto-increment coupling). Soft deletes only. Additive schema migrations. Feature flags for unreleased features. Layer interfaces allow swapping implementations.</td></tr>
+      <tr><td><strong>Minimal Footprint</strong></td><td>The application occupies the smallest reasonable amount of device resources (memory, CPU, storage, battery) at all times. Resource use is monitored and governed.</td><td>Hermes JIT engine. Background task APIs (not continuous processes). 3-tier cache with bounded limits. Main thread prohibition list (SPEC-PMO-001 §3). WAL mode + mmap for DB efficiency.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1.2 Principle Hierarchy</h3>
+  <p>When principles conflict, the following priority order governs. A lower-priority principle may never override a higher-priority one without an explicit ADR justifying the exception:</p>
+  <ol>
+    <li>Data Integrity (no financial data loss or corruption is acceptable under any circumstance)</li>
+    <li>Security &amp; Privacy (encrypted, consented, never exposed)</li>
+    <li>Offline-First (full function without network)</li>
+    <li>Clean Architecture (domain independence)</li>
+    <li>Testability</li>
+    <li>All other principles (Separation of Concerns, Reversibility, Minimal Footprint, Explicit Over Implicit)</li>
+  </ol>
+</section>
+
+<!-- ============================================================ -->
+<!-- §2 SYSTEM OVERVIEW                                            -->
+<!-- ============================================================ -->
+<section id="s2">
+  <h2>§2 — System Overview</h2>
+
+  <h3>2.1 Application Identity</h3>
+  <div class="card">
+    <div class="card-title">Technology Stack (Frozen for v1)</div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>Concern</th><th>Technology</th><th>Version</th><th>Rationale</th></tr></thead>
+      <tbody>
+        <tr><td>Platform</td><td>React Native + Expo SDK</td><td>RN 0.76 / SDK 52</td><td>Cross-platform (iOS + Android), OTA update capability, mature ecosystem</td></tr>
+        <tr><td>Language</td><td>TypeScript</td><td>5.3+, strict mode</td><td>Compile-time safety for financial logic; makes domain invariants expressible as types</td></tr>
+        <tr><td>Navigation</td><td>Expo Router</td><td>v4</td><td>File-system routing; deep link support; type-safe route params</td></tr>
+        <tr><td>State Management</td><td>Zustand</td><td>v5</td><td>Minimal boilerplate; slices map cleanly to bounded contexts; no provider hell</td></tr>
+        <tr><td>Local Database</td><td>expo-sqlite + drizzle-orm</td><td>expo-sqlite latest, drizzle latest</td><td>SQLite is battle-tested for local-first apps; drizzle provides type-safe query builder without heavy ORM overhead</td></tr>
+        <tr><td>DB Encryption</td><td>SQLCipher</td><td>AES-256-CBC</td><td>Industry standard for SQLite encryption; transparent to drizzle query layer</td></tr>
+        <tr><td>JS Engine</td><td>Hermes</td><td>Expo SDK 52 default</td><td>Ahead-of-time bytecode compilation; faster startup; lower memory than JSC/V8 on mobile</td></tr>
+        <tr><td>Primary Keys</td><td>ULID</td><td>—</td><td>Lexicographically sortable; globally unique without coordination; sync-safe</td></tr>
+        <tr><td>Money Representation</td><td>Integer centimes (int64)</td><td>—</td><td>Eliminates floating-point rounding errors entirely; mandated by data integrity principle</td></tr>
+        <tr><td>AI Provider</td><td>Claude (Anthropic API)</td><td>claude-sonnet-5</td><td>Highest reasoning capability for financial coaching; provider-agnostic interface</td></tr>
+        <tr><td>Testing</td><td>Jest + @testing-library/react-native + Detox</td><td>Latest stable</td><td>Unit + component + E2E pyramid as defined in SPEC-QA-001</td></tr>
+        <tr><td>OTA Updates</td><td>Expo Updates</td><td>SDK 52</td><td>Staged rollout capability; rollback support; no app store approval for JS changes</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h3>2.2 System Boundaries</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">In Scope (v1)</div>
+      <ul>
+        <li>Local financial data management (transactions, budgets, debts, goals, emergency fund)</li>
+        <li>Financial Health Score calculation engine</li>
+        <li>AI financial coaching (API-connected)</li>
+        <li>Cloud synchronization (user's own account, multi-device)</li>
+        <li>Encrypted local backup and restore</li>
+        <li>Report generation (monthly, annual, category analysis)</li>
+        <li>Gamification and achievement engine</li>
+        <li>Push notifications (budget alerts, reminders)</li>
+        <li>Localization: fr / en / ar (including RTL)</li>
+        <li>Biometric + PIN authentication</li>
+        <li>Device-local performance monitoring</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Out of Scope (v1) — Architecture-Ready</div>
+      <ul>
+        <li>Bank/PSD2 integrations (adapter interface defined)</li>
+        <li>Investment and tax modules (bounded context reserved)</li>
+        <li>Family / household accounts (multi-user data model designed for)</li>
+        <li>Business accounts (entity type extension point defined)</li>
+        <li>Desktop / web (React Native Web / Electron path clear)</li>
+        <li>Wearable integrations (health kit data model compatible)</li>
+        <li>Cloud observability / remote diagnostics (signal schemas cloud-ready)</li>
+        <li>AI personalized challenge generation (AI Coach interface extensible)</li>
+        <li>Widget support (data access layer widget-safe)</li>
+        <li>Voice assistant integrations (domain service layer callable)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>2.3 Communication Flow Summary</h3>
+  <p>All communication in Finance Bag flows in one direction per concern: UI triggers Application services → Application services coordinate Domain logic → Domain logic reads/writes through Repository interfaces → Infrastructure implements those interfaces against SQLite or the network.</p>
+  <div class="event-chain">
+    <span class="ev-node">User Action (UI)</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node">Zustand Store / Screen Handler</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node">Application Service</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node">Domain Service + Entities</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node">Repository Interface</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node">SQLite (drizzle)</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node">Domain Events</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node">Side-effect handlers (sync, monitoring, GAM Engine)</span>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §3 HIGH-LEVEL ARCHITECTURE                                    -->
+<!-- ============================================================ -->
+<section id="s3">
+  <h2>§3 — High-Level Architecture</h2>
+
+  <h3>3.1 Layer Stack</h3>
+  <div class="layer-stack">
+    <div class="layer l-presentation">
+      <div class="layer-label">Presentation Layer</div>
+      <div class="layer-desc">React Native screens and components. Expo Router navigation. Zustand store subscriptions. No business logic. No direct DB access. Reads from store; dispatches actions. SPEC-DSN-001 governs all visual and interaction rules.</div>
+    </div>
+    <div class="layer l-application">
+      <div class="layer-label">Application Layer</div>
+      <div class="layer-desc">Use-case orchestrators. Coordinates between domain services and infrastructure. Manages transactions across repository boundaries. Emits domain events after successful operations. One use-case class per user action (CreateTransaction, CloseBudgetMonth, etc.).</div>
+    </div>
+    <div class="layer l-domain">
+      <div class="layer-label">Domain Layer</div>
+      <div class="layer-desc">Pure TypeScript business logic. Entities, value objects, aggregates, domain services, repository interfaces. No imports from React Native, Expo, SQLite, or any infrastructure package. The Financial Hierarchy System (FHS) and all 6 invariants live here. FHS, budget calculation, debt amortization, goal projection, emergency fund coverage — all pure functions.</div>
+    </div>
+    <div class="layer l-data">
+      <div class="layer-label">Data Layer</div>
+      <div class="layer-desc">Repository implementations using drizzle-orm + SQLCipher SQLite. Schema definitions (drizzle tables). Migration runner. Materialized view refresh. Query builders. Prepared statement management. The data layer implements domain interfaces — it imports from Domain, never the reverse.</div>
+    </div>
+    <div class="layer l-infra">
+      <div class="layer-label">Infrastructure Layer</div>
+      <div class="layer-desc">Platform adapters: Expo SecureStore (key management), Expo Notifications, Expo FileSystem, Expo Updates, NetInfo, expo-local-authentication. Sync engine CRDT implementation. AI provider adapter (Anthropic Claude). Monitoring signal emitters. Backup/restore file I/O. These are all replaceable without touching Domain or Application.</div>
+    </div>
+    <div class="layer l-ai">
+      <div class="layer-label">AI Layer</div>
+      <div class="layer-desc">Standalone bounded layer. AI Provider interface (Domain-defined). Prompt composition. Context assembly (financial summary — no raw values). Response parsing and validation. Rate limiting and retry logic. Cache management. On-device model fallback interface (future). See SPEC-AI-001.</div>
+    </div>
+    <div class="layer l-cross">
+      <div class="layer-label">Cross-Cutting Layer</div>
+      <div class="layer-desc">Logging (structured, 6 levels), caching (3-tier), localization (fr/en/ar + RTL), validation (Zod schemas), configuration (feature flags, env), monitoring (SPEC-PMO-001), security services, error boundary coordination, accessibility utilities. Consumed by all other layers; depends on nothing above Infrastructure.</div>
+    </div>
+  </div>
+
+  <h3>3.2 Layer Dependency Rules</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Layer</th><th>May Import From</th><th>May NOT Import From</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Presentation</strong></td><td>Application, Cross-Cutting</td><td>Domain (directly), Data, Infrastructure, AI</td></tr>
+      <tr><td><strong>Application</strong></td><td>Domain, Cross-Cutting</td><td>Presentation, Data (directly), Infrastructure (directly)</td></tr>
+      <tr><td><strong>Domain</strong></td><td>Cross-Cutting (types only, no I/O)</td><td>Presentation, Application, Data, Infrastructure, AI, React Native, Expo, SQLite</td></tr>
+      <tr><td><strong>Data</strong></td><td>Domain (interfaces), Cross-Cutting</td><td>Presentation, Application, Infrastructure (except DB driver), AI</td></tr>
+      <tr><td><strong>Infrastructure</strong></td><td>Domain (interfaces), Cross-Cutting</td><td>Presentation, Application, Data</td></tr>
+      <tr><td><strong>AI</strong></td><td>Domain (interfaces), Cross-Cutting</td><td>Presentation, Application, Data, Infrastructure</td></tr>
+      <tr><td><strong>Cross-Cutting</strong></td><td>Nothing (leaf layer)</td><td>All other layers</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout">
+    <strong>Enforcement:</strong> ESLint rule <code>import/no-restricted-paths</code> enforces these boundaries at build time. A CI step validates that the dependency graph has no cycles and no upward dependencies. Violations block merge.
+  </div>
+
+  <h3>3.3 Supplemental Subsystem Layers</h3>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title">Synchronization Layer</div>
+      <p>Offline-first CRDT sync engine. Queue management, conflict resolution (types A–G), retry with exponential backoff, connectivity state machine. Lives in Infrastructure; exposes a domain-level SyncRepository interface. SPEC-OFF-001.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Security Layer</div>
+      <p>Authentication (biometric + PIN), session management, encryption key lifecycle, auto-lock, export encryption, certificate pinning. Spans Infrastructure and Cross-Cutting. Every DB operation requires an active authenticated session. SPEC-SEC-001.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Notification Layer</div>
+      <p>Budget alert generation, scheduled reminders, gamification notifications, achievement alerts. Uses Expo Notifications (APNs/FCM). Governed by user consent and priority rules. Bounded at 1 gamification notification per day (SPEC-GAM-001 §11.5).</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Analytics Layer</div>
+      <p>Anonymous, opt-in business metrics. 18 event types. No financial values. Structurally separated from technical monitoring. Batched transmission when online. SPEC-PMO-001 §9.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Gamification Layer</div>
+      <p>GAM Engine: behavior event detection, achievement evaluation, streak tracking, milestone engine, challenge framework. Reads financial domain events; writes only to gam_* tables. Full opt-out available. SPEC-GAM-001.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">Monitoring Layer</div>
+      <p>4 signal types: metrics, logs, traces, health indicators. Device-local encrypted log DB. Financial values structurally excluded. Developer diagnostic tools. SPEC-PMO-001.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §4 MODULE MAP                                                 -->
+<!-- ============================================================ -->
+<section id="s4">
+  <h2>§4 — Module Map</h2>
+  <p>Finance Bag is organized into 22 modules. Each module owns its domain entities, its application services, its repository interface, and its UI screens. Modules communicate only through domain events and well-defined public interfaces — never through direct cross-module table reads.</p>
+
+  <h3>4.1 Core Financial Modules</h3>
+  <div class="grid-2">
+    <div class="module-card" style="border-left-color: var(--green)">
+      <div class="module-id">MOD-01</div>
+      <div class="module-name">Authentication &amp; Session</div>
+      <div class="module-desc">Biometric + PIN auth, session tokens, auto-lock timer, failed attempt tracking, export PIN management. Gate for all other module access. <strong>Events emitted:</strong> SESSION_STARTED, SESSION_LOCKED, SESSION_EXPIRED. <strong>Dependencies:</strong> None (bootstraps before all others).</div>
+    </div>
+    <div class="module-card" style="border-left-color: var(--green)">
+      <div class="module-id">MOD-02</div>
+      <div class="module-name">Financial Hierarchy System (FHS)</div>
+      <div class="module-desc">Core domain module. Defines the 5-level entity tree (Account → Period → Category → SubCategory → Transaction). Enforces 6 invariants. Owns entity definitions used by all financial modules. <strong>Events emitted:</strong> FHS_INVARIANT_CHECKED, FHS_VIOLATION_DETECTED. <strong>Dependencies:</strong> None (used by all financial modules).</div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-03</div>
+      <div class="module-name">Transaction Management</div>
+      <div class="module-desc">CRUD for income, expense, and transfer transactions. Centimes validation, category assignment, date entry, recurring transaction scheduling. <strong>Events emitted:</strong> TRANSACTION_CREATED, TRANSACTION_UPDATED, TRANSACTION_DELETED. <strong>Reads from:</strong> MOD-02 (FHS), MOD-06 (budget category validation).</div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-04</div>
+      <div class="module-name">Salary &amp; Income</div>
+      <div class="module-desc">Salary entry, income tracking, monthly income baseline, variable income support. <strong>Events emitted:</strong> SALARY_ENTERED, INCOME_UPDATED. <strong>Consumed by:</strong> MOD-06 (budget baseline), MOD-10 (FHS calculation), MOD-21 (GAM behavior BHV-P-04).</div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-05</div>
+      <div class="module-name">Budget Engine</div>
+      <div class="module-desc">Monthly budget creation, category allocation, spending vs. budget tracking, budget rollover rules, month closing. <strong>Events emitted:</strong> BUDGET_CREATED, BUDGET_UPDATED, MONTH_CLOSED, BUDGET_LIMIT_APPROACHING, BUDGET_LIMIT_EXCEEDED. <strong>Reads from:</strong> MOD-03, MOD-04. <strong>Consumed by:</strong> MOD-10, MOD-12, MOD-21.</div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-06</div>
+      <div class="module-name">Category &amp; SubCategory</div>
+      <div class="module-desc">Category hierarchy management, custom categories, system categories, icon and color assignment, category archiving. <strong>Events emitted:</strong> CATEGORY_CREATED, CATEGORY_ARCHIVED. <strong>Consumed by:</strong> All financial modules (category foreign keys).</div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-07</div>
+      <div class="module-name">Debt Management</div>
+      <div class="module-desc">Debt account creation, payment tracking, balance calculation, amortization schedule, debt payoff projection. <strong>Events emitted:</strong> DEBT_PAYMENT_RECORDED, DEBT_BALANCE_UPDATED, DEBT_FULLY_REPAID. <strong>Consumed by:</strong> MOD-10, MOD-12, MOD-21 (BHV-D-02, BHV-G-07).</div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-08</div>
+      <div class="module-name">Emergency Fund</div>
+      <div class="module-desc">Emergency fund balance tracking, coverage calculation (months of expenses), contribution recording, threshold alerts (1/3/6 months). <strong>Events emitted:</strong> EMERGENCY_CONTRIBUTION_RECORDED, EMERGENCY_FUND_MILESTONE_REACHED. <strong>Consumed by:</strong> MOD-10, MOD-21 (BHV-G-01, BHV-G-02).</div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-09</div>
+      <div class="module-name">Financial Goals</div>
+      <div class="module-desc">Goal creation (name, target amount, target date), goal contribution, goal progress tracking, goal completion, goal cancellation, goal dependencies (goal requires other goal as prerequisite). <strong>Events emitted:</strong> GOAL_CREATED, GOAL_CONTRIBUTION_MADE, GOAL_ACHIEVED, GOAL_CANCELLED. <strong>Consumed by:</strong> MOD-10, MOD-21.</div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-10</div>
+      <div class="module-name">Financial Health Score (FHS Calc)</div>
+      <div class="module-desc">FHS calculation engine consuming inputs from MOD-04–09. Weighted scoring across 6 dimensions. Monthly recalculation. Historical FHS storage. FHS trend analysis. <strong>Events emitted:</strong> FHS_RECALCULATED, FHS_MILESTONE_REACHED, FHS_IMPROVED. <strong>Consumed by:</strong> MOD-12 (dashboard), MOD-17 (AI), MOD-21 (GAM).</div>
+    </div>
+  </div>
+
+  <h3>4.2 Presentation &amp; Analysis Modules</h3>
+  <div class="grid-2">
+    <div class="module-card">
+      <div class="module-id">MOD-11</div>
+      <div class="module-name">Archive Engine</div>
+      <div class="module-desc">Month archiving, archive browsing, archive restoration, archive deletion. Immutable archive constraint enforcement. <strong>Events emitted:</strong> MONTH_ARCHIVED, ARCHIVE_RESTORED. <strong>Reads:</strong> All financial modules for month data. Archive tables are read-only after creation.</div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-12</div>
+      <div class="module-name">Dashboard</div>
+      <div class="module-desc">Aggregated summary view. Reads from Zustand store (denormalized from MOD-03–10). Never queries DB directly in render. Dashboard refresh triggered by domain events. Materialized view pattern for performance. <strong>No events emitted.</strong> Pure read module.</div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-13</div>
+      <div class="module-name">Reports &amp; Analytics</div>
+      <div class="module-desc">Monthly report, annual report, category analysis, savings trend, debt reduction trend, net worth trend. All reports generated in background tasks. Paginated dataset processing. <strong>Events emitted:</strong> REPORT_GENERATED. <strong>Reads:</strong> All financial modules (read-only).</div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-14</div>
+      <div class="module-name">Search</div>
+      <div class="module-desc">Full-text search across transactions (description, category, amount range, date range). SQLite FTS5. Search history (last 20 queries). No financial data in search index metadata. <strong>No events emitted.</strong></div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-15</div>
+      <div class="module-name">Export</div>
+      <div class="module-desc">CSV and PDF export generation, export encryption (optional), export file management. Background generation. Progress observable. <strong>Events emitted:</strong> EXPORT_COMPLETED, EXPORT_FAILED. <strong>Reads:</strong> All financial modules.</div>
+    </div>
+  </div>
+
+  <h3>4.3 Infrastructure &amp; Platform Modules</h3>
+  <div class="grid-2">
+    <div class="module-card" style="border-left-color:var(--cyan)">
+      <div class="module-id">MOD-16</div>
+      <div class="module-name">Synchronization Engine</div>
+      <div class="module-desc">CRDT-based offline-first sync. Operation queue management, conflict resolution (7 types A–G), connectivity state machine (ONLINE/OFFLINE/DEGRADED), exponential backoff retry, sync cycle metrics. <strong>Events emitted:</strong> SYNC_CYCLE_COMPLETED, SYNC_CONFLICT_RESOLVED, SYNC_ERROR. <strong>SPEC-OFF-001.</strong></div>
+    </div>
+    <div class="module-card" style="border-left-color:var(--cyan)">
+      <div class="module-id">MOD-17</div>
+      <div class="module-name">AI Coach Platform</div>
+      <div class="module-desc">Conversational AI coaching. Prompt composition (financial context without raw values), Claude API adapter, response streaming, conversation history, coaching session management, rate limiting, fallback responses. <strong>Events emitted:</strong> AI_COACH_CONSULTED, AI_COACH_ERROR. <strong>SPEC-AI-001.</strong></div>
+    </div>
+    <div class="module-card" style="border-left-color:var(--cyan)">
+      <div class="module-id">MOD-18</div>
+      <div class="module-name">Backup &amp; Restore</div>
+      <div class="module-desc">Encrypted backup creation (AES-256-CBC, export PIN), backup scheduling, backup verification, restore from backup, cloud backup storage (Expo FileSystem + cloud adapter). <strong>Events emitted:</strong> BACKUP_CREATED, BACKUP_RESTORED, BACKUP_FAILED. <strong>SPEC-SEC-001.</strong></div>
+    </div>
+    <div class="module-card" style="border-left-color:var(--cyan)">
+      <div class="module-id">MOD-19</div>
+      <div class="module-name">Notifications</div>
+      <div class="module-desc">Budget alert generation, scheduled reminders, achievement notifications, permission management, notification preferences, notification history. Expo Notifications / APNs / FCM. <strong>SPEC-PMO-001 §11.</strong></div>
+    </div>
+    <div class="module-card" style="border-left-color:var(--violet)">
+      <div class="module-id">MOD-20</div>
+      <div class="module-name">Monitoring &amp; Diagnostics</div>
+      <div class="module-desc">4-signal observability (metrics, logs, traces, health indicators). Encrypted log DB. Performance profiler. DB inspector. Sync diagnostics. Diagnostic bundle export. Health dashboard. Alert engine (26 alerts ALT-001–026). <strong>SPEC-PMO-001.</strong></div>
+    </div>
+    <div class="module-card" style="border-left-color:var(--violet)">
+      <div class="module-id">MOD-21</div>
+      <div class="module-name">Gamification Engine</div>
+      <div class="module-desc">Behavior event detection, achievement evaluation (30+ achievements), streak tracking (7 streaks), milestone engine (15 milestones), challenge framework (10 challenges), reward assignment. Fully opt-out-able. <strong>SPEC-GAM-001.</strong></div>
+    </div>
+    <div class="module-card">
+      <div class="module-id">MOD-22</div>
+      <div class="module-name">Settings &amp; Configuration</div>
+      <div class="module-desc">User preferences, localization settings, security settings, notification preferences, gamification settings, privacy settings, theme selection, currency settings, feature flags. Settings stored in SQLite under namespaced keys. <strong>SPEC-SET-001.</strong></div>
+    </div>
+  </div>
+
+  <h3>4.4 Module Communication Matrix</h3>
+  <div class="callout">
+    <strong>Rule:</strong> Modules never import each other's internal code. Inter-module communication is exclusively through (1) domain events published to the application-layer event bus, or (2) read-only public service interfaces exposed by the owning module. No module reads another module's SQLite tables directly.
+  </div>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>From Module</th><th>Communicates To</th><th>Via</th><th>Event / Interface</th></tr></thead>
+    <tbody>
+      <tr><td>MOD-03 (Transaction)</td><td>MOD-05 (Budget), MOD-10 (FHS), MOD-21 (GAM), MOD-20 (Monitoring)</td><td>Domain event</td><td>TRANSACTION_CREATED / UPDATED / DELETED</td></tr>
+      <tr><td>MOD-05 (Budget)</td><td>MOD-10 (FHS), MOD-19 (Notifications), MOD-21 (GAM), MOD-12 (Dashboard)</td><td>Domain event</td><td>MONTH_CLOSED, BUDGET_LIMIT_EXCEEDED</td></tr>
+      <tr><td>MOD-07 (Debt)</td><td>MOD-10 (FHS), MOD-21 (GAM), MOD-12 (Dashboard)</td><td>Domain event</td><td>DEBT_PAYMENT_RECORDED, DEBT_FULLY_REPAID</td></tr>
+      <tr><td>MOD-08 (Emergency Fund)</td><td>MOD-10 (FHS), MOD-19 (Notifications), MOD-21 (GAM)</td><td>Domain event</td><td>EMERGENCY_CONTRIBUTION_RECORDED, MILESTONE_REACHED</td></tr>
+      <tr><td>MOD-09 (Goals)</td><td>MOD-10 (FHS), MOD-21 (GAM), MOD-12 (Dashboard)</td><td>Domain event</td><td>GOAL_ACHIEVED, GOAL_CONTRIBUTION_MADE</td></tr>
+      <tr><td>MOD-10 (FHS)</td><td>MOD-12 (Dashboard), MOD-17 (AI), MOD-19 (Notifications), MOD-21 (GAM)</td><td>Domain event</td><td>FHS_RECALCULATED, FHS_MILESTONE_REACHED</td></tr>
+      <tr><td>MOD-16 (Sync)</td><td>MOD-03–10 (financial data sync), MOD-20 (Monitoring)</td><td>Repository write + domain event</td><td>SYNC_CYCLE_COMPLETED — triggers re-evaluation of all affected domain aggregates</td></tr>
+      <tr><td>MOD-21 (GAM)</td><td>MOD-19 (Notifications), MOD-12 (Dashboard badge)</td><td>Domain event</td><td>ACHIEVEMENT_UNLOCKED, STREAK_MILESTONE_REACHED</td></tr>
+      <tr><td>MOD-01 (Auth)</td><td>All modules (gate)</td><td>Session context injection</td><td>SESSION_STARTED required before any repository operation is permitted</td></tr>
+      <tr><td>MOD-18 (Backup)</td><td>MOD-16 (Sync — pause during backup), MOD-20 (Monitoring)</td><td>Coordination interface</td><td>BACKUP_CREATED triggers sync resume; BACKUP_STARTED pauses sync</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §5 DOMAIN MODEL                                               -->
+<!-- ============================================================ -->
+<section id="s5">
+  <h2>§5 — Domain Model</h2>
+
+  <h3>5.1 Bounded Contexts</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Context</th><th>Core Entities</th><th>Owns</th><th>Anti-Corruption Layer</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Financial Tracking Context</strong></td><td>Transaction, Category, SubCategory, Period, Account</td><td>All money movement; the FHS hierarchy</td><td>Sync adapter translates wire format → domain entities</td></tr>
+      <tr><td><strong>Budget Context</strong></td><td>BudgetPlan, BudgetCategory, MonthSummary</td><td>Planned vs. actual; month lifecycle</td><td>Reads Transaction via public service interface only</td></tr>
+      <tr><td><strong>Debt Context</strong></td><td>DebtAccount, DebtPayment, AmortizationSchedule</td><td>Debt balance lifecycle, payment schedule</td><td>Reads Transaction via public service interface only</td></tr>
+      <tr><td><strong>Savings &amp; Goals Context</strong></td><td>EmergencyFund, FinancialGoal, GoalContribution, GoalDependency</td><td>Goal lifecycle, coverage calculation</td><td>Reads Transaction via public service interface only</td></tr>
+      <tr><td><strong>Health Score Context</strong></td><td>FinancialHealthScore, FHSHistory, FHSComponent</td><td>FHS calculation, trend analysis</td><td>Reads aggregated outputs from all other financial contexts</td></tr>
+      <tr><td><strong>Intelligence Context</strong></td><td>CoachingSession, CoachingMessage, CoachingContext, AIResponse</td><td>AI interaction lifecycle</td><td>Receives financial context summary (no raw values) via AIContextAssembler</td></tr>
+      <tr><td><strong>Gamification Context</strong></td><td>AchievementState, StreakState, ChallengeInstance, MilestoneRecord</td><td>Recognition and motivation engine</td><td>Reads only domain events from financial contexts; never reads financial tables</td></tr>
+      <tr><td><strong>Infrastructure Context</strong></td><td>SyncOperation, SyncConflict, BackupRecord, SessionToken</td><td>Platform concerns</td><td>Domain interfaces shield all other contexts from platform details</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.2 Core Aggregates</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Transaction Aggregate</div>
+      <p><strong>Root:</strong> Transaction (ULID, amount_centimes, date, description, category_id, account_id, transaction_type, is_recurring, recurrence_rule, sync_status, is_deleted, created_at, updated_at)</p>
+      <p><strong>Invariants:</strong> amount_centimes must be int64 ≠ 0; category_id must reference an active category; date must not be in the future by more than 7 days; is_deleted uses soft delete only; ULID must be unique.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">BudgetPlan Aggregate</div>
+      <p><strong>Root:</strong> BudgetPlan (ULID, period_month: YYYY-MM, income_centimes, is_closed, closed_at)</p>
+      <p><strong>Children:</strong> BudgetCategory (budget_id FK, category_id FK, allocated_centimes, spent_centimes [derived])</p>
+      <p><strong>Invariants:</strong> One BudgetPlan per period_month; allocated_centimes ≥ 0; is_closed is immutable after close; closed BudgetPlan is read-only.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">DebtAccount Aggregate</div>
+      <p><strong>Root:</strong> DebtAccount (ULID, name, initial_balance_centimes, current_balance_centimes [derived], interest_rate, min_payment_centimes, payment_due_day, is_active)</p>
+      <p><strong>Children:</strong> DebtPayment (debt_id FK, amount_centimes, paid_on, transaction_id FK)</p>
+      <p><strong>Invariants:</strong> current_balance_centimes = initial_balance - sum(payments); balance may not go negative; payment must reference a valid Transaction.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">FinancialGoal Aggregate</div>
+      <p><strong>Root:</strong> FinancialGoal (ULID, name, target_centimes, current_centimes [derived], target_date, status: ACTIVE/ACHIEVED/CANCELLED/PAUSED, priority, depends_on_goal_id FK nullable)</p>
+      <p><strong>Children:</strong> GoalContribution (goal_id FK, amount_centimes, contributed_on, transaction_id FK)</p>
+      <p><strong>Invariants:</strong> target_centimes &gt; 0; target_date must be in the future at creation; current_centimes = sum(contributions); goal with depends_on_goal_id may not be ACTIVE until dependency is ACHIEVED.</p>
+    </div>
+  </div>
+
+  <h3>5.3 Value Objects</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Value Object</th><th>Type</th><th>Constraints</th><th>Used By</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Money</strong></td><td>int64 (centimes)</td><td>Integer; no floating point anywhere in domain. Negative values represent debits. Overflow guard: max ≈ 92 quadrillion centimes.</td><td>All financial aggregates</td></tr>
+      <tr><td><strong>YearMonth</strong></td><td>string "YYYY-MM"</td><td>Valid year (2000–2099); valid month (01–12); used as period identifier everywhere</td><td>BudgetPlan, FHSHistory, MonthSummary, StreakState</td></tr>
+      <tr><td><strong>Percentage</strong></td><td>int (0–10000, basis points)</td><td>Stored as integer basis points (100 = 1%); converted to display decimal only in presentation layer</td><td>InterestRate, SavingsRate, BudgetUtilization</td></tr>
+      <tr><td><strong>ULID</strong></td><td>string (26 chars)</td><td>Monotonically sortable; globally unique; generated by ulid() library; primary key for all entities</td><td>All entities</td></tr>
+      <tr><td><strong>ISODate</strong></td><td>string "YYYY-MM-DD"</td><td>UTC date; no time component at domain level (time zones handled in presentation)</td><td>Transaction.date, Goal.target_date, DebtPayment.paid_on</td></tr>
+      <tr><td><strong>FHSScore</strong></td><td>int (0–100)</td><td>Computed; immutable after calculation for a period; stored in FHSHistory</td><td>FinancialHealthScore, GAM Engine</td></tr>
+      <tr><td><strong>CurrencyCode</strong></td><td>string (ISO 4217)</td><td>3-letter code; validated against supported currency list; per-account setting</td><td>Account, Transaction display</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.4 Domain Services</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Service</th><th>Responsibility</th><th>Pure Function?</th></tr></thead>
+    <tbody>
+      <tr><td><strong>FHSCalculationService</strong></td><td>Compute FHS from aggregated financial inputs (no DB access). Returns FHSScore + component breakdown.</td><td>Yes — input → output</td></tr>
+      <tr><td><strong>BudgetAnalysisService</strong></td><td>Compute spending vs. budget for any period. Returns utilization per category and overall.</td><td>Yes</td></tr>
+      <tr><td><strong>DebtProjectionService</strong></td><td>Compute amortization schedule and payoff date given current balance, interest rate, payment plan.</td><td>Yes</td></tr>
+      <tr><td><strong>GoalProjectionService</strong></td><td>Compute estimated goal completion date given current balance, contribution rate, target.</td><td>Yes</td></tr>
+      <tr><td><strong>EmergencyFundCoverageService</strong></td><td>Compute months of expenses covered given fund balance and average monthly spend.</td><td>Yes</td></tr>
+      <tr><td><strong>SyncConflictResolutionService</strong></td><td>Apply deterministic resolution rules to conflict type A–G. Returns resolved entity state.</td><td>Yes — no side effects; called by SyncEngine</td></tr>
+      <tr><td><strong>BehaviorDetectionService</strong></td><td>Evaluate financial domain events against behavior catalog (BHV-P-01 through BHV-R-03). Returns detected behavior IDs.</td><td>Yes — input events → behavior list</td></tr>
+      <tr><td><strong>AIContextAssemblyService</strong></td><td>Assemble financial context summary for AI coaching prompt — no raw values, aggregated descriptors only.</td><td>Yes</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.5 FHS Invariants (Domain-Level)</h3>
+  <p>These 6 invariants are checked by FHSCalculationService before every calculation. Any violation is an EMER alert (ALT-021) and halts all writes:</p>
+  <div class="pill-row">
+    <span class="pill pill-acc">INV-1: Budget totals ≤ income</span>
+    <span class="pill pill-acc">INV-2: No negative emergency fund balance</span>
+    <span class="pill pill-acc">INV-3: Goal dependencies form a DAG (no cycles)</span>
+    <span class="pill pill-acc">INV-4: Debt balance = initial − Σ payments</span>
+    <span class="pill pill-acc">INV-5: Category totals = Σ transactions in category</span>
+    <span class="pill pill-acc">INV-6: FHS components sum to defined weight total</span>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §6 DATA FLOW                                                  -->
+<!-- ============================================================ -->
+<section id="s6">
+  <h2>§6 — Data Flow</h2>
+
+  <h3>6.1 Complete Data Lifecycle</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Phase</th><th>Description</th><th>Governed By</th><th>Reversible?</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Creation</strong></td><td>User inputs validated by Zod schema at presentation boundary. Domain entity constructed. FHS invariants checked. ULID assigned. Amount stored as int64 centimes. Written to SQLite in a single transaction. Domain event emitted.</td><td>MOD-03–09 create use cases; FHSCalculationService invariant pre-check</td><td>Yes (soft delete)</td></tr>
+      <tr><td><strong>Validation</strong></td><td>Two-layer validation: (1) Zod schema at input boundary — structural and format validation; (2) Domain invariant check before write — business rule validation. Both must pass. Validation errors are user-visible and actionable.</td><td>Cross-Cutting validation layer + Domain services</td><td>N/A — failure means no write</td></tr>
+      <tr><td><strong>Storage</strong></td><td>drizzle-orm writes to AES-256-CBC encrypted SQLite via SQLCipher. WAL mode active. All writes are transactional (ACID). Prepared statements mandatory. No write on main JS thread. Primary key is ULID. Timestamps are ISO8601 UTC.</td><td>Data layer repositories; SPEC-PMO-001 §3</td><td>Yes (WAL rollback)</td></tr>
+      <tr><td><strong>Synchronization</strong></td><td>After write: sync operation queued in sync_operations table. Sync engine processes queue when online. Server receives delta payload (changed records since last sync). Conflicts resolved by SyncConflictResolutionService. Resolved state written locally. Remote server updated.</td><td>MOD-16; SPEC-OFF-001</td><td>Conflict resolution is deterministic</td></tr>
+      <tr><td><strong>Analysis</strong></td><td>FHS recalculated on each month-close and on significant balance changes. Report datasets computed on demand in background tasks. AI Coach receives assembled context (no raw values) for coaching queries. Materialized views refreshed on data change.</td><td>MOD-10 (FHS), MOD-13 (Reports), MOD-17 (AI)</td><td>Recalculated from source data</td></tr>
+      <tr><td><strong>Visualization</strong></td><td>Dashboard reads from Zustand store (denormalized from latest DB state). Charts read from report cache or materialized views. All monetary display converts centimes → locale-formatted currency string in presentation layer only.</td><td>MOD-12 (Dashboard), MOD-13 (Reports); SPEC-DSN-001</td><td>Read-only; no state change</td></tr>
+      <tr><td><strong>Archiving</strong></td><td>At month-end: BudgetPlan flagged is_closed. User optionally triggers month archive: snapshot of all month data written to archive tables (immutable). Active period data remains in live tables. Archive is read-only after creation.</td><td>MOD-11 (Archive)</td><td>Archive can be un-archived (data restored to mutable state)</td></tr>
+      <tr><td><strong>Backup</strong></td><td>Full SQLite DB file copy (encrypted). Export PIN re-encryption applied. Stored in app documents directory and optionally to cloud storage. Scheduled automatically (configurable frequency). Backup manifest written with metadata.</td><td>MOD-18 (Backup); SPEC-SEC-001</td><td>Backup is additive; does not modify source data</td></tr>
+      <tr><td><strong>Recovery</strong></td><td>User selects backup file. Export PIN verified. DB restored from backup. GAM Engine retroactive evaluation runs. Sync engine reconciles restored state with server. App restarts to reload all state from restored DB.</td><td>MOD-18 (Backup); MOD-16 (Sync reconcile); MOD-21 (GAM retroactive)</td><td>Restore overwrites current DB — point of no return after confirmation</td></tr>
+      <tr><td><strong>Deletion</strong></td><td>Soft delete only for financial records: is_deleted = 1, deleted_at set. Physical row is retained. Soft-deleted records excluded from all calculations and views. Hard delete only on account deletion (GDPR right to erasure): all rows physically deleted, DB file overwritten and deleted.</td><td>All financial modules; SPEC-SEC-001 §12</td><td>Soft delete: reversible. Hard delete: irreversible.</td></tr>
+      <tr><td><strong>Audit</strong></td><td>Security-significant events written to audit log table (90-day retention, separate from operational log). Events: auth attempt, PIN change, export, backup, restore, account deletion. Audit log is append-only; no update/delete of audit records.</td><td>MOD-01 (Auth), MOD-18 (Backup), MOD-15 (Export); SPEC-PMO-001 §7</td><td>No — audit log is immutable</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>6.2 Money Representation Flow</h3>
+  <div class="event-chain">
+    <span class="ev-node">User input (string "12.50")</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node ev-node-trigger">Presentation: parse → 1250 centimes (int)</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node">Domain: stored as int64 centimes</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node">DB: INTEGER column, never REAL</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node">Sync wire: integer JSON field</span>
+    <span class="ev-arrow">→</span>
+    <span class="ev-node ev-node-trigger">Display: centimes → locale string (presentation only)</span>
+  </div>
+  <p>Floating-point arithmetic on monetary values is prohibited at every layer. The ESLint rule <code>no-floating-point-money</code> enforces this at compile time.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- §7 EVENT FLOW                                                 -->
+<!-- ============================================================ -->
+<section id="s7">
+  <h2>§7 — Event Flow</h2>
+
+  <h3>7.1 Domain Event Bus</h3>
+  <p>Finance Bag uses a synchronous, in-process domain event bus. Events are not persisted (except in the monitoring log). They are fire-and-forget within the same application operation cycle. Side-effect handlers (sync queue, GAM engine, monitoring) subscribe to events and execute asynchronously in background tasks.</p>
+  <div class="callout">
+    <strong>Design decision:</strong> Synchronous event dispatch within the Application layer's transaction scope ensures that event handlers see the committed state. Side-effect handlers (sync, GAM, notifications) are scheduled as background tasks after the transaction commits — they never run in the write transaction scope.
+  </div>
+
+  <h3>7.2 Critical Event Lifecycles</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Event</th><th>Trigger</th><th>Immediate Handlers</th><th>Background Handlers</th><th>User-Visible Result</th></tr></thead>
+    <tbody>
+      <tr><td><strong>TRANSACTION_CREATED</strong></td><td>CreateTransaction use case succeeds</td><td>Update Zustand store; refresh budget utilization view</td><td>Sync queue; GAM behavior detection; FHS re-eval if month-end; monitoring trace close</td><td>Transaction appears in list; budget bar updates</td></tr>
+      <tr><td><strong>MONTH_CLOSED</strong></td><td>CloseBudgetMonth use case (user action or auto)</td><td>Mark BudgetPlan.is_closed; update Zustand</td><td>FHS recalculation; report cache invalidation; GAM month-end evaluation; sync queue; budget discipline notification check</td><td>Month shows as closed; FHS updates; any budget achievements fire</td></tr>
+      <tr><td><strong>DEBT_FULLY_REPAID</strong></td><td>DebtAccount balance reaches 0</td><td>Update DebtAccount.is_active = false; update Zustand</td><td>GAM: BHV-G-07 + ACH-024 evaluation; FHS recalculation; MOD-19: congratulatory notification queue</td><td>Debt removed from active debts; FHS improves; GAM celebration if all debts zero</td></tr>
+      <tr><td><strong>EMERGENCY_FUND_MILESTONE_REACHED</strong></td><td>Coverage crosses 1/3/6-month threshold</td><td>Update Zustand emergency fund state</td><td>GAM: BHV-G-02 + MST-005/006/007 evaluation; MOD-19: milestone notification; FHS component update</td><td>Dashboard emergency fund indicator updates; achievement celebration fires</td></tr>
+      <tr><td><strong>GOAL_ACHIEVED</strong></td><td>GoalContribution brings goal to target</td><td>Update FinancialGoal.status = ACHIEVED; update Zustand</td><td>GAM: BHV-G-05 + ACH-023; unlock goal dependents; FHS recalculation; sync queue</td><td>Goal shows as achieved; achievement celebration; dependent goals become ACTIVE</td></tr>
+      <tr><td><strong>FHS_RECALCULATED</strong></td><td>FHSCalculationService completes</td><td>Write FHSHistory record; update Zustand FHS state</td><td>GAM: BHV-G-09/G-10 evaluation; MOD-19: milestone notification check; AI context cache invalidation</td><td>Dashboard FHS gauge updates; milestone celebration if threshold crossed</td></tr>
+      <tr><td><strong>SYNC_CYCLE_COMPLETED</strong></td><td>Sync engine finishes a cycle</td><td>Update last_synced_at; update Zustand sync state</td><td>Re-evaluate all affected domain aggregates; trigger FHS recalculation if financial data changed; monitoring sync metrics</td><td>Sync indicator updates; any data changes visible in UI</td></tr>
+      <tr><td><strong>ACHIEVEMENT_UNLOCKED</strong></td><td>GAM Engine evaluation produces unlock</td><td>Write gam_achievement_state; update Zustand GAM state</td><td>MOD-19: celebration notification (if enabled and within daily limit); monitoring log</td><td>Achievement celebration modal (if enabled); badge appears in collection</td></tr>
+      <tr><td><strong>SESSION_LOCKED</strong></td><td>Auto-lock timer fires or app backgrounds</td><td>Clear sensitive Zustand slices; close DB connection</td><td>Monitoring: session_end log entry</td><td>Lock screen shown; all data inaccessible until re-auth</td></tr>
+      <tr><td><strong>BACKUP_CREATED</strong></td><td>CreateBackup use case succeeds</td><td>Write backup manifest; resume sync</td><td>Monitoring: backup audit log; GAM: BHV-G (no direct behavior, but backup health indicator)</td><td>Last backup date updates in settings; success confirmation</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>7.3 Event Ordering Guarantees</h3>
+  <ul>
+    <li>Domain events are dispatched <strong>after</strong> their triggering write transaction commits. An event never describes data that might roll back.</li>
+    <li>Multiple events from a single use case are dispatched in declaration order. Handlers see a consistent state for all events in the same use case.</li>
+    <li>Background handlers are idempotent — if an event is replayed (e.g., after a crash during handling), the second execution produces the same result.</li>
+    <li>Events are not persisted (no event store in v1). If the app crashes between event dispatch and background handler execution, the handler is replayed on next launch via the pending evaluation queue in the GAM Engine and monitoring subsystems.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §8 DEPENDENCY MANAGEMENT                                      -->
+<!-- ============================================================ -->
+<section id="s8">
+  <h2>§8 — Dependency Management</h2>
+
+  <h3>8.1 External Dependency Policy</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Category</th><th>Policy</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td>New runtime dependencies</td><td>Require ADR with: bundle size impact, maintenance status (last commit &lt;6mo), license compatibility (MIT/Apache/BSD only), security audit, alternative evaluation. Approved by tech lead.</td><td>Each dependency is a maintenance liability and a potential security vector</td></tr>
+      <tr><td>Expo SDK packages</td><td>Prefer <code>expo-*</code> packages over bare React Native equivalents. SDK version must match current Expo SDK.</td><td>Expo manages native compatibility; bare packages require manual linking and upgrade coordination</td></tr>
+      <tr><td>Dev-only dependencies</td><td>No restriction on dev/test dependencies. Do not appear in the production bundle.</td><td>Development tooling quality matters; bundle size does not</td></tr>
+      <tr><td>Dependency updates</td><td>Monthly dependency audit. Patch updates applied immediately. Minor updates reviewed monthly. Major updates require ADR.</td><td>Security patches must be fast; major changes need architectural review</td></tr>
+      <tr><td>Vendored packages</td><td>Prohibited unless the package is abandoned and a fork is necessary. If vendored, must document fork date and diff.</td><td>Vendored dependencies never receive upstream security fixes automatically</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>8.2 Dependency Injection Architecture</h3>
+  <p>Finance Bag uses manual DI (not a DI container framework) for maximum transparency and testability. Dependencies are injected at module initialization time and resolved at application startup.</p>
+  <div class="card">
+    <div class="card-title">DI Wiring Pattern</div>
+    <p>Application startup creates a single <strong>CompositionRoot</strong> that instantiates all repositories (data layer implementations), all infrastructure adapters, and all application services, wiring them together explicitly. The CompositionRoot is the only place where concrete implementations are referenced. All other code depends on interfaces.</p>
+    <ul>
+      <li>Repository interfaces → defined in Domain layer</li>
+      <li>Repository implementations → created in CompositionRoot using Data layer</li>
+      <li>Application services → created in CompositionRoot, receiving repository interfaces</li>
+      <li>Infrastructure adapters → created in CompositionRoot, passed to services that need them</li>
+      <li>Tests → create their own CompositionRoot with mock/in-memory implementations</li>
+    </ul>
+  </div>
+
+  <h3>8.3 Allowed vs. Forbidden Dependencies</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Explicitly Allowed</div>
+      <ul>
+        <li>Domain → nothing external (pure TypeScript)</li>
+        <li>Application → Domain, Cross-Cutting (types only)</li>
+        <li>Data → Domain interfaces, drizzle-orm, expo-sqlite, SQLCipher</li>
+        <li>Presentation → Application services (via Zustand), React Native, Expo, SPEC-DSN-001 design tokens</li>
+        <li>Infrastructure → Domain interfaces, Expo platform APIs (SecureStore, Notifications, FileSystem, Updates, LocalAuthentication, NetInfo)</li>
+        <li>AI → Domain interfaces, Anthropic SDK, Cross-Cutting</li>
+        <li>GAM Engine → Domain event types, gam_* tables, Cross-Cutting</li>
+        <li>Monitoring → all layers (read-only observation); Cross-Cutting</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Explicitly Forbidden</div>
+      <ul>
+        <li>Domain → React Native, Expo, SQLite, any I/O</li>
+        <li>Application → Data layer directly (only via interfaces)</li>
+        <li>Application → Infrastructure directly (only via interfaces)</li>
+        <li>Presentation → Domain directly (only via Application services / store)</li>
+        <li>Presentation → Data layer (no DB queries in screens)</li>
+        <li>Module A → Module B's internal tables (inter-module cross-reads)</li>
+        <li>AI → financial data tables directly (only via AIContextAssemblyService)</li>
+        <li>GAM Engine → any financial aggregate tables (only reads domain events)</li>
+        <li>Any layer → floating-point arithmetic on monetary values</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>8.4 Plugin Architecture for Future Extensions</h3>
+  <p>Future modules (bank integrations, investment module, tax module) attach to the system via a defined plugin interface:</p>
+  <ul>
+    <li>A plugin registers its bounded context with the CompositionRoot.</li>
+    <li>A plugin may subscribe to existing domain events from the event bus.</li>
+    <li>A plugin may expose new domain events to the bus.</li>
+    <li>A plugin owns its own SQLite tables (namespaced with the plugin prefix).</li>
+    <li>A plugin never modifies existing domain tables; it extends the model by addition.</li>
+    <li>A plugin is independently removable: its tables can be dropped, its event subscriptions removed, and the core system continues unchanged.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §9 ERROR ARCHITECTURE                                         -->
+<!-- ============================================================ -->
+<section id="s9">
+  <h2>§9 — Error Architecture</h2>
+
+  <h3>9.1 Error Classification</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Class</th><th>Code</th><th>Definition</th><th>User-Visible?</th><th>Recovery</th></tr></thead>
+    <tbody>
+      <tr><td>Validation Error</td><td>ERR-VAL</td><td>User input fails Zod schema or domain rule (e.g., negative amount)</td><td>Yes — inline field error</td><td>User corrects input; no state change occurred</td></tr>
+      <tr><td>Business Rule Error</td><td>ERR-BIZ</td><td>Structurally valid input violates a domain invariant (e.g., budget exceeds income)</td><td>Yes — contextual error message</td><td>User adjusts their request; domain state unchanged</td></tr>
+      <tr><td>Optimistic Concurrency Error</td><td>ERR-OCC</td><td>Write conflict on a record modified concurrently (multi-device sync)</td><td>No — handled by conflict resolution</td><td>SyncConflictResolutionService applies deterministic rule; user sees final state</td></tr>
+      <tr><td>Storage Error</td><td>ERR-STG</td><td>SQLite write fails (disk full, DB locked, integrity error)</td><td>CRIT/EMER — data-safe error modal</td><td>Halt all writes; run integrity check; guide to diagnostic export or restore</td></tr>
+      <tr><td>Network Error</td><td>ERR-NET</td><td>Sync or AI API unreachable</td><td>For AI: fallback message. For sync: offline queue activates</td><td>Exponential backoff retry; app continues in offline mode</td></tr>
+      <tr><td>Authentication Error</td><td>ERR-AUTH</td><td>Biometric failure, PIN mismatch, session expired, keychain unavailable</td><td>Yes — lock screen or specific error</td><td>Retry auth; after max failures, 24hr lockout; keychain unavailability → recovery flow</td></tr>
+      <tr><td>Encryption Error</td><td>ERR-ENC</td><td>DB decryption fails (wrong key, corrupted DB)</td><td>Yes — critical modal</td><td>Block all DB access; offer backup restore; diagnostic export if possible</td></tr>
+      <tr><td>Unhandled Exception</td><td>ERR-UNH</td><td>Unexpected runtime error not caught by domain or application layer</td><td>Depends on surface — React error boundary catches for UI; global handler for JS</td><td>Log to monitoring; attempt recovery action; if FATAL, crash with diagnostic info</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.2 Error Boundary Architecture</h3>
+  <div class="card">
+    <div class="card-title">Three-Level Error Boundary Strategy</div>
+    <ol>
+      <li><strong>Screen-level React Error Boundary:</strong> Wraps each major screen. On error: logs to monitoring, shows screen-level error state ("Something went wrong on this screen") with a retry button. App navigation remains functional.</li>
+      <li><strong>Root-level React Error Boundary:</strong> Wraps the entire app. On error: shows a full-screen recovery screen with options to restart or export diagnostics. Prevents blank white screen of death.</li>
+      <li><strong>Global JS Error Handler:</strong> Captures unhandled exceptions and promise rejections outside the React tree. Logs as ERR-UNH to monitoring. Prevents silent failures.</li>
+    </ol>
+  </div>
+
+  <h3>9.3 Recovery Action Catalog</h3>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>Recovery Action</th><th>Triggered By</th><th>What It Does</th></tr></thead>
+    <tbody>
+      <tr><td>RETRY_OPERATION</td><td>Network errors, transient storage errors</td><td>Re-execute the failed use case with the same parameters. Max 3 automatic retries before surfacing to user.</td></tr>
+      <tr><td>EVICT_AND_RETRY</td><td>Memory pressure during operation</td><td>Evict L1/L2 caches, force GC, then retry the operation once.</td></tr>
+      <tr><td>OFFLINE_QUEUE</td><td>Network unavailability during sync or AI request</td><td>Persist operation to sync queue. Continue in offline mode. No user action required.</td></tr>
+      <tr><td>ROLLBACK_TRANSACTION</td><td>Any failed SQLite write within a transaction</td><td>SQLite rollback is automatic via WAL. Application service returns failure; no state was changed.</td></tr>
+      <tr><td>RELOAD_STATE</td><td>Zustand store inconsistency detected</td><td>Re-query the DB to rebuild the affected Zustand slice from authoritative source.</td></tr>
+      <tr><td>INTEGRITY_CHECK</td><td>Storage errors, DB corruption suspected</td><td>Run PRAGMA integrity_check. If passes: retry. If fails: ALT-005 → backup restore guidance.</td></tr>
+      <tr><td>GUIDED_RESTORE</td><td>Unrecoverable DB corruption</td><td>Show step-by-step restore flow. Export diagnostic bundle first. Then restore from backup.</td></tr>
+      <tr><td>GRACEFUL_DEGRADE</td><td>Non-critical subsystem failure (monitoring, GAM, notifications)</td><td>Log failure. Continue with core features. Surface degraded state in health dashboard only. No user-facing error for non-critical subsystem failures.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ─── §10 Configuration Management ─────────────────────────────── -->
+<section id="s10">
+  <h2>§10 Configuration Management</h2>
+  <p class="lead">All runtime behaviour that may vary across environments, feature states, or user cohorts is controlled through an explicit, typed configuration layer — never through scattered constants or environment-sniffed conditionals scattered across business logic.</p>
+
+  <h3>10.1 Configuration Categories</h3>
+  <table>
+    <thead><tr><th>Category</th><th>Source</th><th>Mutability</th><th>Examples</th></tr></thead>
+    <tbody>
+      <tr><td>Build Constants</td><td>Compile-time</td><td>Immutable</td><td>App ID, bundle version, architecture version</td></tr>
+      <tr><td>Environment Config</td><td>env file / CI secrets</td><td>Immutable at runtime</td><td>API base URLs, Anthropic API key, Sentry DSN</td></tr>
+      <tr><td>Static App Config</td><td>Bundled JSON</td><td>Immutable at runtime</td><td>Supported currencies, locale list, icon map</td></tr>
+      <tr><td>Feature Flags</td><td>Remote config + local fallback</td><td>Hot-reloadable</td><td>AI features on/off, experimental UIs, rollout %</td></tr>
+      <tr><td>User Preferences</td><td>SQLite user_preferences table</td><td>User-mutable</td><td>Theme, currency, locale, notification prefs</td></tr>
+      <tr><td>Runtime Derived</td><td>Computed at startup</td><td>Session-scoped</td><td>Device capabilities, Hermes detection</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.2 Environment Configuration</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">development</div>
+      <ul>
+        <li>Verbose logging enabled</li>
+        <li>Redux DevTools accessible</li>
+        <li>Flipper network inspector</li>
+        <li>Local SQLite plain-text mode (no SQLCipher) for inspection</li>
+        <li>Mock AI responses available via flag</li>
+        <li>All feature flags forced-on</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">test</div>
+      <ul>
+        <li>In-memory SQLite database</li>
+        <li>Deterministic clocks (jest.useFakeTimers)</li>
+        <li>Network requests intercepted (msw)</li>
+        <li>All animations disabled (reduceMotion: true)</li>
+        <li>Hermetic: no external service calls</li>
+        <li>Feature flags controlled per test suite</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">staging</div>
+      <ul>
+        <li>Production parity: SQLCipher on, encryption keys rotated</li>
+        <li>Remote feature flags from staging config server</li>
+        <li>Reduced logging (INFO+ only)</li>
+        <li>Separate Anthropic API key (usage metered)</li>
+        <li>Sentry with staging project</li>
+        <li>OTA update channel: staging</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">production</div>
+      <ul>
+        <li>ERROR+ logging only</li>
+        <li>Remote feature flags from production config server</li>
+        <li>SQLCipher AES-256-CBC enforced</li>
+        <li>No debug instrumentation</li>
+        <li>Sentry with production project + PII scrubbing</li>
+        <li>OTA update channel: production</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>10.3 Feature Flag Architecture</h3>
+  <p>Feature flags are the primary mechanism for safe, gradual feature rollout without requiring app store releases.</p>
+  <table>
+    <thead><tr><th>Flag Property</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>key</td><td>string</td><td>Stable, namespaced identifier (e.g. <code>ai.insights.v2</code>)</td></tr>
+      <tr><td>defaultValue</td><td>boolean | string | number</td><td>Bundled fallback used when remote config unreachable</td></tr>
+      <tr><td>rolloutPercentage</td><td>0–100</td><td>Percentage of users receiving the flag; deterministic via user-id hash</td></tr>
+      <tr><td>targetAudience</td><td>enum</td><td>ALL, BETA, INTERNAL, COHORT(id)</td></tr>
+      <tr><td>expiresAt</td><td>ISO date</td><td>Kill-switch: flag auto-disables after date to prevent flag debt</td></tr>
+      <tr><td>overrideForDevices</td><td>string[]</td><td>Force-enable for specific device IDs (QA override)</td></tr>
+    </tbody>
+  </table>
+  <div class="callout callout-blue">
+    <strong>Flag Evaluation Order:</strong> Device override → Audience cohort → Rollout hash → Default value. Flags are evaluated at feature entry points, never inside domain logic. Domain code receives resolved values — never flag keys.
+  </div>
+  <p>Remote flag updates are fetched at app foreground, cached locally for 1 hour, and applied on next navigation event (never mid-screen). A local fallback bundle ships with every release to ensure offline operation.</p>
+
+  <h3>10.4 Currency Configuration</h3>
+  <table>
+    <thead><tr><th>Property</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Supported currencies at v1</td><td>USD, EUR, GBP, CAD, AUD, JPY, CHF, CNY, INR, BRL, MXN, ZAR, NGN, MAD, EGP, AED, SAR, SGD, HKD, KRW — 20 launch currencies</td></tr>
+      <tr><td>Target (future)</td><td>180+ ISO 4217 currencies</td></tr>
+      <tr><td>Exchange rate source</td><td>Bundled weekly snapshot (offline-first); optional live rates via API flag</td></tr>
+      <tr><td>Rate update frequency</td><td>Weekly OTA update; user-triggered refresh max once per 24 hours</td></tr>
+      <tr><td>Display precision</td><td>Per-currency definition: 2 decimals (USD), 0 decimals (JPY, KRW), 3 decimals (KWD)</td></tr>
+      <tr><td>Internal representation</td><td>Always integer centimes in the currency's smallest unit; display layer applies precision</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.5 Localization Configuration</h3>
+  <table>
+    <thead><tr><th>Locale Property</th><th>Detail</th></tr></thead>
+    <tbody>
+      <tr><td>Launch locales</td><td>en-US, en-GB, fr-FR, es-ES, ar-SA, pt-BR — 6 launch locales</td></tr>
+      <tr><td>Fallback chain</td><td>user-locale → region-locale → language → en-US</td></tr>
+      <tr><td>RTL support</td><td>ar-SA and all Arabic variants: layout mirrored, icons flipped, text direction set at root</td></tr>
+      <tr><td>Number formatting</td><td>Intl.NumberFormat via locale definition; no custom formatter</td></tr>
+      <tr><td>Date formatting</td><td>Intl.DateTimeFormat; fiscal year start configurable per user (Jan 1 default)</td></tr>
+      <tr><td>Pluralization</td><td>CLDR plural rules: zero, one, two, few, many, other — per locale</td></tr>
+      <tr><td>Translation delivery</td><td>Bundled JSON files per locale; no runtime download required</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.6 Experimental Features Policy</h3>
+  <ul>
+    <li>Every experimental feature has an owner, a planned GA date, and an expiry date for the flag.</li>
+    <li>Experiments run for a maximum of 90 days before being graduated to stable or removed.</li>
+    <li>No more than 3 active experiments per user at any time (to avoid interaction effects).</li>
+    <li>Experiment results (engagement, error rates, retention deltas) are evaluated before graduation.</li>
+    <li>Users in the INTERNAL audience may stack all active experiments simultaneously for QA coverage.</li>
+  </ul>
+</section>
+
+<!-- ─── §11 Development Standards ────────────────────────────────── -->
+<section id="s11">
+  <h2>§11 Development Standards</h2>
+  <p class="lead">Consistency across the codebase reduces cognitive load, prevents accidental coupling, and makes code review meaningful. These standards are enforced by tooling (ESLint, TypeScript strict, CI checks) wherever possible — manual review handles what tooling cannot.</p>
+
+  <h3>11.1 Project Structure</h3>
+  <pre><code>finance-bag/
+├── app/                    # Expo Router file-based routes
+│   ├── (auth)/             # Auth-gated route group
+│   ├── (tabs)/             # Tab navigator group
+│   └── _layout.tsx         # Root layout + providers
+├── src/
+│   ├── domain/             # Pure domain: entities, value objects, domain services
+│   │   ├── transaction/
+│   │   ├── budget/
+│   │   ├── debt/
+│   │   ├── savings/
+│   │   └── shared/         # Shared kernel: Money, ULID, DateRange
+│   ├── application/        # Use cases, command handlers, query handlers
+│   │   ├── commands/
+│   │   ├── queries/
+│   │   └── services/       # Application services (orchestration only)
+│   ├── infrastructure/     # Adapters, repositories, external integrations
+│   │   ├── db/             # drizzle-orm schema, migrations, repositories
+│   │   ├── ai/             # Anthropic client adapter
+│   │   ├── sync/           # Cloud sync adapter (future)
+│   │   └── config/         # Config readers, feature flag client
+│   ├── presentation/       # React Native components, screens, stores
+│   │   ├── components/     # Shared UI components
+│   │   ├── screens/        # Screen compositions (thin — delegate to hooks)
+│   │   ├── hooks/          # Presentation hooks (data fetching, derived state)
+│   │   └── stores/         # Zustand stores (UI state only)
+│   ├── composition/        # CompositionRoot, DI wiring, provider tree
+│   └── shared/             # Cross-layer utilities: logger, errors, types
+├── docs/
+│   └── specs/              # All SPEC-*.html documents
+├── __tests__/              # Co-located tests mirror src/ structure
+└── .github/
+    └── workflows/          # CI/CD pipeline definitions</code></pre>
+
+  <h3>11.2 Naming Conventions</h3>
+  <table>
+    <thead><tr><th>Artifact</th><th>Convention</th><th>Example</th></tr></thead>
+    <tbody>
+      <tr><td>React component file</td><td>PascalCase.tsx</td><td><code>TransactionCard.tsx</code></td></tr>
+      <tr><td>Hook file</td><td>useCamelCase.ts</td><td><code>useTransactionList.ts</code></td></tr>
+      <tr><td>Domain entity</td><td>PascalCase class</td><td><code>Transaction</code>, <code>Budget</code></td></tr>
+      <tr><td>Value object</td><td>PascalCase class</td><td><code>Money</code>, <code>DateRange</code></td></tr>
+      <tr><td>Use case / command</td><td>VerbNounCommand / VerbNounUseCase</td><td><code>CreateTransactionCommand</code></td></tr>
+      <tr><td>Query</td><td>GetNounQuery / ListNounQuery</td><td><code>GetBudgetSummaryQuery</code></td></tr>
+      <tr><td>Repository interface</td><td>INounRepository</td><td><code>ITransactionRepository</code></td></tr>
+      <tr><td>Repository impl</td><td>SQLiteNounRepository</td><td><code>SQLiteTransactionRepository</code></td></tr>
+      <tr><td>Zustand store</td><td>useNounStore</td><td><code>useTransactionStore</code></td></tr>
+      <tr><td>Domain event</td><td>NounVerbed</td><td><code>TransactionCreated</code>, <code>BudgetExceeded</code></td></tr>
+      <tr><td>Error class</td><td>NounVerbError / NounError</td><td><code>ValidationError</code>, <code>EncryptionError</code></td></tr>
+      <tr><td>Constants file</td><td>SCREAMING_SNAKE for values</td><td><code>MAX_ACTIVE_CHALLENGES = 3</code></td></tr>
+      <tr><td>SQLite table</td><td>snake_case, plural</td><td><code>transactions</code>, <code>budget_periods</code></td></tr>
+      <tr><td>SQLite column</td><td>snake_case</td><td><code>amount_centimes</code>, <code>created_at</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3>11.3 TypeScript Standards</h3>
+  <ul>
+    <li><strong>Strict mode always on:</strong> <code>strict: true</code> in tsconfig; no <code>@ts-ignore</code> without documented justification and issue link.</li>
+    <li><strong>No <code>any</code>:</strong> Use <code>unknown</code> at system boundaries and narrow explicitly. The linter rejects <code>any</code> except in generated files.</li>
+    <li><strong>Branded primitives:</strong> Money, ULID, timestamps, and currency codes are branded types — not raw numbers or strings. Cross-boundary mixing is a compile error.</li>
+    <li><strong>Discriminated unions for state:</strong> Loading/error/data states use discriminated unions, not nullable fields.</li>
+    <li><strong>No non-null assertions (<code>!</code>):</strong> Prefer explicit null checks or type narrowing. Allowed only in test factories.</li>
+    <li><strong>Enums vs. const maps:</strong> Prefer <code>const maps</code> (record of string literals) over TypeScript enums for tree-shakability and serialization safety.</li>
+    <li><strong>Return types:</strong> Always explicit on exported functions; may be inferred on private/local functions.</li>
+  </ul>
+
+  <h3>11.4 Architecture Decision Records (ADR)</h3>
+  <div class="adr">
+    <div class="adr-id">ADR PROCESS</div>
+    <p>Every significant technical decision that is not self-evident from the code must be captured in an ADR stored in <code>docs/adr/</code>. An ADR is required whenever:</p>
+    <ul>
+      <li>A library or framework is added or removed</li>
+      <li>A schema migration affects existing data</li>
+      <li>A new architectural pattern is introduced</li>
+      <li>A previously-chosen approach is reversed or significantly modified</li>
+      <li>A performance or security trade-off is explicitly accepted</li>
+    </ul>
+    <p><strong>ADR Template fields:</strong> ID, Title, Date, Status (Proposed/Accepted/Superseded/Deprecated), Context, Decision, Consequences (positive + negative), Alternatives Considered.</p>
+    <p><strong>ADR Lifecycle:</strong> Draft in PR → reviewed by at least one architect → merged as Accepted → future superseding ADR updates status to Superseded with link.</p>
+  </div>
+
+  <h3>11.5 Commit & Branching Conventions</h3>
+  <table>
+    <thead><tr><th>Convention</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Commit format</td><td>Conventional Commits: <code>type(scope): message</code>. Types: feat, fix, refactor, test, docs, chore, perf, ci.</td></tr>
+      <tr><td>Scope</td><td>Module abbreviation: <code>txn</code>, <code>bgt</code>, <code>debt</code>, <code>sav</code>, <code>ai</code>, <code>gam</code>, <code>arc</code>, <code>db</code>, <code>infra</code></td></tr>
+      <tr><td>Breaking changes</td><td>Footer line: <code>BREAKING CHANGE: description</code>; also add <code>!</code> after type: <code>feat!(db): migrate schema</code></td></tr>
+      <tr><td>Branch naming</td><td><code>feature/ARC-###-short-description</code>, <code>fix/ARC-###-short-description</code>, <code>chore/description</code></td></tr>
+      <tr><td>Main branch</td><td><code>main</code> — always releasable; protected; requires passing CI + 1 review</td></tr>
+      <tr><td>Release branch</td><td><code>release/vX.Y.Z</code> cut from main; only bug fixes cherry-picked in</td></tr>
+      <tr><td>Hotfix branch</td><td><code>hotfix/vX.Y.Z-description</code> from main or release branch; merged to both</td></tr>
+    </tbody>
+  </table>
+
+  <h3>11.6 Code Review Standards</h3>
+  <ul>
+    <li>Every PR requires at least one review; changes to domain layer or database schema require two.</li>
+    <li>Reviewers check: correctness, test coverage (unit + integration), ADR requirement, naming compliance, no implementation code in specs.</li>
+    <li>PR description must include: what changed, why, how to test, and any migration notes.</li>
+    <li>Review comments classify severity: BLOCKING (must fix), SUGGESTION (nice-to-have), NITPICK (style — author decides).</li>
+    <li>Self-merging is prohibited; automated merge on approval + green CI is permitted for chore/docs PRs.</li>
+    <li>Maximum PR size: 400 lines diff (excluding generated files and spec HTML). Larger changes split by layer or feature slice.</li>
+  </ul>
+</section>
+
+<!-- ─── §12 Cross-Cutting Concerns ───────────────────────────────── -->
+<section id="s12">
+  <h2>§12 Cross-Cutting Concerns</h2>
+  <p class="lead">Cross-cutting concerns are behaviours that span multiple layers and bounded contexts. They are implemented once in the shared kernel or infrastructure layer and injected via the CompositionRoot — never duplicated in domain or application logic.</p>
+
+  <h3>12.1 Logging Strategy</h3>
+  <table>
+    <thead><tr><th>Level</th><th>Usage</th><th>Production</th></tr></thead>
+    <tbody>
+      <tr><td>DEBUG</td><td>Detailed trace: SQL queries, event dispatch, cache hits</td><td>Suppressed</td></tr>
+      <tr><td>INFO</td><td>App lifecycle events, user actions, feature flag reads</td><td>Suppressed</td></tr>
+      <tr><td>WARN</td><td>Degraded path taken, retry attempted, threshold approached</td><td>Emitted to Sentry as breadcrumb</td></tr>
+      <tr><td>ERROR</td><td>Caught exception, recovery attempted</td><td>Emitted to Sentry as event</td></tr>
+      <tr><td>FATAL</td><td>Unrecoverable state, app cannot continue</td><td>Emitted to Sentry as crash</td></tr>
+    </tbody>
+  </table>
+  <div class="callout callout-yellow">
+    <strong>PII Scrubbing Rule:</strong> The logger middleware automatically redacts: amount values, account numbers, user names, email addresses, category names (potentially personal), and any field tagged <code>sensitive: true</code> in the domain schema. Log entries pass through the scrubber before any emission — including local console output in development.
+  </div>
+  <p>Log entries use a structured format: <code>{ level, timestamp, module, message, correlationId, ...context }</code>. The <code>correlationId</code> traces a user action across all log lines it generates. Context fields contain only non-sensitive metadata (IDs, counts, durations, error codes).</p>
+
+  <h3>12.2 Caching Strategy</h3>
+  <table>
+    <thead><tr><th>Cache Tier</th><th>Scope</th><th>TTL</th><th>Eviction</th></tr></thead>
+    <tbody>
+      <tr><td>In-memory query cache</td><td>Frequently-read query results (account totals, budget summaries)</td><td>5 minutes</td><td>LRU, 50-entry cap</td></tr>
+      <tr><td>Computed aggregates</td><td>Monthly totals, health score components</td><td>Until underlying data changes (event-invalidated)</td><td>Write-through on mutation events</td></tr>
+      <tr><td>AI response cache</td><td>Identical prompt+context hash</td><td>24 hours</td><td>LRU, 20-entry cap</td></tr>
+      <tr><td>Feature flag cache</td><td>Remote flag values</td><td>1 hour</td><td>Invalidated on foreground event</td></tr>
+      <tr><td>Exchange rate cache</td><td>Currency conversion rates</td><td>24 hours</td><td>Weekly OTA bundle refresh</td></tr>
+      <tr><td>Derived report cache</td><td>Trend data, category breakdowns</td><td>Until underlying transactions change</td><td>Event-invalidated on TransactionCreated/Updated/Deleted</td></tr>
+    </tbody>
+  </table>
+
+  <h3>12.3 Security Cross-Cutting</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">Input Validation</div>
+      <p>All data entering the domain layer is validated by schema validators at the application service boundary. Raw UI input never reaches domain entities without validation. Validation errors are ERR-VAL class and surfaced to the user as field-level messages.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">API Key Management</div>
+      <p>The Anthropic API key is stored in Expo SecureStore (iOS Keychain / Android Keystore), never in AsyncStorage, never logged, never included in error reports. The key is read once at startup and held in memory for the session duration only.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Biometric Gate</div>
+      <p>Biometric authentication (face ID / fingerprint) re-challenge fires on app foreground after 5+ minutes backgrounded. The SQLCipher key derivation is tied to the biometric-unlocked credential chain. Failed biometric attempts increment a counter; 5 consecutive failures trigger a forced re-auth flow.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Content Security</div>
+      <p>AI-generated text is treated as untrusted content: rendered as plain text, never evaluated, never injected into DOM as HTML. User-entered category names and note fields are sanitized of control characters before storage. No XSS vectors exist in a React Native context, but injection into SQLite is prevented by parameterized queries exclusively.</p>
+    </div>
+  </div>
+
+  <h3>12.4 Internationalisation (i18n)</h3>
+  <table>
+    <thead><tr><th>Concern</th><th>Approach</th></tr></thead>
+    <tbody>
+      <tr><td>Translation keys</td><td>Namespaced dot-path: <code>transaction.create.title</code>. All user-visible strings must have a key — hardcoded English strings are a linting error.</td></tr>
+      <tr><td>Pluralisation</td><td>Keys use ICU Message Format: <code>{count, plural, one {# item} other {# items}}</code></td></tr>
+      <tr><td>RTL layouts</td><td>All spacing uses logical properties (<code>marginStart</code>/<code>marginEnd</code> not <code>marginLeft</code>/<code>marginRight</code>). Icons that imply direction (arrows, progress bars) flip via RTL transform. Text alignment inherits from locale definition.</td></tr>
+      <tr><td>Number formatting</td><td>All numeric display passes through the <code>FormatService</code> which applies <code>Intl.NumberFormat</code> with locale and currency. Raw numbers are never rendered directly.</td></tr>
+      <tr><td>Date formatting</td><td>All date display passes through <code>FormatService.date()</code>. Dates stored as ISO strings in SQLite; displayed via locale-appropriate format (DD/MM/YYYY vs MM/DD/YYYY etc.).</td></tr>
+      <tr><td>Fiscal year</td><td>User-configurable start month (default January). All period calculations respect the user's fiscal year definition.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>12.5 Validation Layers</h3>
+  <p>Validation occurs at three distinct layers. Each layer has a different responsibility and different error types.</p>
+  <table>
+    <thead><tr><th>Layer</th><th>What is validated</th><th>Error Type</th><th>User Visibility</th></tr></thead>
+    <tbody>
+      <tr><td>UI / Presentation</td><td>Field format, required fields, UI constraints (date pickers bounded to valid range)</td><td>Inline field errors</td><td>Immediate, per field</td></tr>
+      <tr><td>Application Service</td><td>Command schema validation, cross-field business invariants (e.g. start date before end date)</td><td>ERR-VAL</td><td>On submit, top-level error message</td></tr>
+      <tr><td>Domain Entity</td><td>Aggregate invariants (e.g. budget cannot be negative, debt balance must not exceed credit limit × 2)</td><td>ERR-BIZ</td><td>On submit; may require navigating away to fix</td></tr>
+    </tbody>
+  </table>
+  <div class="callout callout-blue">
+    Domain entities never receive invalid data — they enforce invariants in their constructors and mutating methods and throw ERR-BIZ errors. This is the last line of defense and should rarely fire in production if UI and application-layer validation are correct.
+  </div>
+
+  <h3>12.6 Performance Monitoring</h3>
+  <ul>
+    <li><strong>JS frame budget:</strong> Screen transitions target 60fps (16ms frame budget). Hermes JIT enables this; any frame > 32ms triggers a WARN log with stack context.</li>
+    <li><strong>DB query budget:</strong> All SQLite queries must complete in &lt;50ms on the P95 device target. Queries exceeding 100ms are flagged in staging CI.</li>
+    <li><strong>AI latency:</strong> Anthropic API calls budget 3,000ms P50, 8,000ms P95. Calls exceeding 15,000ms time out and return a cached or degraded response.</li>
+    <li><strong>Memory ceiling:</strong> Resident memory target ≤ 150MB under normal use. The 6-tier eviction policy (§10 PMO) activates at 120MB.</li>
+    <li><strong>Cold start target:</strong> Interactive in &lt;2,500ms on P95 device. First meaningful paint &lt;1,000ms (skeleton screen shown immediately from cache).</li>
+    <li><strong>Render budgets:</strong> List screens may render at most 100 items per frame; virtual lists (FlashList) paginate beyond 100 items.</li>
+  </ul>
+
+  <h3>12.7 Accessibility</h3>
+  <table>
+    <thead><tr><th>Standard</th><th>Requirement</th></tr></thead>
+    <tbody>
+      <tr><td>WCAG 2.1 AA</td><td>Minimum contrast ratio 4.5:1 for body text, 3:1 for large text and UI components</td></tr>
+      <tr><td>Screen reader</td><td>All interactive elements have <code>accessibilityLabel</code>. Decorative elements marked <code>accessibilityElementsHidden</code>. VoiceOver (iOS) and TalkBack (Android) tested on every release.</td></tr>
+      <tr><td>Touch targets</td><td>Minimum 44×44pt touch target for all interactive elements</td></tr>
+      <tr><td>Text scaling</td><td>All text uses relative units; layouts tested at 200% system font scale without overflow</td></tr>
+      <tr><td>Reduced motion</td><td>All animations respect <code>AccessibilityInfo.isReduceMotionEnabled</code>; transitions fall back to instant substitution</td></tr>
+      <tr><td>Color independence</td><td>Status is never communicated by color alone; always paired with icon or text label</td></tr>
+      <tr><td>Focus management</td><td>Modal dialogs trap focus; on dismiss, focus returns to the trigger element</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── §13 Scalability Strategy ─────────────────────────────────── -->
+<section id="s13">
+  <h2>§13 Scalability Strategy</h2>
+  <p class="lead">Finance Bag must remain performant across the full user lifecycle: from a new user with 10 transactions to a power user with 5+ years of financial history across multiple accounts. Every architectural choice must be validated against the long-horizon data scale.</p>
+
+  <h3>13.1 Transaction Volume Scalability</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">Target scale</div>
+      <p>10,000+ transactions per user. 5+ years of daily entries = ~1,800 entries/year × 5 = 9,000 minimum. Power users: 20,000+.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">SQLite indexing strategy</div>
+      <p>Composite indexes on <code>(account_id, date DESC)</code>, <code>(category_id, date DESC)</code>, <code>(date, type)</code>. The query planner must use index scans, never full-table scans, for paginated list queries.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Pagination protocol</div>
+      <p>All list queries use keyset (cursor) pagination: <code>WHERE date &lt; :cursor_date AND id &lt; :cursor_id LIMIT :page_size</code>. Page size: 50 items. Offset pagination is forbidden (degrades with large tables).</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Virtual rendering</div>
+      <p>FlashList with <code>estimatedItemSize</code> handles all transaction lists. The recycler pool is bounded; only visible + 2-screen buffer items are in memory. Smooth scroll to any position in 20,000-item list without jank.</p>
+    </div>
+  </div>
+
+  <h3>13.2 Historical Data Management</h3>
+  <table>
+    <thead><tr><th>Strategy</th><th>Trigger</th><th>Mechanism</th></tr></thead>
+    <tbody>
+      <tr><td>Pre-aggregation</td><td>At write time</td><td>Every transaction mutation updates monthly_summaries table immediately (triggers via domain event)</td></tr>
+      <tr><td>Period aggregation</td><td>Month boundary crossing</td><td>Background job compresses prior month to aggregate rows; individual transactions remain queryable</td></tr>
+      <tr><td>Hot/warm/cold tiering</td><td>Age-based</td><td>Current year: fully indexed (hot). Prior 2 years: indexed by month (warm). Older: archived to compressed blob, queryable via on-demand expansion (cold)</td></tr>
+      <tr><td>Archive expansion</td><td>User drills into old period</td><td>Cold data is decompressed on demand, displayed, then evicted when user navigates away. Never permanently decompressed in the hot tier.</td></tr>
+      <tr><td>Export-before-archive</td><td>Before cold archival</td><td>User is notified; data is always exportable regardless of tier</td></tr>
+    </tbody>
+  </table>
+  <div class="callout callout-blue">
+    The monthly_summaries table is the performance foundation of all reporting and analytics screens. Report queries hit summaries first; they fall through to the transaction table only for drill-down views.
+  </div>
+
+  <h3>13.3 Cloud Sync Scalability (Future)</h3>
+  <p>When cloud sync is introduced (Phase 4), the following architectural constraints are established now to prevent lock-in:</p>
+  <ul>
+    <li><strong>CRDT-ready data model:</strong> All entities use ULID primary keys (globally unique, sortable) and <code>updated_at</code> vector clocks from day one. No sequential auto-increment IDs exist that would conflict during merge.</li>
+    <li><strong>Soft deletes only:</strong> No hard deletes. Deletions are tombstoned. This enables three-way merge without loss.</li>
+    <li><strong>Delta sync protocol:</strong> Sync payloads contain only records modified since the last successful sync timestamp. Full sync is a recovery path only.</li>
+    <li><strong>Conflict resolution policy:</strong> Last-write-wins by <code>updated_at</code> for scalar fields. For monetary aggregates, the server holds the authoritative total and clients reconcile.</li>
+    <li><strong>Bandwidth budget:</strong> Sync payload max 512KB per sync cycle. Records exceeding this are chunked. Attachments (future: receipt photos) are synced separately on Wi-Fi only.</li>
+    <li><strong>Multi-device registry:</strong> Each device registers a UUID. The sync server tracks per-device cursors. Devices can operate fully offline for up to 30 days without losing sync eligibility.</li>
+  </ul>
+
+  <h3>13.4 Multi-Device Scalability</h3>
+  <table>
+    <thead><tr><th>Concern</th><th>Design Decision</th></tr></thead>
+    <tbody>
+      <tr><td>Device limit</td><td>5 registered devices per account (Phase 4+)</td></tr>
+      <tr><td>Sync ordering</td><td>Logical clock per device; server resolves ordering conflicts using Hybrid Logical Clocks (HLC)</td></tr>
+      <tr><td>Read replica</td><td>All devices are full read-write nodes; no designated primary device</td></tr>
+      <tr><td>Offline duration</td><td>Devices offline for &gt;30 days trigger full re-sync on reconnect (performance budget: &lt;60 seconds for 10,000 records)</td></tr>
+      <tr><td>Notification dedup</td><td>Push notifications are deduplicated across devices; arrival on one device marks as delivered on all</td></tr>
+    </tbody>
+  </table>
+
+  <h3>13.5 Future Module Scalability</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">Investments Module</div>
+      <p>Security price data (daily OHLCV) for potentially 100s of tickers. Requires a time-series optimised table with sliding window aggregation. Portfolio net worth feeds into Financial Health Score — the FHS domain service interface already accepts extension hooks for this.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Tax Module</div>
+      <p>Tax-year boundaries cross fiscal years in many jurisdictions. The existing fiscal-year configuration supports this without schema changes. Tax rule sets are static per jurisdiction-year; stored as versioned JSON blobs.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Family / Shared Finance</div>
+      <p>Requires a multi-tenancy concept layered above the current single-user model. The ULID-based data model supports namespace partitioning. The sync engine (Phase 4) is designed for this expansion — each family member is a device participant in a shared sync graph.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Business Finance</div>
+      <p>Double-entry bookkeeping requires a journal entry model parallel to the current transaction model. The domain layer's bounded context design isolates personal finance from business finance — they share the money value object and reporting infrastructure but have separate aggregate roots.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Desktop (Web / Electron)</div>
+      <p>The domain and application layers are platform-agnostic TypeScript. A web/desktop presentation layer can be added without modifying domain logic. SQLite via <code>sql.js</code> (WASM) or native better-sqlite3 replaces expo-sqlite at the infrastructure layer.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Wearable (watchOS / Wear OS)</div>
+      <p>Quick-add transaction via complication. The wearable communicates with the phone app via WatchConnectivity; the phone writes to SQLite and emits events. No direct database access on the wearable; it is a thin input terminal.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── §14 Deployment Architecture ──────────────────────────────── -->
+<section id="s14">
+  <h2>§14 Deployment Architecture</h2>
+  <p class="lead">Finance Bag is a mobile-first application distributed through the Apple App Store and Google Play Store, with OTA update capability via Expo Updates for non-native changes. The deployment architecture prioritises safety, reversibility, and incremental rollout.</p>
+
+  <h3>14.1 Environment Matrix</h3>
+  <table>
+    <thead><tr><th>Environment</th><th>Purpose</th><th>Audience</th><th>Update Mechanism</th><th>Database</th></tr></thead>
+    <tbody>
+      <tr><td>development</td><td>Active development, local testing</td><td>Engineers only</td><td>Metro bundler (live reload)</td><td>Local SQLite (plain-text)</td></tr>
+      <tr><td>test</td><td>Automated CI pipeline</td><td>CI runners</td><td>Hermetic test harness</td><td>In-memory SQLite</td></tr>
+      <tr><td>staging</td><td>Pre-release validation, QA testing</td><td>Internal team + trusted testers</td><td>TestFlight (iOS) / Internal track (Android)</td><td>SQLCipher (separate key)</td></tr>
+      <tr><td>production</td><td>Live user distribution</td><td>All users</td><td>App store + Expo OTA</td><td>SQLCipher (user device)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>14.2 Release Channels</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">Native Release (Store)</div>
+      <p>Required when: native code changes (RN upgrade, new native module), Info.plist / AndroidManifest changes, SQLite schema migration. Process: build → CI gate → staging soak (minimum 48h) → store submission → phased rollout (10% → 25% → 50% → 100%, 24h gates).</p>
+    </div>
+    <div class="card">
+      <div class="card-label">OTA Release (Expo Updates)</div>
+      <p>Permitted for: JS/TS logic changes, UI changes, bug fixes with no schema migration, feature flag updates, translation additions. Constraints: OTA cannot change native modules, cannot run migrations, cannot bypass the app store review for any change that would require it. OTA rollout: same phased gate as store releases.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Hotfix Release</div>
+      <p>Triggered by severity P0/P1 incidents. OTA hotfix targets 4-hour deployment from merge. Native hotfix targets 24-hour expedited store review (using Apple's expedited review process). Hotfix branches cut from the current production tag, not from main.</p>
+    </div>
+  </div>
+
+  <h3>14.3 CI/CD Pipeline</h3>
+  <table>
+    <thead><tr><th>Stage</th><th>Checks</th><th>Gate</th></tr></thead>
+    <tbody>
+      <tr><td>PR Validation</td><td>TypeScript type-check, ESLint, unit tests, import cycle detection</td><td>Must pass for PR merge</td></tr>
+      <tr><td>Integration Test</td><td>SQLite integration tests, use-case tests with in-memory DB, snapshot tests</td><td>Must pass for PR merge</td></tr>
+      <tr><td>Build Verification</td><td>Expo prebuild, native compile (iOS/Android), bundle size regression check</td><td>Must pass on main branch push</td></tr>
+      <tr><td>Staging Deploy</td><td>EAS Build → TestFlight + Internal Track distribution</td><td>Automatic on main; manual approval for release branch</td></tr>
+      <tr><td>Staging Smoke</td><td>Playwright E2E smoke suite on staging environment</td><td>Must pass before production gate opens</td></tr>
+      <tr><td>Production Deploy</td><td>EAS Submit to stores; OTA channel update</td><td>Manual approval by release owner</td></tr>
+      <tr><td>Post-Deploy Monitor</td><td>Sentry crash rate, P99 latency, error budget burn rate (15-min window)</td><td>Automated rollback if thresholds breached</td></tr>
+    </tbody>
+  </table>
+
+  <h3>14.4 Rollback Strategy</h3>
+  <table>
+    <thead><tr><th>Rollback Type</th><th>Mechanism</th><th>Time to Rollback</th></tr></thead>
+    <tbody>
+      <tr><td>OTA rollback</td><td>Expo Updates: publish previous bundle to production channel; clients auto-update on next foreground</td><td>&lt;30 minutes</td></tr>
+      <tr><td>Feature flag rollback</td><td>Disable feature flag in remote config; propagates to all clients within 1 hour (next foreground refresh)</td><td>&lt;5 minutes (flag propagation: up to 60 min)</td></tr>
+      <tr><td>Store rollback</td><td>Not possible (App Store does not support rollbacks). Mitigation: expedited hotfix release.</td><td>24+ hours (store review)</td></tr>
+      <tr><td>Database migration rollback</td><td>Down migrations must be written for every up migration. Applied only in staging; production rollback requires hotfix release containing down migration.</td><td>Per hotfix timeline</td></tr>
+    </tbody>
+  </table>
+  <div class="callout callout-yellow">
+    <strong>Migration Safety Rule (BR-ARC-09):</strong> No destructive schema migration (DROP COLUMN, DROP TABLE, RENAME COLUMN) is permitted in a production release without a minimum 2-version deprecation period. Columns are first stopped-being-written (nulled out), then removed in a subsequent release after confirming zero reads.
+  </div>
+
+  <h3>14.5 Database Migration Architecture</h3>
+  <ul>
+    <li>Migrations are managed by drizzle-orm and stored in <code>src/infrastructure/db/migrations/</code>.</li>
+    <li>Each migration file has an up and a down function. Down migrations are required and tested.</li>
+    <li>Migrations run at app startup, before the first database access. A migration lock prevents concurrent runs.</li>
+    <li>The migration version is stored in the <code>app_metadata</code> table and checked on each startup.</li>
+    <li>If a migration fails, the app enters a recovery mode with a user-visible error and instructions to contact support. The database is not partially migrated — all migrations are wrapped in a SQLite transaction.</li>
+    <li>Migration testing in CI: each migration is run against a snapshot of the previous schema to verify forward compatibility; each down migration is then applied to verify rollback.</li>
+  </ul>
+</section>
+
+<!-- ─── §15 Risk Analysis ─────────────────────────────────────────── -->
+<section id="s15">
+  <h2>§15 Risk Analysis</h2>
+  <p class="lead">This section catalogues the highest-probability and highest-impact architectural risks, each with a defined probability, impact severity, and active mitigation strategy. Risks are reviewed at each major release milestone.</p>
+
+  <h3>15.1 Risk Registry</h3>
+
+  <div class="risk risk-high">
+    <div class="risk-header">
+      <span class="risk-id">RISK-01</span>
+      <span class="risk-title">SQLite Performance Degradation at Scale</span>
+      <span class="risk-level">HIGH</span>
+    </div>
+    <div class="risk-body">
+      <p><strong>Description:</strong> Query latency on the transactions table degrades beyond the 50ms budget as users accumulate 10,000+ records without proper indexing or pre-aggregation.</p>
+      <p><strong>Probability:</strong> Medium (likely for power users within 2 years of use).</p>
+      <p><strong>Impact:</strong> High (degraded UX on list screens and reports; user-visible lag).</p>
+      <p><strong>Mitigations:</strong> (1) Composite indexes enforced at schema definition time. (2) Keyset pagination on all list queries. (3) Pre-aggregated monthly_summaries table maintained by domain events. (4) Hot/warm/cold data tiering for records &gt;2 years old. (5) FlashList virtual rendering prevents render-side degradation. (6) CI performance benchmarks run on 10,000-record dataset.</p>
+    </div>
+  </div>
+
+  <div class="risk risk-high">
+    <div class="risk-header">
+      <span class="risk-id">RISK-02</span>
+      <span class="risk-title">SQLCipher Key Loss / Biometric Failure</span>
+      <span class="risk-level">HIGH</span>
+    </div>
+    <div class="risk-body">
+      <p><strong>Description:</strong> Loss of the SQLCipher encryption key (device reset, Keychain corruption, failed biometric enrollment) results in permanent data loss with no recovery path.</p>
+      <p><strong>Probability:</strong> Low-Medium (device resets are common user behaviour).</p>
+      <p><strong>Impact:</strong> Critical (permanent, irrecoverable data loss).</p>
+      <p><strong>Mitigations:</strong> (1) Export-to-CSV or export-to-JSON available from day one — users can back up before device operations. (2) Cloud sync (Phase 4) provides the primary recovery path once available. (3) Key recovery flow using account password (Phase 4). (4) Clear in-app warnings before operations known to clear Keychain (e.g. full device reset). (5) Onboarding prompts user to export after first week of use.</p>
+    </div>
+  </div>
+
+  <div class="risk risk-high">
+    <div class="risk-header">
+      <span class="risk-id">RISK-03</span>
+      <span class="risk-title">Anthropic API Dependency Risk</span>
+      <span class="risk-level">HIGH</span>
+    </div>
+    <div class="risk-body">
+      <p><strong>Description:</strong> AI features are unavailable during Anthropic API outages, rate limit exhaustion, or pricing changes that make the feature economically unviable.</p>
+      <p><strong>Probability:</strong> Medium (API outages occur; pricing evolves).</p>
+      <p><strong>Impact:</strong> Medium (AI features degrade; core finance tracking unaffected).</p>
+      <p><strong>Mitigations:</strong> (1) Graceful degradation: all AI features display cached results or helpful static content when API is unavailable. (2) 24-hour response cache reduces API dependency for repeat queries. (3) Rate limiting client-side: maximum 10 AI requests per user per day to control costs. (4) AI layer abstracted behind <code>IAIProvider</code> interface — alternative providers (local LLM, OpenAI) are drop-in replacements without domain changes. (5) AI features are explicitly optional; no core flow depends on AI availability.</p>
+    </div>
+  </div>
+
+  <div class="risk risk-medium">
+    <div class="risk-header">
+      <span class="risk-id">RISK-04</span>
+      <span class="risk-title">React Native / Expo SDK Version Lag</span>
+      <span class="risk-level">MEDIUM</span>
+    </div>
+    <div class="risk-body">
+      <p><strong>Description:</strong> The ecosystem moves fast; delaying RN or Expo SDK upgrades accumulates compatibility debt and eventually requires a high-risk big-bang upgrade.</p>
+      <p><strong>Probability:</strong> High (inevitable without active management).</p>
+      <p><strong>Impact:</strong> Medium (upgrade risk; potential security vulnerabilities in outdated deps).</p>
+      <p><strong>Mitigations:</strong> (1) SDK upgrade tracked on a quarterly cycle (not release-by-release). (2) Dedicated upgrade branch; full E2E test suite run before merge. (3) Expo managed workflow reduces native upgrade complexity. (4) Breaking change monitoring via Expo changelog subscription. (5) Architecture Decision Records document the current version lock-in rationale.</p>
+    </div>
+  </div>
+
+  <div class="risk risk-medium">
+    <div class="risk-header">
+      <span class="risk-id">RISK-05</span>
+      <span class="risk-title">Sync Conflict Complexity (Phase 4)</span>
+      <span class="risk-level">MEDIUM</span>
+    </div>
+    <div class="risk-body">
+      <p><strong>Description:</strong> Multi-device sync introduces conflict scenarios (offline edits to the same transaction on two devices) that are hard to resolve without data loss or user confusion.</p>
+      <p><strong>Probability:</strong> High once multi-device is enabled.</p>
+      <p><strong>Impact:</strong> Medium-High (incorrect financial data if conflicts are silently wrong).</p>
+      <p><strong>Mitigations:</strong> (1) CRDT-ready data model from day one (ULID keys, soft deletes, updated_at). (2) Last-write-wins with explicit conflict log — users can review and resolve. (3) Conflict detection at the aggregate level, not field level, to reduce false positives. (4) Conservative merge: when in doubt, preserve both versions and present to user. (5) Extensive conflict simulation in integration test suite before Phase 4 launch.</p>
+    </div>
+  </div>
+
+  <div class="risk risk-medium">
+    <div class="risk-header">
+      <span class="risk-id">RISK-06</span>
+      <span class="risk-title">Technical Debt Accumulation</span>
+      <span class="risk-level">MEDIUM</span>
+    </div>
+    <div class="risk-body">
+      <p><strong>Description:</strong> Pressure to ship features causes shortcuts in architecture (bypassing domain layer, direct DB access from components, skipping tests) that compound into systemic fragility.</p>
+      <p><strong>Probability:</strong> High without governance.</p>
+      <p><strong>Impact:</strong> Medium (progressively slower velocity; bug surface expands).</p>
+      <p><strong>Mitigations:</strong> (1) Architecture review gates on every PR touching domain or infrastructure layers. (2) Dependency cycle detection in CI (any cycle is a build failure). (3) 20% of each sprint reserved for technical debt reduction. (4) Module ownership matrix ensures clear accountability. (5) Tech debt log maintained in <code>docs/tech-debt.md</code> with severity and owner.</p>
+    </div>
+  </div>
+
+  <div class="risk risk-low">
+    <div class="risk-header">
+      <span class="risk-id">RISK-07</span>
+      <span class="risk-title">App Store Policy Changes</span>
+      <span class="risk-level">LOW</span>
+    </div>
+    <div class="risk-body">
+      <p><strong>Description:</strong> Apple or Google policy changes could require features to be removed, permissions to be changed, or review processes to be extended.</p>
+      <p><strong>Probability:</strong> Low-Medium (policies evolve annually).</p>
+      <p><strong>Impact:</strong> Medium (forced feature changes; potential rejection).</p>
+      <p><strong>Mitigations:</strong> (1) Privacy-first architecture aligns with evolving App Store privacy requirements. (2) No use of private APIs or undocumented behaviours. (3) Annual review of App Store policy changes against current implementation. (4) Feature flags enable rapid removal of any feature that becomes policy-non-compliant without a full release.</p>
+    </div>
+  </div>
+
+  <div class="risk risk-low">
+    <div class="risk-header">
+      <span class="risk-id">RISK-08</span>
+      <span class="risk-title">Data Migration Failures</span>
+      <span class="risk-level">LOW</span>
+    </div>
+    <div class="risk-body">
+      <p><strong>Description:</strong> A schema migration that runs incorrectly in production corrupts user data or leaves the database in an inconsistent state.</p>
+      <p><strong>Probability:</strong> Low (with proper CI testing).</p>
+      <p><strong>Impact:</strong> Critical (data corruption is the worst user outcome).</p>
+      <p><strong>Mitigations:</strong> (1) Every migration wrapped in a SQLite transaction — atomicity guaranteed. (2) Down migrations required and CI-tested. (3) Pre-migration backup export offered to users for major schema versions. (4) Migration tested against 10,000-record synthetic dataset in CI. (5) Staged rollout: migrations that have never run in production first deploy to 1% of users for 24 hours before wider rollout.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── §16 Architecture Governance ──────────────────────────────── -->
+<section id="s16">
+  <h2>§16 Architecture Governance</h2>
+  <p class="lead">Architecture governance ensures that the design principles established in this document are maintained as the codebase grows, new engineers join, and new features are introduced. Governance is primarily tooling-enforced; human processes handle what tooling cannot.</p>
+
+  <h3>16.1 Automated Governance (Tooling)</h3>
+  <table>
+    <thead><tr><th>Rule</th><th>Enforcement</th><th>CI Behaviour</th></tr></thead>
+    <tbody>
+      <tr><td>No dependency cycles between modules</td><td>dependency-cruiser configuration</td><td>Build fails on any cycle</td></tr>
+      <tr><td>Domain layer has no infrastructure imports</td><td>ESLint import boundary rules (eslint-plugin-boundaries)</td><td>Build fails on violation</td></tr>
+      <tr><td>No <code>any</code> type in non-generated files</td><td>TypeScript strict + ESLint @typescript-eslint/no-explicit-any</td><td>Build fails on violation</td></tr>
+      <tr><td>No raw number arithmetic on money values</td><td>Custom ESLint rule detecting arithmetic on fields named *_centimes</td><td>Build fails on violation</td></tr>
+      <tr><td>All exports have explicit return types</td><td>@typescript-eslint/explicit-module-boundary-types</td><td>Build fails on violation</td></tr>
+      <tr><td>No offset-based pagination in SQLite queries</td><td>Custom ESLint rule detecting OFFSET keyword in query strings</td><td>Build warning (manual escalation)</td></tr>
+      <tr><td>Test coverage ≥ 80% on domain + application layers</td><td>Jest coverage thresholds</td><td>Build fails below threshold</td></tr>
+      <tr><td>Bundle size regression ≤ 5% per release</td><td>Expo bundle analyzer in CI</td><td>Build warning; manual approval required for &gt;5% increase</td></tr>
+    </tbody>
+  </table>
+
+  <h3>16.2 Architecture Review Process</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">Level 1 — PR Review</div>
+      <p>All PRs receive a standard code review. Architecture checklist embedded in PR template: layer compliance, naming conventions, test coverage, ADR requirement check. Required for all changes.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Level 2 — Architecture Review</div>
+      <p>Changes to: domain model, bounded context boundaries, cross-module communication patterns, external dependency additions, database schema. Requires explicit architecture sign-off in addition to code review. Reviewer verifies against this document.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Level 3 — Design Session</div>
+      <p>New bounded contexts, new architectural patterns, changes to the 11 architectural principles, Phase transitions (e.g. Phase 3 → Phase 4). Requires a written design proposal, synchronous discussion, and ADR before any code is written.</p>
+    </div>
+  </div>
+
+  <h3>16.3 Module Ownership Matrix</h3>
+  <table>
+    <thead><tr><th>Module Group</th><th>Modules</th><th>Ownership Responsibility</th></tr></thead>
+    <tbody>
+      <tr><td>Core Finance</td><td>MOD-01 Auth, MOD-02 Account, MOD-03 Transaction, MOD-04 Category</td><td>Domain integrity, data model stability, backward compatibility</td></tr>
+      <tr><td>Budget & Debt</td><td>MOD-05 Budget, MOD-06 Debt</td><td>Business rule accuracy, period calculation correctness</td></tr>
+      <tr><td>Goals & Health</td><td>MOD-07 Savings Goals, MOD-08 Financial Health Score</td><td>Algorithm correctness, score consistency across updates</td></tr>
+      <tr><td>Intelligence</td><td>MOD-09 AI Insights, MOD-10 Smart Alerts, MOD-11 Predictions, MOD-12 Recommendations</td><td>AI prompt quality, response caching, graceful degradation</td></tr>
+      <tr><td>Reporting</td><td>MOD-13 Reports, MOD-14 Dashboard, MOD-15 Export</td><td>Query performance, aggregate correctness, export format fidelity</td></tr>
+      <tr><td>Engagement</td><td>MOD-16 Notifications, MOD-17 Gamification, MOD-18 Onboarding</td><td>Behavior definition accuracy, opt-out completeness, anti-pattern avoidance</td></tr>
+      <tr><td>Infrastructure</td><td>MOD-19 Sync (future), MOD-20 Security, MOD-21 Localisation, MOD-22 Settings</td><td>Encryption correctness, privacy compliance, locale accuracy</td></tr>
+    </tbody>
+  </table>
+
+  <h3>16.4 Versioning & Deprecation Policy</h3>
+  <ul>
+    <li><strong>App versioning:</strong> Semantic versioning (MAJOR.MINOR.PATCH). MAJOR: breaking schema change or major UX overhaul. MINOR: new feature or bounded context. PATCH: bug fix or OTA-eligible change.</li>
+    <li><strong>Schema versioning:</strong> Monotonically increasing integer. Stored in <code>app_metadata.schema_version</code>. Downgrades to a lower schema version are rejected at startup.</li>
+    <li><strong>API surface versioning:</strong> Internal module APIs (application service interfaces) are versioned when changing. Consumers of a deprecated interface get a 2-sprint migration window before the old interface is removed.</li>
+    <li><strong>Feature deprecation:</strong> Features are deprecated via feature flag (set to forced-off), announced in the changelog, and removed after minimum 60 days from deprecation announcement.</li>
+    <li><strong>Spec versioning:</strong> Each SPEC-* document has a version field in its header table. Spec amendments require a version bump and a changelog entry in the document itself.</li>
+  </ul>
+
+  <h3>16.5 Technical Roadmap Alignment</h3>
+  <p>Architecture decisions must be evaluated against the 5-phase roadmap (§18). Any decision that accelerates delivery of a later phase is welcome; any decision that would require significant re-architecture when transitioning phases must be flagged with an explicit ADR and risk acknowledgement.</p>
+  <table>
+    <thead><tr><th>Architectural Element</th><th>Phase 1 Readiness</th><th>Phase 4 (Sync) Impact</th></tr></thead>
+    <tbody>
+      <tr><td>ULID primary keys</td><td>Required from day 1</td><td>Enables global uniqueness without coordination</td></tr>
+      <tr><td>Soft deletes (tombstoning)</td><td>Required from day 1</td><td>Enables three-way merge without loss</td></tr>
+      <tr><td>updated_at on all entities</td><td>Required from day 1</td><td>Enables delta sync protocol</td></tr>
+      <tr><td>IAIProvider interface</td><td>Anthropic impl from day 1</td><td>Alternative providers plug in without domain changes</td></tr>
+      <tr><td>CompositionRoot DI</td><td>Required from day 1</td><td>Swap infrastructure adapters without domain changes</td></tr>
+      <tr><td>Plugin architecture</td><td>Defined in Phase 1; no plugins yet</td><td>Investment/Tax modules register as plugins in Phase 5</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── §17 Final Consistency Validation ─────────────────────────── -->
+<section id="s17">
+  <h2>§17 Final Consistency Validation</h2>
+  <p class="lead">This section cross-validates the architectural decisions in SPEC-ARC-001 against all prior specifications (Parts 18–24) to confirm that no inconsistencies, contradictions, or unresolvable conflicts exist between the documents.</p>
+
+  <h3>17.1 Cross-Spec Consistency Matrix</h3>
+  <table>
+    <thead><tr><th>Concern</th><th>Source Spec</th><th>ARC Alignment</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Money representation (integer centimes)</td>
+        <td>All specs</td>
+        <td>§5 Domain Model: Money value object enforces integer centimes. No floating-point arithmetic in domain or application layer. Display layer applies locale-specific formatting.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>ULID primary keys</td>
+        <td>All specs</td>
+        <td>§5.3 specifies ULID for all aggregate roots and entities. §13.3 confirms ULID enables CRDT-ready sync.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>Soft deletes only</td>
+        <td>SPEC-DB, SPEC-TXN</td>
+        <td>§5 Domain Model: deleted_at timestamp on all entities. §13.3: enables three-way merge for cloud sync.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>SQLCipher AES-256-CBC</td>
+        <td>SPEC-SEC</td>
+        <td>§2 System Overview frozen stack. §12.3 Security: SQLCipher enforced in staging and production. §14 Deployment: dev may use plain SQLite for debugging.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>Anthropic API (claude-sonnet-5)</td>
+        <td>SPEC-AI</td>
+        <td>§2.1 frozen tech stack. §8 Dependency Management: IAIProvider interface abstracts provider. §15 RISK-03: graceful degradation designed.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>Alert deduplication (cooldown, 2-banner cap)</td>
+        <td>SPEC-PMO-001 §6</td>
+        <td>§7 Event Flow: alert events dispatched via domain event bus. §12.2 Caching: alert state cached to enforce cooldown windows across sessions.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>26 alert definitions (ALT-001–ALT-026)</td>
+        <td>SPEC-PMO-001</td>
+        <td>MOD-10 Smart Alerts (§4) owns alert evaluation. Alerts are domain events processed by the notification subsystem (§3.4 supplemental layers).</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>Gamification behavior recognition (27 behaviors)</td>
+        <td>SPEC-GAM-001 §2</td>
+        <td>MOD-17 Gamification (§4). Domain event bus dispatches BehaviorRecognized events from all 8 bounded contexts. GAM layer subscribes.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>Achievement state machine (LOCKED→IN_PROGRESS→UNLOCKED→REVOKED)</td>
+        <td>SPEC-GAM-001 §3</td>
+        <td>§5 Domain Model: achievement as aggregate within Gamification bounded context. State transitions are domain events; external consumers are read-only.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>Streak grace period (1 per 6-period window)</td>
+        <td>SPEC-GAM-001 §4</td>
+        <td>Grace period logic is encapsulated in the Streak domain service. No cross-module state sharing; streak context is authoritative for grace consumption.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>Max 3 active challenges simultaneously</td>
+        <td>SPEC-GAM-001 §7</td>
+        <td>Enforced as a domain invariant on the ChallengeAggregate. ERR-BIZ thrown on violation. UI pre-validates; domain enforces.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>Gamification full opt-out + retroactive catch-up</td>
+        <td>SPEC-GAM-001 §9</td>
+        <td>Opt-out stored in user_preferences (MOD-22 Settings). GAM module checks preference before processing any BehaviorRecognized event. Catch-up on re-enable is a use case in the application layer.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>6 SQLite schemas for gamification</td>
+        <td>SPEC-GAM-001 §11</td>
+        <td>All 6 tables (gam_achievement_state, gam_streak_state, etc.) are covered by drizzle-orm schema definitions. They participate in the standard migration system (§14.5).</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>GDPR right-by-right implementation</td>
+        <td>SPEC-PMO-001 §14</td>
+        <td>§12.3 Security cross-cutting: no PII in logs. MOD-20 Security + MOD-15 Export together implement the right to access and right to erasure. Soft deletes participate in erasure by nulling PII fields, not physical deletion.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>9 motivation profiles (PROF-NEW through PROF-MLT)</td>
+        <td>SPEC-GAM-001 §6</td>
+        <td>Profiles stored in user_preferences. Profile detection runs as a background application service on a weekly schedule. Detection logic has no domain coupling.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>Financial Health Score (FHS) 6 invariants</td>
+        <td>SPEC-FHS</td>
+        <td>§5.3 FHS Invariants: all 6 are codified as assertions in the HealthScoreAggregate. Score recalculation is triggered by domain events from Financial Tracking, Budget, and Debt bounded contexts.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>8 error classes (ERR-VAL through ERR-UNH)</td>
+        <td>SPEC-ARC-001 §9</td>
+        <td>Referenced throughout the domain model for invariant violations. Used in all application services for command validation. Error catalog is the single source of truth.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+      <tr>
+        <td>Hermes JS engine</td>
+        <td>All mobile specs</td>
+        <td>§2.1 frozen stack. §12.6 Performance: Hermes JIT enables 60fps budget. No Hermes-incompatible syntax or APIs used.</td>
+        <td class="status-ok">✓ Consistent</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>17.2 Architectural Conflict Report</h3>
+  <div class="callout callout-blue" style="margin-top:1rem">
+    <strong>RESULT: No unresolved architectural conflicts identified.</strong> All cross-spec consistency checks passed. The 18 rows above represent the complete set of inter-spec dependencies that could produce conflicts. Each is resolved by a clear ownership rule, interface boundary, or domain event coupling that is already specified in the relevant sections of this document and the source specifications.
+  </div>
+
+  <h3>17.3 Open Design Decisions (Deferred to Phase Transitions)</h3>
+  <table>
+    <thead><tr><th>Decision</th><th>Deferred To</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td>Cloud sync provider selection (AWS Amplify vs. custom vs. Supabase)</td><td>Phase 4 kickoff</td><td>Provider capabilities and pricing will have evolved; decision needs current market data</td></tr>
+      <tr><td>Investment data provider (market data API)</td><td>Phase 5 kickoff</td><td>Regulatory and licensing requirements vary by jurisdiction; needs legal review</td></tr>
+      <tr><td>Wearable communication protocol specifics</td><td>Phase 5 kickoff</td><td>Depends on final wearable platform selection; architecture interface defined, impl deferred</td></tr>
+      <tr><td>Tax calculation engine (rules engine vs. lookup tables vs. API)</td><td>Phase 5 kickoff</td><td>Jurisdiction scope not yet defined; rules engine vs API trade-off depends on offline requirement</td></tr>
+    </tbody>
+  </table>
+
+  <h3>17.4 Specification Coverage Completeness</h3>
+  <table>
+    <thead><tr><th>Architecture Domain</th><th>Covered In</th><th>Completeness</th></tr></thead>
+    <tbody>
+      <tr><td>Core financial domain model</td><td>§5, SPEC-TXN, SPEC-BDG, SPEC-DBT, SPEC-SAV</td><td class="status-ok">Complete</td></tr>
+      <tr><td>AI / Intelligence layer</td><td>§3, §4 MOD-09–12, SPEC-AI</td><td class="status-ok">Complete (Phase 1–3 scope)</td></tr>
+      <tr><td>Gamification system</td><td>§4 MOD-17, §7, SPEC-GAM-001</td><td class="status-ok">Complete</td></tr>
+      <tr><td>Security & encryption</td><td>§12.3, §2.1, SPEC-SEC</td><td class="status-ok">Complete (Phase 1 scope)</td></tr>
+      <tr><td>Monitoring & observability</td><td>§14, SPEC-PMO-001</td><td class="status-ok">Complete</td></tr>
+      <tr><td>Cloud sync</td><td>§13.3, §13.4</td><td class="status-warn">Architectural constraints defined; impl deferred to Phase 4</td></tr>
+      <tr><td>Family / multi-user</td><td>§13.5</td><td class="status-warn">Expansion path defined; impl deferred to Phase 4</td></tr>
+      <tr><td>Investments, Tax, Business</td><td>§13.5</td><td class="status-warn">Module boundaries defined; impl deferred to Phase 5</td></tr>
+      <tr><td>Desktop / wearable</td><td>§13.5</td><td class="status-warn">Interface stubs defined; impl deferred to Phase 5</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── §18 Technical Roadmap & Business Rules ───────────────────── -->
+<section id="s18">
+  <h2>§18 Technical Roadmap &amp; Business Rules</h2>
+
+  <h3>18.1 Five-Phase Technical Roadmap</h3>
+
+  <div class="card" style="margin-bottom:1rem;border-left:4px solid var(--acc)">
+    <div class="card-label">Phase 1 — Foundation (Months 1–4)</div>
+    <p><strong>Goal:</strong> Deliver a production-quality, offline-first personal finance tracker with core data integrity guarantees.</p>
+    <p><strong>Architecture work:</strong> CompositionRoot, Clean Architecture layers, SQLite + SQLCipher, Zustand stores, Expo Router navigation, domain event bus, all 8 error classes, MOD-01 through MOD-08 (Auth, Account, Transaction, Category, Budget, Debt, Savings Goals, FHS). Migration system. Localization infrastructure (en-US + 2 locales). Feature flag infrastructure.</p>
+    <p><strong>Exit criteria:</strong> 10,000-record performance benchmarks pass. All domain invariants enforced and unit-tested. Encryption verified. Export functional. Zero critical security issues from first-party security review.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem;border-left:4px solid var(--cyan)">
+    <div class="card-label">Phase 2 — Intelligence (Months 5–8)</div>
+    <p><strong>Goal:</strong> Layer AI-powered insights and automated alerts onto the solid Phase 1 foundation.</p>
+    <p><strong>Architecture work:</strong> IAIProvider interface + Anthropic adapter. MOD-09 AI Insights, MOD-10 Smart Alerts, MOD-11 Predictions, MOD-12 Recommendations. AI response cache. 26 alert definitions. Rate limiting client. Graceful degradation patterns. MOD-16 Notifications system. Push notification integration.</p>
+    <p><strong>Exit criteria:</strong> AI features degrade gracefully when API unavailable. Latency SLOs met (P50 &lt;3s, P95 &lt;8s). Alert deduplication verified. Privacy: no PII in AI prompts without explicit user consent.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem;border-left:4px solid var(--violet)">
+    <div class="card-label">Phase 3 — Engagement (Months 9–12)</div>
+    <p><strong>Goal:</strong> Deliver the gamification and reporting systems to drive long-term user retention.</p>
+    <p><strong>Architecture work:</strong> MOD-17 Gamification (all 6 SQLite tables, 27 behaviors, 30+ achievements, 7 streaks, 15 milestones, 10 challenges). MOD-13 Reports and MOD-14 Dashboard. Monthly summary aggregation and hot/warm/cold tiering. MOD-15 Export (CSV, JSON, PDF). MOD-18 Onboarding. Full localisation (all 6 launch locales + RTL).</p>
+    <p><strong>Exit criteria:</strong> Gamification full opt-out functional. All 10 anti-patterns verified absent. Report generation &lt;500ms for 5-year dataset. Export verified for all formats.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem;border-left:4px solid var(--green)">
+    <div class="card-label">Phase 4 — Scale (Months 13–20)</div>
+    <p><strong>Goal:</strong> Enable cloud sync, multi-device support, and optional account sharing.</p>
+    <p><strong>Architecture work:</strong> MOD-19 Sync: cloud sync adapter, delta sync protocol, conflict resolution engine, device registry, HLC implementation. Account/key recovery flow. Multi-device notification dedup. Family sharing bounded context (new). 5-device limit enforcement. Offline duration policy (30-day re-sync).</p>
+    <p><strong>Exit criteria:</strong> Three-way merge conflict scenarios all resolve without data loss. Offline-30-day re-sync &lt;60 seconds for 10,000 records. End-to-end encryption verified in sync payload. Multi-device notification dedup verified.</p>
+  </div>
+
+  <div class="card" style="margin-bottom:1rem;border-left:4px solid var(--warn)">
+    <div class="card-label">Phase 5 — Platform (Months 21+)</div>
+    <p><strong>Goal:</strong> Expand to adjacent financial domains and additional platforms.</p>
+    <p><strong>Architecture work:</strong> Investments bounded context (portfolio, market data, performance tracking). Tax module (jurisdiction-specific rules, tax-year accounting). Business finance bounded context (double-entry bookkeeping, invoice tracking). Desktop adapter (web/Electron with sql.js). Wearable adapter (WatchConnectivity thin client). Plugin API published for third-party integrations.</p>
+    <p><strong>Exit criteria:</strong> Each new bounded context maintains full isolation from existing contexts. Plugin API versioned and documented. Desktop feature parity with mobile for Phase 1–3 features.</p>
+  </div>
+
+  <h3>18.2 Architecture Business Rules</h3>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-01</div>
+    <div class="br-body">All money values throughout the system — in storage, in computation, in inter-module communication — must be represented as integer centimes (smallest unit of the currency). Floating-point arithmetic on monetary values is prohibited at every layer. The Money value object is the single enforcer of this rule; raw numbers may not be passed across bounded context boundaries in place of a Money instance.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-02</div>
+    <div class="br-body">Domain entities and domain services must have zero dependency on any infrastructure concern: no SQLite imports, no network calls, no platform APIs (React Native, Expo), no Zustand stores. A domain entity or service that compiles only in a React Native context is an architecture violation. Domain code must be compilable and testable in a plain Node.js environment.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-03</div>
+    <div class="br-body">Every public mutation in the system — every command that changes domain state — must be handled by an application service use case. Presentation layer components and Zustand stores must not write directly to the repository layer or domain entities. The application service is the sole orchestrator of: validation, domain operation, repository persistence, and event dispatch.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-04</div>
+    <div class="br-body">Primary keys for all aggregate roots and entities must be ULIDs (Universally Unique Lexicographically Sortable Identifiers) generated at the domain layer, not at the database layer. Auto-increment integer IDs are prohibited. Sequential IDs that reveal record counts or creation order are prohibited.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-05</div>
+    <div class="br-body">Physical deletion of records is prohibited throughout the system. All deletions must be implemented as soft deletes using a <code>deleted_at</code> timestamp. This applies uniformly to transactions, accounts, budgets, categories, debts, goals, achievements, challenges, and all other domain entities. The prohibition on physical deletion stands even when the user explicitly requests "delete everything" — PII fields are nulled, but the structural record (with ULID and timestamps) remains for sync integrity.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-06</div>
+    <div class="br-body">The domain event bus operates synchronously for event dispatch (the handler chain executes before the originating use case returns), but event handlers that perform background work (cache invalidation, aggregate updates in other bounded contexts, gamification processing) must be registered as asynchronous and must not block the originating use case's response. No bounded context handler may fail the originating transaction — failures in event handlers are logged and retried in the background.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-07</div>
+    <div class="br-body">No circular dependencies may exist between modules, bounded contexts, or layers. A module in the Gamification bounded context may subscribe to events from the Financial Tracking bounded context, but may not import types or call functions directly from that context's application layer. All cross-context communication is mediated by the domain event bus or explicitly defined anti-corruption layer adapters.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-08</div>
+    <div class="br-body">All external dependencies (libraries, frameworks, APIs) are wrapped behind interfaces defined in the domain or application layer. No external library type, class, or function may be imported directly into domain entities, value objects, or application services. Third-party types that must cross this boundary are translated by adapter classes at the infrastructure layer boundary.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-09</div>
+    <div class="br-body">Schema migrations are forward-only in production. A destructive migration (removing a column, dropping a table, renaming a column) requires a minimum two-version deprecation cycle: in version N, the column is stopped-being-written; in version N+1 (minimum 30 days after N), the column is physically removed. Every migration must have a functioning down migration that is tested in CI. Migrations that cannot be safely reversed must be explicitly flagged in the ADR as irreversible and require additional architectural review.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-10</div>
+    <div class="br-body">The Anthropic API key must never appear in: log output (at any level), error reports (Sentry or otherwise), analytics events, exported data, network requests to any endpoint other than the Anthropic API, or local storage outside of Expo SecureStore. The key is accessed exactly once at application startup from SecureStore and held in the CompositionRoot's scope for the session lifetime only.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-11</div>
+    <div class="br-body">Feature flags control feature visibility and rollout, not business logic. A feature flag must never be inside a domain entity or domain service. Feature flags are evaluated at presentation-layer entry points (screen components, navigation guards) or application-layer command handlers. The domain layer is always "on" — it never knows about feature flags. This ensures domain invariants are testable independently of flag state.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-12</div>
+    <div class="br-body">All user-visible strings must be externalized to translation key files. Hardcoded English strings in component code are a linting error (CI failure). Translation keys must use the namespaced dot-path convention. ICU Message Format is mandatory for strings containing counts, genders, or conditional content. Missing translation keys fall back through the locale chain to en-US — they never display a raw key string to the user.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-13</div>
+    <div class="br-body">All list queries against the SQLite database must use keyset (cursor) pagination. OFFSET-based pagination is prohibited due to performance degradation at scale. The pagination cursor must be based on a sortable field (typically <code>date DESC, id DESC</code>) and must be stable across data mutations (i.e., inserting a new record must not cause a page shift in existing cursors).</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-14</div>
+    <div class="br-body">The architecture specification (SPEC-ARC-001, this document) is the authoritative source of truth for all architectural decisions. In the event of a conflict between this document and any other specification, this document prevails for structural concerns (layers, modules, communication patterns, error handling, data representation). The domain-specific specification prevails for business logic within its domain. Genuine conflicts between documents must be resolved via the ADR process before implementation — code that implements a conflicting interpretation without an ADR is a technical debt item that must be resolved in the next sprint.</div>
+  </div>
+
+  <div class="br-block">
+    <div class="br-id">BR-ARC-15</div>
+    <div class="br-body">No implementation code (executable TypeScript, JavaScript, SQL, shell scripts) may appear in any SPEC-* specification document. Specifications describe behaviour, constraints, interfaces, data models, and invariants in prose, tables, and diagrams only. Pseudo-code illustrating an algorithm or state machine transition is permitted, clearly labelled as non-executable. Any code found in a specification document must be removed before the specification is merged; this is a CI check on the docs/specs/ directory.</div>
+  </div>
+
+  <h3>18.3 Architecture Principles Summary (Reference)</h3>
+  <p>The 11 architectural principles (§1) are restated here as a quick reference, in hierarchy order:</p>
+  <ol>
+    <li><strong>Data Integrity Above All</strong> — Correctness over convenience; financial data is trusted implicitly</li>
+    <li><strong>Security by Design</strong> — Encryption and access control are not add-ons</li>
+    <li><strong>Privacy by Design</strong> — Minimum data collection; maximum user control</li>
+    <li><strong>Offline-First</strong> — Full functionality without network; connectivity is an enhancement</li>
+    <li><strong>Clean Architecture</strong> — Strict layer boundaries; domain is the centre of gravity</li>
+    <li><strong>Separation of Concerns</strong> — Each module has one clear responsibility</li>
+    <li><strong>Dependency Inversion</strong> — Domain drives the design; infrastructure conforms to domain interfaces</li>
+    <li><strong>Testability</strong> — Every business decision testable in isolation from infrastructure</li>
+    <li><strong>Explicit Over Implicit</strong> — Errors thrown, not swallowed; state typed, not inferred</li>
+    <li><strong>Reversibility</strong> — Prefer decisions that can be undone over ones that cannot</li>
+    <li><strong>Minimal Footprint</strong> — Smallest dependency set, smallest bundle, smallest storage footprint that meets requirements</li>
+  </ol>
+
+  <h3>18.4 Document Metadata</h3>
+  <table>
+    <thead><tr><th>Field</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Specification ID</td><td>SPEC-ARC-001</td></tr>
+      <tr><td>Version</td><td>1.0.0</td></tr>
+      <tr><td>Status</td><td>APPROVED</td></tr>
+      <tr><td>Role Authors</td><td>Principal Software Architect · Enterprise Solution Architect · Staff Mobile Engineer · FinTech Platform Architect · Technical Lead</td></tr>
+      <tr><td>Sections</td><td>18</td></tr>
+      <tr><td>Business Rules</td><td>BR-ARC-01 through BR-ARC-15</td></tr>
+      <tr><td>Risk Entries</td><td>RISK-01 through RISK-08</td></tr>
+      <tr><td>Cross-spec validations</td><td>18 consistency checks — all passed</td></tr>
+      <tr><td>Supersedes</td><td>None (inaugural version)</td></tr>
+      <tr><td>Related Specifications</td><td>All SPEC-* documents (Parts 18–24)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-arc-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-arc-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
