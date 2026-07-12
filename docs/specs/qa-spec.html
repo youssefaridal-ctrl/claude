@@ -1,0 +1,1482 @@
+
+<title>SPEC-QA-001 — Testing Strategy & Quality Assurance Specification</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root {
+  --acc: #059669;
+  --acc-dim: rgba(5,150,105,.65);
+  --acc-bg: rgba(5,150,105,.08);
+  --bg:    #18181B;
+  --surf:  #27272A;
+  --surf2: #3F3F46;
+  --bd:    #3F3F46;
+  --txt:   #F4F4F5;
+  --txt2:  #A1A1AA;
+  --txt3:  #71717A;
+  --ok:    #22C55E;
+  --warn:  #F59E0B;
+  --err:   #EF4444;
+  --info:  #38BDF8;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:   #F9FAFB; --surf: #FFFFFF; --surf2: #F3F4F6;
+    --bd:   #E5E7EB; --txt: #111827;  --txt2:  #6B7280; --txt3: #9CA3AF;
+  }
+}
+:root[data-theme="dark"]  { --bg:#18181B; --surf:#27272A; --surf2:#3F3F46; --bd:#3F3F46; --txt:#F4F4F5; --txt2:#A1A1AA; --txt3:#71717A; }
+:root[data-theme="light"] { --bg:#F9FAFB; --surf:#FFFFFF; --surf2:#F3F4F6; --bd:#E5E7EB; --txt:#111827; --txt2:#6B7280; --txt3:#9CA3AF; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg); color: var(--txt);
+  font-size: 15px; line-height: 1.6;
+  display: flex; min-height: 100vh;
+}
+/* ── NAV ── */
+nav {
+  width: 240px; flex-shrink: 0;
+  background: var(--surf); border-right: 1px solid var(--bd);
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  padding: 24px 0 40px;
+}
+.nav-brand {
+  padding: 0 20px 20px;
+  border-bottom: 1px solid var(--bd);
+  margin-bottom: 12px;
+}
+.nav-brand .spec-id { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--acc); }
+.nav-brand .spec-title { font-size: .82rem; color: var(--txt2); line-height: 1.4; margin-top: 2px; }
+#nav-list { list-style: none; }
+#nav-list li a {
+  display: block; padding: 7px 20px;
+  font-size: .8rem; color: var(--txt2); text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+}
+#nav-list li a:hover { color: var(--txt); background: var(--acc-bg); }
+#nav-list li a.active { color: var(--acc); border-left-color: var(--acc); background: var(--acc-bg); font-weight: 600; }
+/* ── MAIN ── */
+main { flex: 1; max-width: 900px; padding: 40px 48px 100px; min-width: 0; }
+/* ── DOC HEADER ── */
+.doc-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--bd); }
+.doc-header .badge { display: inline-block; background: var(--acc-bg); color: var(--acc); font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; margin-bottom: 14px; }
+.doc-header h1 { font-size: 2rem; font-weight: 800; line-height: 1.2; color: var(--txt); margin-bottom: 10px; }
+.doc-header .subtitle { font-size: 1rem; color: var(--txt2); margin-bottom: 20px; }
+.meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 12px; }
+.meta-item { background: var(--surf); border: 1px solid var(--bd); border-radius: var(--radius); padding: 12px 14px; }
+.meta-item .label { font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--txt3); margin-bottom: 3px; }
+.meta-item .value { font-size: .85rem; color: var(--txt); font-weight: 600; }
+/* ── SECTIONS ── */
+section { margin-bottom: 64px; scroll-margin-top: 24px; }
+.sec-label { font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); margin-bottom: 6px; }
+h2 { font-size: 1.45rem; font-weight: 700; color: var(--txt); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--acc); display: inline-block; }
+h3 { font-size: 1rem; font-weight: 700; color: var(--txt); margin: 28px 0 10px; }
+h4 { font-size: .9rem; font-weight: 600; color: var(--txt2); margin: 18px 0 8px; }
+p { color: var(--txt2); margin-bottom: 12px; }
+ul, ol { padding-left: 20px; color: var(--txt2); margin-bottom: 12px; }
+li { margin-bottom: 4px; }
+strong { color: var(--txt); font-weight: 600; }
+code { font-family: 'SF Mono','Fira Code',monospace; font-size: .8rem; background: var(--surf2); color: var(--acc); padding: 1px 5px; border-radius: 3px; }
+/* ── TABLES ── */
+.tw { overflow-x: auto; margin: 14px 0 20px; border-radius: var(--radius); border: 1px solid var(--bd); }
+table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+th { background: var(--surf2); color: var(--txt); font-weight: 700; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--bd); }
+td { padding: 9px 14px; color: var(--txt2); border-bottom: 1px solid var(--bd); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--acc-bg); }
+/* ── SPEC BLOCKS ── */
+.spec-block { background: var(--surf); border: 1px solid var(--bd); border-left: 3px solid var(--acc); border-radius: var(--radius); padding: 16px 18px; margin: 14px 0; font-size: .85rem; color: var(--txt2); line-height: 1.7; }
+.warn-block { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.3); border-left: 3px solid var(--warn); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; font-size: .85rem; color: var(--txt2); }
+.ok-block   { background: rgba(34,197,94,.07); border: 1px solid rgba(34,197,94,.3); border-left: 3px solid var(--ok); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; font-size: .85rem; color: var(--txt2); }
+.err-block  { background: rgba(239,68,68,.07); border: 1px solid rgba(239,68,68,.3); border-left: 3px solid var(--err); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; font-size: .85rem; color: var(--txt2); }
+/* ── PYRAMID ── */
+.pyramid { display: flex; flex-direction: column; align-items: center; gap: 3px; margin: 24px 0; }
+.pyr-layer {
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 4px; font-size: .78rem; font-weight: 700;
+  color: #fff; letter-spacing: .04em; text-align: center;
+  padding: 10px 16px; text-transform: uppercase;
+}
+/* ── MONO ── */
+.mono { font-family: 'SF Mono','Fira Code',monospace; font-size: .78rem; font-weight: 700; color: var(--acc); white-space: nowrap; }
+/* ── PILL ── */
+.pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; }
+.pill-ok   { background: rgba(34,197,94,.15); color: #22C55E; }
+.pill-warn { background: rgba(245,158,11,.15); color: #F59E0B; }
+.pill-err  { background: rgba(239,68,68,.15); color: #EF4444; }
+.pill-info { background: rgba(56,189,248,.15); color: #38BDF8; }
+/* ── THEME BTN ── */
+#theme-btn {
+  position: fixed; top: 14px; right: 16px;
+  background: var(--surf); border: 1px solid var(--bd); border-radius: 20px;
+  padding: 5px 12px; font-size: .75rem; color: var(--txt2);
+  cursor: pointer; z-index: 100;
+}
+#theme-btn:hover { color: var(--txt); }
+@media (max-width: 768px) {
+  body { flex-direction: column; }
+  nav { width: 100%; height: auto; position: static; padding: 16px 0; }
+  main { padding: 24px 20px 60px; }
+}
+</style>
+
+<button id="theme-btn">☀ / ☾</button>
+
+<nav>
+  <div class="nav-brand">
+    <div class="spec-id">SPEC-QA-001</div>
+    <div class="spec-title">Testing Strategy &amp; Quality Assurance</div>
+  </div>
+  <ul id="nav-list">
+    <li><a href="#s1">§1 Overview &amp; Philosophy</a></li>
+    <li><a href="#s2">§2 Testing Pyramid Architecture</a></li>
+    <li><a href="#s3">§3 Static Analysis &amp; Code Quality</a></li>
+    <li><a href="#s4">§4 Unit &amp; Component Testing</a></li>
+    <li><a href="#s5">§5 Integration Testing</a></li>
+    <li><a href="#s6">§6 End-to-End &amp; System Testing</a></li>
+    <li><a href="#s7">§7 Module Testing Requirements</a></li>
+    <li><a href="#s8">§8 Business Rule Validation</a></li>
+    <li><a href="#s9">§9 Edge Case Testing</a></li>
+    <li><a href="#s10">§10 Security Testing</a></li>
+    <li><a href="#s11">§11 Performance Testing</a></li>
+    <li><a href="#s12">§12 Usability Testing</a></li>
+    <li><a href="#s13">§13 Automation Strategy</a></li>
+    <li><a href="#s14">§14 Release Readiness</a></li>
+    <li><a href="#s15">§15 Quality Metrics</a></li>
+    <li><a href="#s16">§16 Bug Management</a></li>
+    <li><a href="#s17">§17 Documentation Standards</a></li>
+    <li><a href="#s18">§18 Future Scalability &amp; Business Rules</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="doc-header">
+  <div class="badge">Finance Bag — Specification Series</div>
+  <h1>Testing Strategy &amp; Quality Assurance Specification</h1>
+  <p class="subtitle">Comprehensive QA framework, testing methodology, release readiness, and quality governance for a trust-critical personal finance application.</p>
+  <div class="meta-grid">
+    <div class="meta-item"><div class="label">Document ID</div><div class="value">SPEC-QA-001</div></div>
+    <div class="meta-item"><div class="label">Version</div><div class="value">1.0.0</div></div>
+    <div class="meta-item"><div class="label">Series Part</div><div class="value">22 of N</div></div>
+    <div class="meta-item"><div class="label">App Version</div><div class="value">Finance Bag 1.0</div></div>
+    <div class="meta-item"><div class="label">Stack</div><div class="value">RN 0.76 / Expo SDK 52</div></div>
+    <div class="meta-item"><div class="label">Platform</div><div class="value">iOS 16+ / Android 12+</div></div>
+    <div class="meta-item"><div class="label">Status</div><div class="value">Authoritative</div></div>
+    <div class="meta-item"><div class="label">Companion Specs</div><div class="value">OFL-001, AIC-001, DSN-001</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ §1 -->
+<section id="s1">
+  <div class="sec-label">Section 01</div>
+  <h2>Overview &amp; Quality Philosophy</h2>
+
+  <h3>1.1 Why Quality Is Non-Negotiable</h3>
+  <p>Finance Bag manages its users' most sensitive personal data: income, debts, savings, financial goals, and spending habits. A single bug that miscalculates a debt payoff projection, corrupts a monthly archive, or silently fails to encrypt a backup does not merely frustrate a user — it destroys trust in an application that must be as reliable as a bank statement.</p>
+  <p>Quality in Finance Bag is therefore a product requirement with the same priority as features. It is designed in from the first line of development, measured continuously, and enforced as a hard release gate. It is never a final verification step.</p>
+
+  <h3>1.2 Core Quality Values</h3>
+  <div class="tw"><table>
+    <tr><th>Value</th><th>Definition</th><th>Primary Test Enforcement</th></tr>
+    <tr><td><strong>Reliable</strong></td><td>The app behaves correctly under all documented conditions. No silent failures, no data loss.</td><td>Unit tests, integration tests, E2E critical path tests</td></tr>
+    <tr><td><strong>Predictable</strong></td><td>The same action always produces the same result. Calculations are deterministic. UI states are consistent.</td><td>Business rule tests, regression suite</td></tr>
+    <tr><td><strong>Secure</strong></td><td>Financial data is protected at rest and in transit. No unauthorized access is possible.</td><td>Security testing, encryption verification, penetration testing</td></tr>
+    <tr><td><strong>Consistent</strong></td><td>UI, formatting, language, and behavior are consistent across all modules and both platforms.</td><td>Manual visual regression, localization tests</td></tr>
+    <tr><td><strong>Recoverable</strong></td><td>Every failure mode has a recovery path. No operation leaves data in an unresovlable corrupt state.</td><td>Edge case tests, chaos scenarios, backup/restore tests</td></tr>
+    <tr><td><strong>Validatable</strong></td><td>Every calculation, rule, and output can be independently verified. No black-box financial logic.</td><td>Business rule validation suite, explainability checks</td></tr>
+    <tr><td><strong>Maintainable</strong></td><td>The test suite is as maintainable as the production code. Flaky tests are treated as bugs.</td><td>Code quality gates, test coverage thresholds</td></tr>
+  </table></div>
+
+  <h3>1.3 Scope</h3>
+  <p>This specification covers the complete quality assurance strategy for Finance Bag v1.0 across all 15 modules. It defines:</p>
+  <ul>
+    <li>The testing architecture and pyramid</li>
+    <li>Per-module quality objectives and test requirements</li>
+    <li>Business rule validation strategies</li>
+    <li>Edge case, security, performance, and usability testing</li>
+    <li>Automation versus manual testing strategy</li>
+    <li>Release readiness criteria and checklist</li>
+    <li>Quality metrics, bug management, and documentation standards</li>
+    <li>Future CI/CD and device farm integration path</li>
+  </ul>
+  <div class="warn-block"><strong>Out of scope:</strong> This document does not specify test implementation code, test framework configuration files, or CI pipeline YAML. Those are implementation artifacts. This spec defines <em>what</em> must be tested, <em>why</em>, and <em>to what standard</em> — not <em>how</em> it is implemented.</div>
+
+  <h3>1.4 Quality Cadence</h3>
+  <div class="tw"><table>
+    <tr><th>Cadence</th><th>Activities</th><th>Owner</th></tr>
+    <tr><td>Every commit</td><td>Static analysis, unit tests, type checking</td><td>Automated (pre-commit hook)</td></tr>
+    <tr><td>Every PR / MR</td><td>Full unit + component suite, coverage gate, lint gate</td><td>Automated (CI)</td></tr>
+    <tr><td>Every sprint</td><td>Integration tests, E2E regression, manual exploratory session</td><td>QA + Dev</td></tr>
+    <tr><td>Release candidate</td><td>Full regression suite, performance benchmark, security scan, accessibility audit, localization review, release checklist</td><td>QA Lead + Release Manager</td></tr>
+    <tr><td>Post-release (72h)</td><td>Crash rate monitoring, performance telemetry review, user feedback triage</td><td>On-call + QA Lead</td></tr>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §2 -->
+<section id="s2">
+  <div class="sec-label">Section 02</div>
+  <h2>Testing Pyramid Architecture</h2>
+
+  <h3>2.1 The Finance Bag Testing Pyramid</h3>
+  <p>Finance Bag adopts a seven-layer testing pyramid. Lower layers are fast, numerous, and automated. Upper layers are slower, fewer, and progressively more expensive. The pyramid is intentionally weighted at the base — most quality assurance is captured close to the code, not through expensive UI-level tests.</p>
+
+  <div class="pyramid">
+    <div class="pyr-layer" style="width:26%;background:#991B1B;">L7 — Acceptance / UAT</div>
+    <div class="pyr-layer" style="width:38%;background:#B45309;">L6 — End-to-End (E2E)</div>
+    <div class="pyr-layer" style="width:50%;background:#D97706;">L5 — System / Performance</div>
+    <div class="pyr-layer" style="width:62%;background:#059669;">L4 — Integration</div>
+    <div class="pyr-layer" style="width:74%;background:#0891B2;">L3 — Component</div>
+    <div class="pyr-layer" style="width:86%;background:#4F46E5;">L2 — Unit</div>
+    <div class="pyr-layer" style="width:100%;background:#374151;">L1 — Static Analysis</div>
+  </div>
+
+  <div class="tw"><table>
+    <tr><th>Layer</th><th>Role</th><th>Quantity Target</th><th>Speed</th><th>When Run</th></tr>
+    <tr><td><strong>L1 Static Analysis</strong></td><td>Catch type errors, lint violations, unsafe patterns, dead code, dependency vulnerabilities before any test runs</td><td>Whole codebase</td><td>&lt;30s</td><td>Every commit</td></tr>
+    <tr><td><strong>L2 Unit</strong></td><td>Verify individual functions and business logic in isolation. The single source of truth for calculation correctness.</td><td>Hundreds (1 per business function)</td><td>&lt;60s total</td><td>Every commit, every PR</td></tr>
+    <tr><td><strong>L3 Component</strong></td><td>Verify React Native components render correctly across states (empty, loading, error, populated). Snapshot stability.</td><td>Tens (1 per component variant)</td><td>2–5 min</td><td>Every PR</td></tr>
+    <tr><td><strong>L4 Integration</strong></td><td>Verify that modules work correctly together: state management + DB, DB + business logic, navigation + data loading.</td><td>Tens (key integration paths)</td><td>5–15 min</td><td>Every PR, every sprint</td></tr>
+    <tr><td><strong>L5 System / Performance</strong></td><td>Verify the full system meets startup time, rendering, database, and memory targets under real device conditions.</td><td>Fixed benchmark suite (20–30 scenarios)</td><td>30–60 min</td><td>Release candidate</td></tr>
+    <tr><td><strong>L6 E2E</strong></td><td>Simulate real user workflows from launch to completion. Verify critical paths work end-to-end on real devices.</td><td>15–25 critical workflows</td><td>45–90 min</td><td>Release candidate, major feature branches</td></tr>
+    <tr><td><strong>L7 Acceptance / UAT</strong></td><td>Human validation that the product meets defined acceptance criteria from a product and user perspective.</td><td>Structured test session (5–8 testers)</td><td>Half-day session</td><td>Release candidate</td></tr>
+  </table></div>
+
+  <h3>2.2 Test Environment Matrix</h3>
+  <div class="tw"><table>
+    <tr><th>Environment</th><th>Purpose</th><th>Data</th><th>Network</th><th>Layers Active</th></tr>
+    <tr><td>Local development</td><td>Developer testing during feature build</td><td>Synthetic / dev seed data</td><td>Full / mocked</td><td>L1, L2, L3</td></tr>
+    <tr><td>CI (automated)</td><td>Automated gates on every PR</td><td>Deterministic seeded test data</td><td>Mocked / intercepted</td><td>L1, L2, L3, L4</td></tr>
+    <tr><td>Staging</td><td>Integration and E2E validation on real devices</td><td>Sanitized production-like data</td><td>Real (controlled)</td><td>L4, L5, L6</td></tr>
+    <tr><td>Pre-production</td><td>Final release candidate validation</td><td>Full realistic dataset</td><td>Real</td><td>L5, L6, L7</td></tr>
+    <tr><td>Production</td><td>Smoke tests post-release; monitoring</td><td>Real user data (no writes in smoke tests)</td><td>Real</td><td>Read-only smoke suite</td></tr>
+  </table></div>
+
+  <h3>2.3 Test Data Strategy</h3>
+  <div class="spec-block">
+    <strong>Seeded Test Datasets:</strong><br>
+    Finance Bag uses deterministic seeded test data — never random, never real user data in test environments. Four standard datasets are defined:<br><br>
+    <strong>DS-EMPTY:</strong> Fresh install, no data. Tests onboarding, empty states, and first-time flows.<br>
+    <strong>DS-MINIMAL:</strong> 1 budget, 3 transactions, 1 goal, no debt. Tests basic flows without complexity.<br>
+    <strong>DS-STANDARD:</strong> 3 budgets, 12+ categories, 60+ transactions, 2 goals, 1 debt. Representative of a 3-month active user.<br>
+    <strong>DS-HEAVY:</strong> 10+ budgets, 500+ transactions, 5 goals, 3 debts, 24 months of history. Stress-tests performance, reports, and archive navigation.<br>
+    <strong>DS-EDGE:</strong> Boundary values, zero balances, maximum amounts, all-categories-at-once, multi-currency, near-full storage. Tests edge cases and limits.
+  </div>
+  <p><strong>Data isolation:</strong> Every test run starts with a clean database state from the appropriate dataset. Tests must never depend on state left by a prior test. Cross-test contamination is a test defect.</p>
+
+  <h3>2.4 Coverage Targets</h3>
+  <div class="tw"><table>
+    <tr><th>Layer</th><th>Coverage Target</th><th>Minimum for Release</th><th>Measurement</th></tr>
+    <tr><td>Business logic functions (L2)</td><td>95%</td><td>90%</td><td>Line + branch coverage</td></tr>
+    <tr><td>UI components (L3)</td><td>80%</td><td>75%</td><td>Component render coverage (all states)</td></tr>
+    <tr><td>Integration paths (L4)</td><td>Critical paths: 100%</td><td>100% of critical paths</td><td>Manual path audit</td></tr>
+    <tr><td>E2E user workflows (L6)</td><td>All 15 critical workflows</td><td>15/15</td><td>Workflow checklist</td></tr>
+    <tr><td>Module test completeness</td><td>All 15 modules</td><td>15/15</td><td>Module coverage matrix</td></tr>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §3 -->
+<section id="s3">
+  <div class="sec-label">Section 03</div>
+  <h2>Static Analysis &amp; Code Quality</h2>
+  <p>Static analysis is the cheapest quality layer — it catches defects before any code runs. All static analysis gates are enforced in pre-commit hooks and CI. A failing static analysis gate blocks the entire pipeline.</p>
+
+  <h3>3.1 TypeScript Strict Mode</h3>
+  <div class="spec-block">
+    <strong>Required TypeScript compiler flags (all must be enabled):</strong><br>
+    <code>strict: true</code> (enables all strict checks as a group)<br>
+    <code>noUncheckedIndexedAccess: true</code> — prevents silent undefined from array/object access<br>
+    <code>exactOptionalPropertyTypes: true</code> — distinguishes undefined from absent property<br>
+    <code>noImplicitOverride: true</code> — requires explicit override keyword<br>
+    <code>noPropertyAccessFromIndexSignature: true</code> — prevents silent any from index access<br><br>
+    <strong>Zero tolerance:</strong> <code>@ts-ignore</code> and <code>@ts-expect-error</code> are forbidden except in explicitly documented compatibility shims. Each exception requires a comment explaining the specific library constraint and a ticket to resolve it.
+  </div>
+
+  <h3>3.2 Linting Rules</h3>
+  <div class="tw"><table>
+    <tr><th>Rule Category</th><th>Enforcement</th><th>Rationale</th></tr>
+    <tr><td>No <code>any</code> type</td><td>Error</td><td>Every any is a hidden type escape hatch in financial logic</td></tr>
+    <tr><td>No unused variables</td><td>Error</td><td>Dead variables indicate incomplete refactoring</td></tr>
+    <tr><td>No console.log in production code</td><td>Error</td><td>May leak financial data to device logs</td></tr>
+    <tr><td>No commented-out code blocks</td><td>Warning</td><td>Indicates incomplete work; use feature flags instead</td></tr>
+    <tr><td>Exhaustive switch/case</td><td>Error</td><td>All enum cases must be handled; new states are forced visible</td></tr>
+    <tr><td>No magic numbers in business logic</td><td>Warning</td><td>All constants must be named and documented</td></tr>
+    <tr><td>No direct Date instantiation in business logic</td><td>Error</td><td>Must use the app's time abstraction (testable, timezone-safe)</td></tr>
+    <tr><td>No floating-point arithmetic on monetary values</td><td>Error (custom rule)</td><td>All money arithmetic must use integer centimes</td></tr>
+    <tr><td>Import order enforced</td><td>Warning</td><td>Readability and deterministic module loading</td></tr>
+    <tr><td>React hooks rules</td><td>Error</td><td>Prevents silent state bugs from hook misuse</td></tr>
+  </table></div>
+
+  <h3>3.3 Complexity Thresholds</h3>
+  <div class="tw"><table>
+    <tr><th>Metric</th><th>Warning Threshold</th><th>Error Threshold</th><th>Action Required</th></tr>
+    <tr><td>Cyclomatic complexity per function</td><td>&gt;8</td><td>&gt;15</td><td>Refactor into smaller functions</td></tr>
+    <tr><td>Cognitive complexity per function</td><td>&gt;10</td><td>&gt;20</td><td>Simplify logic or extract helpers</td></tr>
+    <tr><td>Lines per function</td><td>&gt;60</td><td>&gt;100</td><td>Extract sub-functions</td></tr>
+    <tr><td>Parameters per function</td><td>&gt;4</td><td>&gt;6</td><td>Use parameter object pattern</td></tr>
+    <tr><td>Nesting depth</td><td>&gt;4</td><td>&gt;6</td><td>Invert conditions, extract helpers</td></tr>
+  </table></div>
+
+  <h3>3.4 Dependency Audit</h3>
+  <ul>
+    <li>Every third-party dependency is scanned for known CVEs on every CI run</li>
+    <li>High-severity CVEs block the pipeline immediately; medium-severity CVEs block the next scheduled release if unpatched</li>
+    <li>Dependency licenses are audited: GPL-licensed packages are prohibited in the commercial build; MIT, Apache 2.0, and BSD are permitted</li>
+    <li>No dependency may be added without a corresponding entry in the dependency rationale log (why this package, what it replaces, maintenance status)</li>
+    <li>Packages with zero commits in the past 24 months are flagged for replacement review</li>
+  </ul>
+
+  <h3>3.5 Secret Scanning</h3>
+  <p>Every commit is scanned for accidentally committed secrets (API keys, tokens, passwords, private keys). The scan pattern library covers:</p>
+  <ul>
+    <li>Generic API key patterns (high-entropy strings in key/token/secret variable names)</li>
+    <li>Common service-specific patterns (AWS, Google Cloud, Stripe, OpenAI, etc.)</li>
+    <li>Private key headers (-----BEGIN RSA PRIVATE KEY-----, etc.)</li>
+    <li>Connection strings with embedded credentials</li>
+  </ul>
+  <div class="err-block"><strong>Zero tolerance:</strong> Any committed secret, even in a feature branch, triggers immediate pipeline failure, secret rotation, and a security incident report. "It was just a test key" is not an acceptable justification — test environments use environment variables, never committed values.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §4 -->
+<section id="s4">
+  <div class="sec-label">Section 04</div>
+  <h2>Unit &amp; Component Testing</h2>
+
+  <h3>4.1 Unit Testing Scope</h3>
+  <p>Unit tests verify isolated business logic with no external dependencies. Every unit test is synchronous, deterministic, and requires no device, network, or database. The unit test suite is the primary quality assurance mechanism for financial calculation correctness.</p>
+
+  <div class="spec-block">
+    <strong>What must have unit tests (mandatory):</strong><br>
+    • All financial calculation functions (budget remaining, debt payoff projection, savings rate, goal progress, FHS score, emergency fund coverage)<br>
+    • All business rule enforcement functions (allocation validation, duplicate detection, constraint checking)<br>
+    • All data transformation functions (formatters, parsers, serializers, normalizers)<br>
+    • All sorting and filtering logic<br>
+    • All date/time utility functions<br>
+    • All sync conflict resolution algorithms (all 7 conflict types from SPEC-OFL-001)<br>
+    • All AI rule-based recommendation logic (Hybrid and Rule-Based modes from SPEC-AIC-001)<br>
+    • All encryption utility functions (wrap/unwrap operations, not the crypto primitives themselves)<br>
+    • All state reducers and selectors (Zustand stores)<br><br>
+    <strong>What does NOT need unit tests:</strong><br>
+    • Third-party library internals<br>
+    • Configuration files<br>
+    • Purely declarative JSX with no logic<br>
+    • Database schema definitions (tested by integration tests)
+  </div>
+
+  <h3>4.2 Unit Test Anatomy</h3>
+  <p>Every unit test follows the Arrange-Act-Assert (AAA) pattern. Test names use the format: <em>"[functionName] [scenario description] [expected outcome]"</em>.</p>
+  <div class="tw"><table>
+    <tr><th>Test Name Pattern</th><th>Example</th></tr>
+    <tr><td>[fn] when [condition] returns [result]</td><td>"calculateBudgetRemaining when spent exceeds limit returns negative value"</td></tr>
+    <tr><td>[fn] with [input] throws [error type]</td><td>"parseCurrencyAmount with null input throws InvalidAmountError"</td></tr>
+    <tr><td>[fn] with [boundary value] handles correctly</td><td>"applyDebtPayment with zero payment handles correctly"</td></tr>
+    <tr><td>[fn] given [state] produces [output]</td><td>"resolveSyncConflict given LWW strategy produces server-side value"</td></tr>
+  </table></div>
+
+  <h3>4.3 Financial Calculation Test Requirements</h3>
+  <p>Financial calculation tests must cover the following scenario categories for every calculation function:</p>
+  <div class="tw"><table>
+    <tr><th>Category</th><th>Scenarios Required</th></tr>
+    <tr><td>Happy path</td><td>Typical input with known correct output (multiple distinct examples)</td></tr>
+    <tr><td>Zero values</td><td>Zero amount, zero balance, zero months</td></tr>
+    <tr><td>Maximum values</td><td>Maximum storable amount (99,999,999.99)</td></tr>
+    <tr><td>Boundary conditions</td><td>Exactly at limit, 1 centime above/below limit</td></tr>
+    <tr><td>Negative results</td><td>Over-budget, net-worth negative, negative progress</td></tr>
+    <tr><td>Precision</td><td>Centimes-accurate arithmetic; no floating-point drift</td></tr>
+    <tr><td>Rounding</td><td>Half-up rounding on display values; never round stored centimes</td></tr>
+    <tr><td>Currency</td><td>Multi-currency scenarios where applicable</td></tr>
+    <tr><td>Date-sensitive</td><td>First of month, last of month, leap day, year boundary</td></tr>
+    <tr><td>Empty input</td><td>Empty array, undefined fields, null where spec allows null</td></tr>
+  </table></div>
+
+  <h3>4.4 Component Testing</h3>
+  <p>Component tests verify React Native components render correctly across all defined states without requiring a running device or native modules. They use a lightweight render environment (React Test Renderer or equivalent).</p>
+  <div class="tw"><table>
+    <tr><th>Component Category</th><th>States to Test</th></tr>
+    <tr><td>Data display components (Stat Card, FHS Display)</td><td>Empty, loading/skeleton, populated, error, extreme values</td></tr>
+    <tr><td>Form components (Text Field, Currency Input, Date Picker)</td><td>Empty, focused, populated, error, disabled, read-only</td></tr>
+    <tr><td>List items (Transaction, Budget, Goal, Debt rows)</td><td>Standard, selected, swipe-revealed, empty state variant</td></tr>
+    <tr><td>Progress components (Progress Bar, Progress Ring)</td><td>0%, 25%, 50%, 75%, 100%, over 100% (debt overpayment)</td></tr>
+    <tr><td>Button variants</td><td>Default, hover/pressed, loading, disabled for each of 6 variants</td></tr>
+    <tr><td>Dialog/Bottom Sheet</td><td>All 4 dialog types; all 3 sheet variants; with/without scroll</td></tr>
+    <tr><td>Feedback (toast, banner, empty state)</td><td>Each variant of each component</td></tr>
+  </table></div>
+  <p><strong>Snapshot testing policy:</strong> Snapshot tests are used only for leaf-level presentational components with no interactive logic. Snapshots are reviewed on every change — "update snapshot blindly" is forbidden. Every snapshot update requires a visual diff review comment in the PR.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §5 -->
+<section id="s5">
+  <div class="sec-label">Section 05</div>
+  <h2>Integration Testing</h2>
+  <p>Integration tests verify that multiple subsystems work correctly together. They operate on an in-process SQLite database (using the same schema as production) and do not require a running device or network.</p>
+
+  <h3>5.1 Integration Test Scope</h3>
+  <div class="tw"><table>
+    <tr><th>Integration Surface</th><th>What Is Tested</th></tr>
+    <tr><td>Business Logic ↔ Database</td><td>CRUD operations produce correct database state; reads return correct calculated values; soft deletes work correctly; ULID ordering is preserved</td></tr>
+    <tr><td>State Management ↔ Database</td><td>Zustand store actions result in correct DB writes; DB reads populate store state correctly; optimistic updates reconcile correctly</td></tr>
+    <tr><td>Sync Queue ↔ Database</td><td>Operations are enqueued correctly; conflict resolution produces correct merged state; retry logic advances correctly; dead operations are flagged</td></tr>
+    <tr><td>Monthly Archive ↔ Live Data</td><td>Archive generation captures correct snapshot; post-archive live data is isolated; archive retrieval returns frozen data correctly</td></tr>
+    <tr><td>Encryption ↔ Database</td><td>Encrypted fields are unreadable without key; decrypted fields match original values; key rotation produces correct results</td></tr>
+    <tr><td>Notification Scheduler ↔ Business Rules</td><td>Notifications are scheduled at correct times; trigger conditions produce correct notification content; dismissed notifications respect cooling period</td></tr>
+    <tr><td>AI Layer ↔ Financial Context</td><td>FinancialContextBuilder produces correctly anonymized payload; rule-based recommendations use correct input data; AI memory reads and writes correctly</td></tr>
+  </table></div>
+
+  <h3>5.2 Database Integration Requirements</h3>
+  <div class="spec-block">
+    <strong>Every database integration test must verify:</strong><br>
+    1. <strong>Schema integrity:</strong> All required columns exist; constraints are enforced (NOT NULL, FK, CHECK)<br>
+    2. <strong>ULID ordering:</strong> Records inserted in sequence have monotonically increasing ULIDs<br>
+    3. <strong>Soft delete isolation:</strong> Soft-deleted records do not appear in standard queries<br>
+    4. <strong>Integer arithmetic:</strong> All monetary fields store and retrieve centimes without precision loss<br>
+    5. <strong>Vector clock:</strong> Sync operations correctly increment and compare vector clocks<br>
+    6. <strong>Transaction rollback:</strong> Failed multi-step operations leave the database in its pre-operation state<br>
+    7. <strong>Index performance:</strong> Common query patterns use indexes (verified by query plan analysis)
+  </div>
+
+  <h3>5.3 Sync Integration Testing</h3>
+  <p>The sync system (SPEC-OFL-001) has the highest integration complexity. The following scenarios must be covered by dedicated integration tests:</p>
+  <ul>
+    <li>Create operation enqueued while offline → processed when online → remote reflects change</li>
+    <li>Update on device A and device B for same record → conflict detected → LWW resolution applies correct winner</li>
+    <li>Delete on device A + Edit on device B for same record → Delete-Wins resolution → record is archived</li>
+    <li>Sync interrupted mid-flight → retry from IN_FLIGHT → correct completion without duplication</li>
+    <li>5 retry attempts exhausted → operation marked DEAD → correct error state surfaced to user</li>
+    <li>Full epoch sync → all local data replaced with server state → local-only records are preserved</li>
+    <li>Phase 1 preference sync → only app preferences transferred → no financial data in payload</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §6 -->
+<section id="s6">
+  <div class="sec-label">Section 06</div>
+  <h2>End-to-End &amp; System Testing</h2>
+  <p>End-to-end tests validate complete user workflows on real devices. They are the slowest and most expensive tests, so they are limited to the highest-value critical paths.</p>
+
+  <h3>6.1 Critical E2E Workflows</h3>
+  <div class="tw"><table>
+    <tr><th>ID</th><th>Workflow</th><th>Precondition Dataset</th><th>Pass Criteria</th></tr>
+    <tr><td class="mono">E2E-01</td><td>First launch → onboarding → PIN setup → Dashboard displayed</td><td>DS-EMPTY</td><td>Dashboard loads, all 4 onboarding screens complete, PIN persists across restart</td></tr>
+    <tr><td class="mono">E2E-02</td><td>Create budget → add 3 transactions → view budget remaining</td><td>DS-EMPTY</td><td>Budget remaining = limit − sum of transactions (centimes-accurate)</td></tr>
+    <tr><td class="mono">E2E-03</td><td>Create goal → record saving → view progress → goal completed</td><td>DS-MINIMAL</td><td>Progress ring reaches 100%; goal-achieved animation plays; goal moved to completed state</td></tr>
+    <tr><td class="mono">E2E-04</td><td>Add debt → record payment → verify remaining balance → full payoff</td><td>DS-MINIMAL</td><td>Remaining balance = principal − payments (interest-accurate); payoff state reached</td></tr>
+    <tr><td class="mono">E2E-05</td><td>Monthly archive generation → navigate to archived month → view transactions</td><td>DS-STANDARD</td><td>Archive snapshot matches live data captured at month-end; archive is read-only</td></tr>
+    <tr><td class="mono">E2E-06</td><td>Kill app mid-transaction-entry → restart → verify no partial data saved</td><td>DS-STANDARD</td><td>No incomplete transaction record exists; no data corruption</td></tr>
+    <tr><td class="mono">E2E-07</td><td>Use app offline for 30 min → reconnect → sync completes → data consistent</td><td>DS-STANDARD</td><td>All offline operations synced; no duplication; sync queue empty</td></tr>
+    <tr><td class="mono">E2E-08</td><td>Export backup → delete all data → restore backup → data identical</td><td>DS-STANDARD</td><td>Post-restore data matches pre-export data exactly; all ULIDs preserved</td></tr>
+    <tr><td class="mono">E2E-09</td><td>Switch locale to Arabic → verify RTL layout → enter financial data → verify correct formatting</td><td>DS-MINIMAL</td><td>Layout mirrors correctly; currency symbol position correct; no text clipping</td></tr>
+    <tr><td class="mono">E2E-10</td><td>Lock screen → authenticate with biometric → resume exactly where left off</td><td>DS-STANDARD</td><td>App is in identical state post-auth; no navigation reset</td></tr>
+    <tr><td class="mono">E2E-11</td><td>Generate monthly report → export as PDF → file is readable and correct</td><td>DS-STANDARD</td><td>PDF opens; all values match on-screen values; no financial data from other months present</td></tr>
+    <tr><td class="mono">E2E-12</td><td>Ask AI Coach a financial question → receive response → tap recommendation → navigate to correct module</td><td>DS-STANDARD</td><td>Response received within 10s; recommendation links navigate correctly; no PII visible in AI payload</td></tr>
+    <tr><td class="mono">E2E-13</td><td>Add transaction → immediately undo via toast → verify data restored</td><td>DS-STANDARD</td><td>Undo completes within 5-second window; transaction absent from list after undo</td></tr>
+    <tr><td class="mono">E2E-14</td><td>Navigate all 15 modules via More tab → verify each module loads correctly</td><td>DS-STANDARD</td><td>All 15 modules accessible; no navigation crash; each shows correct data or correct empty state</td></tr>
+    <tr><td class="mono">E2E-15</td><td>DS-HEAVY dataset — open Dashboard, navigate to Reports, generate annual summary</td><td>DS-HEAVY</td><td>Dashboard loads &lt;3s; Reports loads &lt;4s; annual summary generates &lt;8s; no memory crash</td></tr>
+  </table></div>
+
+  <h3>6.2 E2E Test Device Matrix</h3>
+  <div class="tw"><table>
+    <tr><th>Device Class</th><th>iOS Example</th><th>Android Example</th><th>Why Included</th></tr>
+    <tr><td>Current flagship (primary)</td><td>iPhone 15 Pro</td><td>Pixel 8 Pro</td><td>Reference device; all E2E tests must pass here</td></tr>
+    <tr><td>Small screen</td><td>iPhone SE (3rd gen)</td><td>Galaxy A15</td><td>Layout stress test; small RAM; budget device behavior</td></tr>
+    <tr><td>Large screen</td><td>iPhone 15 Plus</td><td>Galaxy S24+</td><td>Large screen layout; large touch targets</td></tr>
+    <tr><td>Minimum supported iOS</td><td>iPhone (iOS 16.0)</td><td>—</td><td>Oldest supported OS compatibility</td></tr>
+    <tr><td>Minimum supported Android</td><td>—</td><td>Android 12 device</td><td>Oldest supported OS compatibility</td></tr>
+    <tr><td>Tablet</td><td>iPad (10th gen)</td><td>Galaxy Tab S9</td><td>Two-panel layout validation</td></tr>
+  </table></div>
+
+  <h3>6.3 System Smoke Test Suite</h3>
+  <p>The smoke test suite is a subset of 8 E2E tests that run in under 15 minutes. It is run post-deployment to production to verify the release is live and functional before announcing availability. Smoke tests never write data — they are read-only validations against known test accounts.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §7 -->
+<section id="s7">
+  <div class="sec-label">Section 07</div>
+  <h2>Module Testing Requirements</h2>
+  <p>Every module has specific quality objectives. This section defines the critical test scenarios, measurable pass criteria, and quality targets for each of Finance Bag's 15 modules.</p>
+
+  <h3>7.1 Authentication &amp; Security Module</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>Correct 6-digit PIN entry</td><td>App unlocks within 200ms; no delay animation</td></tr>
+    <tr><td>Wrong PIN 3 consecutive times</td><td>App locks for 30 seconds; counter shown; PIN field disabled</td></tr>
+    <tr><td>Wrong PIN 10 total times</td><td>Data wipe initiated; confirmation dialog shown first</td></tr>
+    <tr><td>Biometric auth succeeds</td><td>App unlocks within 800ms (from biometric prompt dismiss)</td></tr>
+    <tr><td>Biometric auth fails / unavailable</td><td>Falls back to PIN without error; no crash</td></tr>
+    <tr><td>App backgrounds for &lt;1 min</td><td>No lock required (within auto-lock grace period)</td></tr>
+    <tr><td>App backgrounds for &gt; configured timeout</td><td>Lock screen shown on return; cannot bypass</td></tr>
+    <tr><td>Device reboot without biometric re-enrollment</td><td>PIN required (not biometric) for first unlock post-reboot</td></tr>
+  </table></div>
+  <p><strong>Quality objective:</strong> Zero authentication bypass scenarios. 100% of sensitive screens require auth. Auth state is never stored in unencrypted storage.</p>
+
+  <h3>7.2 Dashboard Module</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>Dashboard loads with DS-STANDARD</td><td>&lt;1.5s total render time; all stat cards populated</td></tr>
+    <tr><td>Dashboard loads with DS-HEAVY</td><td>&lt;3.0s; no visible jank on scroll</td></tr>
+    <tr><td>FHS score calculation verified</td><td>Score matches manual calculation from component scores; all 8 dimensions contribute</td></tr>
+    <tr><td>Dashboard data reflects transaction added 1s ago</td><td>Stat card updates within 500ms of transaction save (event-driven invalidation)</td></tr>
+    <tr><td>Dashboard with DS-EMPTY</td><td>Correct empty state shown; no zero-division errors; FHS shows "Insufficient data" state</td></tr>
+    <tr><td>Pull-to-refresh triggered</td><td>Data refreshes; sync initiated if online; spinner visible for duration</td></tr>
+  </table></div>
+
+  <h3>7.3 Budget Engine</h3>
+  <p><strong>Quality objective:</strong> 100% calculation accuracy. Every budget display value must be independently verifiable from raw transaction data.</p>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>Budget remaining = limit − total transactions</td><td>Matches centimes-accurate manual sum; no floating-point error</td></tr>
+    <tr><td>Transaction added to budget</td><td>Budget remaining updates; percentage bar re-renders; status chip updates if threshold crossed</td></tr>
+    <tr><td>Budget at 80% (warning threshold)</td><td>Warning chip displayed; optional notification triggered</td></tr>
+    <tr><td>Budget at 100%+</td><td>Over-limit chip displayed; negative remaining shown in error color</td></tr>
+    <tr><td>Budget with no transactions</td><td>Remaining = full limit; 0% spent; no errors</td></tr>
+    <tr><td>Budget month rollover</td><td>New month: fresh budget period; previous month archived; no carry-over unless configured</td></tr>
+    <tr><td>Delete transaction from budget</td><td>Budget remaining increases by exact deleted amount; undo restores correctly</td></tr>
+  </table></div>
+
+  <h3>7.4 Emergency Fund Module</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>Coverage months calculation</td><td>Current balance ÷ average monthly expenses = coverage months (2 decimal precision)</td></tr>
+    <tr><td>Target reached (3–6 months coverage)</td><td>Status changes to "Target reached"; no further contribution nudges</td></tr>
+    <tr><td>Monthly expenses = 0 (new user)</td><td>Coverage shown as "Calculating..." — no division by zero error</td></tr>
+    <tr><td>Balance decreases (withdrawal)</td><td>Coverage months recalculate; below-target warning shown if applicable</td></tr>
+  </table></div>
+
+  <h3>7.5 Financial Goals Module</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>Goal progress % = saved ÷ target × 100</td><td>Centimes-accurate; rounds to 1 decimal for display; ring fills proportionally</td></tr>
+    <tr><td>Monthly required contribution calculation</td><td>(Target − Saved) ÷ months_remaining = monthly contribution (rounded up to nearest centime)</td></tr>
+    <tr><td>Target date in past</td><td>Goal marked "Overdue"; red status indicator; contribution recalculation shows 0 months remaining</td></tr>
+    <tr><td>Goal achieved (saved ≥ target)</td><td>Celebration animation; status = COMPLETED; historical record preserved</td></tr>
+    <tr><td>Goal with dependency (requires another goal first)</td><td>Blocked goal shows dependency chain; contribution only enabled after parent goal completes</td></tr>
+  </table></div>
+
+  <h3>7.6 Debt Repayment Module</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>Remaining balance = principal − payments + accrued interest</td><td>Matches amortization schedule; centimes-accurate</td></tr>
+    <tr><td>Avalanche vs Snowball strategy comparison</td><td>Both projections shown correctly; total interest paid differs; payoff date shown for each</td></tr>
+    <tr><td>Extra payment applied</td><td>Amortization schedule recalculates; new payoff date shown; interest saved displayed</td></tr>
+    <tr><td>Debt fully paid off</td><td>Status = PAID_OFF; historical record preserved; positive notification triggered</td></tr>
+    <tr><td>APR = 0% debt</td><td>Simple balance division; no interest calculation; no NaN errors</td></tr>
+  </table></div>
+
+  <h3>7.7 Reports &amp; Analytics Module</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>Monthly report totals</td><td>Income − Expenses = Net savings; all three verified against raw transactions</td></tr>
+    <tr><td>Category breakdown pie/donut chart</td><td>Category percentages sum to 100%; each slice = category total ÷ all expenses</td></tr>
+    <tr><td>Period comparison (this month vs last month)</td><td>Each figure correctly pulls from respective monthly archive or live data</td></tr>
+    <tr><td>Annual summary generation (DS-HEAVY)</td><td>Generates within 8s; all 12 months summarized; grand totals match sum of monthly totals</td></tr>
+    <tr><td>Empty period (month with no transactions)</td><td>Zero values displayed correctly; no division errors; chart shows flat line</td></tr>
+  </table></div>
+
+  <h3>7.8 Synchronization Module</h3>
+  <p>Full sync test requirements are defined in §5.3. Additional module-level quality objectives:</p>
+  <ul>
+    <li>Sync status is always visible to the user (never silent sync state)</li>
+    <li>Sync conflicts are surfaced, never silently dropped</li>
+    <li>The sync queue never grows unbounded — DEAD operations are archived, not accumulated</li>
+    <li>Sync performance: &lt;30s for a full sync of DS-STANDARD; &lt;3s for an incremental delta sync</li>
+  </ul>
+
+  <h3>7.9 AI Coach Module</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>Rule-based recommendation generated offline</td><td>Recommendation appears within 200ms; no network call made; all 15 required fields populated</td></tr>
+    <tr><td>AI response contains PII (test for leakage)</td><td>No user name, no raw amounts, no goal names in context payload sent to remote AI</td></tr>
+    <tr><td>User dismisses recommendation permanently</td><td>Recommendation never reappears; dismissal logged in ai_memory; PERMANENTLY_DISMISSED state set</td></tr>
+    <tr><td>AI in offline mode</td><td>Rule-based mode activates automatically; user informed; no remote calls attempted</td></tr>
+    <tr><td>Maximum 3 recommendations shown simultaneously</td><td>4th recommendation not displayed until one is dismissed or acted upon</td></tr>
+    <tr><td>AI-generated content marked as AI-generated</td><td>Every AI-generated response displays ExplainabilityContext; generated_by field visible to user</td></tr>
+  </table></div>
+
+  <h3>7.10 Settings &amp; Notifications</h3>
+  <ul>
+    <li>Every settings change persists across app restart (verified for all 20+ settings from SPEC-SET-001)</li>
+    <li>Notification permission revoked mid-session → app gracefully disables notification features, no crash</li>
+    <li>Scheduled notification fires at correct time for budget warning, bill reminder, and monthly archive trigger</li>
+    <li>Notification tap navigates to correct module and entity deep link</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §8 -->
+<section id="s8">
+  <div class="sec-label">Section 08</div>
+  <h2>Business Rule Validation</h2>
+  <p>Business rules are the contractual logic of Finance Bag. Violations produce incorrect financial data that may mislead users about their actual financial position. Every business rule has a dedicated validation test that proves the rule is enforced.</p>
+
+  <h3>8.1 Salary Allocation Rules</h3>
+  <div class="tw"><table>
+    <tr><th>Rule</th><th>Validation Test</th><th>Pass Criteria</th></tr>
+    <tr><td>Total allocation ≤ 100% of net salary</td><td>Allocate 101% of salary; attempt save</td><td>Save rejected; error message; no partial save</td></tr>
+    <tr><td>Unallocated remainder is not lost</td><td>Allocate 80%; verify remaining 20% is attributed</td><td>Unallocated amount = salary × 0.20</td></tr>
+    <tr><td>Salary change recalculates all allocations</td><td>Change monthly salary; verify each category amount updates</td><td>Each absolute amount = new salary × allocation %</td></tr>
+    <tr><td>Zero salary is valid</td><td>Set salary to 0; save</td><td>App accepts; all budget amounts = 0; no divide-by-zero</td></tr>
+  </table></div>
+
+  <h3>8.2 Budget Calculation Rules</h3>
+  <div class="tw"><table>
+    <tr><th>Rule</th><th>Validation</th><th>Pass Criteria</th></tr>
+    <tr><td>Budget remaining is calculated, never stored</td><td>Inspect DB after budget update — remaining field absent</td><td>No "remaining" column in budget table</td></tr>
+    <tr><td>Transactions from previous month do not affect current budget</td><td>Add transaction dated last month to current budget</td><td>Current period remaining unchanged; transaction stored with correct month attribution</td></tr>
+    <tr><td>Deleted transactions restore budget remaining</td><td>Record transaction; verify remaining; soft-delete; verify remaining restores</td><td>Remaining returns to pre-transaction value exactly</td></tr>
+    <tr><td>Budget percentage = spent ÷ limit</td><td>Spend exactly 1/3 of budget limit</td><td>Percentage displays as 33.3% (1 decimal); bar fills to 1/3 width</td></tr>
+  </table></div>
+
+  <h3>8.3 Debt Calculation Rules</h3>
+  <div class="tw"><table>
+    <tr><th>Rule</th><th>Validation</th><th>Pass Criteria</th></tr>
+    <tr><td>Monthly interest = (APR/12) × remaining balance</td><td>€10,000 at 12% APR; verify month-1 interest</td><td>Month-1 interest = €100.00 (1,000,000 centimes × 0.01 = 10,000 centimes)</td></tr>
+    <tr><td>Minimum payment applied to interest first, then principal</td><td>Pay €120 on €10,000 at 12% APR; verify principal reduction</td><td>Principal reduced by €20; interest consumed €100</td></tr>
+    <tr><td>Payoff date recalculates on extra payment</td><td>Add €500 extra payment; verify new payoff date</td><td>New date is earlier; total interest saved shown</td></tr>
+    <tr><td>APR 0% debt: no interest accrual</td><td>Create €1,000 debt at 0% APR; check after 12 months</td><td>Balance remains €1,000 minus payments only</td></tr>
+  </table></div>
+
+  <h3>8.4 Emergency Fund Rules</h3>
+  <div class="tw"><table>
+    <tr><th>Rule</th><th>Validation</th><th>Pass Criteria</th></tr>
+    <tr><td>Target = N months × average monthly expenses</td><td>3 months of €1,000/month expenses; set target = 3 months</td><td>Target = €3,000</td></tr>
+    <tr><td>Coverage months = balance ÷ avg monthly expenses</td><td>€1,500 saved; €1,000/month expenses</td><td>Coverage = 1.50 months</td></tr>
+    <tr><td>Average expenses exclude savings transfers</td><td>Mark a transaction as "savings transfer"; include in month expenses</td><td>Savings transfer excluded from expense average</td></tr>
+  </table></div>
+
+  <h3>8.5 Financial Health Score Rules</h3>
+  <div class="spec-block">
+    <strong>FHS validation approach:</strong><br>
+    The Financial Health Score is composed of 8 dimensions (per SPEC-AIC-001). Each dimension contributes a weighted score component. The following validations are required:<br><br>
+    1. <strong>Score range:</strong> FHS must always produce a value 0–100. No input combination can produce a value outside this range.<br>
+    2. <strong>Weight sum:</strong> The sum of all 8 dimension weights = 1.000 (verified as a constant, not computed at runtime).<br>
+    3. <strong>Dimension independence:</strong> Changing one dimension's input only affects that dimension's score component, not others.<br>
+    4. <strong>Perfect score conditions:</strong> A synthetic DS-PERFECT dataset produces exactly 100; validate this is achievable.<br>
+    5. <strong>Zero-data behavior:</strong> DS-EMPTY produces "Insufficient data" state, not a score of 0 (which would be misleading).<br>
+    6. <strong>Score monotonicity:</strong> Improving a dimension (e.g., increasing savings rate) never decreases the overall FHS.
+  </div>
+
+  <h3>8.6 Monthly Archive Generation Rules</h3>
+  <div class="tw"><table>
+    <tr><th>Rule</th><th>Validation</th><th>Pass Criteria</th></tr>
+    <tr><td>Archive captures exact state at month-end</td><td>Add transaction at 23:59 on last day; generate archive</td><td>Transaction included in archive</td></tr>
+    <tr><td>Archive is immutable after generation</td><td>Attempt to add transaction to archived month via API</td><td>Operation rejected; error returned; archive unchanged</td></tr>
+    <tr><td>Archive generation is idempotent</td><td>Trigger archive generation twice for same month</td><td>Second call is no-op; no duplicate archive created</td></tr>
+    <tr><td>Archive totals match sum of transactions</td><td>Generate archive; compare total income and expense to manual sum of all transactions</td><td>Exact centimes match</td></tr>
+  </table></div>
+
+  <h3>8.7 Sync Conflict Resolution Rules</h3>
+  <p>All 7 conflict types (A through G from SPEC-OFL-001) must have dedicated validation tests proving the correct resolution strategy is applied and the result is the specified winner.</p>
+  <div class="tw"><table>
+    <tr><th>Conflict Type</th><th>Scenario</th><th>Expected Resolution</th></tr>
+    <tr><td>Type A — Concurrent Edit</td><td>Same field edited on device A and B; A wins by timestamp</td><td>LWW: Device A value persists</td></tr>
+    <tr><td>Type B — Edit vs Delete</td><td>Record edited on A; deleted on B; B wins</td><td>Delete-Wins: Record archived; B's delete applied</td></tr>
+    <tr><td>Type C — Concurrent Create</td><td>Same-content record created on A and B independently</td><td>Deduplication: One record survives with merged ULID history</td></tr>
+    <tr><td>Type D — Schema Conflict</td><td>Client with old schema syncs with server expecting new schema</td><td>Server rejects; client informed to upgrade</td></tr>
+    <tr><td>Type E — Partial Update</td><td>Multi-field update interrupted; only some fields synced</td><td>Field-level merge: Fields from interrupted update applied individually</td></tr>
+    <tr><td>Type F — Archive Conflict</td><td>Edit to record that has been archived on other device</td><td>Archive-Wins: Edit discarded; user notified</td></tr>
+    <tr><td>Type G — User-Choice Required</td><td>Irreconcilable semantic conflict requiring user judgment</td><td>Conflict surfaced to user; neither version auto-applied</td></tr>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §9 -->
+<section id="s9">
+  <div class="sec-label">Section 09</div>
+  <h2>Edge Case Testing</h2>
+  <p>Edge cases test the boundaries of the application's behavior — the scenarios that are rare in normal use but catastrophic if handled incorrectly. Every edge case below has a defined expected outcome. "Expected outcome" is the specification — any deviation is a defect.</p>
+
+  <h3>9.1 Data Integrity Edge Cases</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>Transaction amount = 0.00</td><td>Rejected with inline error: "Amount must be greater than zero"</td></tr>
+    <tr><td>Transaction amount = 999,999,999.99 (max)</td><td>Accepted; stored as 99,999,999,999 centimes; displayed correctly</td></tr>
+    <tr><td>Transaction amount = 1,000,000,000.00 (over max)</td><td>Rejected with inline error: "Amount exceeds maximum allowed value"</td></tr>
+    <tr><td>Negative transaction amount entered</td><td>Rejected by input field (numeric pad cannot produce negative); sign toggled only via explicit "expense vs income" selector</td></tr>
+    <tr><td>Budget limit = 0.00</td><td>Accepted; "unlimited" indicator shown; no over-limit warnings</td></tr>
+    <tr><td>Goal target = current saved amount</td><td>Goal immediately shows 100% progress and achieved state</td></tr>
+    <tr><td>Goal saved amount &gt; target (over-funded)</td><td>Progress shows "100%" (capped); surplus amount noted in subtitle</td></tr>
+    <tr><td>Duplicate transaction (same amount, category, date)</td><td>Accepted (legitimate duplicate purchases exist); no deduplication warning</td></tr>
+    <tr><td>Transaction with future date</td><td>Accepted as "scheduled" transaction; excluded from current-period totals until date arrives</td></tr>
+    <tr><td>User has 500+ transactions in one month (DS-HEAVY)</td><td>All transactions load correctly; no pagination failures; totals remain accurate</td></tr>
+  </table></div>
+
+  <h3>9.2 Network &amp; Sync Edge Cases</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>Network drops exactly at sync payload transmission moment</td><td>Operation remains IN_FLIGHT then reverts to PENDING after timeout; retry scheduled</td></tr>
+    <tr><td>Server responds with 500 during sync</td><td>Operation marked FAILED; retry count incremented; user sees warning banner</td></tr>
+    <tr><td>Sync payload exceeds server-side size limit</td><td>Payload split into chunks; each chunk synced independently; no data loss</td></tr>
+    <tr><td>Two devices sync simultaneously (race condition)</td><td>Idempotent conflict resolution; final state is consistent on both devices after next sync</td></tr>
+    <tr><td>Captive portal intercepts sync HTTPS request</td><td>Network state detected as CAPTIVE_PORTAL; sync paused; user informed with banner</td></tr>
+    <tr><td>Cellular connection with data limit reached</td><td>CELLULAR_CONSTRAINED state; sync defers to next Wi-Fi; user sees status</td></tr>
+    <tr><td>500 operations queued in sync_queue while offline</td><td>All 500 processed in order on reconnection; no operation lost; no UI freeze during processing</td></tr>
+  </table></div>
+
+  <h3>9.3 Device &amp; Storage Edge Cases</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>Device storage &lt;10MB free</td><td>App detects low storage; defers non-critical writes; shows storage warning; no crash</td></tr>
+    <tr><td>Device storage = 0 bytes free when writing transaction</td><td>Transaction write fails gracefully; error dialog shown; no partial write; database integrity preserved</td></tr>
+    <tr><td>Backup file cannot be created (storage full)</td><td>Backup fails with clear error; no partial backup file left; next backup attempt when space available</td></tr>
+    <tr><td>App killed by OS (OOM kill) during database write</td><td>SQLite WAL journal recovers transaction atomicity; database is consistent on next open</td></tr>
+    <tr><td>User uninstalls app (iOS: data retained, Android: data deleted)</td><td>iOS: Keychain data and iCloud backup survive reinstall. Android: Fresh install, no residual data.</td></tr>
+    <tr><td>Database file corrupted (simulated bit flip)</td><td>App detects corruption on startup; shows "Data recovery needed" screen; offers restore from backup</td></tr>
+  </table></div>
+
+  <h3>9.4 Time &amp; Date Edge Cases</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>February 29th (leap year) transaction</td><td>Stored and displayed correctly; no date validation error</td></tr>
+    <tr><td>February 29th transaction in a non-leap year (invalid date)</td><td>Date picker never offers 29th in non-leap February; cannot be manually entered</td></tr>
+    <tr><td>Timezone change mid-session (travel)</td><td>All stored dates are UTC; display adapts to new timezone; no transaction date shift</td></tr>
+    <tr><td>Device clock set backward (clock manipulation)</td><td>App uses server-side timestamp for sync operations; local clock manipulation does not affect archive generation timing</td></tr>
+    <tr><td>Device clock set far forward (year 2099)</td><td>Date validation rejects transaction dates more than 1 year in the future</td></tr>
+    <tr><td>Year rollover (Dec 31 → Jan 1)</td><td>Archive generated for December; January starts fresh; yearly summary includes correct year boundary</td></tr>
+    <tr><td>Daylight saving time transition</td><td>Transactions on DST transition day are attributed to the correct calendar date; no 25-hour or 23-hour day errors</td></tr>
+  </table></div>
+
+  <h3>9.5 Currency &amp; Localization Edge Cases</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>User changes default currency mid-use</td><td>Historical data retains original currency; new transactions use new currency; mixed-currency totals shown with conversion caveat</td></tr>
+    <tr><td>Currency with no cents (JPY, XAF)</td><td>Amount stored as whole units (centimes = 0); displayed without decimal; no "¥100.00" format</td></tr>
+    <tr><td>Currency symbol is 3+ characters (e.g., "DZD")</td><td>Symbol displays without truncating the amount; layout adapts</td></tr>
+    <tr><td>Locale set to Arabic (ar-DZ); enter amount with period decimal</td><td>Period accepted as decimal separator; stored correctly; displayed with Arabic decimal convention</td></tr>
+    <tr><td>User switches locale from fr (comma decimal) to en (period decimal) mid-form</td><td>Locale change does not corrupt already-entered amount; app re-validates on locale change</td></tr>
+  </table></div>
+
+  <h3>9.6 Unexpected Shutdown &amp; Recovery</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Expected Outcome</th></tr>
+    <tr><td>App force-quit during goal creation (mid-form)</td><td>No partial goal record created; form state not persisted; fresh form on next open</td></tr>
+    <tr><td>App force-quit during monthly archive generation</td><td>Archive generation restarts from beginning on next open; no duplicate or partial archive</td></tr>
+    <tr><td>App force-quit during backup encryption</td><td>No partial backup file; backup key not written until complete file exists</td></tr>
+    <tr><td>App force-quit during sync payload send</td><td>IN_FLIGHT operations timeout and retry; no duplicate record on server</td></tr>
+    <tr><td>Device battery dies during PIN change</td><td>Old PIN remains valid; new PIN not partially applied</td></tr>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §10 -->
+<section id="s10">
+  <div class="sec-label">Section 10</div>
+  <h2>Security Testing</h2>
+  <p>Security testing in Finance Bag is not a one-time audit — it is an ongoing practice integrated into every release cycle. The threat model is: a sophisticated attacker with physical access to the device, a network attacker intercepting traffic, and a malicious application on the same device.</p>
+
+  <h3>10.1 Authentication Security</h3>
+  <div class="tw"><table>
+    <tr><th>Test</th><th>Method</th><th>Pass Criteria</th></tr>
+    <tr><td>PIN brute-force resistance</td><td>Attempt all 10,000 6-digit PINs via automated tool against test build with instrumented lockout</td><td>Lockout engages at attempt 3; exponential delay prevents all-PIN enumeration within threat window</td></tr>
+    <tr><td>Biometric bypass</td><td>Attempt to authenticate using spoofed biometric on test device; attempt to bypass via debug tools</td><td>App's biometric check uses OS-level biometric (not a custom image match); spoof fails</td></tr>
+    <tr><td>Session token persistence</td><td>Inspect Keychain / Keystore for session tokens after app kill</td><td>Session state is in-memory only; no session token persisted to disk</td></tr>
+    <tr><td>Lock screen bypass via notification</td><td>Tap notification while app is in locked state</td><td>Deep link navigates to correct screen only after successful auth; no data visible before auth</td></tr>
+    <tr><td>Authentication timeout enforcement</td><td>Configure 1-minute auto-lock; leave app for 90 seconds; return</td><td>Lock screen shown without exception; no edge case lets user skip lock on return</td></tr>
+  </table></div>
+
+  <h3>10.2 Encryption Verification</h3>
+  <div class="tw"><table>
+    <tr><th>Test</th><th>Method</th><th>Pass Criteria</th></tr>
+    <tr><td>Database at-rest encryption</td><td>Access the SQLCipher database file directly using a hex editor without the key</td><td>All content appears as random bytes; no plaintext financial values visible</td></tr>
+    <tr><td>Database unreadable without PIN</td><td>Copy database file to another device; attempt to open without key</td><td>Database fails to open; all content inaccessible</td></tr>
+    <tr><td>Backup file encryption</td><td>Open exported .fbk backup file in a hex editor</td><td>No plaintext financial data readable; file is opaque without decryption key</td></tr>
+    <tr><td>Backup key derivation</td><td>Verify backup encryption key is derived from user's PIN + device salt, not a static key</td><td>Two backups from different PINs produce different encrypted content for same data</td></tr>
+    <tr><td>Keychain / Keystore access control</td><td>Attempt to read Keychain items from a different app (same device)</td><td>Keychain access control prevents cross-app reads; Finance Bag items inaccessible to other apps</td></tr>
+    <tr><td>In-transit encryption</td><td>Intercept sync traffic using mitmproxy on test network</td><td>All sync payloads are TLS 1.3 encrypted; no plaintext data visible in intercepted packets</td></tr>
+  </table></div>
+
+  <h3>10.3 Data Leakage Testing</h3>
+  <div class="tw"><table>
+    <tr><th>Leak Vector</th><th>Test Method</th><th>Pass Criteria</th></tr>
+    <tr><td>Clipboard</td><td>Copy financial value; inspect clipboard contents; background/resume</td><td>Clipboard cleared after 60 seconds or on app background</td></tr>
+    <tr><td>Screenshot (iOS)</td><td>Take screenshot while financial data is visible; inspect metadata</td><td>Screenshot is allowed (user's own device); no OS-level restriction needed; note: screen recording should be considered for future</td></tr>
+    <tr><td>App switcher preview</td><td>Background app while financial data is on screen; open app switcher</td><td>App switcher preview shows blurred/blank overlay; no financial data visible</td></tr>
+    <tr><td>System logs</td><td>Run app in release mode; capture device logs via Xcode/adb; search for financial amounts</td><td>No financial amounts, no user PII, no encryption keys appear in system logs</td></tr>
+    <tr><td>Crash reports</td><td>Trigger a crash; inspect crash report content</td><td>Crash report contains no financial amounts, no decrypted field values, no session data</td></tr>
+    <tr><td>iCloud / Google backup</td><td>Enable cloud backup; backup device; inspect backed-up app data</td><td>Finance Bag excludes its database from OS cloud backup (app explicitly opts out); only app preferences backed up</td></tr>
+    <tr><td>AI context payload</td><td>Intercept FinancialContextBuilder output before remote AI call</td><td>No user name, no raw transaction amounts, no goal names; only anonymized aggregates present</td></tr>
+  </table></div>
+
+  <h3>10.4 Input Validation Security</h3>
+  <div class="tw"><table>
+    <tr><th>Attack Type</th><th>Test</th><th>Pass Criteria</th></tr>
+    <tr><td>SQL injection via transaction name</td><td>Enter <code>'; DROP TABLE transactions; --</code> as transaction label</td><td>Parameterized queries prevent execution; string stored as literal text</td></tr>
+    <tr><td>XSS via text fields (future web surface)</td><td>Enter <code>&lt;script&gt;alert('xss')&lt;/script&gt;</code> as goal name</td><td>Stored as escaped literal; never executed; displayed as plain text</td></tr>
+    <tr><td>Oversized input</td><td>Paste 50,000-character string into notes field</td><td>Input truncated at defined maximum (500 chars); no crash; no buffer overflow</td></tr>
+    <tr><td>Unicode edge cases</td><td>Enter right-to-left override character (U+202E) in transaction label</td><td>Character rendered harmlessly; does not reverse surrounding text; stored as-is</td></tr>
+    <tr><td>Emoji in financial labels</td><td>Enter emoji-only goal name "🏠🎯💰"</td><td>Stored and displayed correctly; no encoding error</td></tr>
+  </table></div>
+
+  <h3>10.5 Synchronization Security</h3>
+  <ul>
+    <li>Sync requests must include a valid device authentication token (verified on server); requests without valid token are rejected with 401</li>
+    <li>User A cannot read or overwrite User B's sync data even with a valid token — per-user data isolation verified</li>
+    <li>Replay attack: a captured sync payload replayed 60 seconds later must be rejected (payload includes timestamp + nonce)</li>
+    <li>Sync payload size limits enforced server-side (not only client-side) to prevent data exfiltration via oversized payloads</li>
+  </ul>
+
+  <h3>10.6 Penetration Testing Roadmap</h3>
+  <div class="tw"><table>
+    <tr><th>Release Milestone</th><th>Penetration Testing Activity</th><th>Scope</th></tr>
+    <tr><td>v1.0 (Pre-launch)</td><td>Internal security review (OWASP Mobile Top 10 checklist)</td><td>Authentication, encryption, data storage, network communications</td></tr>
+    <tr><td>v1.5 (Post-launch)</td><td>Third-party penetration test (external security firm)</td><td>Full white-box assessment; source code review; network protocol analysis</td></tr>
+    <tr><td>v2.0 (AI features)</td><td>AI-specific security review (prompt injection, data leakage via AI responses)</td><td>FinancialContextBuilder anonymization validation; AI response content screening</td></tr>
+    <tr><td>Annually (ongoing)</td><td>Repeat full penetration test</td><td>Delta from prior assessment; new attack surface from features added since last test</td></tr>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §11 -->
+<section id="s11">
+  <div class="sec-label">Section 11</div>
+  <h2>Performance Testing</h2>
+  <p>Finance Bag users depend on the app to be fast enough to use in context — checking a budget at the checkout line, logging a payment while at the bank. Performance is a quality requirement, not a nice-to-have.</p>
+
+  <h3>11.1 Performance Targets</h3>
+  <div class="tw"><table>
+    <tr><th>Metric</th><th>Target (cold start)</th><th>Target (warm)</th><th>Hard Limit (fail)</th><th>Dataset</th></tr>
+    <tr><td>App launch to interactive (first paint)</td><td>&lt;2.5s</td><td>&lt;1.0s</td><td>&gt;4.0s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Dashboard fully rendered</td><td>&lt;1.5s from auth</td><td>&lt;500ms</td><td>&gt;3.0s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Budget list render (10 budgets)</td><td>&lt;400ms</td><td>&lt;200ms</td><td>&gt;1.5s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Transaction list render (500 items)</td><td>&lt;800ms</td><td>&lt;400ms</td><td>&gt;2.5s</td><td>DS-HEAVY</td></tr>
+    <tr><td>Monthly report generation</td><td>&lt;2.0s</td><td>&lt;1.0s</td><td>&gt;5.0s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Annual summary generation</td><td>&lt;6.0s</td><td>&lt;3.0s</td><td>&gt;15.0s</td><td>DS-HEAVY</td></tr>
+    <tr><td>Global search (500 transactions)</td><td>&lt;300ms from keystroke</td><td>&lt;150ms</td><td>&gt;800ms</td><td>DS-HEAVY</td></tr>
+    <tr><td>Screen navigation (any stack push)</td><td>&lt;300ms transition</td><td>&lt;200ms</td><td>&gt;500ms</td><td>DS-STANDARD</td></tr>
+    <tr><td>Sync — incremental delta (10 operations)</td><td>&lt;3.0s end-to-end</td><td>&lt;2.0s</td><td>&gt;10.0s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Sync — full epoch (DS-STANDARD)</td><td>&lt;30s</td><td>&lt;20s</td><td>&gt;60s</td><td>DS-STANDARD</td></tr>
+    <tr><td>AI Coach response (Rule-Based mode)</td><td>&lt;200ms</td><td>&lt;100ms</td><td>&gt;500ms</td><td>DS-STANDARD</td></tr>
+    <tr><td>AI Coach response (remote LLM)</td><td>&lt;10s</td><td>&lt;8s</td><td>&gt;20s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Archive month navigation (24 months)</td><td>&lt;500ms per month switch</td><td>&lt;200ms</td><td>&gt;1.5s</td><td>DS-HEAVY</td></tr>
+  </table></div>
+
+  <h3>11.2 Memory Usage Targets</h3>
+  <div class="tw"><table>
+    <tr><th>Scenario</th><th>Target Memory</th><th>Hard Limit</th></tr>
+    <tr><td>App at rest (locked screen)</td><td>&lt;80MB</td><td>&gt;150MB (risk of OS kill)</td></tr>
+    <tr><td>Dashboard active (DS-STANDARD)</td><td>&lt;150MB</td><td>&gt;250MB</td></tr>
+    <tr><td>Reports with charts rendered (DS-HEAVY)</td><td>&lt;200MB</td><td>&gt;350MB</td></tr>
+    <tr><td>AI Coach session active</td><td>&lt;180MB</td><td>&gt;300MB</td></tr>
+    <tr><td>Export operation in progress</td><td>&lt;200MB (PDF in memory)</td><td>&gt;350MB</td></tr>
+    <tr><td>Memory growth over 1-hour session</td><td>&lt;20MB growth</td><td>&gt;50MB growth (memory leak)</td></tr>
+  </table></div>
+
+  <h3>11.3 Battery Impact Testing</h3>
+  <div class="spec-block">
+    <strong>Battery impact methodology:</strong><br>
+    Battery testing uses a standardized 30-minute usage session on a device at 80% charge, with screen at 50% brightness, in a controlled temperature environment (22°C). The session follows a scripted pattern representing a realistic power user session.<br><br>
+    <strong>Battery consumption targets:</strong><br>
+    • Active 30-minute session: &lt;5% battery drain (reference: YouTube streaming ≈ 8–12%)<br>
+    • Background sync (10 operations, Wi-Fi): &lt;0.5% battery drain<br>
+    • Background sync (10 operations, cellular): &lt;1.0% battery drain<br>
+    • App at rest for 1 hour (locked): &lt;0.2% battery drain (negligible background activity)<br><br>
+    <strong>Battery drain red flags:</strong><br>
+    • Any background location access (Finance Bag must never request location)<br>
+    • Continuous background network polling (must use push-triggered or scheduled sync only)<br>
+    • Retained high-frequency timers after app background
+  </div>
+
+  <h3>11.4 Database Performance Benchmarks</h3>
+  <div class="tw"><table>
+    <tr><th>Operation</th><th>Volume</th><th>Target Time</th></tr>
+    <tr><td>INSERT single transaction</td><td>1 row</td><td>&lt;10ms</td></tr>
+    <tr><td>SELECT all transactions for a month</td><td>500 rows</td><td>&lt;50ms</td></tr>
+    <tr><td>Aggregate (SUM) all transactions in a month</td><td>500 rows</td><td>&lt;20ms</td></tr>
+    <tr><td>Full-text search across transaction labels</td><td>5,000 rows</td><td>&lt;80ms</td></tr>
+    <tr><td>Generate monthly summary (all budgets, all categories)</td><td>500 rows × 10 budgets</td><td>&lt;200ms</td></tr>
+    <tr><td>Annual aggregate (12 months)</td><td>6,000 rows</td><td>&lt;500ms</td></tr>
+    <tr><td>Database vacuum (nightly maintenance)</td><td>Full DB</td><td>&lt;5s (background)</td></tr>
+  </table></div>
+
+  <h3>11.5 Performance Testing Approach</h3>
+  <ul>
+    <li>All benchmarks are run on the minimum-spec supported device (iPhone SE / Galaxy A15) — if it meets targets there, it will exceed them on higher-end devices</li>
+    <li>Performance tests run with all standard developer optimizations enabled (production build, not debug build) — debug builds are not valid performance proxies</li>
+    <li>Each metric is measured 5 times; the median value is the reported figure; the 95th percentile must also meet the hard limit</li>
+    <li>Performance regression: any metric that degrades more than 20% from the prior release baseline is treated as a P2 defect and blocks release unless justified</li>
+    <li>Flamegraph profiling is performed for any metric that exceeds its target during testing — the root cause must be identified before shipping</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §12 -->
+<section id="s12">
+  <div class="sec-label">Section 12</div>
+  <h2>Usability Testing</h2>
+  <p>Usability testing validates that real users can accomplish their financial goals using Finance Bag without training, without errors, and without frustration. It complements automated testing by catching issues that no automated tool will find.</p>
+
+  <h3>12.1 User Personas for Testing</h3>
+  <div class="tw"><table>
+    <tr><th>Persona</th><th>Profile</th><th>Key Test Focus</th></tr>
+    <tr><td>First-Time User</td><td>No prior personal finance app experience; moderate smartphone proficiency; primary language: French</td><td>Onboarding clarity, discoverability, first-value time</td></tr>
+    <tr><td>Returning User</td><td>3+ months of active use; comfortable with all core features; looking for advanced features</td><td>Efficiency, navigation shortcuts, advanced module access</td></tr>
+    <tr><td>Power User</td><td>Personal finance enthusiast; tracks 100+ transactions/month; uses all 15 modules</td><td>DS-HEAVY performance, reports depth, AI coach quality</td></tr>
+    <tr><td>Accessibility User (VoiceOver)</td><td>Blind user relying entirely on VoiceOver (iOS) or TalkBack (Android)</td><td>100% task completion via screen reader; all labels present and meaningful</td></tr>
+    <tr><td>Accessibility User (Motor)</td><td>User with motor impairment using Switch Control</td><td>All actions reachable via switch scanning; no gesture-only flows</td></tr>
+    <tr><td>Arabic-Language User</td><td>Primary language Arabic; device in ar-DZ locale; uses RTL layout</td><td>RTL correctness, currency formatting, date formatting, no clipped text</td></tr>
+    <tr><td>Low-End Device User</td><td>Older Android device (4GB RAM, slower CPU); uses the app daily</td><td>No ANR (Application Not Responding); performance targets on DS-STANDARD</td></tr>
+    <tr><td>Offline-First User</td><td>Frequently in areas with poor/no connectivity; relies on offline functionality</td><td>100% core functionality offline; clear sync status; no offline surprises</td></tr>
+  </table></div>
+
+  <h3>12.2 Usability Test Session Structure</h3>
+  <div class="spec-block">
+    <strong>Standard usability session (60 minutes):</strong><br>
+    • 5 min: Introduction, consent, context questions (what financial apps have you used?)<br>
+    • 45 min: Task scenarios (unmoderated think-aloud; facilitator observes without helping)<br>
+    • 10 min: Debrief — what was confusing? What was missing? What did you like?<br><br>
+    <strong>Metrics captured per task:</strong><br>
+    • Task completion rate (completed / failed / gave up)<br>
+    • Time on task (seconds from task start to completion)<br>
+    • Error count (mis-taps, wrong navigation paths, validation errors triggered)<br>
+    • Satisfaction rating (1–5 after each task)<br>
+    • Verbalized confusion or frustration (qualitative notes)
+  </div>
+
+  <h3>12.3 Core Usability Task Scenarios</h3>
+  <div class="tw"><table>
+    <tr><th>Task</th><th>Success Criteria</th><th>Benchmark Target</th></tr>
+    <tr><td>Record a grocery transaction of €42.50 in the Food budget</td><td>Transaction saved correctly; budget remaining updates</td><td>≥90% completion; &lt;90 seconds</td></tr>
+    <tr><td>Find out how much you've spent on Food this month</td><td>Correct month-to-date amount found in Budget or Reports</td><td>≥90% completion; &lt;60 seconds</td></tr>
+    <tr><td>Create a new savings goal for a vacation costing €2,000 by next December</td><td>Goal created with correct target and deadline; monthly contribution shown</td><td>≥85% completion; &lt;3 minutes</td></tr>
+    <tr><td>Find your most recent transaction and delete it</td><td>Transaction deleted; undo option taken (or not — either is valid); confirmed gone</td><td>≥90% completion; &lt;90 seconds</td></tr>
+    <tr><td>Export a backup of your data</td><td>Backup file created; shared to Files or email</td><td>≥85% completion; &lt;2 minutes</td></tr>
+    <tr><td>Ask the AI Coach why your spending increased last month</td><td>Question submitted; response received; user understands the answer</td><td>≥80% task comprehension score (post-task question)</td></tr>
+    <tr><td>Change the app language to Arabic</td><td>Language changed; RTL layout visible; user can navigate back to Dashboard</td><td>≥90% completion; &lt;2 minutes</td></tr>
+  </table></div>
+
+  <h3>12.4 Accessibility Validation Protocol</h3>
+  <p>Accessibility validation is a structured audit, not an ad-hoc review. It follows the WCAG 2.1 Mobile Accessibility guidelines and Apple/Google accessibility standards.</p>
+  <div class="tw"><table>
+    <tr><th>Check Category</th><th>Tool / Method</th><th>Frequency</th></tr>
+    <tr><td>Color contrast (all text)</td><td>Colour Contrast Analyser + automated CI scan</td><td>Every PR (automated); full audit at release</td></tr>
+    <tr><td>Touch target sizes</td><td>Accessibility Inspector (Xcode) + manual measurement</td><td>Full audit at release</td></tr>
+    <tr><td>VoiceOver / TalkBack navigation</td><td>Manual session with screen reader on; complete all 7 core tasks</td><td>Every release candidate</td></tr>
+    <tr><td>Dynamic Type (text scaling)</td><td>Test at 100%, 150%, 200% system font size; verify no clipping or overflow</td><td>Every release candidate</td></tr>
+    <tr><td>Reduced motion</td><td>Enable "Reduce Motion" system setting; verify all animations have alternatives</td><td>Every release candidate</td></tr>
+    <tr><td>High contrast mode</td><td>Enable High Contrast theme; verify all content readable</td><td>Every release candidate</td></tr>
+    <tr><td>Switch Control (iOS)</td><td>Enable Switch Control; complete 3 core tasks using only switch</td><td>Major release</td></tr>
+    <tr><td>Keyboard navigation (Android)</td><td>Connect Bluetooth keyboard; navigate entire app via keyboard only</td><td>Major release</td></tr>
+  </table></div>
+
+  <h3>12.5 Localization Validation</h3>
+  <div class="tw"><table>
+    <tr><th>Check</th><th>Method</th><th>Pass Criteria</th></tr>
+    <tr><td>No untranslated strings in production build</td><td>Automated scan of i18n keys; compare against all locale files</td><td>0 missing keys in any locale</td></tr>
+    <tr><td>No text truncation in French (longest locale)</td><td>Manual review of all screens in fr-FR locale with long strings</td><td>0 truncated UI labels</td></tr>
+    <tr><td>RTL layout correct in Arabic</td><td>Manual review of all screens in ar-DZ locale; directional icon checklist</td><td>0 incorrectly mirrored or non-mirrored directional elements</td></tr>
+    <tr><td>Currency format correct per locale</td><td>Enter €1,234.50 in each locale; verify display format</td><td>Format matches §15 table exactly</td></tr>
+    <tr><td>Date format correct per locale</td><td>Create transaction with known date; verify display in each locale</td><td>Format matches §15 table; no year/month/day order errors</td></tr>
+    <tr><td>Native reviewer sign-off</td><td>Native speaker of French and Arabic reviews all UI copy for tone, accuracy, and idiom</td><td>Signed-off before release; all reviewer comments resolved</td></tr>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §13 -->
+<section id="s13">
+  <div class="sec-label">Section 13</div>
+  <h2>Automation Strategy</h2>
+  <p>Automation decisions are made on a cost-benefit basis. Tests that are high-value, stable, and fast gain the most from automation. Tests that require visual judgment, emotional response, or contextual interpretation must remain manual.</p>
+
+  <h3>13.1 Automation Decision Framework</h3>
+  <div class="spec-block">
+    <strong>A test should be automated when:</strong><br>
+    • It verifies logic that can be expressed as deterministic input → output<br>
+    • It would need to run on every PR (too expensive to run manually at that cadence)<br>
+    • It tests a regression that has occurred before (every past bug earns an automated regression test)<br>
+    • It tests a business rule that must remain invariant regardless of other code changes<br>
+    • Its failure mode is binary (pass/fail) and human judgment is not needed to interpret the result<br><br>
+    <strong>A test must remain manual when:</strong><br>
+    • It requires visual judgment (chart alignment, animation smoothness, color accuracy)<br>
+    • It tests emotional/experiential quality (onboarding feels welcoming, AI coach feels helpful)<br>
+    • It requires physical device-specific behavior (biometric sensor, haptic feedback quality)<br>
+    • It validates legal or compliance language that must be reviewed by a human<br>
+    • Its maintenance cost exceeds its defect-detection value (rare, complex E2E paths)
+  </div>
+
+  <h3>13.2 What to Automate</h3>
+  <div class="tw"><table>
+    <tr><th>Category</th><th>Specific Tests</th><th>Layer</th><th>Frequency</th></tr>
+    <tr><td>Financial calculations</td><td>All budget, debt, goal, EMF, FHS, and report calculations with 10+ input variants each</td><td>L2 Unit</td><td>Every commit</td></tr>
+    <tr><td>Business rule enforcement</td><td>Salary allocation limits, amount validation, date constraints, duplicate prevention</td><td>L2 Unit</td><td>Every commit</td></tr>
+    <tr><td>Sync conflict resolution</td><td>All 7 conflict types × 3 data scenarios each</td><td>L2 Unit + L4 Integration</td><td>Every commit</td></tr>
+    <tr><td>Database CRUD integrity</td><td>All CRUD operations; soft delete isolation; ULID ordering; FK constraints</td><td>L4 Integration</td><td>Every PR</td></tr>
+    <tr><td>Encryption round-trips</td><td>Encrypt → store → read → decrypt → compare for each encrypted field type</td><td>L4 Integration</td><td>Every PR</td></tr>
+    <tr><td>Component rendering (all states)</td><td>All components × all states × light and dark themes</td><td>L3 Component</td><td>Every PR</td></tr>
+    <tr><td>Static analysis</td><td>TypeScript, ESLint, dependency audit, secret scanning</td><td>L1</td><td>Every commit</td></tr>
+    <tr><td>Regression suite</td><td>One test per previously filed critical/major bug</td><td>L2–L4</td><td>Every PR</td></tr>
+    <tr><td>API contract tests (future)</td><td>Sync API request/response shape validation against OpenAPI schema</td><td>L4</td><td>Every PR (future)</td></tr>
+    <tr><td>Critical E2E workflows</td><td>E2E-01 through E2E-08 (the 8 most stable, highest-value workflows)</td><td>L6</td><td>Release candidate</td></tr>
+    <tr><td>Performance benchmarks</td><td>All metrics in §11.1 table — automated measurement, compare to baseline</td><td>L5</td><td>Release candidate</td></tr>
+    <tr><td>Security scan</td><td>OWASP dependency check, static secret detection, known CVE scan</td><td>L1</td><td>Every PR</td></tr>
+  </table></div>
+
+  <h3>13.3 What Remains Manual</h3>
+  <div class="tw"><table>
+    <tr><th>Category</th><th>Why Manual</th><th>Frequency</th></tr>
+    <tr><td>Visual design consistency</td><td>Pixel-level judgment; color accuracy on physical screens; spacing feel</td><td>Every release candidate</td></tr>
+    <tr><td>Animation smoothness and timing</td><td>Frame rate perception; "natural" feel; reduced motion alternatives</td><td>Every release candidate</td></tr>
+    <tr><td>Biometric authentication (physical)</td><td>Requires real fingerprint sensor / Face ID hardware</td><td>Every release candidate</td></tr>
+    <tr><td>Haptic feedback quality</td><td>Requires physical device; subjective quality assessment</td><td>Major releases</td></tr>
+    <tr><td>Screen reader experience</td><td>Requires human using VoiceOver/TalkBack; contextual quality judgment</td><td>Every release candidate</td></tr>
+    <tr><td>Localization native review</td><td>Requires native language speaker; cultural and idiomatic judgment</td><td>Every release with new copy</td></tr>
+    <tr><td>AI Coach response quality</td><td>Requires human judgment of helpfulness, tone, accuracy, non-judgmental language</td><td>Monthly AI output review</td></tr>
+    <tr><td>Onboarding experience</td><td>Emotional quality; first-impression judgment; discoverability</td><td>Every major UX change</td></tr>
+    <tr><td>Chart visual accuracy</td><td>Chart rendering correctness (visual output, not data values)</td><td>Every release candidate</td></tr>
+    <tr><td>Notification content and timing</td><td>Notification appearance on lock screen; system-level presentation varies by OS</td><td>Every release candidate</td></tr>
+    <tr><td>Platform-specific behaviors</td><td>iOS-specific: swipe back gesture, Dynamic Island, share sheet. Android-specific: back button, notification drawer</td><td>Every release candidate</td></tr>
+  </table></div>
+
+  <h3>13.4 Flaky Test Policy</h3>
+  <div class="warn-block">
+    <strong>Definition:</strong> A flaky test is one that produces different results on the same code without any code change. Flaky tests are a quality liability — they train developers to ignore red builds, masking real failures.<br><br>
+    <strong>Policy:</strong><br>
+    • Any test that fails intermittently more than 1 time in 10 runs is classified as flaky<br>
+    • Flaky tests are immediately quarantined (removed from the required pass gate) and filed as P2 defects<br>
+    • The root cause must be identified within 2 sprint cycles: either fix or delete<br>
+    • A test that is permanently flaky due to timing/environment issues and cannot be made deterministic must be removed and replaced with a more focused unit test<br>
+    • The flaky test backlog is reviewed in every sprint retrospective
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §14 -->
+<section id="s14">
+  <div class="sec-label">Section 14</div>
+  <h2>Release Readiness</h2>
+  <p>A Finance Bag release is not approved unless all hard-gate criteria pass. There are no exceptions, no waivers, and no "we'll fix it in the next patch." Financial data correctness is non-negotiable.</p>
+
+  <h3>14.1 Release Readiness Gates (Hard Blockers)</h3>
+  <div class="err-block">
+    <strong>The following conditions BLOCK any release until resolved:</strong><br>
+    1. Any open S1 (Critical) bug<br>
+    2. Any open security vulnerability rated High or Critical (CVSS ≥ 7.0)<br>
+    3. Unit test coverage below 90% for business logic<br>
+    4. Any E2E critical workflow (E2E-01 through E2E-15) failing<br>
+    5. Any performance metric exceeding its hard limit (§11.1)<br>
+    6. Any crash-free session rate below 99.5% in pre-production testing<br>
+    7. Any untranslated string in any shipped locale<br>
+    8. Any WCAG AA contrast failure on text or UI components<br>
+    9. Encryption verification failed (database readable without key)<br>
+    10. Backup/restore round-trip failed on any supported device class
+  </div>
+
+  <h3>14.2 Release Checklist</h3>
+  <p>The release checklist is completed and signed off by the QA Lead and Release Manager before any production deployment.</p>
+
+  <h4>Code Quality</h4>
+  <div class="tw"><table>
+    <tr><th>#</th><th>Check</th><th>Owner</th></tr>
+    <tr><td>RC-01</td><td>All CI pipelines green on release branch</td><td>Engineering Lead</td></tr>
+    <tr><td>RC-02</td><td>TypeScript compilation with zero errors</td><td>Automated</td></tr>
+    <tr><td>RC-03</td><td>Zero ESLint errors (warnings reviewed and accepted or resolved)</td><td>Automated</td></tr>
+    <tr><td>RC-04</td><td>Business logic unit test coverage ≥ 90%</td><td>Automated</td></tr>
+    <tr><td>RC-05</td><td>All snapshot tests up to date and reviewed</td><td>QA</td></tr>
+    <tr><td>RC-06</td><td>No @ts-ignore or @ts-expect-error added without approved comment</td><td>Engineering Lead</td></tr>
+    <tr><td>RC-07</td><td>Dependency audit clean (no high/critical CVEs)</td><td>Automated</td></tr>
+    <tr><td>RC-08</td><td>Secret scan clean</td><td>Automated</td></tr>
+  </table></div>
+
+  <h4>Functional Testing</h4>
+  <div class="tw"><table>
+    <tr><th>#</th><th>Check</th><th>Owner</th></tr>
+    <tr><td>RC-09</td><td>All 15 E2E critical workflows pass on iOS (primary device)</td><td>QA</td></tr>
+    <tr><td>RC-10</td><td>All 15 E2E critical workflows pass on Android (primary device)</td><td>QA</td></tr>
+    <tr><td>RC-11</td><td>All 15 E2E critical workflows pass on minimum-spec device (iOS SE / Android A-series)</td><td>QA</td></tr>
+    <tr><td>RC-12</td><td>All 15 modules verified accessible and functional</td><td>QA</td></tr>
+    <tr><td>RC-13</td><td>All business rule validation tests pass (§8)</td><td>Automated</td></tr>
+    <tr><td>RC-14</td><td>All edge case tests pass (§9)</td><td>QA + Automated</td></tr>
+    <tr><td>RC-15</td><td>Backup and restore verified on all 6 device classes</td><td>QA</td></tr>
+    <tr><td>RC-16</td><td>Offline → reconnect → sync verified on all 6 device classes</td><td>QA</td></tr>
+    <tr><td>RC-17</td><td>Monthly archive generation and navigation verified</td><td>QA</td></tr>
+  </table></div>
+
+  <h4>Security &amp; Privacy</h4>
+  <div class="tw"><table>
+    <tr><th>#</th><th>Check</th><th>Owner</th></tr>
+    <tr><td>RC-18</td><td>Database encrypted (hex editor test on release build)</td><td>Security Lead</td></tr>
+    <tr><td>RC-19</td><td>Backup file encrypted (hex editor test)</td><td>Security Lead</td></tr>
+    <tr><td>RC-20</td><td>No financial data in system logs (release build)</td><td>Security Lead</td></tr>
+    <tr><td>RC-21</td><td>App switcher preview shows blurred overlay (both platforms)</td><td>QA</td></tr>
+    <tr><td>RC-22</td><td>AI context payload anonymization verified (no PII in payload)</td><td>Security Lead</td></tr>
+    <tr><td>RC-23</td><td>All auth bypass scenarios tested and blocked</td><td>Security Lead</td></tr>
+    <tr><td>RC-24</td><td>In-transit traffic verified as TLS 1.3 (mitmproxy test)</td><td>Security Lead</td></tr>
+    <tr><td>RC-25</td><td>App excluded from OS cloud backup for database (iOS + Android)</td><td>QA</td></tr>
+  </table></div>
+
+  <h4>Performance</h4>
+  <div class="tw"><table>
+    <tr><th>#</th><th>Check</th><th>Owner</th></tr>
+    <tr><td>RC-26</td><td>App launch &lt;2.5s on minimum-spec device (cold start)</td><td>QA</td></tr>
+    <tr><td>RC-27</td><td>Dashboard render &lt;1.5s on minimum-spec device (DS-STANDARD)</td><td>QA</td></tr>
+    <tr><td>RC-28</td><td>DS-HEAVY annual report generates &lt;6s</td><td>QA</td></tr>
+    <tr><td>RC-29</td><td>Memory usage within limits across all benchmarked scenarios</td><td>QA</td></tr>
+    <tr><td>RC-30</td><td>No memory leak over 1-hour session (growth &lt;20MB)</td><td>QA</td></tr>
+    <tr><td>RC-31</td><td>No ANR (Application Not Responding) on Android in any test run</td><td>QA</td></tr>
+  </table></div>
+
+  <h4>Accessibility &amp; Localization</h4>
+  <div class="tw"><table>
+    <tr><th>#</th><th>Check</th><th>Owner</th></tr>
+    <tr><td>RC-32</td><td>WCAG AA contrast verified for all text (automated scan + manual spot-check)</td><td>QA</td></tr>
+    <tr><td>RC-33</td><td>VoiceOver complete task suite passed (7 core tasks)</td><td>QA</td></tr>
+    <tr><td>RC-34</td><td>TalkBack complete task suite passed (7 core tasks)</td><td>QA</td></tr>
+    <tr><td>RC-35</td><td>Dynamic Type at 200% — no clipping or overflow on any screen</td><td>QA</td></tr>
+    <tr><td>RC-36</td><td>Reduced motion mode — all animations replaced with alternatives</td><td>QA</td></tr>
+    <tr><td>RC-37</td><td>All 6 locales — zero missing translation keys</td><td>Automated</td></tr>
+    <tr><td>RC-38</td><td>French locale — no text truncation on any screen</td><td>QA</td></tr>
+    <tr><td>RC-39</td><td>Arabic locale — RTL layout correct; directional icon audit passed</td><td>QA</td></tr>
+    <tr><td>RC-40</td><td>Native language reviewer sign-off (French + Arabic)</td><td>Localization</td></tr>
+  </table></div>
+
+  <h4>User Acceptance</h4>
+  <div class="tw"><table>
+    <tr><th>#</th><th>Check</th><th>Owner</th></tr>
+    <tr><td>RC-41</td><td>UAT session completed with 5+ participants; no critical usability failures</td><td>Product + QA</td></tr>
+    <tr><td>RC-42</td><td>Core task completion rate ≥85% across all 7 standard tasks</td><td>Product</td></tr>
+    <tr><td>RC-43</td><td>All UAT feedback reviewed; P1/P2 items resolved or deferred with justification</td><td>Product Lead</td></tr>
+  </table></div>
+
+  <h4>Release Documentation</h4>
+  <div class="tw"><table>
+    <tr><th>#</th><th>Check</th><th>Owner</th></tr>
+    <tr><td>RC-44</td><td>Release notes drafted and reviewed</td><td>Product</td></tr>
+    <tr><td>RC-45</td><td>Known limitations documented</td><td>Product + QA</td></tr>
+    <tr><td>RC-46</td><td>App Store / Google Play listing metadata reviewed for accuracy</td><td>Product</td></tr>
+    <tr><td>RC-47</td><td>Post-release monitoring plan in place (alerts, on-call schedule)</td><td>Engineering</td></tr>
+    <tr><td>RC-48</td><td>Rollback plan documented (version pinning, emergency patch process)</td><td>Release Manager</td></tr>
+  </table></div>
+
+  <h3>14.3 Post-Release Monitoring (72-Hour Window)</h3>
+  <div class="spec-block">
+    <strong>Alert thresholds that trigger immediate response within 72 hours of release:</strong><br>
+    • Crash-free session rate drops below 99.5% → P1 incident; hotfix evaluation<br>
+    • Any crash in authentication, encryption, or backup module → P1 incident regardless of rate<br>
+    • Average app startup time increases by &gt;30% → P2 investigation<br>
+    • Sync failure rate exceeds 5% → P2 investigation<br>
+    • App Store rating drops below 4.0 within first 48 hours → Review user reviews; P2 triage<br>
+    • More than 3 user reports of data loss → P1 incident immediately
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §15 -->
+<section id="s15">
+  <div class="sec-label">Section 15</div>
+  <h2>Quality Metrics</h2>
+  <p>Quality metrics make quality visible. Without measurement, quality is a subjective feeling. With measurement, quality is a managed property with trends, targets, and accountability.</p>
+
+  <h3>15.1 Primary Quality KPIs</h3>
+  <div class="tw"><table>
+    <tr><th>Metric</th><th>Target</th><th>Measurement Method</th><th>Reporting Cadence</th></tr>
+    <tr><td>Crash-free session rate</td><td>≥ 99.5%</td><td>Crash analytics (Sentry / Firebase Crashlytics)</td><td>Daily</td></tr>
+    <tr><td>ANR (Application Not Responding) rate</td><td>≤ 0.1%</td><td>Google Play Console (Android)</td><td>Daily</td></tr>
+    <tr><td>Business logic unit test coverage</td><td>≥ 90%</td><td>Coverage tool report in CI</td><td>Every PR</td></tr>
+    <tr><td>Overall test coverage</td><td>≥ 75%</td><td>Coverage tool report in CI</td><td>Every PR</td></tr>
+    <tr><td>Critical E2E workflows passing</td><td>15/15</td><td>E2E test runner</td><td>Release candidate</td></tr>
+    <tr><td>Defect density (bugs per feature)</td><td>≤ 0.5 bugs per feature shipped</td><td>Bug tracker statistics</td><td>Per sprint</td></tr>
+    <tr><td>Critical (S1) bug count in release</td><td>0</td><td>Bug tracker</td><td>Pre-release</td></tr>
+    <tr><td>Regression rate</td><td>≤ 5% of bugs are regressions</td><td>Bug tracker (regression label)</td><td>Per sprint</td></tr>
+    <tr><td>Security vulnerability (High/Critical) open count</td><td>0</td><td>Dependency audit + security scan</td><td>Every PR</td></tr>
+    <tr><td>Mean time to resolve (MTTR) — S1 bugs</td><td>≤ 24 hours</td><td>Bug tracker timestamps</td><td>Per incident</td></tr>
+    <tr><td>Mean time to resolve — S2 bugs</td><td>≤ 3 sprint days</td><td>Bug tracker timestamps</td><td>Per sprint</td></tr>
+    <tr><td>WCAG AA compliance rate</td><td>100%</td><td>Automated contrast scan + manual audit</td><td>Release candidate</td></tr>
+    <tr><td>Localization completeness</td><td>100% across all locales</td><td>Automated i18n key audit</td><td>Every PR with copy changes</td></tr>
+    <tr><td>UAT task completion rate</td><td>≥ 85%</td><td>Usability test session recordings</td><td>Per release</td></tr>
+    <tr><td>Post-release app rating</td><td>≥ 4.3 stars (App Store + Play Store)</td><td>Store review APIs</td><td>Weekly</td></tr>
+    <tr><td>Flaky test count</td><td>0 in required suite</td><td>CI failure log + manual tracking</td><td>Per sprint</td></tr>
+  </table></div>
+
+  <h3>15.2 Quality Dashboard</h3>
+  <p>The quality metrics above are published to a quality dashboard visible to the entire team. The dashboard is updated automatically for automated metrics and manually updated within 24 hours for manual metrics. It serves as the team's shared definition of quality at any point in time.</p>
+  <div class="spec-block">
+    <strong>Dashboard views:</strong><br>
+    • <strong>Current sprint:</strong> Open bugs by severity, test coverage, new flaky tests, E2E pass rate<br>
+    • <strong>Release readiness:</strong> Release checklist completion %, hard-gate status (green/red per gate)<br>
+    • <strong>Production health:</strong> Crash-free rate, ANR rate, App Store rating, active incidents<br>
+    • <strong>Trend:</strong> All metrics over the past 6 releases — regression detection, improvement tracking
+  </div>
+
+  <h3>15.3 Quality Review Ceremony</h3>
+  <p>A 30-minute Quality Review is held at the end of every sprint. Agenda:</p>
+  <ol>
+    <li>Review current metric values vs targets — flag any degrading metrics</li>
+    <li>Review open S1 and S2 bugs — ensure none are stale</li>
+    <li>Review flaky test backlog — status of each quarantined test</li>
+    <li>Preview of release readiness for the upcoming release candidate</li>
+    <li>Identify any quality debt items for the next sprint backlog</li>
+  </ol>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §16 -->
+<section id="s16">
+  <div class="sec-label">Section 16</div>
+  <h2>Bug Management</h2>
+  <p>Every defect in Finance Bag is a promise broken to the user. The bug management process exists to make sure promises are broken as rarely as possible, and that when they are, they are repaired quickly, systematically, and without recurrence.</p>
+
+  <h3>16.1 Bug Severity Classification</h3>
+  <div class="tw"><table>
+    <tr><th>Severity</th><th>Definition</th><th>Examples</th><th>Release Impact</th></tr>
+    <tr><td><span class="pill pill-err">S1 Critical</span></td><td>Data loss, incorrect financial calculation visible to user, authentication bypass, encryption failure, or app unusable for all users</td><td>Wrong budget total displayed; PIN bypass; database corruption; backup fails silently</td><td>Blocks release immediately; hotfix required</td></tr>
+    <tr><td><span class="pill pill-warn">S2 Major</span></td><td>Significant feature broken; workflow unusable; incorrect data in secondary context; affects majority of users</td><td>Goal progress incorrect; sync fails consistently; export always fails; AI coach unavailable</td><td>Blocks release unless deferred with documented justification and workaround</td></tr>
+    <tr><td><span class="pill pill-info">S3 Minor</span></td><td>Feature works but with reduced quality; cosmetic issue affecting usability; affects minority of users or edge cases</td><td>Chart label truncated; toast auto-dismiss too fast; RTL text misaligned in one specific screen</td><td>Does not block release; must be scheduled in next sprint</td></tr>
+    <tr><td><span class="pill" style="background:rgba(161,161,170,.15);color:#A1A1AA;">S4 Cosmetic</span></td><td>Visual imperfection with no functional impact; known limitation; minor wording improvement</td><td>Animation easing slightly off; shadow rendering differs from spec; label 1px misaligned</td><td>Does not block release; backlogged</td></tr>
+  </table></div>
+
+  <h3>16.2 Bug Priority Classification</h3>
+  <div class="tw"><table>
+    <tr><th>Priority</th><th>Definition</th><th>Target Resolution</th></tr>
+    <tr><td><span class="pill pill-err">P1 Immediate</span></td><td>Must be fixed before anything else; production emergency or release blocker</td><td>Within 24 hours</td></tr>
+    <tr><td><span class="pill pill-warn">P2 High</span></td><td>Must be fixed in the current sprint; will block release if not resolved</td><td>Within 3 sprint days</td></tr>
+    <tr><td><span class="pill pill-info">P3 Normal</span></td><td>Scheduled for the next available sprint; will not block current release</td><td>Within 2 sprints</td></tr>
+    <tr><td><span class="pill" style="background:rgba(161,161,170,.15);color:#A1A1AA;">P4 Low</span></td><td>Backlogged; will be addressed when capacity allows</td><td>Best effort</td></tr>
+  </table></div>
+  <p><strong>Severity vs Priority relationship:</strong> S1 bugs are always P1. S2 bugs are typically P2 unless they are in a code path not yet shipped. S3/S4 bugs are P3 or P4. Priority may be raised independently of severity (e.g., a cosmetic issue on the onboarding screen visible to every new user may be elevated to P2 before a major marketing push).</p>
+
+  <h3>16.3 Bug Lifecycle</h3>
+  <div class="tw"><table>
+    <tr><th>Stage</th><th>Responsible</th><th>Entry Criteria</th><th>Exit Criteria</th></tr>
+    <tr><td>1 — Reported</td><td>Reporter</td><td>Issue discovered (any source: tester, user, developer, monitoring)</td><td>Bug filed with required fields complete</td></tr>
+    <tr><td>2 — Triaged</td><td>QA Lead</td><td>Bug filed</td><td>Severity and priority assigned; duplicate check complete; reproduction steps verified</td></tr>
+    <tr><td>3 — Assigned</td><td>Engineering Lead</td><td>Triaged</td><td>Assigned to developer with sprint milestone</td></tr>
+    <tr><td>4 — In Progress</td><td>Developer</td><td>Assigned</td><td>Fix implemented; unit test added for regression prevention; PR opened</td></tr>
+    <tr><td>5 — Ready for QA</td><td>Developer → QA</td><td>Fix merged to test branch</td><td>QA verifies fix in the correct environment using the original reproduction steps</td></tr>
+    <tr><td>6 — Verified</td><td>QA</td><td>Fix deployed to test environment</td><td>Bug no longer reproducible; regression test passes; related edge cases tested</td></tr>
+    <tr><td>7 — Closed</td><td>QA Lead</td><td>Verified</td><td>Root cause documented; regression test committed; fix included in release notes if S1/S2</td></tr>
+  </table></div>
+
+  <h3>16.4 Required Bug Report Fields</h3>
+  <div class="spec-block">
+    Every bug report must include:<br>
+    1. <strong>Title:</strong> Clear, specific description (not "App crashes" — "App crashes when entering €0 transaction amount in Budget module")<br>
+    2. <strong>Severity:</strong> S1–S4 (initial reporter assignment; revised by QA Lead in triage)<br>
+    3. <strong>Environment:</strong> Device model, OS version, app version, locale, dataset state<br>
+    4. <strong>Reproduction steps:</strong> Numbered, minimal steps from a clean state<br>
+    5. <strong>Expected behavior:</strong> What should happen<br>
+    6. <strong>Actual behavior:</strong> What actually happens<br>
+    7. <strong>Frequency:</strong> Always / Sometimes / Rarely — and conditions observed<br>
+    8. <strong>Attachments:</strong> Screen recording (strongly preferred over screenshots); crash log if available<br>
+    9. <strong>Regression:</strong> Was this working in a prior version? Which version?
+  </div>
+
+  <h3>16.5 Root Cause Analysis (RCA)</h3>
+  <p>Every S1 bug and every regression (a bug that was previously fixed and reoccurred) requires a written Root Cause Analysis before closure. The RCA answers:</p>
+  <ol>
+    <li><strong>What happened?</strong> — Technical description of the defect</li>
+    <li><strong>Why did it happen?</strong> — The root cause (not the symptom)</li>
+    <li><strong>How did it escape testing?</strong> — Gap in test coverage or process</li>
+    <li><strong>What prevents recurrence?</strong> — Automated test added, process change, code review rule added</li>
+    <li><strong>Could similar bugs exist elsewhere?</strong> — Horizontal search for the same pattern in other modules</li>
+  </ol>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §17 -->
+<section id="s17">
+  <div class="sec-label">Section 17</div>
+  <h2>Documentation Standards</h2>
+  <p>Quality without documentation is not quality — it is luck. Documentation ensures that quality practices are repeatable, transferable, and improvable across team changes and release cycles.</p>
+
+  <h3>17.1 Test Plan</h3>
+  <div class="spec-block">
+    <strong>Test Plan — required sections:</strong><br>
+    1. <strong>Scope:</strong> What features/modules are being tested in this plan<br>
+    2. <strong>Out of scope:</strong> What is explicitly excluded and why<br>
+    3. <strong>Test approach:</strong> Which layers of the pyramid are active for this plan (unit, integration, E2E, manual)<br>
+    4. <strong>Entry criteria:</strong> Conditions that must be true before testing begins (build available, test data seeded, environment verified)<br>
+    5. <strong>Exit criteria:</strong> Conditions that define test completion (all cases run, coverage target met, no open S1 bugs)<br>
+    6. <strong>Resource requirements:</strong> Devices, team members, estimated time<br>
+    7. <strong>Risk assessment:</strong> High-risk areas with rationale; mitigation approach<br>
+    8. <strong>Defect management:</strong> How bugs found in this plan will be triaged and tracked
+  </div>
+
+  <h3>17.2 Test Case Format</h3>
+  <div class="spec-block">
+    <strong>Standard test case fields:</strong><br>
+    • <strong>TC ID:</strong> Unique identifier (e.g., TC-BUD-042)<br>
+    • <strong>Module:</strong> Module being tested<br>
+    • <strong>Title:</strong> What is being validated, in one sentence<br>
+    • <strong>Preconditions:</strong> Dataset, device state, user state before test begins<br>
+    • <strong>Steps:</strong> Numbered, specific, reproducible steps (no ambiguity)<br>
+    • <strong>Expected result:</strong> What must be true after the last step<br>
+    • <strong>Priority:</strong> Must-run / Should-run / Nice-to-run<br>
+    • <strong>Automation status:</strong> Automated / Manual / To-be-automated<br>
+    • <strong>Last run date and result:</strong> Pass / Fail / Blocked / Skip<br>
+    • <strong>Notes:</strong> Platform-specific behavior, known workarounds, related bugs
+  </div>
+
+  <h3>17.3 Release Notes</h3>
+  <div class="spec-block">
+    <strong>Release notes structure (user-facing):</strong><br>
+    • Version number and release date<br>
+    • "What's New" — new features or capabilities (user-language, not technical)<br>
+    • "Improvements" — performance, usability, or reliability improvements users will notice<br>
+    • "Bug Fixes" — list of fixed issues that users were likely to have encountered (no internal IDs; plain language)<br>
+    • "Known Limitations" — honest disclosure of known issues in this release with workarounds where available<br><br>
+    <strong>Release notes structure (internal, engineering):</strong><br>
+    • All public sections above<br>
+    • Complete list of merged PRs with ticket references<br>
+    • Database schema changes (migrations applied)<br>
+    • API contract changes (sync API version, if changed)<br>
+    • Test coverage delta from previous release<br>
+    • Performance benchmark comparison table (current vs prior release)
+  </div>
+
+  <h3>17.4 Known Limitations Log</h3>
+  <p>The known limitations log is a living document listing all accepted limitations that will ship in the current release. It is distinct from the bug backlog — these are intentional trade-offs, not defects waiting to be fixed.</p>
+  <div class="tw"><table>
+    <tr><th>Field</th><th>Description</th></tr>
+    <tr><td>ID</td><td>KL-001, KL-002, etc.</td></tr>
+    <tr><td>Description</td><td>What the limitation is</td></tr>
+    <tr><td>Impact</td><td>Who is affected and how</td></tr>
+    <tr><td>Workaround</td><td>If any; included in user-facing release notes</td></tr>
+    <tr><td>Planned resolution</td><td>Target release version or "backlog" if unscheduled</td></tr>
+    <tr><td>Severity</td><td>S3 or S4 only — S1/S2 cannot be accepted as limitations</td></tr>
+  </table></div>
+
+  <h3>17.5 Risk Register</h3>
+  <p>The risk register identifies potential quality risks before they become defects. It is reviewed at the start of every sprint and updated when new risks are identified.</p>
+  <div class="tw"><table>
+    <tr><th>Field</th><th>Description</th></tr>
+    <tr><td>Risk ID</td><td>RK-001, etc.</td></tr>
+    <tr><td>Description</td><td>What could go wrong</td></tr>
+    <tr><td>Probability</td><td>Low / Medium / High</td></tr>
+    <tr><td>Impact</td><td>Low / Medium / High (on quality or release)</td></tr>
+    <tr><td>Risk score</td><td>Probability × Impact (3×3 matrix)</td></tr>
+    <tr><td>Mitigation</td><td>What is being done to reduce probability or impact</td></tr>
+    <tr><td>Owner</td><td>Who is responsible for monitoring this risk</td></tr>
+    <tr><td>Status</td><td>Open / Mitigated / Closed</td></tr>
+  </table></div>
+
+  <h3>17.6 Quality Reports</h3>
+  <p>The following quality reports are produced on a defined cadence:</p>
+  <div class="tw"><table>
+    <tr><th>Report</th><th>Audience</th><th>Cadence</th><th>Contents</th></tr>
+    <tr><td>Sprint Quality Summary</td><td>Development team</td><td>End of sprint</td><td>Bug counts by severity, test coverage delta, flaky tests, quality metric trends</td></tr>
+    <tr><td>Release Validation Report</td><td>Product + Engineering + Leadership</td><td>Per release candidate</td><td>Release checklist completion, all metric values, open risks, go/no-go recommendation</td></tr>
+    <tr><td>Post-Release Quality Report</td><td>Product + Engineering</td><td>72h post-release</td><td>Crash rate, ANR rate, user reviews analysis, incidents triggered, next-release priorities</td></tr>
+    <tr><td>Quarterly Quality Trends</td><td>Leadership</td><td>Quarterly</td><td>Long-term metric trends, test coverage progression, defect density improvement, UAT scores</td></tr>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §18 -->
+<section id="s18">
+  <div class="sec-label">Section 18</div>
+  <h2>Future Scalability &amp; Business Rules</h2>
+  <p>The QA framework is designed to accommodate the full maturity path from manual-first v1.0 testing to a fully automated, continuous delivery pipeline. No redesign of the quality framework should be required to adopt any of the following capabilities.</p>
+
+  <h3>18.1 Continuous Integration (Ready in v1.0)</h3>
+  <div class="spec-block">
+    <strong>The CI pipeline (already designed for v1.0) runs on every PR:</strong><br>
+    1. Secret scan + dependency audit (L1 — ~15s)<br>
+    2. TypeScript compilation (L1 — ~30s)<br>
+    3. ESLint (L1 — ~20s)<br>
+    4. Unit tests + coverage gate (L2 — ~60s)<br>
+    5. Component tests + snapshot review (L3 — ~2min)<br>
+    6. Integration tests (L4 — ~8min)<br>
+    7. Coverage report published to PR<br>
+    8. Gate: all must pass; any failure blocks merge<br><br>
+    <strong>Total CI time target: &lt;12 minutes</strong><br>
+    CI must never become a bottleneck on developer velocity. If it exceeds 15 minutes, parallelization or pruning is required.
+  </div>
+
+  <h3>18.2 Continuous Delivery (Planned v1.5)</h3>
+  <ul>
+    <li>Release candidate builds automatically generated on merge to <code>release</code> branch</li>
+    <li>E2E test suite runs automatically on every RC build in the staging environment</li>
+    <li>Performance benchmarks run automatically and compared to baseline; regression alerts sent</li>
+    <li>Successful E2E + performance run automatically submits to TestFlight / Google Play Internal Testing</li>
+    <li>Final human approval gate required before any production deployment — CD automates, humans approve</li>
+  </ul>
+
+  <h3>18.3 Device Farm Integration (Planned v1.5)</h3>
+  <p>The E2E test suite is designed to run on physical device farms without modification. The device farm adds:</p>
+  <div class="tw"><table>
+    <tr><th>Capability</th><th>Value</th><th>Requirement</th></tr>
+    <tr><td>Parallel execution on 6+ devices simultaneously</td><td>E2E suite time reduced from 90min to ~15min</td><td>E2E tests must be stateless and parallelizable (they are, by design)</td></tr>
+    <tr><td>Real device coverage (20+ device models)</td><td>OEM-specific rendering bugs caught</td><td>DS-STANDARD dataset deployable to all farm devices</td></tr>
+    <tr><td>Network condition simulation</td><td>Offline, 2G, 3G, 4G, packet loss scenarios tested</td><td>Network simulation API integration in test harness</td></tr>
+    <tr><td>Video recording of every run</td><td>Failure evidence without reproducing manually</td><td>Test runner must support video artifact capture</td></tr>
+  </table></div>
+
+  <h3>18.4 Beta Testing Framework (Planned v1.0 launch)</h3>
+  <div class="spec-block">
+    <strong>Structured beta program:</strong><br>
+    • <strong>Internal beta:</strong> All team members; immediate on every RC build via TestFlight / Play Internal<br>
+    • <strong>Closed beta (50 users):</strong> Recruited from target user profiles (young Algerian professionals); 4-week program; structured feedback sessions<br>
+    • <strong>Open beta (App Store / Play Store):</strong> Available 2 weeks before general release; crash reports monitored in real-time<br><br>
+    <strong>Beta feedback process:</strong><br>
+    1. In-app feedback button available in beta builds (sends structured report: screen + user-entered description)<br>
+    2. Weekly beta feedback review session: categorize by module, severity, frequency<br>
+    3. All S1/S2 issues from beta must be resolved before general availability
+  </div>
+
+  <h3>18.5 Crash Analytics Integration (v1.0)</h3>
+  <ul>
+    <li>Crash reporting integrated from day 1 — not retroactively after a crash occurs</li>
+    <li>Crash reports are symbolicated (stack traces reference source lines, not minified bundle addresses)</li>
+    <li>Crash grouping: crashes are grouped by root cause, not by individual occurrence, to surface the most impactful issues first</li>
+    <li>Breadcrumb logging: the last 20 user actions before a crash are captured to aid reproduction (financial values are never in breadcrumbs — only action types and screen names)</li>
+    <li>Alert threshold: PagerDuty (or equivalent) alert triggered if crash rate exceeds 0.5% in any 15-minute window</li>
+  </ul>
+
+  <h3>18.6 Feature Flags (Planned v1.5)</h3>
+  <p>Feature flags allow new features to be deployed to production without being activated, enabling controlled rollouts and instant rollback without an app release.</p>
+  <div class="spec-block">
+    <strong>Feature flag requirements for QA:</strong><br>
+    • Every feature flag must have a test that verifies behavior in both the enabled and disabled states<br>
+    • Feature flags that gate financial calculations must have integration tests for both states<br>
+    • No feature flag can disable a security, encryption, or authentication feature — those are always-on<br>
+    • Feature flags are evaluated at startup and cached for the session — no mid-session flag changes<br>
+    • The QA release checklist includes verification that all planned-off flags are correctly off in production
+  </div>
+
+  <h3>18.7 A/B Testing Considerations (Planned v2.0)</h3>
+  <ul>
+    <li>A/B testing applies only to UX and onboarding flows — never to financial calculation logic</li>
+    <li>Test groups must be stable (same user always in same group for the duration of the experiment)</li>
+    <li>A/B test variants must each pass all accessibility requirements independently</li>
+    <li>Statistical significance threshold: 95% confidence; minimum sample size calculated before experiment launch</li>
+    <li>A/B test results reviewed by Product and QA before any variant is promoted to default</li>
+  </ul>
+
+  <h3>18.8 Business Rules</h3>
+  <div class="tw"><table>
+    <tr><th>Rule ID</th><th>Rule</th><th>Rationale</th></tr>
+    <tr><td class="mono">BR-QA-01</td><td>Zero S1 bugs may ship in any production release. No exceptions, no waivers.</td><td>Financial data correctness is non-negotiable</td></tr>
+    <tr><td class="mono">BR-QA-02</td><td>Every financial calculation function must have ≥10 unit test cases covering happy path, zero, boundary, negative, and maximum values.</td><td>Calculation bugs are the highest-trust-damage defect category</td></tr>
+    <tr><td class="mono">BR-QA-03</td><td>Every S1 bug and every regression must have a Root Cause Analysis and an automated regression test before closure.</td><td>Prevents recurrence; builds the regression suite over time</td></tr>
+    <tr><td class="mono">BR-QA-04</td><td>Flaky tests in the required CI suite are treated as P2 defects. They must be resolved within 2 sprints or deleted.</td><td>Flaky tests destroy trust in the CI gate</td></tr>
+    <tr><td class="mono">BR-QA-05</td><td>Performance testing uses release builds on minimum-spec devices only. Debug builds are invalid performance proxies.</td><td>Debug builds have significantly different performance characteristics</td></tr>
+    <tr><td class="mono">BR-QA-06</td><td>All 18 test datasets (DS-EMPTY through DS-EDGE) must be deterministic and version-controlled alongside the test suite.</td><td>Non-deterministic test data produces non-deterministic results</td></tr>
+    <tr><td class="mono">BR-QA-07</td><td>Security testing is not optional and is not deferred to "after launch." OWASP Mobile Top 10 must be addressed before v1.0 ships.</td><td>Post-launch security fixes are orders of magnitude more expensive than pre-launch</td></tr>
+    <tr><td class="mono">BR-QA-08</td><td>Manual testing with a screen reader (VoiceOver + TalkBack) is required before every production release. It may not be replaced by automated contrast scanning alone.</td><td>Automated tools catch contrast; only human testing catches broken screen reader flow</td></tr>
+    <tr><td class="mono">BR-QA-09</td><td>Native-language reviewers must sign off on all user-facing copy in French and Arabic before release. Machine translation is not acceptable for financial UX copy.</td><td>Financial terms have precise meanings; mistranslation causes user financial errors</td></tr>
+    <tr><td class="mono">BR-QA-10</td><td>The CI pipeline must complete in under 15 minutes. If it exceeds this, optimization is required before adding new tests.</td><td>Slow CI becomes a developer bottleneck and is worked around, reducing quality</td></tr>
+    <tr><td class="mono">BR-QA-11</td><td>Test data (datasets DS-EMPTY through DS-EDGE) must never contain real user data. All data is synthetically generated.</td><td>Privacy compliance; EU GDPR requirements</td></tr>
+    <tr><td class="mono">BR-QA-12</td><td>Every user-facing error message is reviewed for clarity and tone (non-blaming) before shipping. Technical error codes are never shown to users.</td><td>Error messages are a trust signal; vague or blaming errors destroy trust in a financial app</td></tr>
+    <tr><td class="mono">BR-QA-13</td><td>The quality dashboard is publicly visible to all team members at all times. Quality is not a private QA concern.</td><td>Quality ownership is shared; visible metrics drive accountability</td></tr>
+    <tr><td class="mono">BR-QA-14</td><td>A/B testing is permitted on UX flows only. Financial calculations, security logic, and data integrity logic are never A/B tested.</td><td>Inconsistent financial logic across user groups creates data integrity and trust problems</td></tr>
+    <tr><td class="mono">BR-QA-15</td><td>Post-release monitoring is mandatory for 72 hours after every production release. A named on-call engineer must be available to respond to quality alerts during this window.</td><td>The first 72 hours post-release is the highest-risk period for undiscovered issues reaching users</td></tr>
+  </table></div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-qa-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-qa-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
