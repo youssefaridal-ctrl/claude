@@ -1,0 +1,1216 @@
+<!doctype html>
+<title>SPEC-AIC-001 — AI Financial Coach & Intelligence Platform | Finance Bag</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root {
+    --acc: #A855F7; --acc-dim: #D8B4FE; --acc-bg: rgba(168,85,247,.08);
+    --bg: #18181B; --surf: #27272A; --surf2: #3F3F46;
+    --bd: #3F3F46; --txt: #F4F4F5; --txt2: #A1A1AA; --txt3: #71717A;
+    --green: #22C55E; --amber: #F59E0B; --red: #EF4444; --blue: #3B82F6;
+    --code-bg: #1A1A1F;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #F8FAFC; --surf: #FFFFFF; --surf2: #F1F5F9;
+      --bd: #E2E8F0; --txt: #0F172A; --txt2: #475569; --txt3: #94A3B8;
+      --acc-bg: rgba(168,85,247,.06); --code-bg: #F1F5F9;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #18181B; --surf: #27272A; --surf2: #3F3F46;
+    --bd: #3F3F46; --txt: #F4F4F5; --txt2: #A1A1AA; --txt3: #71717A;
+    --acc-bg: rgba(168,85,247,.08); --code-bg: #1A1A1F;
+  }
+  :root[data-theme="light"] {
+    --bg: #F8FAFC; --surf: #FFFFFF; --surf2: #F1F5F9;
+    --bd: #E2E8F0; --txt: #0F172A; --txt2: #475569; --txt3: #94A3B8;
+    --acc-bg: rgba(168,85,247,.06); --code-bg: #F1F5F9;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body { background: var(--bg); color: var(--txt); font-family: 'Inter', system-ui, -apple-system, sans-serif; display: flex; min-height: 100vh; }
+  a { color: var(--acc); text-decoration: none; }
+
+  nav { width: 240px; min-width: 240px; background: var(--surf); border-right: 1px solid var(--bd); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .nav-brand { padding: 20px 16px 12px; border-bottom: 1px solid var(--bd); }
+  .nav-logo { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  .nav-title { font-size: .82rem; color: var(--txt2); margin-top: 2px; }
+  .nav-list { list-style: none; padding: 10px 8px; flex: 1; }
+  .nav-item a { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; font-size: .78rem; color: var(--txt2); transition: background .15s, color .15s; }
+  .nav-item a:hover, .nav-item a.active { background: var(--acc-bg); color: var(--acc); }
+  .nav-num { font-size: .66rem; font-weight: 700; letter-spacing: .04em; color: var(--acc); min-width: 20px; font-variant-numeric: tabular-nums; }
+  .theme-area { padding: 12px; border-top: 1px solid var(--bd); }
+  .theme-btn { width: 100%; padding: 7px; border-radius: 6px; background: var(--surf2); border: 1px solid var(--bd); color: var(--txt2); font-size: .73rem; cursor: pointer; }
+
+  .main { flex: 1; min-width: 0; padding: 40px 48px 80px; max-width: 960px; }
+  .doc-header { border-bottom: 1px solid var(--bd); padding-bottom: 28px; margin-bottom: 48px; }
+  .doc-eyebrow { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .spec-id { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--acc); }
+  .spec-ver { font-size: .7rem; color: var(--txt3); }
+  .status-pill { font-size: .65rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: var(--acc-bg); color: var(--acc); border: 1px solid var(--acc); }
+  .doc-title { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; text-wrap: balance; }
+  .doc-sub { margin-top: 10px; font-size: .92rem; color: var(--txt2); line-height: 1.6; max-width: 640px; }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 24px; }
+  .meta-item { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: 10px 14px; }
+  .meta-label { font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--txt3); margin-bottom: 4px; }
+  .meta-val { font-size: .88rem; font-weight: 600; color: var(--txt); }
+
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; border-bottom: 2px solid var(--acc); padding-bottom: 12px; margin-bottom: 20px; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 24px 0 10px; color: var(--txt); }
+  h4 { font-size: .88rem; font-weight: 700; margin: 18px 0 8px; color: var(--txt2); text-transform: uppercase; letter-spacing: .05em; }
+  p { font-size: .88rem; line-height: 1.7; color: var(--txt2); margin-bottom: 10px; }
+  ul, ol { padding-left: 20px; margin-bottom: 10px; }
+  li { font-size: .88rem; line-height: 1.7; color: var(--txt2); margin-bottom: 3px; }
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: .79rem; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; color: var(--acc-dim); }
+  strong { color: var(--txt); font-weight: 600; }
+
+  .tw { overflow-x: auto; margin: 14px 0; border-radius: 8px; border: 1px solid var(--bd); }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  thead { background: var(--surf2); }
+  th { padding: 10px 14px; text-align: left; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--txt3); white-space: nowrap; }
+  td { padding: 9px 14px; border-top: 1px solid var(--bd); color: var(--txt2); vertical-align: top; }
+  tr:hover td { background: var(--acc-bg); }
+
+  .spec-block { background: var(--surf); border: 1px solid var(--bd); border-left: 3px solid var(--acc); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .spec-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .warn-block { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.3); border-left: 3px solid var(--amber); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .warn-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; }
+  .ok-block { background: rgba(34,197,94,.07); border: 1px solid rgba(34,197,94,.25); border-left: 3px solid var(--green); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .ok-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+
+  .mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: .78rem; font-weight: 700; color: var(--acc); white-space: nowrap; }
+
+  /* confidence chips */
+  .conf-v { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(34,197,94,.12); color: var(--green); }
+  .conf-h { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(59,130,246,.12); color: #93C5FD; }
+  .conf-m { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(245,158,11,.12); color: var(--amber); }
+  .conf-l { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(239,68,68,.12); color: var(--red); }
+  .conf-u { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(161,161,170,.12); color: var(--txt3); }
+
+  /* priority chips */
+  .pri-c { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(239,68,68,.12); color: var(--red); }
+  .pri-h { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(245,158,11,.12); color: var(--amber); }
+  .pri-m { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(59,130,246,.12); color: #93C5FD; }
+  .pri-l { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(161,161,170,.12); color: var(--txt3); }
+
+  /* mode chips */
+  .mode-rb { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(34,197,94,.12); color: var(--green); }
+  .mode-hy { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(168,85,247,.12); color: var(--acc-dim); }
+  .mode-ai { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(251,146,60,.12); color: #FCA5A5; }
+
+  @media (max-width: 800px) {
+    nav { display: none; }
+    .main { padding: 24px 20px 60px; }
+  }
+</style>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">Finance Bag</div>
+    <div class="nav-title">SPEC-AIC-001 · AI Coach</div>
+  </div>
+  <ul class="nav-list" id="nav-list">
+    <li class="nav-item"><a href="#s1"><span class="nav-num">01</span>Overview &amp; Philosophy</a></li>
+    <li class="nav-item"><a href="#s2"><span class="nav-num">02</span>AI Architecture</a></li>
+    <li class="nav-item"><a href="#s3"><span class="nav-num">03</span>Data Access Model</a></li>
+    <li class="nav-item"><a href="#s4"><span class="nav-num">04</span>Coaching Engine</a></li>
+    <li class="nav-item"><a href="#s5"><span class="nav-num">05</span>Recommendation Engine</a></li>
+    <li class="nav-item"><a href="#s6"><span class="nav-num">06</span>Predictive Analytics</a></li>
+    <li class="nav-item"><a href="#s7"><span class="nav-num">07</span>What-If Simulation Engine</a></li>
+    <li class="nav-item"><a href="#s8"><span class="nav-num">08</span>Natural Language Interaction</a></li>
+    <li class="nav-item"><a href="#s9"><span class="nav-num">09</span>Explainability Framework</a></li>
+    <li class="nav-item"><a href="#s10"><span class="nav-num">10</span>Behavioral Intelligence</a></li>
+    <li class="nav-item"><a href="#s11"><span class="nav-num">11</span>AI Memory</a></li>
+    <li class="nav-item"><a href="#s12"><span class="nav-num">12</span>Privacy &amp; Security</a></li>
+    <li class="nav-item"><a href="#s13"><span class="nav-num">13</span>Performance Architecture</a></li>
+    <li class="nav-item"><a href="#s14"><span class="nav-num">14</span>Future AI Compatibility</a></li>
+    <li class="nav-item"><a href="#s15"><span class="nav-num">15</span>Edge Cases</a></li>
+    <li class="nav-item"><a href="#s16"><span class="nav-num">16</span>Business Rules</a></li>
+  </ul>
+  <div class="theme-area"><button class="theme-btn" id="theme-btn">Toggle Light / Dark</button></div>
+</nav>
+
+<main class="main">
+<header class="doc-header">
+  <div class="doc-eyebrow">
+    <span class="spec-id">SPEC-AIC-001</span>
+    <span class="spec-ver">v1.0</span>
+    <span class="status-pill">DRAFT</span>
+  </div>
+  <h1 class="doc-title">AI Financial Coach &amp;<br>Financial Intelligence Platform</h1>
+  <p class="doc-sub">The complete specification for Finance Bag's AI intelligence layer — an independent, provider-agnostic system that analyzes financial data, delivers personalized coaching, generates explainable recommendations, predicts financial outcomes, and functions as a trusted financial assistant that explains its reasoning at every step.</p>
+  <div class="meta-grid">
+    <div class="meta-item"><div class="meta-label">Spec ID</div><div class="meta-val">SPEC-AIC-001</div></div>
+    <div class="meta-item"><div class="meta-label">Module</div><div class="meta-val">AIC</div></div>
+    <div class="meta-item"><div class="meta-label">Accent</div><div class="meta-val" style="color:var(--acc)">#A855F7</div></div>
+    <div class="meta-item"><div class="meta-label">Version</div><div class="meta-val">1.0 — DRAFT</div></div>
+    <div class="meta-item"><div class="meta-label">Date</div><div class="meta-val">2026-07-12</div></div>
+    <div class="meta-item"><div class="meta-label">Sections</div><div class="meta-val">16</div></div>
+  </div>
+</header>
+
+<section id="s1">
+  <h2>1. Overview &amp; Philosophy</h2>
+
+  <h3>1.1 Role of the AI Layer</h3>
+  <p>The AI Financial Coach is an independent intelligence layer layered on top of Finance Bag's financial data. It reads, analyzes, and interprets financial state to generate insights, predictions, and personalized guidance. It is never a replacement for the user's own judgment — it is a thinking partner that helps users understand their financial situation more deeply and act on it more confidently.</p>
+  <p>The AI layer is a consumer of financial data, not a producer of it. It never writes to the financial database. Every action it proposes must be explicitly approved by the user and executed through the standard business layer. This separation is fundamental to correctness, trust, and auditability.</p>
+
+  <h3>1.2 Core Principles</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Principle</th><th>Definition</th><th>Practical Constraint</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Helpful</strong></td><td>Every AI output must be actionable. Insights without suggested next steps are incomplete.</td><td>Every recommendation includes at least one concrete user action. Coaching sessions end with a 3-action plan.</td></tr>
+        <tr><td><strong>Transparent</strong></td><td>Users must always know when they are receiving AI-generated content, which data was used, and what assumptions were made.</td><td>Every AI output carries an ExplainabilityContext. "AI insight" label is always visible. Data sources are always cited.</td></tr>
+        <tr><td><strong>Explainable</strong></td><td>The AI must explain why it reached a conclusion, not just what the conclusion is.</td><td>No AI output is delivered without a "Why" component. Black-box responses are prohibited.</td></tr>
+        <tr><td><strong>Privacy-Conscious</strong></td><td>The AI accesses only the minimum financial data required. It never transmits raw personal data to remote providers.</td><td>Data is aggregated and anonymized before any remote AI call. Users can disable remote AI entirely.</td></tr>
+        <tr><td><strong>Reliable</strong></td><td>The AI works even when LLM providers are unavailable. Rule-based fallback ensures continuous functionality.</td><td>Rule-Based mode (v1.0) operates fully offline. LLM features are progressive enhancements, not dependencies.</td></tr>
+        <tr><td><strong>Non-Judgmental</strong></td><td>The AI coaches, never criticizes. Financial setbacks are discussed as challenges to overcome, never as character failures.</td><td>Coaching tone rules prohibit "you failed to", "you should have", "you wasted". Required language: "Here's an opportunity", "You've made progress on".</td></tr>
+        <tr><td><strong>Educational</strong></td><td>The AI teaches financial principles alongside recommendations. Users should leave each interaction understanding more than they did before.</td><td>Every recommendation includes a brief educational note explaining the underlying financial principle.</td></tr>
+        <tr><td><strong>Action-Oriented</strong></td><td>Insights are valuable only if they change behavior. The AI measures success by user actions taken, not insights generated.</td><td>Recommendations track whether the user acted on them. Accepted recommendations receive follow-up coaching.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>1.3 What the AI Can and Cannot Do</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Category</th><th>AI Can</th><th>AI Cannot</th></tr></thead>
+      <tbody>
+        <tr><td>Data</td><td>Read all authorized financial data; aggregate and analyze trends</td><td>Write, modify, or delete any financial record; create expenses, goals, or budgets on the user's behalf</td></tr>
+        <tr><td>Recommendations</td><td>Propose specific actions with reasons and trade-offs</td><td>Execute any proposed action without explicit user confirmation</td></tr>
+        <tr><td>Predictions</td><td>Project future outcomes based on current data and stated assumptions</td><td>Guarantee future outcomes or provide investment advice</td></tr>
+        <tr><td>Planning</td><td>Model scenarios, suggest prioritization, compare options</td><td>Make binding financial commitments or legal/tax/investment advice</td></tr>
+        <tr><td>Memory</td><td>Remember user preferences, coaching history, and stated objectives</td><td>Share memory data with third parties or retain data after user deletion</td></tr>
+        <tr><td>Scope</td><td>Analyze all data within Finance Bag</td><td>Access external financial accounts, bank data, or third-party services (future feature)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>1.4 Version Scope</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Version</th><th>Mode</th><th>Capability</th><th>AI Provider</th><th>Network Required</th></tr></thead>
+      <tbody>
+        <tr><td>v1.0</td><td><span class="mode-rb">Rule-Based</span></td><td>Deterministic insights, rule-based recommendations, algorithmic predictions, pre-defined coaching scripts, structured NL query matching</td><td>None (fully local)</td><td>No</td></tr>
+        <tr><td>v2.0</td><td><span class="mode-hy">Hybrid</span></td><td>LLM-enhanced explanations, nuanced coaching, free-text query understanding, dynamic recommendation phrasing, behavioral interpretation</td><td>Remote API (configurable)</td><td>For LLM features only; rule-based fallback always available</td></tr>
+        <tr><td>v3.0</td><td><span class="mode-ai">Full AI</span></td><td>Agentic workflows (AI proposes multi-step plans), voice interaction, multimodal input (receipt scanning), on-device LLM, proactive coaching</td><td>Remote + on-device</td><td>No (on-device model)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="warn-block">
+    <div class="warn-block-title">v1.0 Scope Constraint</div>
+    <p>In v1.0, the AI layer operates entirely in Rule-Based mode. No LLM provider is integrated. All recommendations, predictions, coaching, and explanations are generated by deterministic algorithms using the user's financial data. This spec defines the full architecture for v1.0 through v3.0. v2.0 and v3.0 capabilities are marked where they first become available.</p>
+  </div>
+</section>
+
+<section id="s2">
+  <h2>2. AI Architecture</h2>
+
+  <h3>2.1 Layer Separation</h3>
+  <p>The AI system is organized into eight independent layers. Each layer has a single responsibility and communicates with adjacent layers through defined interfaces only. No layer depends on the internal implementation of another.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Layer</th><th>Name</th><th>Responsibility</th><th>Reads From</th><th>Writes To</th></tr></thead>
+      <tbody>
+        <tr><td>L1</td><td><strong>Business Layer</strong></td><td>Financial data management (expenses, goals, budgets, debts). Completely independent of AI.</td><td>SQLite DB</td><td>SQLite DB</td></tr>
+        <tr><td>L2</td><td><strong>Data Layer</strong></td><td>Assembles and aggregates financial context for AI consumption. The only bridge between financial data and the AI layer.</td><td>Business Layer APIs</td><td>AI Context (in-memory)</td></tr>
+        <tr><td>L3</td><td><strong>AI Layer</strong></td><td>Core intelligence: applies rules, models, or LLM calls to produce insights, recommendations, predictions, and explanations.</td><td>Data Layer</td><td>AI Output objects (in-memory)</td></tr>
+        <tr><td>L4</td><td><strong>Prompt Layer</strong></td><td>Manages prompt templates, context window assembly, token budget, and prompt versioning for LLM calls.</td><td>AI Layer requests, Memory Layer</td><td>LLM requests via Provider Layer</td></tr>
+        <tr><td>L5</td><td><strong>Provider Layer</strong></td><td>Abstract interface to any AI provider. Handles authentication, rate limiting, error handling, and response normalization for each provider.</td><td>Prompt Layer</td><td>AI Layer (responses)</td></tr>
+        <tr><td>L6</td><td><strong>Memory Layer</strong></td><td>Manages AI memory: session context, user profile preferences, long-term interaction history, and feedback signals.</td><td>SQLite ai_memory table, app_state</td><td>SQLite ai_memory table</td></tr>
+        <tr><td>L7</td><td><strong>Recommendation Layer</strong></td><td>Manages the lifecycle of recommendations: generation, ranking, deduplication, presentation, tracking, and expiry.</td><td>AI Layer output, User interactions</td><td>SQLite ai_recommendations table</td></tr>
+        <tr><td>L8</td><td><strong>Presentation Layer</strong></td><td>Formats AI outputs for display: markdown rendering, data visualization hints, CTA buttons, explainability disclosure UI.</td><td>Recommendation Layer, AI Layer output</td><td>React Native UI components</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>2.2 Operating Modes</h3>
+  <p>The AI system operates in one of three modes, selectable via configuration and user preference. The active mode is stored in <code>app_state.ai_mode</code>. Degradation to a lower mode is automatic when the higher mode's prerequisites are unavailable.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Mode</th><th>Engine</th><th>Degradation Trigger</th><th>Features Available</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mode-rb">Rule-Based</span></td><td>RuleEngine — deterministic algorithms, threshold comparisons, financial ratios</td><td>Always available (default v1.0)</td><td>All recommendations, predictions, coaching scripts, structured NL queries, explainability, simulation</td></tr>
+        <tr><td><span class="mode-hy">Hybrid</span></td><td>RuleEngine for logic + LLMEngine for language understanding and nuanced output</td><td>Falls back to Rule-Based when: network unavailable, provider API failure, user disables remote AI, token budget exhausted</td><td>All Rule-Based features + free-text queries, dynamic coaching tone, richer explanations, sentiment interpretation</td></tr>
+        <tr><td><span class="mode-ai">Full AI</span></td><td>LLMEngine primary, RuleEngine for validation and fallback</td><td>Falls back to Hybrid when on-device model unavailable; falls back to Rule-Based on all network/provider failures</td><td>All Hybrid features + voice, multimodal, agentic multi-step planning, proactive coaching triggers</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>2.3 Data Flow</h3>
+  <p>Every AI interaction follows this sequence:</p>
+  <ol>
+    <li><strong>User triggers AI</strong> — via NL query, dashboard insight tap, coaching session start, or background schedule.</li>
+    <li><strong>Intent classification</strong> — NL layer routes the request to the appropriate engine (coaching, recommendation, prediction, simulation, explanation).</li>
+    <li><strong>Context assembly</strong> — Data Layer (FinancialContextBuilder) assembles the minimum financial context required for this intent type.</li>
+    <li><strong>Memory retrieval</strong> — Memory Layer supplies relevant user preferences, coaching history, and recent interactions.</li>
+    <li><strong>Engine processing</strong> — Rule engine and/or LLM generates raw output.</li>
+    <li><strong>Explainability attachment</strong> — ExplainabilityContext is assembled and attached to every output object before delivery.</li>
+    <li><strong>Recommendation lifecycle</strong> — If output contains recommendations, they pass through the Recommendation Layer (ranking, deduplication, expiry check).</li>
+    <li><strong>Presentation formatting</strong> — Presentation Layer formats the output for the target UI component.</li>
+    <li><strong>Memory update</strong> — Session context is updated; if interaction contains feedback signal (accept/dismiss), Memory Layer records it.</li>
+  </ol>
+
+  <h3>2.4 AIProvider Interface</h3>
+  <p>The Provider Layer exposes an abstract AIProvider interface. Any LLM integration (OpenAI, Claude, Gemini, local model) implements this interface. The AI Layer never calls a specific provider directly.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Method</th><th>Input</th><th>Output</th><th>Timeout</th></tr></thead>
+      <tbody>
+        <tr><td><code>generateInsight</code></td><td>FinancialContext, InsightRequest</td><td>AIInsight[]</td><td>10s</td></tr>
+        <tr><td><code>generateRecommendation</code></td><td>FinancialContext, RecommendationRequest</td><td>Recommendation[]</td><td>10s</td></tr>
+        <tr><td><code>generateExplanation</code></td><td>FinancialContext, ExplanationRequest</td><td>AIExplanation</td><td>12s</td></tr>
+        <tr><td><code>generatePrediction</code></td><td>FinancialContext, PredictionRequest</td><td>Prediction</td><td>8s</td></tr>
+        <tr><td><code>simulateScenario</code></td><td>FinancialContext, ScenarioDefinition</td><td>SimulationResult</td><td>8s</td></tr>
+        <tr><td><code>processNaturalLanguageQuery</code></td><td>FinancialContext, NLQuery, ConversationHistory</td><td>NLResponse</td><td>15s</td></tr>
+        <tr><td><code>analyzeCoachingSession</code></td><td>FinancialContext, CoachingRequest, UserProfile</td><td>CoachingSession</td><td>20s</td></tr>
+        <tr><td><code>classifyIntent</code></td><td>NLQuery, ConversationHistory</td><td>IntentClassification</td><td>5s</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>The Rule-Based provider implements every method deterministically using financial algorithms. The LLM provider delegates to the external API and maps the response to the same output types. The active provider is resolved at runtime from <code>app_state.ai_provider_id</code>.</p>
+</section>
+
+<section id="s3">
+  <h2>3. Data Access Model</h2>
+
+  <h3>3.1 Financial Context Categories</h3>
+  <p>The AI layer accesses financial data through the FinancialContextBuilder — a dedicated component that assembles the minimum context required for each AI operation. The AI layer never queries the SQLite database directly. All data passes through the Data Layer's read-only interface.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Data Category</th><th>Examples</th><th>AI Access Level</th><th>Minimum Required For</th></tr></thead>
+      <tbody>
+        <tr><td>Salary history</td><td>Monthly net salary, salary periods, salary day, period count</td><td>Aggregated (last 12 periods, rounded to nearest 100)</td><td>Cash flow prediction, budget optimization, savings rate calculation</td></tr>
+        <tr><td>Budget allocations</td><td>Category budgets, utilization %, unused amounts, over-budget history</td><td>Full read (current period + 6-period history)</td><td>Budget recommendations, spending analysis, reallocation suggestions</td></tr>
+        <tr><td>Expense records</td><td>Amount, category, date, tags — no notes/descriptions (user-entered text)</td><td>Aggregated by category/week (raw records never sent to remote AI)</td><td>Spending pattern analysis, budget variance, anomaly detection</td></tr>
+        <tr><td>Debt information</td><td>Principal, interest rate, minimum payment, payment history, payoff timeline</td><td>Full read (current state + 12-period history)</td><td>Debt payoff prediction, avalanche/snowball recommendations, interest cost calculation</td></tr>
+        <tr><td>Emergency fund</td><td>Current balance, target, contribution rate, monthly expenses coverage</td><td>Full read</td><td>EMF recommendations, risk assessment, coverage calculation</td></tr>
+        <tr><td>Financial goals</td><td>Name, target amount, current amount, target date, priority, contributions</td><td>Full read (name anonymized for remote AI: "Goal 1", "Goal 2")</td><td>Goal prioritization, completion prediction, contribution optimization</td></tr>
+        <tr><td>Goal dependencies</td><td>Dependency graph structure, dependency types</td><td>Structural read (amounts, no names for remote AI)</td><td>Goal prioritization, dependency chain risk analysis</td></tr>
+        <tr><td>Financial Health Score</td><td>Overall score (0-100), component scores, score history (12 months)</td><td>Full read</td><td>Health trend analysis, improvement recommendations, score explanation</td></tr>
+        <tr><td>Reports &amp; analytics</td><td>Monthly/annual summaries, category trends, income/expense ratios</td><td>Aggregated summaries (no transaction-level detail for remote AI)</td><td>Trend coaching, anomaly identification, year-over-year comparison</td></tr>
+        <tr><td>Calendar events</td><td>Upcoming salary dates, bill due dates, goal target dates</td><td>Date metadata only (no event names for remote AI)</td><td>Timing-aware recommendations, cash flow planning</td></tr>
+        <tr><td>User preferences</td><td>Currency, language, financial sophistication level, coaching tone preference</td><td>Full read</td><td>Response localization, coaching adaptation, communication style</td></tr>
+        <tr><td>Expense notes &amp; descriptions</td><td>User-entered text on expense records</td><td><strong>Never accessed</strong></td><td>Not required for any AI feature</td></tr>
+        <tr><td>Attachment files</td><td>Receipt photos, document scans</td><td><strong>Never accessed</strong> (v1.0/v2.0); optional opt-in for multimodal (v3.0)</td><td>v3.0: receipt understanding only, with explicit per-use consent</td></tr>
+        <tr><td>Biometric &amp; auth data</td><td>PIN hash, biometric enrollment state</td><td><strong>Never accessed</strong></td><td>Not applicable</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>3.2 Context Payload Specification</h3>
+  <p>For remote AI calls (v2.0+), the FinancialContextBuilder produces a FinancialContext payload with the following constraints:</p>
+  <ul>
+    <li><strong>Maximum payload size</strong>: 32KB. Any context exceeding 32KB triggers automatic summarization (older periods summarized, recent periods kept in detail).</li>
+    <li><strong>Data freshness</strong>: All context reflects the state of the financial database as of the moment the AI request is initiated. Stale context from cache is never used for recommendations.</li>
+    <li><strong>Anonymization transforms</strong>: Before any remote AI call — amount rounding to nearest currency unit (no centimes in prompts), goal names replaced with sequential labels ("Goal 1", "Goal 2"), no user-entered text fields, no personal identifiers (no name, email, device_id).</li>
+    <li><strong>Context versioning</strong>: The payload includes a <code>context_version</code> field. Prompt templates are versioned to match. A mismatch causes the AI call to abort (use rule-based fallback).</li>
+    <li><strong>Selective assembly</strong>: Each AI operation type specifies a ContextRequirement declaration. The FinancialContextBuilder only assembles the declared fields. An expense-category query does not include debt data.</li>
+  </ul>
+
+  <h3>3.3 Data Access Permission Model</h3>
+  <p>AI data access is controlled by the same permission system as the rest of the application:</p>
+  <ul>
+    <li>The AI layer is authenticated as a P1 (standard access) internal component. It cannot trigger P2 (re-auth) operations.</li>
+    <li>If the user has set AI to disabled (<code>aic.enabled = false</code>), the FinancialContextBuilder returns an empty context and all AI methods return empty results immediately.</li>
+    <li>If the user has set remote AI to disabled (<code>aic.remote_enabled = false</code>), the Provider Layer routes all calls to the local rule-based provider. The LLM provider is never called.</li>
+    <li>Data access for AI follows the same soft-delete rules as the rest of the app: deleted records (deleted_at IS NOT NULL) are excluded from AI context unless the user explicitly asks about historical deleted data.</li>
+  </ul>
+</section>
+
+<section id="s4">
+  <h2>4. Coaching Engine</h2>
+
+  <h3>4.1 Coaching Domains</h3>
+  <p>The coaching engine covers eight financial life domains. Each domain has a dedicated coach persona that shares the overall non-judgmental, educational, action-oriented character but adapts its focus and vocabulary.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Domain</th><th>Focus</th><th>Trigger Conditions</th><th>Key Metrics Analyzed</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Budget Discipline</strong></td><td>Category spending vs. allocation; identifying over-budget patterns</td><td>Period-end, over-budget &gt;110%, unused budget &gt;30%</td><td>Budget utilization %, over-budget frequency, category variance</td></tr>
+        <tr><td><strong>Cash Flow</strong></td><td>Income-to-expense timing; end-of-period liquidity</td><td>Negative residual projection, irregular salary periods</td><td>Residual amount, expense distribution across period, timing of large expenses</td></tr>
+        <tr><td><strong>Debt Reduction</strong></td><td>Debt payoff strategy; interest cost reduction; repayment consistency</td><td>New debt added, repayment missed, avalanche/snowball optimization possible</td><td>Total debt balance, interest cost per month, payoff timeline, minimum vs. extra payments</td></tr>
+        <tr><td><strong>Emergency Fund</strong></td><td>Coverage adequacy; contribution consistency; target achievement</td><td>EMF below 1 month coverage, contribution rate below recommended</td><td>Coverage ratio (months), target %, contribution rate</td></tr>
+        <tr><td><strong>Goal Planning</strong></td><td>Goal prioritization; realistic timeline setting; dependency awareness</td><td>Goal behind schedule &gt;10%, dependency conflict, new goal created</td><td>Goal progress %, projected completion date, monthly required contribution</td></tr>
+        <tr><td><strong>Savings Optimization</strong></td><td>Savings rate improvement; unused budget redirection; salary allocation</td><td>Savings rate below benchmark, large unused budget detected</td><td>Savings rate %, salary allocation breakdown, month-over-month savings trend</td></tr>
+        <tr><td><strong>Long-Term Planning</strong></td><td>Financial trajectory; major milestone timing; wealth-building habits</td><td>Monthly coaching session, FHS trend declining, annual review trigger</td><td>Financial Health Score trend, debt-to-income ratio, savings-to-expense ratio</td></tr>
+        <tr><td><strong>Behavioral Improvement</strong></td><td>Spending pattern correction; habit reinforcement; consistency tracking</td><td>3+ consecutive same behavioral patterns, positive streak, relapse after improvement</td><td>Behavioral score (8 dimensions), streak length, consistency index</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>4.2 Monthly Coaching Session Flow</h3>
+  <p>The primary coaching interaction is the Monthly Financial Review, triggered automatically at period end or manually from the dashboard. It follows a structured 7-step flow that adapts to the user's financial situation:</p>
+  <ol>
+    <li><strong>Opening assessment</strong>: Compare this period's Financial Health Score to last period. Lead with the most significant change (positive or negative). If FHS improved: celebrate specifically ("Your emergency fund grew from 1.2 to 1.6 months of coverage — great progress"). If FHS declined: name the cause without blame ("Your budget utilization rose to 118% this period — let's look at where").</li>
+    <li><strong>Budget debrief</strong>: Review each category: over-budget (explain what the variance was, ask if it was expected or unexpected), under-budget (celebrate and suggest redirection), on-target (brief acknowledgment). Focus on the 2 largest variances, not all categories.</li>
+    <li><strong>Cash flow summary</strong>: Show the period's income vs. total expenses, residual, savings amount. Compare to the previous 3 periods. Name the trend direction.</li>
+    <li><strong>Debt status update</strong>: If user has debt — progress since last period, interest paid vs. principal paid, months remaining at current pace. Name the single most impactful action available.</li>
+    <li><strong>Goal progress check</strong>: For each active goal, report % complete and projected completion date. Flag goals that are off schedule. Prioritize goals with upcoming deadlines.</li>
+    <li><strong>Recommendation delivery</strong>: Present the top 3 ranked recommendations for the upcoming period. Each includes reason, expected benefit, trade-off, and a single action to take. Do not present more than 3 recommendations in a single coaching session — information overload reduces action rate.</li>
+    <li><strong>Closing commitment</strong>: Ask the user to commit to one specific action from the recommendations. Record their choice as a coaching_commitment in the AI memory. Follow up next period on whether it was completed.</li>
+  </ol>
+
+  <h3>4.3 User Sophistication Adaptation</h3>
+  <p>The coaching engine adapts its vocabulary, depth, and pace based on the user's financial sophistication level, inferred from interaction history and self-declared preference (<code>aic.sophistication_level</code>):</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Level</th><th>Detection Signals</th><th>Vocabulary</th><th>Explanation Depth</th><th>Jargon Allowed</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Beginner</strong></td><td>New user (&lt;3 periods), low FHS, no goals set, asks "what is" questions</td><td>Plain language, analogies, simple numbers</td><td>Define every term; explain why before what; step-by-step</td><td>None — replace "avalanche method" with "pay highest-rate debt first"</td></tr>
+        <tr><td><strong>Intermediate</strong></td><td>3–12 periods, FHS improving, goals active, engages with budget</td><td>Standard financial vocabulary</td><td>Explain principles briefly; focus on context-specific application</td><td>Common terms (interest rate, APR, emergency fund, budget category)</td></tr>
+        <tr><td><strong>Advanced</strong></td><td>12+ periods, high FHS, complex goal dependencies, asks quantitative questions</td><td>Technical financial vocabulary acceptable</td><td>Data-dense; ratios and percentages prominent; brief justifications</td><td>Avalanche/snowball, debt-to-income ratio, opportunity cost, amortization</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Sophistication level can be overridden by the user at any time in Settings → AI Coach → Communication Level. The override takes effect on the next AI interaction.</p>
+
+  <h3>4.4 Coaching Tone Rules</h3>
+  <p>The following tone rules are enforced across all coaching output, regardless of operating mode. In Rule-Based mode, template selection enforces these rules. In LLM mode, these rules are included in the system prompt and validated post-generation.</p>
+  <ul>
+    <li><strong>Never shame</strong>: Phrases like "you failed to", "you didn't manage to", "you wasted", "you should have" are prohibited.</li>
+    <li><strong>Always contextualize setbacks</strong>: Every negative observation pairs with a cause ("Your spending rose because of the holiday period — this is common") and a path forward ("Here's how to prepare next time").</li>
+    <li><strong>Celebrate specifically</strong>: Generic praise ("Good job!") is less effective than specific praise ("You kept food spending 8% under budget for 3 consecutive periods — that's meaningful consistency").</li>
+    <li><strong>Use "we" language for challenges, "you" for achievements</strong>: "Let's look at where we can reduce" vs. "You grew your emergency fund by 40% this year".</li>
+    <li><strong>No comparisons to others</strong>: "Most people save X%" is prohibited. The only relevant benchmark is the user's own history.</li>
+    <li><strong>Acknowledge constraint</strong>: If the user has limited income or high fixed expenses, acknowledge the constraint before recommending ("With your current fixed costs at 78% of income, there's limited room — here's how to maximize what's available").</li>
+  </ul>
+</section>
+
+<section id="s5">
+  <h2>5. Recommendation Engine</h2>
+
+  <h3>5.1 Recommendation Lifecycle</h3>
+  <p>Recommendations pass through five stages. A recommendation that skips any stage is invalid.</p>
+  <ol>
+    <li><strong>Detect</strong>: The AI engine identifies a financial pattern, gap, or opportunity in the user's data. Triggered by: period-end analysis, real-time threshold breach (e.g., budget category hits 90%), scheduled review, user NL query, or new data event (new debt added, goal created).</li>
+    <li><strong>Generate</strong>: The engine produces a Recommendation object with all required fields (§5.2). In Rule-Based mode, templates are selected and parameterized with the user's actual data. In LLM mode, the template is the starting point and LLM adds nuanced phrasing.</li>
+    <li><strong>Rank</strong>: The Recommendation Layer assigns a display rank based on the priority × confidence matrix (§5.4). Up to 3 recommendations are surfaced at once. The rest wait in queue.</li>
+    <li><strong>Present</strong>: Presentation Layer renders the recommendation with all ExplainabilityContext fields accessible (collapsed by default, expandable on tap).</li>
+    <li><strong>Track</strong>: User interaction is recorded: accepted (tapped the CTA), dismissed (swiped away), snoozed (reminded later), ignored (no interaction for 7 days). Outcome feeds the Memory Layer and future ranking.</li>
+  </ol>
+
+  <h3>5.2 Recommendation Anatomy</h3>
+  <p>Every Recommendation object must contain all of the following fields. A recommendation missing any required field is rejected by the Recommendation Layer before presentation:</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Description</th><th>Required</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>ULID</td><td>Unique recommendation identifier</td><td>Yes</td></tr>
+        <tr><td><code>category</code></td><td>Enum</td><td>SAVINGS / DEBT / GOALS / BUDGET / BEHAVIORAL</td><td>Yes</td></tr>
+        <tr><td><code>title</code></td><td>String (≤60 chars)</td><td>Specific, data-grounded headline ("Redirect $45 unused budget to emergency fund")</td><td>Yes</td></tr>
+        <tr><td><code>reason</code></td><td>String (≤200 chars)</td><td>Why this recommendation exists, citing specific data ("Your food category is $45 under budget this period")</td><td>Yes</td></tr>
+        <tr><td><code>expected_benefit</code></td><td>String (≤200 chars)</td><td>Quantified outcome when possible ("This adds 0.3 months of emergency fund coverage")</td><td>Yes</td></tr>
+        <tr><td><code>trade_off</code></td><td>String (≤200 chars)</td><td>Honest acknowledgment of cost or sacrifice ("You'll have less flexible spending money this period")</td><td>Yes</td></tr>
+        <tr><td><code>action_label</code></td><td>String (≤30 chars)</td><td>CTA button text ("Transfer to EMF", "Adjust Budget", "View Debt Plan")</td><td>Yes</td></tr>
+        <tr><td><code>action_route</code></td><td>Expo Router path</td><td>Deep link to the relevant screen where the user can act</td><td>Yes</td></tr>
+        <tr><td><code>priority</code></td><td>Enum</td><td>CRITICAL / HIGH / MEDIUM / LOW</td><td>Yes</td></tr>
+        <tr><td><code>confidence</code></td><td>Enum</td><td>VERY_HIGH / HIGH / MEDIUM / LOW / UNCERTAIN</td><td>Yes</td></tr>
+        <tr><td><code>educational_note</code></td><td>String (≤300 chars)</td><td>Brief explanation of the underlying financial principle</td><td>Yes</td></tr>
+        <tr><td><code>data_sources</code></td><td>String[]</td><td>Which data categories were used to generate this recommendation</td><td>Yes</td></tr>
+        <tr><td><code>assumptions</code></td><td>String[]</td><td>What assumptions were made (e.g., "Assumes current salary continues")</td><td>Yes</td></tr>
+        <tr><td><code>expires_at</code></td><td>ISO-8601</td><td>When this recommendation is no longer relevant (e.g., end of current period)</td><td>Yes</td></tr>
+        <tr><td><code>alternatives</code></td><td>String[]</td><td>1–2 alternative actions the user could take instead</td><td>Yes (min 1)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>5.3 Recommendation Categories</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Category</th><th>Examples</th><th>Typical Priority</th><th>Key Trigger</th></tr></thead>
+      <tbody>
+        <tr><td><strong>SAVINGS</strong></td><td>Redirect unused budget to savings; increase savings rate; create savings goal; redirect windfall</td><td><span class="pri-m">Medium</span></td><td>Unused budget &gt;20%, savings rate below 10%</td></tr>
+        <tr><td><strong>DEBT</strong></td><td>Extra payment on highest-rate debt; switch to avalanche method; consolidation opportunity; payoff timeline optimization</td><td><span class="pri-h">High</span></td><td>Any active debt; interest rate &gt;10%; minimum-only payments</td></tr>
+        <tr><td><strong>GOALS</strong></td><td>Increase contribution to behind-schedule goal; prioritize goal with dependency blockers; adjust unrealistic target date; pause low-priority goal</td><td><span class="pri-m">Medium</span>–<span class="pri-h">High</span></td><td>Goal off schedule, goal dependency conflict, goal target date within 3 months</td></tr>
+        <tr><td><strong>BUDGET</strong></td><td>Reduce specific over-budget category; reallocate unused budget; adjust budget to reflect actual spending; create new category for uncategorized spending</td><td><span class="pri-h">High</span> when over-budget, <span class="pri-m">Medium</span> otherwise</td><td>Category &gt;100% utilization, unused budget &gt;30%, uncategorized spending &gt;15%</td></tr>
+        <tr><td><strong>BEHAVIORAL</strong></td><td>Maintain current saving streak; address recurring overspend in same category; use budget before period end; plan for seasonal spending spike</td><td><span class="pri-l">Low</span>–<span class="pri-m">Medium</span></td><td>3+ period behavioral pattern detected, streak milestone reached</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>5.4 Priority × Confidence Matrix</h3>
+  <p>The display rank of a recommendation is determined by combining priority and confidence. Higher priority and higher confidence both increase rank.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Priority \ Confidence</th><th>VERY_HIGH / HIGH</th><th>MEDIUM</th><th>LOW / UNCERTAIN</th></tr></thead>
+      <tbody>
+        <tr><td><span class="pri-c">CRITICAL</span></td><td>Rank 1 — Always shown first</td><td>Rank 1–2</td><td>Rank 2–3 with confidence disclosure</td></tr>
+        <tr><td><span class="pri-h">HIGH</span></td><td>Rank 1–2</td><td>Rank 2–3</td><td>Rank 3 with confidence disclosure</td></tr>
+        <tr><td><span class="pri-m">MEDIUM</span></td><td>Rank 2–3</td><td>Rank 3 — queued if 3 higher shown</td><td>Queued</td></tr>
+        <tr><td><span class="pri-l">LOW</span></td><td>Rank 3 or queued</td><td>Queued</td><td>Suppressed until no higher alternatives exist</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>5.5 Deduplication and Freshness</h3>
+  <ul>
+    <li><strong>Deduplication</strong>: If a recommendation with the same category + target entity + action is already ACTIVE (not yet expired, accepted, or dismissed), no duplicate is generated. The existing recommendation may be refreshed with updated numbers.</li>
+    <li><strong>Acceptance tracking</strong>: If a recommendation is accepted but the underlying condition persists after one period, the recommendation may be re-generated. It is not re-generated if the user has acted on it (e.g., actually redirected the budget).</li>
+    <li><strong>Dismissal cooling</strong>: If a recommendation is dismissed, it is suppressed for 14 days before being considered again. A second dismissal suppresses it for 30 days. A third dismissal marks it PERMANENTLY_DISMISSED for this user.</li>
+    <li><strong>Expiry</strong>: Recommendations have a hard expiry (expires_at field). Expired recommendations are archived to ai_recommendations with status EXPIRED, not shown to the user. They are used as training signal (user didn't act before it was irrelevant).</li>
+  </ul>
+</section>
+
+<section id="s6">
+  <h2>6. Predictive Analytics</h2>
+
+  <h3>6.1 Prediction Types</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Prediction</th><th>Output</th><th>Method (Rule-Based)</th><th>Method (LLM-Enhanced)</th><th>Min Data Required</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Savings trajectory</strong></td><td>Projected savings balance at 3/6/12 months</td><td>Linear extrapolation of (net salary − avg expenses) × periods</td><td>Trend analysis with seasonal adjustment</td><td>3 complete salary periods</td></tr>
+        <tr><td><strong>Debt payoff date</strong></td><td>Estimated payoff date per debt + total, under current payment plan</td><td>Amortization formula: P, r, payment → months remaining</td><td>Incorporates extra payment patterns from history</td><td>Debt record with principal + rate + minimum payment</td></tr>
+        <tr><td><strong>Debt payoff date (accelerated)</strong></td><td>Payoff date if extra payments applied (shows savings vs. current plan)</td><td>Amortization formula with extra payment applied to highest-rate debt</td><td>Same as rule-based; LLM formats comparison narrative</td><td>Same as above + available monthly residual</td></tr>
+        <tr><td><strong>Emergency fund completion</strong></td><td>Date when EMF reaches target (months of coverage)</td><td>Target amount − current balance ÷ monthly contribution rate</td><td>Adjusts for spending trend changes</td><td>EMF record + 3 periods of contribution history</td></tr>
+        <tr><td><strong>Goal completion date</strong></td><td>Projected completion date per goal at current contribution rate</td><td>(Target − current) ÷ monthly contribution</td><td>Incorporates seasonal contribution patterns</td><td>Goal record + 2 periods of contribution history</td></tr>
+        <tr><td><strong>Cash flow forecast</strong></td><td>Projected period-end residual for next 3 periods</td><td>Avg salary − avg expenses by category (last 3 periods)</td><td>Identifies trend inflection points</td><td>3 complete salary periods</td></tr>
+        <tr><td><strong>Budget forecast</strong></td><td>Expected utilization by category for next period based on historical pattern</td><td>3-period moving average by category</td><td>Weights recent periods higher; identifies seasonal patterns</td><td>3 complete budget periods</td></tr>
+        <tr><td><strong>Financial Health Score forecast</strong></td><td>Projected FHS at 3/6 months if current trends continue</td><td>Linear regression on last 6 FHS data points</td><td>Non-linear trend detection</td><td>3 FHS data points (3 complete periods)</td></tr>
+        <tr><td><strong>Interest cost projection</strong></td><td>Total interest to be paid on current debt until payoff</td><td>Sum of (payment × months) − principal across all debts</td><td>Same formula; LLM contextualizes against income</td><td>Debt records with principal + rate + payment</td></tr>
+        <tr><td><strong>Financial milestone dates</strong></td><td>When debt-free, when EMF complete, when primary goal achieved — presented as a timeline</td><td>Combines individual predictions above</td><td>Same</td><td>All relevant records present</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>6.2 Confidence Levels and Intervals</h3>
+  <p>Every prediction includes a confidence assessment and the assumptions that drive it. Confidence degrades with projection distance and data sparsity:</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Confidence</th><th>Conditions</th><th>UI Treatment</th><th>Examples</th></tr></thead>
+      <tbody>
+        <tr><td><span class="conf-v">Very High</span></td><td>≥12 periods of data; fixed amount prediction (debt amortization with fixed payment)</td><td>Exact date shown</td><td>Debt payoff date with fixed payment</td></tr>
+        <tr><td><span class="conf-h">High</span></td><td>6–12 periods of data; stable trend; few variables</td><td>Date with ±1 month range</td><td>EMF completion with consistent contributions</td></tr>
+        <tr><td><span class="conf-m">Medium</span></td><td>3–6 periods; trend present but variable; 1–2 major assumptions</td><td>Date with ±2–3 month range; assumptions visible</td><td>Savings trajectory at 12 months</td></tr>
+        <tr><td><span class="conf-l">Low</span></td><td>&lt;3 periods; high spending variance; major behavioral assumptions</td><td>Range only ("6–18 months"); assumptions prominent</td><td>Goal completion with no contribution history</td></tr>
+        <tr><td><span class="conf-u">Uncertain</span></td><td>&lt;2 periods; insufficient data for meaningful projection</td><td>No projection shown; prompt user to continue tracking</td><td>New user with 1 period of data</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>6.3 Standard Assumptions Catalog</h3>
+  <p>Every prediction selects from this catalog and presents the applicable assumptions to the user. Users can modify assumptions via What-If scenarios (§7):</p>
+  <ul>
+    <li><strong>A1</strong>: Salary remains constant at the average of the last 3 periods.</li>
+    <li><strong>A2</strong>: Monthly expenses remain at the average of the last 3 periods (by category).</li>
+    <li><strong>A3</strong>: Debt minimum payment continues at current level (no extra payments).</li>
+    <li><strong>A4</strong>: Goal contributions continue at the average of the last 3 periods.</li>
+    <li><strong>A5</strong>: No new debts are added.</li>
+    <li><strong>A6</strong>: No new goals are added.</li>
+    <li><strong>A7</strong>: No salary changes occur during the projection period.</li>
+    <li><strong>A8</strong>: Interest rates remain constant at current values.</li>
+    <li><strong>A9</strong>: No large one-time expenses or income events occur.</li>
+    <li><strong>A10</strong>: Inflation rate not applied (nominal projection only; real value disclaimer shown).</li>
+  </ul>
+
+  <h3>6.4 Prediction Accuracy Feedback Loop</h3>
+  <p>The system compares past predictions to actual outcomes to improve confidence calibration:</p>
+  <ul>
+    <li>After each period closes, the AI compares its 1-period-ahead prediction to actual results (e.g., predicted cash flow residual vs. actual).</li>
+    <li>Prediction error (absolute and directional) is stored in <code>ai_memory</code> with type PREDICTION_ACCURACY.</li>
+    <li>If the rule-based model has consistently overestimated savings for 3+ periods, confidence is automatically downgraded from High to Medium for savings predictions.</li>
+    <li>In v2.0+, this feedback is available as a signal to the LLM prompt ("The rule-based model has underestimated food spending by 15% on average — consider adjusting").</li>
+  </ul>
+</section>
+
+<section id="s7">
+  <h2>7. What-If Simulation Engine</h2>
+
+  <h3>7.1 Simulation Architecture</h3>
+  <p>What-If simulations are non-destructive projections. They take a snapshot of the current financial state, apply a hypothetical change (the delta), recalculate predictions under the modified scenario, and compare results to the baseline (current trajectory). The simulation never writes to the financial database.</p>
+  <p>The simulation flow is:</p>
+  <ol>
+    <li><strong>Baseline snapshot</strong>: Capture the current prediction outputs (savings trajectory, debt payoff dates, goal completion dates, FHS forecast) as the comparison baseline.</li>
+    <li><strong>Delta application</strong>: Apply the scenario change to the snapshot (e.g., increase salary by 10%, add a $200/month extra debt payment).</li>
+    <li><strong>Re-projection</strong>: Run all relevant prediction models against the modified snapshot. Use the same algorithms as the standard prediction engine — simulations are not approximations.</li>
+    <li><strong>Delta computation</strong>: For each projection dimension, compute: (simulated value) − (baseline value). Express as both absolute amount and percentage change.</li>
+    <li><strong>Impact narrative</strong>: Generate a plain-language summary of the most significant changes: "A 10% salary increase shortens your debt payoff by 14 months and adds $4,200 to annual savings."</li>
+    <li><strong>Result presentation</strong>: Show baseline vs. simulated side by side with a "What changes" list highlighting the most impactful deltas.</li>
+  </ol>
+
+  <h3>7.2 Supported Scenario Types</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Scenario</th><th>User Input</th><th>Affected Projections</th></tr></thead>
+      <tbody>
+        <tr><td>Salary increase</td><td>% increase or absolute new amount</td><td>Savings trajectory, cash flow, debt payoff (if extra applied), goal completion, FHS</td></tr>
+        <tr><td>Salary decrease / income loss</td><td>% decrease or absolute reduction or full loss of one income source</td><td>All projections — models partial and full income loss separately</td></tr>
+        <tr><td>One-time windfall</td><td>Amount and intended allocation (debt / EMF / goal / savings)</td><td>The targeted projection only; shows optimal allocation comparison</td></tr>
+        <tr><td>Extra debt payment</td><td>Amount per month, which debt (or avalanche/snowball)</td><td>Debt payoff date, total interest cost, cash flow (reduction in available residual)</td></tr>
+        <tr><td>Increase savings rate</td><td>Additional amount per month</td><td>Savings trajectory, goal completion, cash flow</td></tr>
+        <tr><td>New debt</td><td>Principal, interest rate, minimum payment</td><td>Debt payoff timeline, monthly cash flow, FHS</td></tr>
+        <tr><td>New goal</td><td>Target amount, target date (or monthly contribution)</td><td>Goal completion dates for all goals (competition for residual), cash flow</td></tr>
+        <tr><td>Budget reallocation</td><td>Move amount from category A to category B</td><td>Budget utilization forecast, savings if redirected to savings category</td></tr>
+        <tr><td>Inflation scenario</td><td>Annual inflation rate</td><td>Real purchasing power of savings over time, effective interest cost change</td></tr>
+        <tr><td>Expense reduction</td><td>Category, reduction amount</td><td>Cash flow, savings trajectory, debt payoff acceleration</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>7.3 Simulation Constraints</h3>
+  <ul>
+    <li><strong>Maximum active simulations</strong>: 5 simultaneously. When a 6th is requested, the oldest is discarded. Simulations are session-level by default (not persisted between sessions) — users can save up to 3 named simulations to <code>app_state.saved_simulations_json</code>.</li>
+    <li><strong>Scenario combination</strong>: Multiple scenario changes can be combined in one simulation (e.g., salary +10% AND extra $200/month debt payment). There is no limit on the number of changes within a single simulation run.</li>
+    <li><strong>Non-destructive guarantee</strong>: The simulation uses an in-memory copy of the financial snapshot. The original database is never modified. All simulation data is discarded when the simulation view is closed.</li>
+    <li><strong>Recalculation target</strong>: All projections must recalculate within &lt;500ms of the user adjusting a simulation parameter. This target applies in Rule-Based mode. LLM-enhanced narrative generation may take longer but projections are shown immediately with narrative following.</li>
+    <li><strong>Assumption transparency</strong>: The same assumption catalog (§6.3) applies to simulations. The scenario delta replaces the relevant assumption (e.g., scenario "Salary +10%" replaces A1 and A7 with the new salary value).</li>
+  </ul>
+</section>
+
+<section id="s8">
+  <h2>8. Natural Language Interaction</h2>
+
+  <h3>8.1 Intent Taxonomy</h3>
+  <p>All natural language queries are classified into one of ten intent types before processing. The intent determines which engine handles the query and what FinancialContext is assembled.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Intent Type</th><th>Examples</th><th>Engine</th><th>Response Type</th></tr></thead>
+      <tbody>
+        <tr><td><strong>DATA_LOOKUP</strong></td><td>"How much did I save last month?" / "What's my largest expense category?"</td><td>Data Layer query → structured answer</td><td>Direct data answer + chart hint</td></tr>
+        <tr><td><strong>STATUS_QUERY</strong></td><td>"How's my budget doing?" / "How close am I to my house goal?"</td><td>Prediction engine → current status</td><td>Progress summary + trajectory</td></tr>
+        <tr><td><strong>EXPLANATION_REQUEST</strong></td><td>"Why did my health score drop?" / "Why is this recommended?"</td><td>Explanation engine → ExplainabilityContext</td><td>Cause analysis + contributing factors</td></tr>
+        <tr><td><strong>PREDICTION_REQUEST</strong></td><td>"When will I be debt-free?" / "How long until I reach my savings goal?"</td><td>Prediction engine</td><td>Date prediction + confidence + assumptions</td></tr>
+        <tr><td><strong>SIMULATION_REQUEST</strong></td><td>"What if I got a 10% raise?" / "What if I paid $500 extra on my loan?"</td><td>Simulation engine</td><td>Baseline vs. simulated comparison</td></tr>
+        <tr><td><strong>ADVICE_REQUEST</strong></td><td>"What should I focus on this month?" / "How can I save more?"</td><td>Recommendation engine</td><td>Top 3 recommendations with reasons</td></tr>
+        <tr><td><strong>COACHING_REQUEST</strong></td><td>"Review my finances" / "How am I doing overall?"</td><td>Coaching engine → monthly session flow</td><td>Structured coaching session</td></tr>
+        <tr><td><strong>COMPARISON_REQUEST</strong></td><td>"Am I saving more than last year?" / "Which month had the most expenses?"</td><td>Data Layer + trend analysis</td><td>Period-over-period comparison</td></tr>
+        <tr><td><strong>EDUCATIONAL_REQUEST</strong></td><td>"What is the avalanche method?" / "How does compound interest work?"</td><td>Knowledge base lookup (rule-based) or LLM</td><td>Educational explanation grounded in user's own data where possible</td></tr>
+        <tr><td><strong>OUT_OF_SCOPE</strong></td><td>"What's the weather?" / "Tell me a joke" / "What's the stock price of Apple?"</td><td>Scope classifier</td><td>Polite redirect to financial topics; suggestion of related financial query</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>8.2 Query Processing Pipeline</h3>
+  <ol>
+    <li><strong>Input normalization</strong>: Lowercase, remove punctuation artifacts, handle common misspellings. Max query length: 500 characters. Truncate beyond 500 with user notification.</li>
+    <li><strong>Intent classification</strong>: Rule-Based mode uses keyword matching and pattern templates. LLM mode uses classifyIntent() method. Confidence threshold for classification: 0.7. Below 0.7: prompt for clarification.</li>
+    <li><strong>Entity extraction</strong>: Identify referenced entities (specific goal by name, specific debt, specific budget category, specific time period). Link to actual database records.</li>
+    <li><strong>Context assembly</strong>: FinancialContextBuilder assembles context specific to the detected intent and entities.</li>
+    <li><strong>Response generation</strong>: Route to appropriate engine. Generate response following the response format spec (§8.3).</li>
+    <li><strong>Conversation history update</strong>: Add the query and response to session-level conversation history (max 20 turns, not persisted beyond the session unless user explicitly saves the conversation).</li>
+  </ol>
+
+  <h3>8.3 Response Format Specification</h3>
+  <p>Every NL response must contain all three components. Partial responses are not acceptable:</p>
+  <ul>
+    <li><strong>Direct answer</strong>: The specific answer to the question, in the first sentence. Never bury the answer after a preamble. Bad: "That's a great question! Let's look at your finances…" Good: "You saved $1,240 last month — 18.5% of your income."</li>
+    <li><strong>Supporting data</strong>: 2–3 data points that substantiate the answer, drawn from the user's actual financial records. Cited by category and period. No vague references ("recently", "sometimes") — always specific ("in the last 3 periods", "in October 2025").</li>
+    <li><strong>Suggested follow-up</strong>: 1–2 suggested next questions or actions the user might find useful given their query. These are short (tap-able chips in the UI) and contextually relevant. Do not suggest more than 2 — choice overload reduces engagement.</li>
+  </ul>
+
+  <h3>8.4 Fallback Handling</h3>
+  <p>When the NL engine cannot confidently answer (Rule-Based mode, no LLM, low-confidence classification), it falls back gracefully:</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Fallback Scenario</th><th>Response</th></tr></thead>
+      <tbody>
+        <tr><td>Intent confidence &lt;0.7 (ambiguous query)</td><td>"I want to make sure I understand — are you asking about [Option A] or [Option B]?" — present two clarification chips.</td></tr>
+        <tr><td>Insufficient data (fewer than required periods)</td><td>Answer with what's available + explicit note: "I need at least 3 months of data to give you a reliable projection. You have 1 month so far — keep tracking!"</td></tr>
+        <tr><td>OUT_OF_SCOPE intent</td><td>"I'm focused on your personal finances — I can't help with that. Want to try: [3 related financial questions as chips]?"</td></tr>
+        <tr><td>LLM provider unavailable (Hybrid/Full AI mode)</td><td>Serve the Rule-Based response with a brief notice: "Using offline analysis — some details may be less specific than usual."</td></tr>
+        <tr><td>Entity not found (user references goal/debt that doesn't exist)</td><td>"I couldn't find a goal called '[name]'. Here are your active goals: [list]. Did you mean one of these?"</td></tr>
+        <tr><td>Query too complex for Rule-Based (v1.0)</td><td>Answer what's possible rule-based and note: "For a deeper analysis of this question, the AI Coach requires a cloud connection. [Enable cloud AI] or [Ask a more specific question]."</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>8.5 Conversation Context</h3>
+  <p>The NL interface maintains a session-level conversation history to support multi-turn queries:</p>
+  <ul>
+    <li>Context window: Last 20 turns (query + response pairs). Older turns are summarized, not discarded — a 2-sentence summary of earlier context is prepended to the LLM prompt.</li>
+    <li>Reference resolution: "What about my car loan?" after a general debt query resolves "car loan" against the previously discussed debt entities.</li>
+    <li>Pronoun resolution: "How close is it to completion?" after asking about a goal resolves "it" to the last mentioned goal.</li>
+    <li>In Rule-Based mode, conversation context is limited to the current query (no multi-turn resolution). A "Tell me more" follow-up repeats the previous query's topic but does not chain context.</li>
+    <li>Conversation history is session-scoped — it is not persisted to the AI memory table unless the user explicitly saves the conversation.</li>
+  </ul>
+</section>
+
+
+<section id="s9">
+  <h2>9. Explainability Framework</h2>
+
+  <h3>9.1 ExplainabilityContext Schema</h3>
+  <p>Every AI output object — recommendation, prediction, insight, coaching message, NL response — carries an ExplainabilityContext. This context is never optional. An AI output without ExplainabilityContext is invalid and must not be delivered to the user.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Description</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><code>why</code></td><td>String</td><td>Why this output was generated — the triggering condition in plain language</td><td>"Your food budget was $78 over allocation this period"</td></tr>
+        <tr><td><code>how</code></td><td>String</td><td>How the conclusion was reached — the analytical method, in simple terms</td><td>"Comparing your total food spending to your allocated food budget for this salary period"</td></tr>
+        <tr><td><code>data_sources</code></td><td>String[]</td><td>Named data categories used (never raw values)</td><td>["Budget allocations — Food category", "Expense records — last 30 days", "Current salary period"]</td></tr>
+        <tr><td><code>confidence</code></td><td>Enum</td><td>VERY_HIGH / HIGH / MEDIUM / LOW / UNCERTAIN</td><td>HIGH</td></tr>
+        <tr><td><code>confidence_reason</code></td><td>String</td><td>Why this confidence level was assigned</td><td>"Based on 8 complete periods of consistent spending data"</td></tr>
+        <tr><td><code>assumptions</code></td><td>String[]</td><td>Assumptions that would change the output if violated</td><td>["Salary continues at current level", "No large one-time expenses expected"]</td></tr>
+        <tr><td><code>limitations</code></td><td>String[]</td><td>What this analysis cannot account for</td><td>["Upcoming irregular expenses not yet recorded", "Potential salary changes"]</td></tr>
+        <tr><td><code>alternatives</code></td><td>String[]</td><td>What would change if the user took a different path</td><td>["If you prefer to keep the food budget as-is, reduce another category instead"]</td></tr>
+        <tr><td><code>generated_by</code></td><td>Enum</td><td>RULE_ENGINE / LLM_ENHANCED / LLM_FULL</td><td>RULE_ENGINE</td></tr>
+        <tr><td><code>generated_at</code></td><td>ISO-8601</td><td>When this output was generated</td><td>"2026-07-12T09:43:00Z"</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>9.2 Transparency Tiers</h3>
+  <p>Users may want different levels of detail in AI explanations. The ExplainabilityContext supports three display tiers, all driven by the same underlying data:</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Tier</th><th>Content Shown</th><th>UI Treatment</th><th>Audience</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Simple</strong></td><td>why + confidence (as icon/color) + one data source</td><td>Visible inline below the recommendation title (always visible)</td><td>All users — default view</td></tr>
+        <tr><td><strong>Detailed</strong></td><td>All of Simple + how + all data sources + assumptions</td><td>Expandable "Why this?" section (one tap to expand)</td><td>Users who want to verify the reasoning</td></tr>
+        <tr><td><strong>Technical</strong></td><td>All of Detailed + limitations + alternatives + generated_by + generated_at</td><td>Second expand level or accessible via Settings → AI Coach → Transparency Level</td><td>Power users, developers, users validating model behavior</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>9.3 Prohibited Patterns (Anti-Explainability)</h3>
+  <p>The following patterns undermine explainability and are prohibited in all AI output:</p>
+  <ul>
+    <li><strong>Vague triggers</strong>: "Based on your spending patterns" without citing which specific pattern. Required: "Because your dining spending has exceeded budget in 4 of the last 6 months."</li>
+    <li><strong>Unsourced claims</strong>: "Most people in your situation save more." Prohibited — no peer comparison, no unsourced benchmarks.</li>
+    <li><strong>Confidence washing</strong>: Presenting a LOW confidence prediction with the same visual treatment as a VERY_HIGH confidence one. Confidence must be visually distinct (color, label, range vs. exact date).</li>
+    <li><strong>Hidden assumptions</strong>: Making a projection that assumes salary continuity without disclosing it. All A1–A10 assumptions used in a prediction must appear in the output's ExplainabilityContext.assumptions field.</li>
+    <li><strong>Magic recommendations</strong>: "This is what you should do" with no explanation. Every recommendation must include reason + expected_benefit + trade_off at minimum.</li>
+    <li><strong>Overconfident language</strong>: "You will be debt-free in March 2028." Required: "At your current payment rate, you're on track to be debt-free around March 2028 (HIGH confidence, ±2 months)."</li>
+  </ul>
+
+  <h3>9.4 AI Label Visibility</h3>
+  <p>Users must always know when content is AI-generated. The following labeling rules apply:</p>
+  <ul>
+    <li>Every AI-generated card, insight, or message carries a subtle "AI insight" or "AI Coach" label. This label cannot be hidden by user preferences.</li>
+    <li>Rule-based insights are labeled "AI analysis" (to distinguish from LLM-generated content in future versions).</li>
+    <li>In Hybrid or Full AI mode, LLM-generated content is labeled "AI Coach" and includes the confidence indicator.</li>
+    <li>The label must persist even if the user customizes the dashboard — it cannot be lost through widget rearrangement or theme changes.</li>
+  </ul>
+</section>
+
+<section id="s10">
+  <h2>10. Behavioral Intelligence</h2>
+
+  <h3>10.1 Behavioral Signal Definitions</h3>
+  <p>The behavioral intelligence system tracks eight dimensions of financial behavior, each measured on a 0–100 scale. The composite Behavioral Score (0–100) is a weighted average of all eight dimensions and is a component of the overall Financial Health Score.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Dimension</th><th>Weight</th><th>What Is Measured</th><th>Measurement Method</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Saving Consistency</strong></td><td>20%</td><td>How regularly the user saves money (contributes to savings or goals) each period</td><td>Binary per period (saved? yes/no) → 12-period rolling average → 0–100 scale</td></tr>
+        <tr><td><strong>Budget Discipline</strong></td><td>20%</td><td>How closely the user stays within budget allocations across categories</td><td>(Categories within budget ÷ total categories) per period → 6-period rolling average</td></tr>
+        <tr><td><strong>Debt Repayment Consistency</strong></td><td>20%</td><td>Whether the user makes at least minimum debt payments on time each period</td><td>Binary per debt per period (payment made? yes/no) → rolling average across all debts</td></tr>
+        <tr><td><strong>Goal Commitment</strong></td><td>15%</td><td>Whether the user contributes to active goals on a regular cadence</td><td>(Periods with goal contribution ÷ total active periods) per goal → average across goals</td></tr>
+        <tr><td><strong>Planning Quality</strong></td><td>10%</td><td>Whether the user updates budgets at period start, sets goals with target dates, and engages with recommendations</td><td>Composite: budget set? + goals have dates? + recommendations viewed? per period</td></tr>
+        <tr><td><strong>Emergency Fund Maintenance</strong></td><td>10%</td><td>Whether the user maintains and grows their emergency fund</td><td>EMF balance stable or growing? per period → binary → rolling average</td></tr>
+        <tr><td><strong>Financial Stability</strong></td><td>3%</td><td>Absence of negative financial events: no overdraft-equivalent (negative residual), no new high-interest debt</td><td>Binary penalty events: −10 per negative residual period, −15 per new high-rate debt</td></tr>
+        <tr><td><strong>Positive Improvement</strong></td><td>2%</td><td>Direction of change across all dimensions — are behaviors improving over time?</td><td>Slope of each dimension's trend over last 6 periods → positive trend = bonus points</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>10.2 Pattern Detection</h3>
+  <p>The behavioral engine detects patterns that persist across 3 or more periods. Patterns are classified as positive, concerning, or neutral:</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Pattern</th><th>Classification</th><th>Trigger</th><th>Coach Response</th></tr></thead>
+      <tbody>
+        <tr><td>Consistent saving for 3+ periods</td><td>Positive</td><td>Saving Consistency = 100% for 3+ consecutive periods</td><td>Celebrate specifically; suggest next milestone (increase contribution rate)</td></tr>
+        <tr><td>Improving budget discipline</td><td>Positive</td><td>Budget Discipline rising ≥5 points/period for 3+ periods</td><td>Name the trend; reinforce the specific habit driving it</td></tr>
+        <tr><td>Debt-free milestone approaching</td><td>Positive</td><td>Largest debt &lt;20% of original balance</td><td>Visualize the finish line; discuss what to do with freed-up cash flow after payoff</td></tr>
+        <tr><td>Recurring category overspend</td><td>Concerning</td><td>Same category over budget 3+ consecutive periods</td><td>Non-judgmental: name the pattern, explore whether budget is too low or spending is a choice, offer budget adjustment OR spending reduction</td></tr>
+        <tr><td>Savings regression</td><td>Concerning</td><td>Saving Consistency drops after a streak of 3+ periods</td><td>Acknowledge the change without judgment; identify cause if possible (increased expenses?); re-commit to a minimum contribution</td></tr>
+        <tr><td>Goal contribution missed</td><td>Concerning</td><td>Goal contribution = $0 for 2+ consecutive periods</td><td>Check if goal is still relevant; offer to pause or adjust rather than abandon</td></tr>
+        <tr><td>Improving after setback</td><td>Positive</td><td>Any dimension improves ≥10 points after a period where it declined</td><td>Explicitly celebrate the recovery — returning to track after a setback is harder than maintaining a streak</td></tr>
+        <tr><td>Budget not set at period start</td><td>Concerning</td><td>Budget set after period day 5 for 3+ periods</td><td>Prompt budget review before next period opens; explain how late budgeting reduces its effectiveness</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>10.3 Non-Judgmental Feedback Model</h3>
+  <p>Behavioral coaching is the highest-risk area for judgmental tone. The following model governs all behavioral feedback:</p>
+  <ul>
+    <li><strong>Separate behavior from identity</strong>: "Your spending in Dining Out exceeded budget" not "You overspend on dining". The behavior is what changed; the user is not defined by it.</li>
+    <li><strong>Contextualize before coaching</strong>: Before any corrective coaching, acknowledge what went well that period. Even in a poor-performing period, find one positive signal to lead with.</li>
+    <li><strong>Make setbacks informative</strong>: "Your food spending rose 34% this period — this often happens during holiday months. Next period you can prepare by setting a slightly higher food budget in advance."</li>
+    <li><strong>Streaks are recognized, not weaponized</strong>: "You've saved consistently for 5 months — keep it going!" never becomes "You broke your 5-month saving streak this period." Loss framing is prohibited.</li>
+    <li><strong>Celebrate progress at every scale</strong>: A 1% improvement in budget discipline is worth acknowledging if the user has struggled with it. The size of progress matters less than its direction.</li>
+  </ul>
+</section>
+
+<section id="s11">
+  <h2>11. AI Memory</h2>
+
+  <h3>11.1 Memory Tiers</h3>
+  <p>AI memory operates in three tiers with different persistence, scope, and user control:</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Tier</th><th>Scope</th><th>Persistence</th><th>Storage</th><th>User Visible</th><th>User Deletable</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Session Memory</strong></td><td>Current conversation only (NL query context, multi-turn reference resolution)</td><td>Cleared when NL interface is closed</td><td>In-memory only (Zustand)</td><td>No</td><td>N/A (auto-cleared)</td></tr>
+        <tr><td><strong>Profile Memory</strong></td><td>User preferences for AI interaction (sophistication level, coaching tone, preferred time for coaching, saved simulations)</td><td>Persists indefinitely until changed</td><td><code>app_state</code> fields + <code>ai_memory</code> type=PREFERENCE</td><td>Yes — Settings → AI Coach → My Preferences</td><td>Yes — individual preferences or full reset</td></tr>
+        <tr><td><strong>Long-Term Memory</strong></td><td>Coaching history, past recommendations (accepted/dismissed), behavioral patterns over time, prediction accuracy signals, coaching commitments</td><td>30-day rolling retention for behavioral signals; 12-month for coaching commitments; indefinite for preference signals</td><td><code>ai_memory</code> table</td><td>Yes — Settings → AI Coach → Memory &amp; History</td><td>Yes — by category or full reset</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>11.2 AI Memory Table Schema</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>ULID</td><td>Primary key</td></tr>
+        <tr><td><code>memory_type</code></td><td>Enum</td><td>PREFERENCE / BEHAVIORAL_SIGNAL / COACHING_COMMITMENT / RECOMMENDATION_OUTCOME / PREDICTION_ACCURACY / CONVERSATION_SUMMARY</td></tr>
+        <tr><td><code>key</code></td><td>String</td><td>Namespaced key (e.g., "coaching.tone_preference", "recommendation.rec_01ABC.outcome")</td></tr>
+        <tr><td><code>value_json</code></td><td>JSON</td><td>Stored value — structured per memory_type</td></tr>
+        <tr><td><code>period_id</code></td><td>ULID nullable</td><td>The salary period this memory relates to (null for preference memories)</td></tr>
+        <tr><td><code>created_at</code></td><td>ISO-8601</td><td>When this memory was recorded</td></tr>
+        <tr><td><code>expires_at</code></td><td>ISO-8601 nullable</td><td>Automatic expiry date — nightly maintenance deletes expired rows</td></tr>
+        <tr><td><code>sync_eligible</code></td><td>Boolean</td><td>false for behavioral signals (too personal for cloud); true for preferences</td></tr>
+        <tr><td><code>source</code></td><td>Enum</td><td>USER_EXPLICIT (user set directly) / AI_INFERRED (AI detected pattern) / SYSTEM (set by app event)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>11.3 Memory Categories and Retention</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Memory Type</th><th>Examples</th><th>Retention</th><th>Sync Eligible</th></tr></thead>
+      <tbody>
+        <tr><td>PREFERENCE</td><td>Sophistication level, preferred coaching tone (direct/gentle/encouraging), coaching session frequency, dismissed recommendation categories</td><td>Indefinite (until user changes or deletes)</td><td>Yes — mirrors coaching experience across devices</td></tr>
+        <tr><td>BEHAVIORAL_SIGNAL</td><td>Budget discipline score per period, saving consistency per period, streak lengths, regression events</td><td>12 months rolling (nightly purge of older)</td><td>No — too granular and personal; rebuilt locally</td></tr>
+        <tr><td>COACHING_COMMITMENT</td><td>"I will reduce dining spending next period", "I will set up an extra debt payment" — recorded when user commits to an action</td><td>Until followed up (max 2 periods); then COMPLETED or ABANDONED</td><td>No</td></tr>
+        <tr><td>RECOMMENDATION_OUTCOME</td><td>Recommendation ID, user action (accepted/dismissed/snoozed/ignored), date, whether underlying condition improved</td><td>6 months (used for deduplication and future ranking)</td><td>No</td></tr>
+        <tr><td>PREDICTION_ACCURACY</td><td>Predicted vs. actual for each prediction type by period; directional bias tracking</td><td>24 months (used for confidence calibration)</td><td>No</td></tr>
+        <tr><td>CONVERSATION_SUMMARY</td><td>AI-generated 2–3 sentence summary of significant NL coaching conversations the user explicitly saves</td><td>Until user deletes</td><td>No (v1.0); Yes (v2.0+ if user opts in)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>11.4 User Control Over Memory</h3>
+  <p>Users have complete control over AI memory from Settings → AI Coach → Memory &amp; History:</p>
+  <ul>
+    <li><strong>View all memory</strong>: Browse memory by category. Each memory item shows type, date, and a human-readable summary of its value. Raw JSON is accessible in Technical transparency tier.</li>
+    <li><strong>Delete by category</strong>: Delete all BEHAVIORAL_SIGNAL memory, all RECOMMENDATION_OUTCOME memory, etc. independently.</li>
+    <li><strong>Delete individual items</strong>: Delete a specific coaching commitment, a specific recommendation outcome, or a specific preference.</li>
+    <li><strong>Full AI memory reset</strong>: Deletes all ai_memory rows and resets all AI-specific app_state fields (sophistication_level back to auto-detect, tone_preference back to default, etc.). A pre-reset summary ("You will lose 8 months of coaching history and 24 recommendation outcomes") is shown before proceeding. Requires PIN/biometric re-authentication (P2).</li>
+    <li><strong>Export AI memory</strong>: Export all ai_memory rows as JSON for GDPR data portability. Included in the full data export.</li>
+  </ul>
+</section>
+
+<section id="s12">
+  <h2>12. Privacy &amp; Security</h2>
+
+  <h3>12.1 Data Transmission Policy</h3>
+  <p>The boundary between what stays on the device and what may leave is strictly defined. This policy is enforced by the Data Layer — it is not configurable by the AI layer itself.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Data Category</th><th>On-Device Processing</th><th>May Leave Device</th><th>Condition</th></tr></thead>
+      <tbody>
+        <tr><td>Financial amounts (aggregated)</td><td>Always (rule-based mode)</td><td>Yes — rounded to nearest currency unit</td><td>v2.0+, remote AI enabled, user account linked</td></tr>
+        <tr><td>Financial amounts (transaction-level)</td><td>Always</td><td>Never</td><td>Raw transaction amounts never leave the device</td></tr>
+        <tr><td>Budget allocations</td><td>Always</td><td>Yes — category names + amounts</td><td>v2.0+, remote AI enabled</td></tr>
+        <tr><td>Expense notes (user text)</td><td>Always</td><td>Never</td><td>User-entered text is never transmitted to AI providers</td></tr>
+        <tr><td>Goal names</td><td>Always</td><td>No — replaced with "Goal 1", "Goal 2"</td><td>Goal names are anonymized before any remote call</td></tr>
+        <tr><td>Behavioral scores</td><td>Always</td><td>Never</td><td>Behavioral intelligence is computed and stored locally only</td></tr>
+        <tr><td>AI memory (preferences)</td><td>Always</td><td>Yes — sync_eligible preferences only</td><td>v2.0+, cloud sync enabled, user account linked</td></tr>
+        <tr><td>AI memory (behavioral)</td><td>Always</td><td>Never</td><td>Behavioral memory is local-only</td></tr>
+        <tr><td>Attachment files</td><td>Always</td><td>Only with per-use explicit consent</td><td>v3.0 multimodal only; user confirms each upload</td></tr>
+        <tr><td>Personal identifiers (name, email, device_id)</td><td>N/A</td><td>Never</td><td>AI context payloads contain no personal identifiers</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>12.2 Anonymization Transforms</h3>
+  <p>Before any FinancialContext payload is transmitted to a remote AI provider, the following transforms are applied by the FinancialContextBuilder. These are mandatory — no remote AI call may bypass them:</p>
+  <ul>
+    <li><strong>Amount rounding</strong>: All monetary amounts are rounded to the nearest base currency unit (e.g., $1,234.56 → $1,235; $78.34 → $78). Centimes/cents are stripped from remote context.</li>
+    <li><strong>Goal name replacement</strong>: Goal names are replaced with sequential labels: "Goal 1", "Goal 2", etc. The mapping is maintained in-memory for the duration of the AI call to allow response parsing. The mapping is never persisted.</li>
+    <li><strong>Category name pass-through</strong>: Budget category names (Food, Transport, etc.) are transmitted as-is — they are system-defined, not user-entered. User-customized category names are replaced with the parent category name (e.g., "Mom's Birthday Dining" → "Dining Out").</li>
+    <li><strong>Debt name anonymization</strong>: Debt names (e.g., "Chase Visa") are replaced with type-based labels ("Credit Card 1", "Personal Loan 1").</li>
+    <li><strong>Date range generalization</strong>: Specific dates (salary dates, expense dates) are expressed as offsets within the period ("day 3 of period", "12 days before period end") not as calendar dates.</li>
+  </ul>
+
+  <h3>12.3 User Controls</h3>
+  <p>The following AI privacy controls are available to users in Settings → AI Coach → Privacy:</p>
+  <ul>
+    <li><strong>Disable AI entirely</strong> (<code>aic.enabled = false</code>): No AI insights, recommendations, coaching, or NL queries. The AI Coach tab and all AI elements are hidden from the UI. Financial data is unaffected.</li>
+    <li><strong>Disable remote AI</strong> (<code>aic.remote_enabled = false</code>): All AI operations use Rule-Based mode only. No data leaves the device for AI processing. LLM-specific features are disabled. Default: disabled until user opts in.</li>
+    <li><strong>Disable behavioral tracking</strong> (<code>aic.behavioral_tracking = false</code>): Behavioral signals are not computed or stored. Behavioral coaching domain is disabled. Behavioral score component is removed from FHS calculation.</li>
+    <li><strong>Disable AI memory</strong> (<code>aic.memory_enabled = false</code>): No Long-Term Memory is stored. AI operates stateless (no coaching commitments, no recommendation outcome tracking, no pattern personalization). Profile Memory (preferences explicitly set by user) is still stored.</li>
+    <li><strong>Export AI data</strong>: Available at any time. Produces a JSON file of all ai_memory rows and AI-related app_state fields.</li>
+    <li><strong>Delete all AI data</strong>: Full reset of all AI memory, preferences, and behavioral signals. Requires P2 authentication.</li>
+  </ul>
+
+  <h3>12.4 Provider Data Retention</h3>
+  <p>When using a remote AI provider (v2.0+), the following data retention requirements apply to provider selection:</p>
+  <ul>
+    <li>Finance Bag will only integrate providers that offer a zero-data-retention mode (no training on user data, no logs retained beyond the request duration).</li>
+    <li>Provider API calls are made with opt-out-of-training headers where available (e.g., OpenAI's <code>training=false</code> flag equivalent).</li>
+    <li>Provider selection criteria include: GDPR compliance, SOC 2 certification, data residency options, zero-log mode availability.</li>
+    <li>The user-facing Privacy Notice must disclose which provider is active when remote AI is enabled.</li>
+    <li>Provider changes require re-notification to users who have enabled remote AI.</li>
+  </ul>
+
+  <h3>12.5 On-Device AI Path (v3.0)</h3>
+  <p>When on-device AI becomes available, it provides the same features as remote LLM without any data transmission:</p>
+  <ul>
+    <li>On-device model selection criteria: maximum 2GB model size; inference latency &lt;3s on a mid-range device for a typical query; quantized (INT4 or INT8) to reduce memory footprint.</li>
+    <li>The on-device model is downloaded once over Wi-Fi and stored in the app's document directory (excluded from iCloud backup to avoid backup quota impact).</li>
+    <li>Model updates are delivered via a background download, not bundled with app updates. The current model version is displayed in Settings → AI Coach → About.</li>
+    <li>On-device inference uses the same AIProvider interface as remote providers — the calling code is identical; only the Provider Layer implementation differs.</li>
+  </ul>
+</section>
+
+<section id="s13">
+  <h2>13. Performance Architecture</h2>
+
+  <h3>13.1 Latency Targets</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Operation</th><th>Target P50</th><th>Target P99</th><th>Mode</th><th>Mechanism</th></tr></thead>
+      <tbody>
+        <tr><td>Dashboard insight load</td><td>&lt;200ms</td><td>&lt;500ms</td><td>Rule-Based</td><td>Pre-computed during period-end analysis; read from app_state.ai_insight_cache_json</td></tr>
+        <tr><td>Recommendation list load</td><td>&lt;150ms</td><td>&lt;400ms</td><td>Rule-Based</td><td>Recommendations persisted to ai_recommendations table; query on load</td></tr>
+        <tr><td>NL query (simple data lookup)</td><td>&lt;300ms</td><td>&lt;800ms</td><td>Rule-Based</td><td>Data Layer query + template fill; no generation required</td></tr>
+        <tr><td>NL query (LLM-enhanced)</td><td>&lt;3s</td><td>&lt;8s</td><td>Hybrid</td><td>Remote API call; first tokens streamed to UI within &lt;1s</td></tr>
+        <tr><td>Prediction computation</td><td>&lt;100ms</td><td>&lt;300ms</td><td>Rule-Based</td><td>Algorithmic; no external calls</td></tr>
+        <tr><td>What-If simulation recalculation</td><td>&lt;200ms</td><td>&lt;500ms</td><td>Rule-Based</td><td>In-memory snapshot modification + algorithmic projection</td></tr>
+        <tr><td>Monthly coaching session generation</td><td>&lt;500ms</td><td>&lt;1.5s</td><td>Rule-Based</td><td>Template selection + data fill; longer for LLM narrative layer</td></tr>
+        <tr><td>Monthly coaching session (LLM narrative)</td><td>&lt;5s</td><td>&lt;12s</td><td>Hybrid</td><td>LLM called for narrative only; rule-based analysis already complete before LLM call starts</td></tr>
+        <tr><td>Behavioral score computation</td><td>&lt;50ms</td><td>&lt;150ms</td><td>Rule-Based</td><td>Aggregation query on period history; cached per period</td></tr>
+        <tr><td>Financial Health Score AI component</td><td>&lt;100ms</td><td>&lt;250ms</td><td>Rule-Based</td><td>Behavioral score already computed; FHS formula is a weighted sum</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>13.2 Pre-Computation and Caching Strategy</h3>
+  <p>AI features that are expensive to compute are pre-computed during low-activity windows and cached. The cache is invalidated by specific financial events, not by TTL:</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Cached Artifact</th><th>Storage Location</th><th>Invalidation Trigger</th><th>Max Staleness</th></tr></thead>
+      <tbody>
+        <tr><td>Dashboard AI insights (top 3 insights)</td><td><code>app_state.ai_insight_cache_json</code></td><td>EXPENSE_CREATED, PERIOD_OPENED, PERIOD_SEALED, GOAL_UPDATED</td><td>Until next event; never TTL-based</td></tr>
+        <tr><td>Recommendation list (ranked)</td><td><code>ai_recommendations</code> table</td><td>Any event that would change ranking (same triggers as insights)</td><td>Recommendations expire by expires_at field; not purged early</td></tr>
+        <tr><td>Behavioral scores per period</td><td><code>ai_memory</code> type=BEHAVIORAL_SIGNAL</td><td>Period sealed (score is final at period seal); never re-computed after seal</td><td>Permanent once period is sealed</td></tr>
+        <tr><td>Prediction baseline</td><td>Computed on request; not persistently cached</td><td>N/A — always fresh on request</td><td>Must be fresh; max 5-minute cache acceptable for repeated identical requests within same session</td></tr>
+        <tr><td>Coaching session content</td><td>Not cached — generated fresh each session</td><td>N/A</td><td>Not applicable</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>13.3 Background Pre-Computation</h3>
+  <p>The nightly maintenance job includes an AI pre-computation step that runs after period-end events and before the user opens the app the next day:</p>
+  <ul>
+    <li>Compute and cache top 3 dashboard insights based on the recently sealed or current period.</li>
+    <li>Re-rank the recommendation queue; expire stale recommendations; pre-generate up to 3 new recommendations if the queue has fewer than 3 active.</li>
+    <li>Compute and store behavioral scores for the sealed period.</li>
+    <li>Run prediction accuracy check (compare last period's 1-period-ahead predictions to actual outcomes).</li>
+    <li>This background computation runs entirely in Rule-Based mode (no LLM calls in background).</li>
+  </ul>
+
+  <h3>13.4 LLM Token Budget</h3>
+  <p>To control costs and latency in Hybrid/Full AI mode, each AI operation type has a token budget. Prompt templates are designed to stay within budget. The Prompt Layer enforces hard truncation if assembled context exceeds budget.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Operation Type</th><th>Max Input Tokens</th><th>Max Output Tokens</th><th>Strategy if Context Exceeds Budget</th></tr></thead>
+      <tbody>
+        <tr><td>NL query response</td><td>2,000</td><td>500</td><td>Summarize older periods to free space; keep last 3 periods in full detail</td></tr>
+        <tr><td>Recommendation explanation</td><td>1,000</td><td>300</td><td>Use aggregated context only; drop historical trend detail</td></tr>
+        <tr><td>Monthly coaching session</td><td>4,000</td><td>1,500</td><td>Full context; this is the highest-value interaction — budget is generous</td></tr>
+        <tr><td>Prediction narrative</td><td>1,500</td><td>400</td><td>Numeric data compresses well; summarize goal list if &gt;5 goals</td></tr>
+        <tr><td>Intent classification</td><td>200</td><td>50</td><td>Query + last 3 turns only</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="s14">
+  <h2>14. Future AI Compatibility</h2>
+
+  <h3>14.1 Provider Migration Path</h3>
+  <p>The Provider Layer abstraction is the key architectural decision enabling provider portability. Migrating from one AI provider to another requires only a new Provider implementation — zero changes to the AI Layer, Prompt Layer, or any layer above.</p>
+  <p>The migration checklist for adding a new provider:</p>
+  <ol>
+    <li>Implement the AIProvider interface for the new provider (8 methods, §2.4).</li>
+    <li>Map the provider's response format to Finance Bag's output types (AIInsight, Recommendation, AIExplanation, Prediction, SimulationResult, NLResponse, CoachingSession, IntentClassification).</li>
+    <li>Implement the provider's authentication, rate limiting, and error handling within the new Provider implementation.</li>
+    <li>Register the new provider in the Provider Registry with a unique provider_id.</li>
+    <li>Update the Prompt Layer with any provider-specific prompt formatting requirements (e.g., different system prompt structure, different tool-calling format).</li>
+    <li>Run the AI provider test suite against the new implementation — a standard set of 50 canonical queries with expected output types and quality criteria.</li>
+    <li>Deploy as an A/B option; full rollout after quality validation.</li>
+  </ol>
+
+  <h3>14.2 Supported Future Providers</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Provider</th><th>Integration Path</th><th>Key Considerations</th><th>Target Version</th></tr></thead>
+      <tbody>
+        <tr><td>OpenAI (GPT-4o / GPT-5)</td><td>REST API via RestSyncAdapter pattern; JSON mode for structured output</td><td>Token costs scale with usage; zero-retention API tier required; function calling for tool-use patterns</td><td>v2.0</td></tr>
+        <tr><td>Anthropic Claude</td><td>REST API; structured output via tool_use response format</td><td>Large context window benefits coaching sessions; constitutional AI alignment with non-judgmental tone principle</td><td>v2.0</td></tr>
+        <tr><td>Google Gemini</td><td>REST API; JSON mode for structured output</td><td>Strong on multilingual output (Finance Bag supports multiple languages); native function calling</td><td>v2.0</td></tr>
+        <tr><td>Local LLM (Llama / Phi / Mistral)</td><td>On-device inference via llama.cpp or similar framework; same AIProvider interface</td><td>Model size &lt;2GB; quantized INT4/INT8; no network required; zero data transmission</td><td>v3.0</td></tr>
+        <tr><td>On-device Apple Intelligence</td><td>Core ML / Foundation Models framework; same AIProvider interface</td><td>iOS 18+ only; hardware-gated (A17 Pro+); zero data transmission; extremely low latency</td><td>v3.0</td></tr>
+        <tr><td>Custom fine-tuned model</td><td>Finance Bag can fine-tune an open model on financial coaching patterns and self-host; same AIProvider interface</td><td>Highest control over tone and domain; requires ML infrastructure; SOC 2 compliance for model hosting</td><td>v3.0+</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>14.3 Voice Assistant Integration (v3.0)</h3>
+  <p>Voice input allows users to interact with the AI Coach using speech. The voice interface uses the same NL pipeline as text queries — only the input modality changes:</p>
+  <ul>
+    <li><strong>Speech-to-text</strong>: On-device (Apple Speech Recognition / Android SpeechRecognizer) converts voice to text. The text is then processed by the standard NL query pipeline.</li>
+    <li><strong>Text-to-speech</strong>: AI Coach responses are read back using on-device TTS with a calm, professional voice profile. Financial numbers are formatted for speech ("twelve hundred dollars" not "1,200").</li>
+    <li><strong>Wake word</strong>: Optional "Hey Finance Bag" wake word, implemented using on-device keyword detection (no audio data leaves the device).</li>
+    <li><strong>Voice privacy</strong>: Audio is transcribed on-device and immediately discarded. Transcribed text follows the same privacy rules as typed queries.</li>
+    <li><strong>Voice-specific adaptations</strong>: Responses are shorter (max 3 sentences before offering to continue); no markdown; no tables; numbers are spoken, not displayed.</li>
+  </ul>
+
+  <h3>14.4 Multimodal AI (v3.0)</h3>
+  <p>Multimodal capabilities allow the AI to process images (primarily receipts and financial documents):</p>
+  <ul>
+    <li><strong>Receipt scanning</strong>: User photographs a receipt; the on-device model extracts amount, merchant, date, and category suggestion. This pre-fills the expense entry form — the user reviews and confirms before saving. Zero remote transmission unless user explicitly chooses to use a remote model for this.</li>
+    <li><strong>Per-use consent</strong>: Before any image is processed, the user is shown exactly what data will be extracted and where it will be sent (on-device vs. remote). Consent is per-image, not per-session.</li>
+    <li><strong>No persistent image storage</strong>: The image is discarded immediately after extraction. It is not stored in the AI context or AI memory.</li>
+  </ul>
+
+  <h3>14.5 Agentic Workflows (v3.0)</h3>
+  <p>Agentic AI can propose and execute multi-step financial workflows on behalf of the user. This is the highest-risk AI capability and requires the most rigorous human-in-the-loop design:</p>
+  <ul>
+    <li><strong>Human approval required for every action</strong>: The agent may propose actions (create a savings goal, adjust a budget category, apply extra debt payment) but may not execute any of them without explicit user confirmation. The agent presents a "plan" view — a list of proposed actions — and waits for user approval on each individually or as a batch.</li>
+    <li><strong>No irreversible actions without double confirmation</strong>: Actions that cannot be easily undone (closing a debt account, deleting a goal, factory reset) require a second confirmation step even in an agentic flow.</li>
+    <li><strong>Scope limiting</strong>: An agent session is scoped to a user-defined task ("help me plan for buying a car"). The agent cannot take actions outside the declared scope without asking for scope expansion.</li>
+    <li><strong>Audit log</strong>: Every agent-proposed action (whether approved or rejected) is written to the audit_log with event type AI_AGENT_ACTION_PROPOSED and AI_AGENT_ACTION_EXECUTED respectively.</li>
+    <li><strong>Abort at any time</strong>: A persistent "Stop AI" button is visible during any agentic session. Stopping immediately cancels any pending (not yet executed) actions. Already-executed actions must be manually reversed — the agent cannot roll them back automatically.</li>
+  </ul>
+
+  <h3>14.6 Scalability Considerations</h3>
+  <ul>
+    <li><strong>Rule-based engine scales linearly</strong> with data volume. Up to 10 years of financial history (the expected maximum for a long-term user) completes all analysis operations within the stated latency targets on a mid-range device.</li>
+    <li><strong>LLM token costs</strong> grow with context size. The Prompt Layer's context compression strategy (summarizing older periods) caps effective context growth even as the user's financial history grows. A 5-year user sends roughly the same token volume as a 1-year user for most query types.</li>
+    <li><strong>ai_memory table</strong> grows at approximately 500 rows/month for an active user. At 10 years, this is ~60,000 rows. Indexed on memory_type + created_at; queries remain under 10ms at this scale.</li>
+    <li><strong>ai_recommendations table</strong> is bounded by the deduplication and expiry rules — maximum ~50 ACTIVE recommendations at any time, regardless of history length.</li>
+    <li><strong>Behavioral score computation</strong> is O(n) in the number of complete periods. At 120 periods (10 years), computation takes &lt;50ms on indexed queries.</li>
+  </ul>
+</section>
+
+<section id="s15">
+  <h2>15. Edge Cases</h2>
+
+  <h3>15.1 Incomplete Financial Data (EC-AI-01)</h3>
+  <p><strong>Scenario</strong>: User is new — fewer than 3 complete salary periods. Predictions require historical data the system doesn't yet have.</p>
+  <ul>
+    <li>All predictions requiring &lt;3 periods show UNCERTAIN confidence with the message: "You've completed [N] of the 3 months of tracking needed for reliable projections. Keep going — your first projection will be ready in [3−N] months."</li>
+    <li>Rule-based recommendations based on current-period data (budget overspend, unused budget) remain available regardless of history length — they require only the current period's data.</li>
+    <li>Coaching sessions are simplified for new users: focus on setup quality (budget set? goals defined? emergency fund started?) rather than trend analysis.</li>
+  </ul>
+
+  <h3>15.2 Conflicting Financial Information (EC-AI-02)</h3>
+  <p><strong>Scenario</strong>: User's budget allocations total more than their salary. Total budget exceeds 100% of income.</p>
+  <ul>
+    <li>The AI detects the over-allocation and makes it the top-priority recommendation: "Your total budget allocations exceed your income by [amount]. This will result in a negative end-of-period balance. Here's how to rebalance."</li>
+    <li>Cash flow predictions note the over-allocation as the primary driver of negative projection and surface it prominently in the ExplainabilityContext.limitations.</li>
+    <li>Other recommendations are suppressed until the over-allocation is resolved — lower-priority insights are irrelevant when the budget is structurally impossible.</li>
+  </ul>
+
+  <h3>15.3 Missing Salary Record (EC-AI-03)</h3>
+  <p><strong>Scenario</strong>: A salary period has no salary record (user forgot to enter salary or had an irregular income month).</p>
+  <ul>
+    <li>The missing period is excluded from salary-dependent calculations. A note is added to any prediction using salary averages: "One period (Month X) is excluded due to no salary record — this may affect accuracy."</li>
+    <li>Cash flow prediction for a period with no salary record uses the average of adjacent periods as a placeholder — clearly labeled as an estimate.</li>
+    <li>The AI Coach proactively surfaces a prompt: "You haven't recorded a salary for [period]. Would you like to add it now?" (soft nudge, not a blocking prompt).</li>
+  </ul>
+
+  <h3>15.4 Large Unexpected Financial Event (EC-AI-04)</h3>
+  <p><strong>Scenario</strong>: User records an unusually large expense (e.g., 5× their typical monthly spending in one entry — medical emergency, car repair).</p>
+  <ul>
+    <li>Anomaly detection: If a single expense exceeds 50% of the user's average monthly residual, the AI flags it as an anomaly in the behavioral intelligence layer (not a mistake — an anomaly).</li>
+    <li>The anomaly is excluded from trend calculations by default (with disclosure: "The [amount] [category] expense in [month] is excluded from trend calculations as an outlier — including it would distort averages"). Users can override this in Settings → AI Coach → Anomaly Handling.</li>
+    <li>The AI proactively generates a specific recommendation: "Your emergency fund would have covered this expense [if yes: with X months remaining / if no: and then required X months to replenish]. Consider increasing EMF contributions."</li>
+  </ul>
+
+  <h3>15.5 AI Provider Unavailable (EC-AI-05)</h3>
+  <p><strong>Scenario</strong>: In Hybrid mode, the remote AI provider returns an error or times out.</p>
+  <ul>
+    <li>The Provider Layer catches the error and immediately routes to the Rule-Based provider as fallback. The user sees the rule-based response.</li>
+    <li>A subtle notice is shown: "Using offline analysis — some details may be less specific than usual." This notice is dismissable and not shown for more than 3 consecutive degraded interactions (to avoid alarm fatigue).</li>
+    <li>The Provider Layer retries the remote provider after 30 minutes. If available, the next interaction uses the remote provider again without user action.</li>
+    <li>Provider outages are tracked in a provider_health table. If the provider has been unavailable for &gt;24 hours, the user is notified in Settings → AI Coach → Status.</li>
+  </ul>
+
+  <h3>15.6 Low-Confidence Prediction (EC-AI-06)</h3>
+  <p><strong>Scenario</strong>: A user asks for a debt payoff date, but their payment amounts vary wildly each period (coefficient of variation &gt;50%).</p>
+  <ul>
+    <li>Confidence is set to LOW. Prediction is expressed as a range: "At your current average payment rate, you're likely to be debt-free between [earliest date] and [latest date] — a wide range because your payment amounts have varied significantly."</li>
+    <li>The AI offers a simulation: "Want to see how consistent [amount]/month would change this? [Run simulation]."</li>
+    <li>The prediction is not suppressed — a low-confidence range is more useful than silence.</li>
+  </ul>
+
+  <h3>15.7 User Asks Out-of-Scope Question (EC-AI-07)</h3>
+  <p><strong>Scenario</strong>: User asks "What crypto should I buy?" or "What's my credit score?"</p>
+  <ul>
+    <li>Intent classified as OUT_OF_SCOPE. The AI does not speculate, deflect, or invent an answer.</li>
+    <li>Response: "I'm focused on the finances you're tracking in Finance Bag and can't answer that. I can help you with [3 contextually relevant alternatives, e.g., "plan your monthly savings", "project your debt payoff", "review your budget"]."</li>
+    <li>Investment advice and credit scoring are explicitly prohibited topics — the AI names this explicitly if asked directly: "I'm not able to give investment advice or access external credit data. For those questions, consider speaking with a licensed financial advisor."</li>
+  </ul>
+
+  <h3>15.8 Outdated Historical Data (EC-AI-08)</h3>
+  <p><strong>Scenario</strong>: User has not opened the app for 3 months. Historical data is now 3 months stale for prediction purposes.</p>
+  <ul>
+    <li>On first open after 3+ months, the AI Coach runs a "re-entry check": compares the last known financial state to what has changed (new period opened, no expenses recorded, budget not updated).</li>
+    <li>Predictions and recommendations generated immediately after re-entry are labeled with: "Based on data last updated [date] — update your records for more accurate insights."</li>
+    <li>The AI does not suppress recommendations, but ranks a "catch up your records" prompt above all others until the user records at least one expense in the new period.</li>
+  </ul>
+
+  <h3>15.9 User Rejects All Recommendations (EC-AI-09)</h3>
+  <p><strong>Scenario</strong>: User consistently dismisses every recommendation over multiple periods.</p>
+  <ul>
+    <li>After 5 PERMANENTLY_DISMISSED recommendations in the same category, that category's recommendations are temporarily suppressed (30 days) with a notice: "You've dismissed several [category] suggestions — I'll give you a break from those for a while."</li>
+    <li>The Memory Layer records the dismissal pattern. In Hybrid mode, the LLM is informed of the pattern and adjusts framing (different angle, different benefit emphasis) before the category resumes.</li>
+    <li>A "Why do you keep suggesting this?" option on every recommendation allows the user to understand the trigger condition — this often resolves the dismissal pattern without requiring changes to the engine.</li>
+  </ul>
+
+  <h3>15.10 Negative Financial Health Score Trend (EC-AI-10)</h3>
+  <p><strong>Scenario</strong>: User's Financial Health Score has declined for 3 consecutive periods — a significant downward trend.</p>
+  <ul>
+    <li>The AI Coach elevates this to a CRITICAL priority coaching trigger, regardless of schedule. The next app open after the third decline triggers a coaching session prompt (soft — not a blocking modal).</li>
+    <li>The coaching session focuses exclusively on identifying the primary driver of the decline (which FHS component declined most?) and the single most impactful action to reverse it.</li>
+    <li>Tone is especially important here: the session leads with acknowledgment ("Your finances have been under pressure lately — let's figure out what's going on and find one thing to improve"), not with a list of failures.</li>
+    <li>If the user declines the coaching session, the dashboard shows a persistent (but dismissable) "Your financial health needs attention" card with a single recommendation — not a full session.</li>
+  </ul>
+
+  <h3>15.11 Goal Conflict (EC-AI-11)</h3>
+  <p><strong>Scenario</strong>: User's goals collectively require more monthly contribution than their available residual. Goals are mathematically impossible to all achieve simultaneously.</p>
+  <ul>
+    <li>The AI detects the over-commitment and generates a CRITICAL GOALS recommendation: "Your goals require [total required]/month but you have [residual]/month available after expenses. Here's a prioritization plan."</li>
+    <li>The prioritization plan is presented as options, not directives: "Option A: Pause Goal 3 and 4 — Goal 1 and 2 complete by [date]. Option B: Extend all goal timelines by [N] months. Option C: Reduce your savings rate — not recommended given your EMF gap."</li>
+    <li>If the user has set explicit goal priorities (dependency graph), the AI uses those to order the options. If priorities are not set, the AI uses deadline proximity (soonest deadline = highest priority).</li>
+  </ul>
+
+  <h3>15.12 AI Memory Corruption (EC-AI-12)</h3>
+  <p><strong>Scenario</strong>: An ai_memory row has a corrupted value_json field (fails JSON parsing).</p>
+  <ul>
+    <li>The corrupted row is skipped during memory retrieval. A DEAD_MEMORY_ROW event is logged to the audit_log.</li>
+    <li>The AI operates without that memory signal. This may cause a slightly less personalized response (e.g., defaults to Intermediate sophistication if the sophistication preference row is corrupted).</li>
+    <li>The corrupted row is queued for deletion in the next nightly maintenance cycle. It is not exposed to the user as an error — the degradation is silent and graceful.</li>
+    <li>If &gt;10% of ai_memory rows in a category are corrupted (detected by nightly quick_check), the entire category is cleared and the user is notified: "AI memory was partially reset due to a storage issue. Your coaching preferences may need to be re-set."</li>
+  </ul>
+</section>
+
+<section id="s16">
+  <h2>16. Business Rules</h2>
+
+  <h3>16.1 Core AI Guarantees</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Rule ID</th><th>Rule</th><th>Rationale</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="mono">BR-AIC-01</td>
+          <td><strong>AI Never Writes Financial Data</strong>: The AI layer has no write access to the financial database. It may read any authorized data, but all state changes are proposed to the user and executed exclusively through the Business Layer with explicit user confirmation.</td>
+          <td>User trust and data integrity require a hard boundary between AI intelligence and financial data mutation. The AI is an advisor, never an executor.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-02</td>
+          <td><strong>ExplainabilityContext Is Mandatory</strong>: Every AI output object delivered to the user must carry a fully populated ExplainabilityContext. An AI output missing any required ExplainabilityContext field is invalid and must not be presented to the user.</td>
+          <td>Trust is built through transparency. Users must always understand why they are seeing an AI insight, recommendation, or prediction. Unexplained AI output is indistinguishable from black-box manipulation.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-03</td>
+          <td><strong>Rule-Based Fallback Is Always Available</strong>: The AI system must operate in Rule-Based mode even when all network connectivity is absent, all AI providers are unavailable, and the user has disabled remote AI. Rule-Based mode may never be disabled by configuration.</td>
+          <td>Offline-first architecture extends to AI. Users should not lose coaching and recommendations because they have no internet connection. Reliability is a core principle.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-04</td>
+          <td><strong>Maximum 3 Recommendations Simultaneously</strong>: The Recommendation Layer may not present more than 3 active, non-dismissed recommendations at any time. Higher-priority recommendations replace lower-priority ones when the queue is full.</td>
+          <td>Recommendation overload reduces action rates. Three actionable recommendations yield more user behavior change than ten ignored ones. This constraint is behavioral psychology, not a technical limitation.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-05</td>
+          <td><strong>No Investment Advice</strong>: The AI may never suggest buying or selling specific securities, cryptocurrencies, or other investment instruments. It may discuss savings rates, emergency fund adequacy, and general financial health — not specific investment products.</td>
+          <td>Investment advice requires licensing. Exceeding this boundary exposes Finance Bag to regulatory risk and harms users who rely on unlicensed advice.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-06</td>
+          <td><strong>No Personal Identifiers in Remote Context</strong>: FinancialContextBuilder must strip all personal identifiers (name, email, phone, device_id, goal names, debt names) before any remote AI provider call. Anonymization transforms are applied unconditionally — they cannot be disabled by configuration.</td>
+          <td>User privacy is non-negotiable. Remote AI providers should never be able to identify the user or build a personal profile from Finance Bag's context payloads.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-07</td>
+          <td><strong>Remote AI Is Opt-In</strong>: Remote AI features are disabled by default. The first time a user would benefit from a remote AI feature, an opt-in prompt is shown. If declined, the app continues in Rule-Based mode silently — no repeated prompting (max 1 opt-in prompt per 30 days).</td>
+          <td>Data privacy requires informed consent. Remote AI sends data to external services — users must actively choose this. Defaulting to remote AI would violate the Privacy-Conscious principle.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-08</td>
+          <td><strong>AI Label Always Visible</strong>: Every AI-generated card, insight, message, or recommendation must carry a visible "AI analysis" or "AI Coach" label. This label cannot be hidden by user settings, themes, or dashboard customization.</td>
+          <td>Users must always know they are receiving AI-generated content, not manually verified data. This is an honesty requirement, not a UX choice.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-09</td>
+          <td><strong>Coaching Tone Rules Are Non-Negotiable</strong>: The non-judgmental, educational tone rules (§4.4) apply to all AI output in all operating modes. In LLM mode, generated output must be validated against these rules post-generation. Output that violates tone rules must be replaced with the rule-based fallback before presentation.</td>
+          <td>Financial coaching that shames or judges drives users away from their finances at exactly the moment they need engagement. Behavioral economics shows that non-judgmental framing produces better financial outcomes.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-10</td>
+          <td><strong>Predictions Include Confidence and Assumptions</strong>: No prediction is delivered without both a confidence level (VERY_HIGH through UNCERTAIN) and the list of A1–A10 assumptions it relies on. Predictions without these fields must not be presented to the user.</td>
+          <td>An overconfident prediction that doesn't materialize destroys trust more than no prediction at all. Transparent uncertainty helps users make better-informed decisions than false precision.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-11</td>
+          <td><strong>Simulations Are Non-Destructive</strong>: What-If simulations operate on in-memory snapshots only. No simulation operation may write to the financial database, modify app_state, or affect any recommendation that has not been confirmed by the user.</td>
+          <td>Simulations are a safe space for exploration. Users must be able to model extreme scenarios (income loss, new debt) without triggering real-world changes to their financial plan.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-12</td>
+          <td><strong>Memory Deletion Is Immediate</strong>: When a user deletes AI memory (by category or in full), the deletion takes effect within the current database transaction. The next AI interaction must operate without the deleted memory. Delayed or deferred memory deletion is prohibited.</td>
+          <td>Users must be able to trust that privacy controls work immediately. A deleted memory that influences the next AI response — even once — is a privacy violation that damages trust.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-13</td>
+          <td><strong>Agentic Actions Require Explicit Confirmation</strong>: In Full AI / agentic mode, every proposed action requires individual user confirmation. Batch approval ("approve all") is allowed only for actions with identical risk profile. Irreversible actions always require individual confirmation regardless of batch context.</td>
+          <td>Agentic AI that takes unconfirmed actions on users' financial data is a critical safety risk. Human approval is the primary safety mechanism for all agentic workflows.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-14</td>
+          <td><strong>Financial Health Score AI Component Is Bounded</strong>: The AI behavioral score contributes at most 20% to the overall Financial Health Score. Objective financial metrics (debt ratio, savings rate, EMF coverage, goal progress) constitute at least 80% of the FHS. The AI behavioral dimension cannot dominate the overall score.</td>
+          <td>The FHS must be grounded in objective financial facts. A user with excellent financial habits but a low behavioral score (because they haven't engaged with the AI Coach) should not receive a misleadingly low FHS. AI engagement is a bonus dimension, not a gating factor.</td>
+        </tr>
+        <tr>
+          <td class="mono">BR-AIC-15</td>
+          <td><strong>User Always Has a Path to Disable AI</strong>: Settings → AI Coach → Disable AI must always be accessible from any AI interaction (recommendation card, coaching session, NL query interface). The path to disable AI must never be more than 3 taps from any AI-generated content.</td>
+          <td>User autonomy is a foundational design principle. A user who chooses to manage their finances without AI assistance must be able to do so completely and without friction. Making AI opt-out difficult is a trust violation.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-ai-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-ai-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
