@@ -1,0 +1,2055 @@
+<title>SPEC-RDM-001 — Technical Roadmap, Development Phases & Delivery Plan</title>
+<style>
+:root {
+  --acc:     #059669;
+  --acc-dim: rgba(5,150,105,.5);
+  --acc-bg:  rgba(5,150,105,.08);
+  --bg:      #111827;
+  --surf:    #1F2937;
+  --surf2:   #374151;
+  --bd:      #374151;
+  --txt:     #F9FAFB;
+  --txt2:    #9CA3AF;
+  --txt3:    #6B7280;
+  --ok:      #059669;
+  --warn:    #D97706;
+  --danger:  #DC2626;
+  --violet:  #7C3AED;
+  --cyan:    #0891B2;
+  --slate:   #94A3B8;
+}
+@media (prefers-color-scheme: light) { :root {
+  --bg: #F9FAFB; --surf: #FFFFFF; --surf2: #F3F4F6; --bd: #E5E7EB;
+  --txt: #111827; --txt2: #4B5563; --txt3: #9CA3AF;
+}}
+:root[data-theme="dark"] {
+  --bg: #111827; --surf: #1F2937; --surf2: #374151; --bd: #374151;
+  --txt: #F9FAFB; --txt2: #9CA3AF; --txt3: #6B7280;
+}
+:root[data-theme="light"] {
+  --bg: #F9FAFB; --surf: #FFFFFF; --surf2: #F3F4F6; --bd: #E5E7EB;
+  --txt: #111827; --txt2: #4B5563; --txt3: #9CA3AF;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--txt);
+  line-height: 1.65; display: flex; min-height: 100vh;
+}
+
+#sidebar {
+  position: fixed; top: 0; left: 0; width: 230px; height: 100vh;
+  background: var(--surf); border-right: 1px solid var(--bd);
+  overflow-y: auto; padding: 1.5rem 0; z-index: 100;
+  scrollbar-width: thin;
+}
+#sidebar-header { padding: 0 1.25rem 1.25rem; border-bottom: 1px solid var(--bd); margin-bottom: .75rem; }
+.spec-id { font-size: .65rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); margin-bottom: .2rem; }
+.spec-title { font-size: .72rem; color: var(--txt2); line-height: 1.4; }
+#nav-list { list-style: none; }
+#nav-list a {
+  display: block; padding: .35rem 1.25rem;
+  font-size: .75rem; color: var(--txt2); text-decoration: none;
+  transition: color .15s, background .15s;
+}
+#nav-list a:hover { color: var(--txt); background: var(--acc-bg); }
+#nav-list a.active { color: var(--acc); font-weight: 600; border-left: 2px solid var(--acc); padding-left: calc(1.25rem - 2px); }
+
+main { margin-left: 230px; padding: 2.5rem clamp(1.5rem,4vw,3rem) 5rem; max-width: 980px; width: 100%; }
+
+header {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--bg); border-bottom: 1px solid var(--bd);
+  padding: .6rem clamp(1rem,4vw,2rem);
+  display: flex; align-items: center; gap: 1rem;
+}
+.theme-btn {
+  margin-left: auto; font-size: .7rem; padding: .3rem .75rem;
+  border: 1px solid var(--bd); border-radius: 5px;
+  background: transparent; color: var(--txt2); cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+.theme-btn:hover { border-color: var(--acc); color: var(--acc); }
+
+section { padding: 2.5rem 0; border-bottom: 1px solid var(--bd); }
+section:last-child { border-bottom: none; }
+h2 { font-size: 1.35rem; font-weight: 800; color: var(--txt); margin-bottom: 1.25rem; letter-spacing: -.01em; }
+h3 { font-size: .95rem; font-weight: 700; color: var(--txt); margin: 1.5rem 0 .65rem; }
+h4 { font-size: .83rem; font-weight: 700; color: var(--txt2); margin: 1rem 0 .4rem; text-transform: uppercase; letter-spacing: .06em; }
+p { color: var(--txt2); font-size: .88rem; margin-bottom: .65rem; }
+p.lead { font-size: .95rem; color: var(--txt2); margin-bottom: 1.25rem; line-height: 1.7; }
+ul, ol { padding-left: 1.4rem; color: var(--txt2); font-size: .85rem; }
+ul li, ol li { margin-bottom: .3rem; }
+strong { color: var(--txt); }
+code { font-family: ui-monospace, monospace; font-size: .8rem; background: var(--surf2); padding: .1rem .35rem; border-radius: 4px; color: var(--txt); }
+
+table { width: 100%; border-collapse: collapse; font-size: .82rem; margin: .75rem 0; }
+th { text-align: left; padding: .55rem .75rem; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--txt3); border-bottom: 2px solid var(--bd); }
+td { padding: .55rem .75rem; border-bottom: 1px solid var(--bd); color: var(--txt2); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+td:first-child { color: var(--txt); font-weight: 600; }
+.tbl-wrap { overflow-x: auto; }
+
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); gap: .75rem; margin: .75rem 0; }
+.card { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: .9rem 1rem; }
+.card-label { font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--acc); margin-bottom: .45rem; }
+
+.callout { border-left: 3px solid var(--acc); background: var(--acc-bg); border-radius: 0 8px 8px 0; padding: .85rem 1rem; margin: 1rem 0; font-size: .84rem; color: var(--txt2); }
+.callout strong { color: var(--acc); }
+.callout-warn { border-left-color: var(--warn); background: rgba(217,119,6,.07); }
+.callout-warn strong { color: var(--warn); }
+.callout-violet { border-left-color: var(--violet); background: rgba(124,58,237,.07); }
+.callout-violet strong { color: var(--violet); }
+
+/* ── Phase cards ─────────────────────────────────────────────────── */
+.phase-card {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 10px; padding: 1rem 1.2rem;
+  margin: .75rem 0; display: flex; gap: 1.2rem; align-items: flex-start;
+}
+.phase-num {
+  width: 46px; height: 46px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; font-weight: 800; flex-shrink: 0;
+  border: 2px solid; margin-top: .1rem;
+}
+.ph-foundation .phase-num { background: rgba(100,116,139,.12); border-color: var(--slate); color: var(--slate); }
+.ph-core       .phase-num { background: var(--acc-bg); border-color: var(--acc); color: var(--acc); }
+.ph-intelligence .phase-num { background: rgba(124,58,237,.12); border-color: var(--violet); color: var(--violet); }
+.ph-hardening  .phase-num { background: rgba(217,119,6,.12); border-color: var(--warn); color: var(--warn); }
+.phase-content { flex: 1; min-width: 0; }
+.phase-header { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.phase-name { font-size: .93rem; font-weight: 700; color: var(--txt); }
+.phase-dur { font-size: .68rem; color: var(--txt3); background: var(--surf2); padding: .15rem .45rem; border-radius: 4px; }
+.phase-tag { font-size: .63rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; padding: .15rem .45rem; border-radius: 4px; }
+.tag-foundation    { background: rgba(100,116,139,.12); color: var(--slate); }
+.tag-core          { background: rgba(5,150,105,.12); color: var(--ok); }
+.tag-intelligence  { background: rgba(124,58,237,.12); color: var(--violet); }
+.tag-hardening     { background: rgba(217,119,6,.12); color: var(--warn); }
+.phase-exit { font-size: .75rem; color: var(--txt3); margin-top: .5rem; padding-top: .5rem; border-top: 1px solid var(--bd); }
+.phase-exit strong { color: var(--txt2); }
+
+/* ── Sprint cards ────────────────────────────────────────────────── */
+.sprint-card {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-left: 3px solid var(--acc);
+  border-radius: 0 8px 8px 0; padding: .9rem 1rem; margin: .6rem 0;
+}
+.sprint-meta { display: flex; gap: .6rem; align-items: center; margin-bottom: .45rem; flex-wrap: wrap; }
+.sprint-id { font-size: .66rem; font-weight: 800; color: var(--acc); text-transform: uppercase; letter-spacing: .09em; }
+.sprint-range { font-size: .7rem; color: var(--txt3); }
+.sprint-title { font-size: .88rem; font-weight: 700; color: var(--txt); margin-bottom: .4rem; }
+
+/* ── MoSCoW grid ─────────────────────────────────────────────────── */
+.moscow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .85rem; margin: .75rem 0; }
+.moscow-card { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: .9rem 1rem; }
+.moscow-hdr { font-size: .75rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; margin-bottom: .55rem; padding-bottom: .4rem; border-bottom: 2px solid; }
+.m-must   .moscow-hdr { color: var(--danger); border-color: var(--danger); }
+.m-should .moscow-hdr { color: var(--warn);   border-color: var(--warn); }
+.m-could  .moscow-hdr { color: var(--acc);    border-color: var(--acc); }
+.m-wont   .moscow-hdr { color: var(--txt3);   border-color: var(--bd); }
+.moscow-card ul { padding-left: 1rem; font-size: .78rem; }
+
+/* ── Dependency path ─────────────────────────────────────────────── */
+.dep-path {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .3rem;
+  margin: .65rem 0; padding: .75rem 1rem;
+  background: var(--surf); border: 1px solid var(--bd); border-radius: 8px;
+}
+.dep-node { font-size: .7rem; font-weight: 700; padding: .25rem .6rem; border-radius: 5px; background: var(--acc-bg); color: var(--acc); border: 1px solid var(--acc-dim); white-space: nowrap; }
+.dep-arr { color: var(--txt3); font-size: .75rem; }
+.dep-gate { background: rgba(217,119,6,.1); color: var(--warn); border-color: rgba(217,119,6,.4); }
+.dep-par  { background: rgba(124,58,237,.1); color: var(--violet); border-color: rgba(124,58,237,.3); }
+
+/* ── Release pipeline ────────────────────────────────────────────── */
+.rel-pipe { display: flex; flex-wrap: wrap; gap: 0; margin: .75rem 0; }
+.rel-stage { background: var(--surf); border: 1px solid var(--bd); padding: .7rem .85rem; flex: 1; min-width: 90px; position: relative; }
+.rel-stage + .rel-stage { border-left: none; }
+.rel-stage:first-child { border-radius: 8px 0 0 8px; }
+.rel-stage:last-child  { border-radius: 0 8px 8px 0; }
+.rel-badge { font-size: .62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--txt3); margin-bottom: .2rem; }
+.rel-name  { font-size: .8rem; font-weight: 700; color: var(--txt); }
+.rel-gate  { font-size: .7rem; color: var(--txt2); margin-top: .2rem; }
+.rel-prod { border-color: var(--acc); }
+.rel-prod .rel-name { color: var(--acc); }
+
+/* ── KPI cards ───────────────────────────────────────────────────── */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px,1fr)); gap: .7rem; margin: .75rem 0; }
+.kpi-card { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: .85rem 1rem; }
+.kpi-label { font-size: .68rem; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--txt3); margin-bottom: .2rem; }
+.kpi-val { font-size: 1.35rem; font-weight: 800; color: var(--acc); font-variant-numeric: tabular-nums; }
+.kpi-desc { font-size: .72rem; color: var(--txt2); margin-top: .2rem; }
+
+/* ── Business rule block ─────────────────────────────────────────── */
+.br-block { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: .85rem 1rem; margin: .55rem 0; display: flex; gap: .9rem; align-items: flex-start; }
+.br-id { font-size: .68rem; font-weight: 700; color: var(--acc); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; padding-top: .05rem; }
+.br-body { font-size: .82rem; color: var(--txt2); line-height: 1.6; }
+
+/* ── Checklist ───────────────────────────────────────────────────── */
+.check-section { margin: .75rem 0; }
+.check-hdr { font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--acc); margin-bottom: .4rem; padding-bottom: .3rem; border-bottom: 1px solid var(--bd); }
+.check-item { display: flex; gap: .6rem; align-items: flex-start; padding: .35rem 0; font-size: .82rem; color: var(--txt2); }
+.check-box { width: 14px; height: 14px; border: 1.5px solid var(--bd); border-radius: 3px; flex-shrink: 0; margin-top: .15rem; }
+
+/* ── Risk block ──────────────────────────────────────────────────── */
+.risk-block { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: .85rem 1rem; margin: .6rem 0; }
+.risk-meta { display: flex; gap: .6rem; align-items: center; margin-bottom: .4rem; flex-wrap: wrap; }
+.risk-id   { font-size: .66rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--txt3); }
+.risk-name { font-size: .87rem; font-weight: 700; color: var(--txt); }
+.risk-pill { font-size: .64rem; font-weight: 700; text-transform: uppercase; padding: .12rem .45rem; border-radius: 4px; }
+.rp-high   { background: rgba(220,38,38,.15); color: var(--danger); }
+.rp-med    { background: rgba(217,119,6,.15);  color: var(--warn); }
+.rp-low    { background: rgba(5,150,105,.12);  color: var(--ok); }
+.risk-detail { font-size: .8rem; color: var(--txt2); line-height: 1.6; }
+
+/* ── Status ──────────────────────────────────────────────────────── */
+.status-ok   { color: var(--ok);    font-weight: 600; }
+.status-warn { color: var(--warn);  font-weight: 600; }
+.status-info { color: var(--cyan);  font-weight: 600; }
+
+/* ── Responsive ──────────────────────────────────────────────────── */
+@media (max-width: 720px) {
+  #sidebar { display: none; }
+  main { margin-left: 0; padding: 1.5rem 1rem 3rem; }
+  .moscow-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+</style>
+
+<header>
+  <span style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--acc)">Finance Bag</span>
+  <span style="color:var(--bd)">|</span>
+  <span style="font-size:.78rem;color:var(--txt2)">SPEC-RDM-001</span>
+  <button class="theme-btn" id="theme-btn" aria-label="Toggle theme">Light / Dark</button>
+</header>
+
+<nav id="sidebar" aria-label="Section navigation">
+  <div id="sidebar-header">
+    <div class="spec-id">SPEC-RDM-001</div>
+    <div class="spec-title">Technical Roadmap, Development Phases &amp; Delivery Plan</div>
+  </div>
+  <ul id="nav-list">
+    <li><a href="#s1">§1 Product Vision</a></li>
+    <li><a href="#s2">§2 Development Methodology</a></li>
+    <li><a href="#s3">§3 Foundation Phases (0–4)</a></li>
+    <li><a href="#s4">§4 Feature Phases (5–10)</a></li>
+    <li><a href="#s5">§5 Completion Phases (11–15)</a></li>
+    <li><a href="#s6">§6 MVP Definition</a></li>
+    <li><a href="#s7">§7 Feature Prioritization</a></li>
+    <li><a href="#s8">§8 Dependency Roadmap</a></li>
+    <li><a href="#s9">§9 Sprint Planning</a></li>
+    <li><a href="#s10">§10 Quality Gates</a></li>
+    <li><a href="#s11">§11 Risk Management</a></li>
+    <li><a href="#s12">§12 Resource Planning</a></li>
+    <li><a href="#s13">§13 Documentation Strategy</a></li>
+    <li><a href="#s14">§14 Release Strategy</a></li>
+    <li><a href="#s15">§15 Post-Launch Plan</a></li>
+    <li><a href="#s16">§16 Success Metrics</a></li>
+    <li><a href="#s17">§17 Future Evolution</a></li>
+    <li><a href="#s18">§18 Delivery Checklist &amp; BR</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<!-- ─── §1 Product Vision ─────────────────────────────────────────── -->
+<section id="s1">
+  <h2>§1 Product Vision &amp; Mission</h2>
+  <p class="lead">Finance Bag is a privacy-first, offline-capable, AI-augmented personal finance application for iOS and Android. This section establishes the long-term vision that guides every delivery decision in this roadmap.</p>
+
+  <h3>1.1 Mission Statement</h3>
+  <div class="callout">
+    <strong>Mission:</strong> Empower every person to take full control of their financial life through a beautifully designed, fully offline, encrypted personal finance tracker — where the user's data stays on their device, their privacy is absolute, and their financial clarity grows through intelligent insight and motivating design.
+  </div>
+
+  <h3>1.2 Target Users</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">The Aware Beginner</div>
+      <p><strong>Profile:</strong> 22–32 years old. First full-time job. Knows they overspend but doesn't know where. Tried spreadsheets, abandoned them.</p>
+      <p><strong>Primary need:</strong> Friction-free transaction logging and visual spending summaries that create self-awareness without judgment.</p>
+      <p><strong>Success signal:</strong> Logs at least 3 transactions per week after 30 days.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">The Debt Fighter</div>
+      <p><strong>Profile:</strong> 28–42 years old. Carrying 2–5 debts (credit cards, personal loans, car). Motivated by payoff progress but overwhelmed by complexity.</p>
+      <p><strong>Primary need:</strong> Clear debt payoff strategy visualization, progress streaks, and celebration of milestones.</p>
+      <p><strong>Success signal:</strong> Sets up all debts and reviews payoff schedule weekly.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">The Optimizer</div>
+      <p><strong>Profile:</strong> 30–48 years old. Financially literate. Currently uses spreadsheets or a competing app. Wants deeper AI-powered insight and full data ownership.</p>
+      <p><strong>Primary need:</strong> Comprehensive analytics, AI recommendations, export, and the guarantee that no data leaves their device.</p>
+      <p><strong>Success signal:</strong> Reviews AI insights weekly and acts on at least one recommendation per month.</p>
+    </div>
+  </div>
+
+  <h3>1.3 Core Value Proposition</h3>
+  <table>
+    <thead><tr><th>Dimension</th><th>Finance Bag Position</th><th>Typical Competitor</th></tr></thead>
+    <tbody>
+      <tr><td>Data Privacy</td><td>Fully on-device; SQLCipher AES-256; no server storage of financial data</td><td>Cloud-first; data stored on vendor servers</td></tr>
+      <tr><td>Offline Mode</td><td>100% functional with zero network; sync is an enhancement not a requirement</td><td>Requires connectivity for core features</td></tr>
+      <tr><td>AI Integration</td><td>API-based AI (Anthropic) with 24h cache; user controls what is sent</td><td>Permanent cloud ML on stored transaction history</td></tr>
+      <tr><td>Gamification</td><td>Behaviorally grounded; full opt-out; no anti-patterns</td><td>Dark patterns: badges with no behavioral basis</td></tr>
+      <tr><td>Architecture</td><td>Clean Architecture; designed for 5+ year evolution</td><td>Monolithic; hard to extend</td></tr>
+      <tr><td>Business model</td><td>One-time purchase or freemium; no subscription lock-in for core features</td><td>Monthly subscription required</td></tr>
+    </tbody>
+  </table>
+
+  <h3>1.4 Product Principles</h3>
+  <ol>
+    <li><strong>Privacy is non-negotiable.</strong> No feature ships if it requires unencrypted transmission of financial data without explicit, granular user consent.</li>
+    <li><strong>Design for trust.</strong> Every UI decision reinforces that the user is in control: their data, their choices, their pace.</li>
+    <li><strong>Performance is a feature.</strong> A slow finance app loses users to anxiety. Sub-2.5s cold starts and 60fps scrolling are product requirements, not engineering stretch goals.</li>
+    <li><strong>Delight through simplicity.</strong> Complexity is absorbed by the architecture, never exposed to the user. One tap to log a transaction.</li>
+    <li><strong>Accessibility is required.</strong> WCAG 2.1 AA compliance is a launch criterion, not a post-launch aspiration.</li>
+    <li><strong>Reversibility over speed.</strong> Prefer the slower decision that can be undone over the fast decision that locks in a wrong direction.</li>
+  </ol>
+
+  <h3>1.5 Long-Term Evolution Goals</h3>
+  <table>
+    <thead><tr><th>Horizon</th><th>Version</th><th>Goals</th></tr></thead>
+    <tbody>
+      <tr><td>Year 1</td><td>v1.x</td><td>Core personal finance mastery: transactions, budgets, debt, goals, AI insights, gamification</td></tr>
+      <tr><td>Year 2</td><td>v2.x</td><td>Cloud sync, multi-device, family sharing, bank statement import</td></tr>
+      <tr><td>Year 3</td><td>v3.x</td><td>Investment tracking, tax planning assistant, business accounts</td></tr>
+      <tr><td>Year 4+</td><td>v4+</td><td>Open banking integrations, desktop app, wearable support, AI financial agent</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── §2 Development Methodology ───────────────────────────────── -->
+<section id="s2">
+  <h2>§2 Development Methodology &amp; Strategy</h2>
+  <p class="lead">Finance Bag adopts an Architecture-First Agile methodology: the structural foundations are established before feature development begins, and every sprint produces a shippable internal build on that foundation.</p>
+
+  <h3>2.1 Core Methodology Principles</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">Architecture-First</div>
+      <p>Phases 0–2 produce no user-facing features. They establish the technical foundation upon which all features are built. No feature work begins until the domain layer, repository interfaces, error hierarchy, CI/CD pipeline, and security layer are in place and tested.</p>
+      <p><strong>Why:</strong> Retrofitting Clean Architecture onto a feature-laden codebase costs 3–5× more than building it right first. FinTech applications require this discipline especially for encryption and data integrity.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Risk-Driven Development</div>
+      <p>The highest-risk technical elements (encryption, SQLite performance at scale, AI API integration, biometric auth) are built and validated earliest, when schedule slack is greatest and course-correction is cheapest.</p>
+      <p><strong>Why:</strong> Deferring risk concentrates project failure probability at the end, when recovery time is exhausted.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Incremental Delivery</div>
+      <p>Every 2-week sprint produces an installable internal build. Every phase produces a meaningful product increment that could be demonstrated to a user. No phase produces only "plumbing."</p>
+      <p><strong>Why:</strong> Demonstrates continuous forward progress, validates assumptions with real builds, and prevents the "big reveal" failure mode.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Continuous Validation</div>
+      <p>Architecture compliance, test coverage, performance benchmarks, and accessibility audits are verified at every phase gate — not only at the end. CI pipeline enforces many of these automatically on every PR.</p>
+      <p><strong>Why:</strong> Catches regressions while context is fresh, not months later when the source is obscure.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Controlled Scope</div>
+      <p>MVP scope is frozen at Phase 3 start. Changes to MVP scope require a formal impact assessment. A scope addition must be offset by a scope removal or a timeline extension — it cannot be absorbed by "working harder."</p>
+      <p><strong>Why:</strong> Scope creep is the single largest cause of overruns in mobile app development. Discipline here protects launch timing.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Sustainable Pace</div>
+      <p>20% of each sprint's capacity is reserved for: technical debt reduction, refactoring, documentation, and tooling improvement. Sprints are never overloaded to "catch up." Sustainable 8-sprint velocity is worth more than heroic 2-sprint velocity followed by burnout.</p>
+      <p><strong>Why:</strong> Technical debt accrued under deadline pressure is the primary driver of declining velocity in months 6–12.</p>
+    </div>
+  </div>
+
+  <h3>2.2 Sprint Cadence</h3>
+  <table>
+    <thead><tr><th>Event</th><th>Frequency</th><th>Duration</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Sprint Planning</td><td>Every 2 weeks</td><td>2 hours</td><td>Select backlog items, estimate, assign, define sprint goal</td></tr>
+      <tr><td>Daily Standup</td><td>Daily</td><td>15 min</td><td>Sync, blockers, adjustments — async-first for distributed teams</td></tr>
+      <tr><td>Sprint Review</td><td>Every 2 weeks</td><td>1 hour</td><td>Demo working software; validate against acceptance criteria</td></tr>
+      <tr><td>Retrospective</td><td>Every 2 weeks</td><td>45 min</td><td>Blameless process improvement; one committed action item per retro</td></tr>
+      <tr><td>Phase Gate Review</td><td>End of each phase</td><td>Half-day</td><td>Architecture review, quality gate verification, exit criteria sign-off, next phase kickoff</td></tr>
+      <tr><td>Tech Debt Review</td><td>Monthly</td><td>1 hour</td><td>Prioritise tech debt backlog; commit debt reduction items to upcoming sprints</td></tr>
+      <tr><td>Risk Register Review</td><td>Monthly</td><td>30 min</td><td>Update probability/impact scores; activate mitigations as needed</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.3 Definition of Done (Universal)</h3>
+  <p>Every user story and feature must satisfy ALL of the following before being marked complete:</p>
+  <ul>
+    <li>All acceptance criteria verified and signed off</li>
+    <li>Unit tests written and passing; no reduction in overall coverage below floor targets</li>
+    <li>No new ESLint errors or TypeScript type errors introduced</li>
+    <li>No new dependency cycles detected by CI</li>
+    <li>No architecture layer violations (domain importing infrastructure, etc.)</li>
+    <li>Feature behind a feature flag if it is in a partial state</li>
+    <li>Relevant specification document updated if behaviour changed from spec</li>
+    <li>Accessibility: touch targets ≥ 44pt, accessibilityLabel present on interactive elements</li>
+    <li>Code reviewed and approved by at least one other engineer</li>
+    <li>Included in a deployable internal build that has been installed and smoke-tested</li>
+  </ul>
+</section>
+
+<!-- ─── §3 Foundation Phases (0–4) ───────────────────────────────── -->
+<section id="s3">
+  <h2>§3 Foundation Phases (0–4)</h2>
+  <p class="lead">Phases 0–4 establish the technical foundation and deliver the first user-facing financial features. These phases constitute the highest-risk, highest-leverage work in the project — every subsequent phase builds on what is created here.</p>
+
+  <div class="phase-card ph-foundation">
+    <div class="phase-num">0</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Technical Foundation</span>
+        <span class="phase-dur">Weeks 1–2 · Sprint 1</span>
+        <span class="phase-tag tag-foundation">Foundation</span>
+      </div>
+      <p style="font-size:.83rem;color:var(--txt2);margin-bottom:.5rem">Zero user-facing features. Establishes the complete technical scaffolding that all subsequent phases build upon.</p>
+      <ul>
+        <li>Expo SDK 52 + React Native 0.76 + TypeScript 5.3 strict project initialisation</li>
+        <li>Expo Router 4 file-based navigation skeleton with tab and stack navigators</li>
+        <li>drizzle-orm + expo-sqlite + SQLCipher AES-256-CBC setup and verified working</li>
+        <li>ESLint, Prettier, dependency-cruiser, jest configuration — all CI-enforced</li>
+        <li>GitHub Actions CI/CD pipeline: lint → type-check → test → build verification</li>
+        <li>EAS Build configuration for iOS and Android (development profile)</li>
+        <li>Zustand 5 baseline store setup</li>
+        <li>CompositionRoot skeleton with injection interfaces defined</li>
+        <li>Feature flag infrastructure (local-only for Phase 0)</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> CI pipeline fully green. iOS simulator and Android emulator both run the app with encrypted SQLite confirmed working. Zero ESLint errors. All engineers can build and run locally.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-foundation">
+    <div class="phase-num">1</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Core Architecture Layer</span>
+        <span class="phase-dur">Weeks 3–4 · Sprint 2</span>
+        <span class="phase-tag tag-foundation">Foundation</span>
+      </div>
+      <p style="font-size:.83rem;color:var(--txt2);margin-bottom:.5rem">Builds the domain skeleton and shared infrastructure that makes the Clean Architecture operational.</p>
+      <ul>
+        <li>Domain layer: entity interfaces, value objects (Money, ULID, DateRange, Currency), domain service interfaces</li>
+        <li>Domain event bus: synchronous dispatch, async handler registration, error isolation per handler</li>
+        <li>Full error hierarchy: ERR-VAL, ERR-BIZ, ERR-OCC, ERR-STG, ERR-NET, ERR-AUTH, ERR-ENC, ERR-UNH</li>
+        <li>Structured logging infrastructure with PII scrubbing middleware (5 log levels)</li>
+        <li>i18n infrastructure: translation key loading, locale detection, Intl.NumberFormat/DateTimeFormat wrappers</li>
+        <li>en-US and fr-FR translations scaffolded (content added per feature)</li>
+        <li>Configuration management: environment config reader, static app config loader</li>
+        <li>SQLite migration system: drizzle-orm migrations, migration lock, atomic transaction wrapper</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Domain layer compiles and is fully testable in plain Node.js (no RN imports). Event bus verified with unit tests. All 8 error classes instantiated and handled in test. Migration system runs and rolls back. Logging scrubber strips test PII correctly.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-foundation">
+    <div class="phase-num">2</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Authentication &amp; Security</span>
+        <span class="phase-dur">Weeks 5–6 · Sprint 3</span>
+        <span class="phase-tag tag-foundation">Foundation</span>
+      </div>
+      <p style="font-size:.83rem;color:var(--txt2);margin-bottom:.5rem">Delivers the security perimeter: biometric lock, key derivation, and the session lifecycle that protects all financial data.</p>
+      <ul>
+        <li>Biometric authentication: Face ID (iOS), Fingerprint (Android) via expo-local-authentication</li>
+        <li>PIN fallback: 6-digit PIN with 5-attempt lockout and exponential backoff</li>
+        <li>SQLCipher key derivation tied to biometric-unlocked credential chain via Expo SecureStore</li>
+        <li>Session management: app-foreground re-challenge after 5 minutes backgrounded</li>
+        <li>Auth state machine: UNAUTHENTICATED → AUTHENTICATING → AUTHENTICATED → LOCKED</li>
+        <li>MOD-01 (Auth module): login, logout, biometric enrolment, PIN setup/change flows</li>
+        <li>Onboarding skeleton: first-run detection, initial PIN/biometric setup flow</li>
+        <li>3-level error boundary setup: screen-level, root-level, global JS handler</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Biometric lock/unlock cycle verified on physical iOS and Android devices. SQLCipher key confirmed inaccessible after device lock. 5-attempt PIN lockout triggers correctly. Session re-challenge fires after 5-min background. Security review sign-off by tech lead.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-core">
+    <div class="phase-num">3</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Account &amp; Transaction Engine</span>
+        <span class="phase-dur">Weeks 7–10 · Sprints 4–5</span>
+        <span class="phase-tag tag-core">Core Feature</span>
+      </div>
+      <p style="font-size:.83rem;color:var(--txt2);margin-bottom:.5rem">The primary value delivery phase. Delivers the core financial data entry experience that all other features build upon.</p>
+      <ul>
+        <li>MOD-02 (Accounts): create, edit, archive account; multiple account types (checking, savings, cash, credit)</li>
+        <li>MOD-03 (Transactions): create, edit, delete (soft), list with keyset pagination; transfer between accounts</li>
+        <li>MOD-04 (Categories): default category set; custom categories; category icons; category rules</li>
+        <li>Money value object fully operational: integer centimes, currency-aware arithmetic, locale-aware display</li>
+        <li>Transaction list screen: FlashList virtual rendering, filter by account/category/date range</li>
+        <li>Quick-add transaction: bottom sheet with number pad, category picker, date/note fields</li>
+        <li>Account balance computation: real-time from transaction aggregate, not stored balance</li>
+        <li>Domain event bus: TransactionCreated, TransactionUpdated, TransactionDeleted events live and tested</li>
+        <li>SQLite schema v1: transactions, accounts, categories tables with all indexes</li>
+        <li>10,000-record performance benchmark: all list queries &lt;50ms confirmed in CI</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Full CRUD cycle for accounts and transactions verified. 10,000-record dataset scrolls at 60fps on P95 test device. Category assignment and filtering work. Account balance always matches transaction aggregate. Domain events fire and are received by test subscribers.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-core">
+    <div class="phase-num">4</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Budget Engine</span>
+        <span class="phase-dur">Weeks 11–12 · Sprint 6</span>
+        <span class="phase-tag tag-core">Core Feature</span>
+      </div>
+      <p style="font-size:.83rem;color:var(--txt2);margin-bottom:.5rem">Delivers the first actionable financial planning feature: budget creation, tracking, and threshold alerts.</p>
+      <ul>
+        <li>MOD-05 (Budget): budget periods, per-category budget limits, rollover configuration</li>
+        <li>Budget vs. actual: real-time computation from transaction stream (no denormalized totals)</li>
+        <li>Budget progress visualization: per-category progress bars with threshold colour coding (≤50%, ≤80%, ≤95%, &gt;100%)</li>
+        <li>Budget alerts: BudgetThresholdApproaching, BudgetExceeded domain events wired to notification stub</li>
+        <li>Monthly summary pre-aggregation: monthly_summaries table populated by domain events</li>
+        <li>Multi-period support: weekly, fortnightly, monthly, custom date-range budgets</li>
+        <li>Budget copy/rollover to next period: one-tap action</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Budget period creation, tracking, and period transition verified. Real-time budget vs. actual updates on transaction entry verified. BudgetExceeded event fires at correct threshold. Monthly summary table populated correctly after 100 test transactions across 3 months.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── §4 Feature Phases (5–10) ─────────────────────────────────── -->
+<section id="s4">
+  <h2>§4 Feature Phases (5–10)</h2>
+  <p class="lead">Phases 5–10 complete the full core feature set: debt management, goals, financial intelligence, dashboard, reports, and the AI platform. The MVP gate occurs at Phase 8 completion.</p>
+
+  <div class="phase-card ph-core">
+    <div class="phase-num">5</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Debt Management</span>
+        <span class="phase-dur">Weeks 13–14 · Sprint 7</span>
+        <span class="phase-tag tag-core">Core Feature</span>
+      </div>
+      <ul>
+        <li>MOD-06 (Debt): debt account types (credit card, personal loan, mortgage, car loan)</li>
+        <li>Debt record: creditor, original balance, current balance (integer centimes), interest rate (basis points), minimum payment, due date</li>
+        <li>Payment recording: reduces balance, logs as transaction in linked account</li>
+        <li>Payoff strategies: Snowball (smallest balance first), Avalanche (highest rate first), Custom ordering</li>
+        <li>Payoff projection: months to payoff, total interest paid — computed from current balance + rate + minimum payment</li>
+        <li>Debt progress visualization: balance reduction over time, payoff timeline</li>
+        <li>DebtPaidOff domain event: triggers milestone and gamification events in later phases</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Debt CRUD verified. Snowball and Avalanche strategies compute correctly against reference test cases. Payoff projection matches financial calculator reference. DebtPaidOff event fires on balance reaching zero.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-core">
+    <div class="phase-num">6</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Savings Goals &amp; Emergency Fund</span>
+        <span class="phase-dur">Weeks 15–16 · Sprint 8</span>
+        <span class="phase-tag tag-core">Core Feature</span>
+      </div>
+      <ul>
+        <li>MOD-07 (Savings Goals): named goals, target amount, target date, linked account (optional), auto-save rule</li>
+        <li>Emergency Fund as first-class goal type: recommended amount = 3–6 months of tracked expenses (computed from transaction history)</li>
+        <li>Goal progress: percentage funded, projected completion date, monthly contribution required</li>
+        <li>Manual contribution recording: partial or full deposit, linked transaction entry</li>
+        <li>GoalMilestoneReached event: 25%, 50%, 75%, 100% thresholds trigger celebration (celebration level defined by SPEC-GAM-001)</li>
+        <li>GoalCompleted event: fires gamification and dashboard refresh</li>
+        <li>Multiple simultaneous goals: ordered by priority, total monthly savings requirement displayed</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Goal creation, contribution recording, and progress tracking verified. Emergency fund recommendation computes from real transaction data. GoalMilestoneReached fires at each threshold. Multiple goals display aggregate monthly requirement correctly.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-core">
+    <div class="phase-num">7</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Financial Health Score</span>
+        <span class="phase-dur">Weeks 17–18 · Sprint 9</span>
+        <span class="phase-tag tag-core">Core Feature</span>
+      </div>
+      <ul>
+        <li>MOD-08 (Financial Health Score): composite score 0–100 from 6 weighted components</li>
+        <li>Components: Expense Control (25%), Savings Rate (20%), Debt Management (20%), Budget Adherence (15%), Emergency Fund Coverage (15%), Transaction Consistency (5%)</li>
+        <li>Score history: daily snapshot stored in fhs_history table; 365-day trend chart</li>
+        <li>Component breakdown: per-component score with explanatory label and recommended action</li>
+        <li>Score recalculation triggered by: TransactionCreated/Updated/Deleted, BudgetPeriodClosed, GoalContributionRecorded, DebtPaymentRecorded</li>
+        <li>FHS Invariants (from SPEC-ARC-001 §5.3): all 6 invariants enforced in HealthScoreAggregate</li>
+        <li>FHS screen: score gauge, component breakdown, 90-day trend, top 3 recommendations</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Score computation verified against reference test cases for all 6 components. Score recalculates within 500ms of triggering event. 6 FHS invariants each have failing test cases that confirm enforcement. 365-day trend renders without performance degradation.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-core">
+    <div class="phase-num">8</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Dashboard</span>
+        <span class="phase-dur">Weeks 19–20 · Sprint 10</span>
+        <span class="phase-tag tag-core">Core Feature</span>
+        <span class="phase-tag" style="background:rgba(217,119,6,.12);color:var(--warn)">MVP Gate</span>
+      </div>
+      <ul>
+        <li>MOD-14 (Dashboard): home screen composition of widgets sourced from all prior modules</li>
+        <li>Widgets: Net Worth summary, Monthly spend vs. budget, Top 3 categories, Active debts payoff progress, Goals progress, FHS score ring, Recent transactions (last 5), Quick-add FAB</li>
+        <li>Widget data: all sourced from monthly_summaries and pre-aggregated tables — no ad-hoc full-table scans on dashboard load</li>
+        <li>Dashboard load target: &lt;300ms to first meaningful paint (data from cache/summaries)</li>
+        <li>Skeleton loading states: all widgets show skeleton before data resolves</li>
+        <li>Pull-to-refresh: refreshes all widget data</li>
+        <li>Personalisation: widget order configurable; widgets can be hidden</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Dashboard loads in &lt;300ms on P95 device with 10,000 transactions. All widgets display correct data verified against raw transaction queries. Skeleton states display correctly during load. Net worth computes correctly across multi-account scenarios.</div>
+    </div>
+  </div>
+
+  <div class="callout callout-warn">
+    <strong>MVP Gate — Sprint 10 / Week 20:</strong> On successful Phase 8 exit, the product is feature-complete for MVP. An internal Alpha build is produced, distributed to TestFlight and internal Android track. Alpha users begin structured testing while Phase 9 development continues.
+  </div>
+
+  <div class="phase-card ph-core">
+    <div class="phase-num">9</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Reports &amp; Analytics</span>
+        <span class="phase-dur">Weeks 21–24 · Sprints 11–12</span>
+        <span class="phase-tag tag-core">Core Feature</span>
+      </div>
+      <ul>
+        <li>MOD-13 (Reports): Income vs. Expense (monthly/quarterly/annual), Category Breakdown (pie/bar), Spending Trends (line), Net Worth over time, Budget Performance history, Savings Rate trend, Debt Reduction progress</li>
+        <li>MOD-15 (Export): CSV (all transactions), JSON (full data export), PDF (summary report) — all generated on-device</li>
+        <li>Date range selector: presets (this month, last month, last 3 months, last 12 months, YTD, all time) + custom range</li>
+        <li>Report data source: monthly_summaries for aggregates; transaction table for drill-down</li>
+        <li>Drill-down: tap any chart segment to see underlying transactions</li>
+        <li>All charts render in &lt;500ms on 5-year dataset (hot/warm tiering active)</li>
+        <li>Report sharing: share as image (screenshot) or export as PDF/CSV</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> All 7 report types verified with reference data. Export produces correct CSV/JSON/PDF for 5,000+ transaction dataset. All reports render &lt;500ms on P95 device with 5-year dataset. Drill-down from chart to transactions works across all report types.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-intelligence">
+    <div class="phase-num">10</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">AI Platform</span>
+        <span class="phase-dur">Weeks 25–30 · Sprints 13–15</span>
+        <span class="phase-tag tag-intelligence">Intelligence</span>
+      </div>
+      <ul>
+        <li>MOD-09 (AI Insights): spending pattern analysis, anomaly detection, personalised summaries — powered by claude-sonnet-5 via Anthropic API</li>
+        <li>MOD-10 (Smart Alerts): 26 alert definitions (ALT-001–ALT-026) from SPEC-PMO-001; alert evaluation engine; deduplication (cooldown window, 2-banner cap)</li>
+        <li>MOD-11 (Predictions): next-month spending forecast by category; projected budget breach dates; payoff date predictions</li>
+        <li>MOD-12 (Recommendations): ranked action list based on FHS components; debt prioritisation advice; savings opportunity identification</li>
+        <li>IAIProvider interface: Anthropic adapter wired in CompositionRoot; graceful degradation when API unavailable</li>
+        <li>AI response cache: 24-hour cache keyed on prompt+context hash; LRU 20-entry cap</li>
+        <li>Rate limiting: maximum 10 AI requests per user per day (enforced client-side)</li>
+        <li>Privacy: only aggregated, anonymised data in AI prompts; no transaction IDs, no account numbers, no names</li>
+        <li>Latency SLOs: P50 &lt;3,000ms, P95 &lt;8,000ms; timeout at 15,000ms with cached fallback</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> All 4 AI modules functional with graceful degradation verified (API mocked as unavailable). 26 alert types fire on correct trigger conditions. Rate limit enforced. Privacy audit: confirm no PII in AI prompts. Latency SLOs met in staging environment. AI cache hit rate &gt;60% on repeat queries.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── §5 Completion Phases (11–15) ──────────────────────────────── -->
+<section id="s5">
+  <h2>§5 Completion Phases (11–15)</h2>
+  <p class="lead">Phases 11–15 complete the feature set with search, notifications, gamification, security hardening, and final release preparation. Phase 15 exit marks v1.0.</p>
+
+  <div class="phase-card ph-intelligence">
+    <div class="phase-num">11</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Search &amp; Filters</span>
+        <span class="phase-dur">Weeks 31–32 · Sprint 16</span>
+        <span class="phase-tag tag-intelligence">Intelligence</span>
+      </div>
+      <ul>
+        <li>Full-text search across transactions: description, notes, merchant name — via SQLite FTS5 virtual table</li>
+        <li>Advanced filter panel: date range, account, category, amount range, transaction type, tags</li>
+        <li>Filter combinations: AND logic across all active filters</li>
+        <li>Search result highlighting: matched text highlighted in result list</li>
+        <li>Saved searches: user can name and save a filter combination for quick re-use</li>
+        <li>Search performance: &lt;100ms for full-text query on 10,000+ transactions</li>
+        <li>FTS5 index updated incrementally on TransactionCreated/Updated events</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Full-text search returns correct results in &lt;100ms on 10,000-transaction dataset. All filter combinations produce correct results. FTS5 index stays consistent after create/update/delete cycles. Saved searches persist across app restarts.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-intelligence">
+    <div class="phase-num">12</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Notifications &amp; Gamification Engine</span>
+        <span class="phase-dur">Weeks 33–38 · Sprints 17–19</span>
+        <span class="phase-tag tag-intelligence">Intelligence</span>
+      </div>
+      <ul>
+        <li>MOD-16 (Notifications): push notification integration (Expo Notifications); local notification scheduling; 26 alert types wired to delivery; notification preferences (per-type opt-out); quiet hours</li>
+        <li>MOD-17 (Gamification): full engine per SPEC-GAM-001: 27 behaviours recognised, 30+ achievements, 7 streaks, 15 milestones, 10 challenges, 9 motivation profiles</li>
+        <li>All 6 SQLite gamification tables deployed: gam_achievement_state, gam_streak_state, gam_streak_history, gam_challenge_state, gam_milestone_history, gam_behavior_event_queue</li>
+        <li>Celebration flows: toast, modal, full-screen, maximum — per SPEC-GAM-001 §5</li>
+        <li>Challenge system: 10 challenge definitions, max 3 active simultaneously, all opt-in</li>
+        <li>Full opt-out: single toggle disables all gamification; retroactive catch-up on re-enable</li>
+        <li>10 anti-patterns verified absent (SPEC-GAM-001 §8)</li>
+        <li>MOD-18 (Onboarding): first-run wizard, feature discovery tooltips, empty state guidance</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> 27 behaviours each have a triggering test scenario. All 30+ achievements unlock at correct conditions. 7 streak types track and grace correctly. Full opt-out removes all gamification UI. All 10 anti-patterns absent. Push notification delivery verified on physical iOS and Android devices.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-hardening">
+    <div class="phase-num">13</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Security Hardening</span>
+        <span class="phase-dur">Weeks 39–40 · Sprint 20</span>
+        <span class="phase-tag tag-hardening">Hardening</span>
+      </div>
+      <ul>
+        <li>Internal penetration test: SQLite injection attempts, SecureStore bypass, biometric spoofing, log PII leakage review</li>
+        <li>GDPR compliance review: right to access (export), right to erasure (PII nulling + data export), consent withdrawal, data portability</li>
+        <li>Privacy policy implementation: in-app consent flows, 4-category consent model (SPEC-PMO-001 §14)</li>
+        <li>Sensitive data masking: 13-row masking table from SPEC-PMO-001 applied across all log/analytics paths</li>
+        <li>Certificate pinning review (for AI API calls); API key rotation procedure documented</li>
+        <li>Screen capture prevention: financial screens marked to prevent screenshots on Android; iOS equivalent</li>
+        <li>All High/Critical security findings resolved before Open Beta gate</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Security penetration test complete; zero High/Critical open findings. GDPR right-by-right implementation verified. PII scrubber verified across all log paths. Privacy consent flow usable by QA tester without documentation. Security engineer sign-off required.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-hardening">
+    <div class="phase-num">14</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Performance Optimisation</span>
+        <span class="phase-dur">Weeks 41–42 · Sprint 21</span>
+        <span class="phase-tag tag-hardening">Hardening</span>
+      </div>
+      <ul>
+        <li>Cold start profiling: target &lt;2,500ms interactive on P95 device; skeleton screen visible in &lt;500ms</li>
+        <li>JS bundle analysis: tree-shaking verification, unused import audit, bundle size &lt;8MB JS</li>
+        <li>Hermes bytecode optimisation: verify Hermes compilation enabled, profile startup path</li>
+        <li>SQLite query plan audit: EXPLAIN QUERY PLAN on all production queries; eliminate any full-table scans</li>
+        <li>Memory profiling: resident memory &lt;150MB under normal use; 6-tier eviction policy verified</li>
+        <li>FlashList tuning: estimatedItemSize calibrated to actual item height on each list screen</li>
+        <li>Image/icon optimisation: all icons as vector (SF Symbols / Material Icons) or optimised PNG atlas</li>
+        <li>Benchmark suite: automated performance benchmarks run in CI against 10,000-record dataset</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Cold start &lt;2,500ms on P95 device (measured, not estimated). All SQLite queries use index scans. Resident memory &lt;150MB under normal navigation. All performance benchmarks passing in CI. Bundle size within target.</div>
+    </div>
+  </div>
+
+  <div class="phase-card ph-hardening">
+    <div class="phase-num">15</div>
+    <div class="phase-content">
+      <div class="phase-header">
+        <span class="phase-name">Final Release Preparation</span>
+        <span class="phase-dur">Weeks 43–46 · Sprints 22–23</span>
+        <span class="phase-tag tag-hardening">Hardening</span>
+        <span class="phase-tag" style="background:rgba(5,150,105,.12);color:var(--ok)">v1.0 Gate</span>
+      </div>
+      <ul>
+        <li>Open Beta: 200–500 external testers; structured feedback via TestFlight/Google Play testing</li>
+        <li>Bug triage and fix: P0/P1 bugs fixed immediately; P2 fixes within beta cycle; P3 deferred to v1.1</li>
+        <li>App Store preparation: screenshots (all device sizes), App Preview video, description copy, keywords, privacy labels</li>
+        <li>Google Play preparation: feature graphic, screenshots, short/long descriptions, content rating questionnaire</li>
+        <li>Final accessibility audit: VoiceOver (iOS) + TalkBack (Android) full user journey walkthrough</li>
+        <li>Localisation QA: all 6 launch locales; RTL layout verified on physical Arabic-locale device</li>
+        <li>App Store review submission: first submission targets 10-day review window buffer</li>
+        <li>Production Sentry project configured; PMO monitoring runbooks activated</li>
+        <li>Phased rollout plan: 10% → 25% → 50% → 100% with 24h gates and rollback trigger thresholds</li>
+      </ul>
+      <div class="phase-exit"><strong>Exit criteria:</strong> Zero open P0/P1 bugs. Crash-free session rate ≥ 99.5% in Open Beta. App Store approved on both stores. All 6 locales verified. Accessibility audit passed. Monitoring dashboards live. Release owner formal sign-off obtained.</div>
+    </div>
+  </div>
+
+  <h3>5.1 Phase Timeline Summary</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Phase</th><th>Name</th><th>Weeks</th><th>Sprint(s)</th><th>Category</th><th>Milestone</th></tr></thead>
+    <tbody>
+      <tr><td>0</td><td>Technical Foundation</td><td>1–2</td><td>1</td><td class="status-info">Foundation</td><td>—</td></tr>
+      <tr><td>1</td><td>Core Architecture Layer</td><td>3–4</td><td>2</td><td class="status-info">Foundation</td><td>—</td></tr>
+      <tr><td>2</td><td>Authentication &amp; Security</td><td>5–6</td><td>3</td><td class="status-info">Foundation</td><td>Security perimeter live</td></tr>
+      <tr><td>3</td><td>Account &amp; Transaction Engine</td><td>7–10</td><td>4–5</td><td class="status-ok">Core</td><td>First user-facing feature</td></tr>
+      <tr><td>4</td><td>Budget Engine</td><td>11–12</td><td>6</td><td class="status-ok">Core</td><td>—</td></tr>
+      <tr><td>5</td><td>Debt Management</td><td>13–14</td><td>7</td><td class="status-ok">Core</td><td>—</td></tr>
+      <tr><td>6</td><td>Savings Goals &amp; Emergency Fund</td><td>15–16</td><td>8</td><td class="status-ok">Core</td><td>—</td></tr>
+      <tr><td>7</td><td>Financial Health Score</td><td>17–18</td><td>9</td><td class="status-ok">Core</td><td>—</td></tr>
+      <tr><td>8</td><td>Dashboard</td><td>19–20</td><td>10</td><td class="status-ok">Core</td><td><strong>MVP Alpha Gate (Week 20)</strong></td></tr>
+      <tr><td>9</td><td>Reports &amp; Analytics</td><td>21–24</td><td>11–12</td><td class="status-ok">Core</td><td>—</td></tr>
+      <tr><td>10</td><td>AI Platform</td><td>25–30</td><td>13–15</td><td class="status-warn">Intelligence</td><td>Closed Beta ready (Week 30)</td></tr>
+      <tr><td>11</td><td>Search &amp; Filters</td><td>31–32</td><td>16</td><td class="status-warn">Intelligence</td><td>—</td></tr>
+      <tr><td>12</td><td>Notifications &amp; Gamification</td><td>33–38</td><td>17–19</td><td class="status-warn">Intelligence</td><td>Open Beta ready (Week 38)</td></tr>
+      <tr><td>13</td><td>Security Hardening</td><td>39–40</td><td>20</td><td style="color:var(--warn);font-weight:600">Hardening</td><td>Security sign-off</td></tr>
+      <tr><td>14</td><td>Performance Optimisation</td><td>41–42</td><td>21</td><td style="color:var(--warn);font-weight:600">Hardening</td><td>Benchmarks green</td></tr>
+      <tr><td>15</td><td>Final Release Preparation</td><td>43–46</td><td>22–23</td><td style="color:var(--warn);font-weight:600">Hardening</td><td><strong>v1.0 Production (Week 46)</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><strong>Total duration: 46 weeks (~11.5 months)</strong> for a 3-engineer team. MVP Alpha at Week 20 (~5 months). v1.0 Production at Week 46 (~11.5 months).</p>
+</section>
+
+<!-- ─── §6 MVP Definition ─────────────────────────────────────────── -->
+<section id="s6">
+  <h2>§6 MVP Definition</h2>
+  <p class="lead">The Minimum Viable Product is the smallest product that validates the core assumption: that users will consistently track their personal finances in Finance Bag and find it meaningfully more useful than their current alternative (spreadsheet or competing app).</p>
+
+  <h3>6.1 MVP Scope (Phase 0–8 Deliverables)</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">Included in MVP</div>
+      <ul>
+        <li>Biometric authentication and PIN fallback</li>
+        <li>Account management (multiple account types)</li>
+        <li>Transaction CRUD with categories</li>
+        <li>Budget creation and real-time tracking</li>
+        <li>Debt management (basic: balance, payment, payoff strategy)</li>
+        <li>Savings goals (including emergency fund)</li>
+        <li>Financial Health Score (all 6 components)</li>
+        <li>Dashboard with 8 core widgets</li>
+        <li>Basic data export (CSV, JSON)</li>
+        <li>Offline-first operation</li>
+        <li>SQLCipher encryption</li>
+        <li>en-US localisation</li>
+        <li>Accessibility: WCAG 2.1 AA on all MVP screens</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">Postponed from MVP</div>
+      <ul>
+        <li>Advanced reports and charts (Phase 9)</li>
+        <li>PDF export (Phase 9)</li>
+        <li>AI insights, predictions, recommendations (Phase 10)</li>
+        <li>26 smart alert types (Phase 10/12)</li>
+        <li>Full-text search (Phase 11)</li>
+        <li>Push notifications (Phase 12)</li>
+        <li>Gamification (achievements, streaks, challenges) (Phase 12)</li>
+        <li>Additional locales beyond en-US (Phase 15)</li>
+        <li>Cloud sync (Phase 4 of product roadmap / v2.x)</li>
+        <li>Bank integrations (v4.x)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>6.2 MVP Quality Requirements</h3>
+  <table>
+    <thead><tr><th>Dimension</th><th>MVP Requirement</th></tr></thead>
+    <tbody>
+      <tr><td>Crash-free sessions</td><td>≥ 99.0% in internal Alpha (target: ≥ 99.5% for v1.0)</td></tr>
+      <tr><td>Data integrity</td><td>Zero data loss events in Alpha. Any data corruption is P0 and blocks all other work.</td></tr>
+      <tr><td>Cold start</td><td>&lt;3,000ms on P95 test device (tightened to &lt;2,500ms for v1.0)</td></tr>
+      <tr><td>Transaction list scroll</td><td>60fps on 500+ item list on P95 device</td></tr>
+      <tr><td>Query performance</td><td>All queries &lt;100ms on 5,000-transaction dataset</td></tr>
+      <tr><td>Security</td><td>SQLCipher verified, Keychain storage only for API key, no PII in logs</td></tr>
+      <tr><td>Accessibility</td><td>VoiceOver and TalkBack can complete core transaction entry and budget review flows</td></tr>
+      <tr><td>Test coverage</td><td>Domain layer ≥ 80%, application layer ≥ 70%, integration tests for all critical flows</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.3 MVP Launch Criteria</h3>
+  <p>All of the following must be true before MVP Alpha is distributed to external testers:</p>
+  <ul>
+    <li>All Phase 0–8 exit criteria met and documented</li>
+    <li>Zero open P0 or P1 bugs</li>
+    <li>Internal smoke test (20 test cases) passes on both iOS and Android physical devices</li>
+    <li>Tech lead and product owner formal sign-off on the internal Alpha build</li>
+    <li>TestFlight/internal track distribution configured</li>
+    <li>Sentry error tracking active and receiving events</li>
+    <li>Export function verified: user can recover all their data from exported files</li>
+  </ul>
+
+  <h3>6.4 Post-MVP Priorities (v1.0 additions)</h3>
+  <p>After MVP Alpha, development continues with Phases 9–15. The prioritisation order for v1.0 additions is:</p>
+  <ol>
+    <li><strong>Reports &amp; Export (Phase 9)</strong> — highest value-add; requested by all three user personas</li>
+    <li><strong>AI Platform (Phase 10)</strong> — primary differentiator; attracts Optimizer persona</li>
+    <li><strong>Search (Phase 11)</strong> — essential for power users with long history</li>
+    <li><strong>Gamification (Phase 12)</strong> — drives retention; attracts Aware Beginner and Debt Fighter</li>
+    <li><strong>Push Notifications (Phase 12)</strong> — re-engagement for dormant users</li>
+    <li><strong>Additional Locales (Phase 15)</strong> — expands addressable market</li>
+  </ol>
+</section>
+
+<!-- ─── §7 Feature Prioritisation ────────────────────────────────── -->
+<section id="s7">
+  <h2>§7 Feature Prioritisation (MoSCoW)</h2>
+  <p class="lead">All features are classified using the MoSCoW framework. Priority was determined by: user persona criticality, architectural dependency, technical risk, and time-to-value. The classification is for v1.0 scope; future version inclusions are noted in §17.</p>
+
+  <div class="moscow-grid">
+    <div class="moscow-card m-must">
+      <div class="moscow-hdr">Must Have — v1.0</div>
+      <ul>
+        <li>Biometric lock + PIN fallback</li>
+        <li>SQLCipher AES-256 encryption</li>
+        <li>Account management (multi-account)</li>
+        <li>Transaction CRUD with soft delete</li>
+        <li>Category management (default + custom)</li>
+        <li>Budget tracking (monthly periods)</li>
+        <li>Debt management (balance, payment, strategies)</li>
+        <li>Savings goals + emergency fund</li>
+        <li>Financial Health Score (all 6 components)</li>
+        <li>Dashboard (8 core widgets)</li>
+        <li>Basic reports (spending breakdown, trend)</li>
+        <li>CSV + JSON export</li>
+        <li>Full offline operation</li>
+        <li>en-US localisation</li>
+        <li>WCAG 2.1 AA accessibility</li>
+        <li>Onboarding flow</li>
+        <li>AI-powered spending insights (MOD-09)</li>
+        <li>Full-text transaction search</li>
+        <li>Data export (full)</li>
+      </ul>
+    </div>
+    <div class="moscow-card m-should">
+      <div class="moscow-hdr">Should Have — v1.0</div>
+      <ul>
+        <li>Advanced charts (7 report types)</li>
+        <li>PDF report export</li>
+        <li>AI predictions (MOD-11)</li>
+        <li>AI recommendations (MOD-12)</li>
+        <li>All 26 smart alert types</li>
+        <li>Push notifications with quiet hours</li>
+        <li>Achievement system (30+ achievements)</li>
+        <li>Streak tracking (7 streak types)</li>
+        <li>Savings milestones with celebrations</li>
+        <li>Advanced filters (multi-dimension)</li>
+        <li>Saved search filters</li>
+        <li>Budget rollover configuration</li>
+        <li>Multi-period budgets (weekly, fortnightly)</li>
+        <li>fr-FR, es-ES localisation</li>
+        <li>RTL layout (ar-SA)</li>
+        <li>Widget order customisation (dashboard)</li>
+      </ul>
+    </div>
+    <div class="moscow-card m-could">
+      <div class="moscow-hdr">Could Have — v1.1</div>
+      <ul>
+        <li>Gamification challenges (10 challenge types)</li>
+        <li>9 motivation profiles + profile detection</li>
+        <li>Seasonal gamification events</li>
+        <li>Budget templates (pre-built budget sets)</li>
+        <li>Recurring transaction automation</li>
+        <li>Bill reminder alerts</li>
+        <li>Merchant auto-categorisation (rule-based)</li>
+        <li>Category spending limits (separate from budget)</li>
+        <li>Multiple currency accounts</li>
+        <li>en-GB, pt-BR, zh-CN localisation</li>
+        <li>Transaction tags (multi-tag per transaction)</li>
+        <li>Split transaction (one transaction → multiple categories)</li>
+        <li>Net worth trend (with liability breakdown)</li>
+        <li>Annual tax summary export</li>
+      </ul>
+    </div>
+    <div class="moscow-card m-wont">
+      <div class="moscow-hdr">Won't Have — v1.x</div>
+      <ul>
+        <li>Cloud sync / multi-device (v2.0)</li>
+        <li>Family sharing (v2.1)</li>
+        <li>Bank account integration / OFX import (v4.x)</li>
+        <li>Investment portfolio tracking (v3.0)</li>
+        <li>Tax calculation engine (v3.1)</li>
+        <li>Business / double-entry accounting (v4.0)</li>
+        <li>Desktop app / web version (v5.0)</li>
+        <li>Wearable companion app (v5.1)</li>
+        <li>AI autonomous financial agent (v6.0)</li>
+        <li>Receipt OCR scanning</li>
+        <li>Social / shared budgets</li>
+        <li>Subscription tracking (requires bank integration)</li>
+        <li>Credit score monitoring</li>
+        <li>Stock / crypto price feeds</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>7.1 Prioritisation Methodology</h3>
+  <table>
+    <thead><tr><th>Factor</th><th>Weight</th><th>Rationale</th></tr></thead>
+    <tbody>
+      <tr><td>Architectural dependency</td><td>Highest</td><td>A feature cannot ship before its dependencies. Dependency order is immutable.</td></tr>
+      <tr><td>Core user persona coverage</td><td>High</td><td>Features that serve all 3 personas simultaneously get highest pull-forward priority</td></tr>
+      <tr><td>Technical risk</td><td>High</td><td>High-risk features (encryption, AI, sync) are prioritised early to surface unknowns</td></tr>
+      <tr><td>Differentiation value</td><td>Medium</td><td>Features that distinguish Finance Bag from competitors get priority over parity features</td></tr>
+      <tr><td>Implementation complexity</td><td>Medium</td><td>High-complexity features with low user value are deferred</td></tr>
+      <tr><td>Market timing</td><td>Low</td><td>Not a primary driver; quality over speed is the stated philosophy</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── §8 Dependency Roadmap ─────────────────────────────────────── -->
+<section id="s8">
+  <h2>§8 Dependency Roadmap &amp; Critical Path</h2>
+  <p class="lead">This section maps all inter-phase and inter-module dependencies, identifies the critical path, and highlights opportunities for parallelisation.</p>
+
+  <h3>8.1 Critical Path</h3>
+  <p>The critical path is the longest dependency chain with zero slack. Any delay on this path delays v1.0.</p>
+  <div class="dep-path">
+    <span class="dep-node">Ph 0 Foundation</span><span class="dep-arr">→</span>
+    <span class="dep-node">Ph 1 Architecture</span><span class="dep-arr">→</span>
+    <span class="dep-node">Ph 2 Auth/Security</span><span class="dep-arr">→</span>
+    <span class="dep-node">Ph 3 Transactions</span><span class="dep-arr">→</span>
+    <span class="dep-node">Ph 4 Budget</span><span class="dep-arr">→</span>
+    <span class="dep-node dep-gate">MVP Gate</span><span class="dep-arr">→</span>
+    <span class="dep-node">Ph 9 Reports</span><span class="dep-arr">→</span>
+    <span class="dep-node">Ph 10 AI</span><span class="dep-arr">→</span>
+    <span class="dep-node">Ph 12 Gamification</span><span class="dep-arr">→</span>
+    <span class="dep-node">Ph 13 Security</span><span class="dep-arr">→</span>
+    <span class="dep-node">Ph 14 Performance</span><span class="dep-arr">→</span>
+    <span class="dep-node dep-gate">v1.0 Gate</span>
+  </div>
+
+  <h3>8.2 Dependency Matrix</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Phase</th><th>Hard Dependencies (must complete first)</th><th>Soft Dependencies (beneficial but not blocking)</th></tr></thead>
+    <tbody>
+      <tr><td>Phase 0</td><td>None — starting point</td><td>—</td></tr>
+      <tr><td>Phase 1</td><td>Phase 0</td><td>—</td></tr>
+      <tr><td>Phase 2</td><td>Phase 0, Phase 1</td><td>—</td></tr>
+      <tr><td>Phase 3</td><td>Phase 0, Phase 1, Phase 2</td><td>—</td></tr>
+      <tr><td>Phase 4</td><td>Phase 3 (transactions are the input to budget tracking)</td><td>—</td></tr>
+      <tr><td>Phase 5</td><td>Phase 3 (debt payments are transactions)</td><td>Phase 4 (budget alerts reference debt)</td></tr>
+      <tr><td>Phase 6</td><td>Phase 3 (goal contributions are transactions)</td><td>Phase 5 (emergency fund calc uses expense history)</td></tr>
+      <tr><td>Phase 7</td><td>Phase 3, 4, 5, 6 (FHS inputs span all modules)</td><td>—</td></tr>
+      <tr><td>Phase 8</td><td>Phase 3, 4, 5, 6, 7 (dashboard aggregates all)</td><td>—</td></tr>
+      <tr><td>Phase 9</td><td>Phase 3, 4, 5, 6 (reports over all financial data)</td><td>Phase 8 (dashboard drill-through to reports)</td></tr>
+      <tr><td>Phase 10</td><td>Phase 3, 4, 5, 6, 7, 9 (AI needs full financial context)</td><td>—</td></tr>
+      <tr><td>Phase 11</td><td>Phase 3 (search is over transactions)</td><td>Phase 9 (search from reports)</td></tr>
+      <tr><td>Phase 12</td><td>Phase 3, 4, 5, 6, 7 (behaviour events from all modules); Phase 10 (AI alert engine)</td><td>Phase 11</td></tr>
+      <tr><td>Phase 13</td><td>Phase 12 (security hardens the complete feature set)</td><td>—</td></tr>
+      <tr><td>Phase 14</td><td>Phase 13 (perf optimisation on complete, hardened product)</td><td>—</td></tr>
+      <tr><td>Phase 15</td><td>Phase 14</td><td>—</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>8.3 Parallelisation Opportunities</h3>
+  <div class="dep-path">
+    <span style="font-size:.72rem;font-weight:700;color:var(--txt3);white-space:nowrap">After Phase 3:</span>
+    <span class="dep-arr" style="margin-left:.3rem">→</span>
+    <span class="dep-node dep-par">Phase 4 (Budget)</span>
+    <span class="dep-arr">‖</span>
+    <span class="dep-node dep-par">Phase 5 (Debt)</span>
+    <span class="dep-arr">‖</span>
+    <span class="dep-node dep-par">Phase 6 (Goals)</span>
+    <span style="font-size:.7rem;color:var(--txt3);white-space:nowrap">(can run in parallel with 2+ engineers)</span>
+  </div>
+  <div class="dep-path" style="margin-top:.5rem">
+    <span style="font-size:.72rem;font-weight:700;color:var(--txt3);white-space:nowrap">After Phase 10:</span>
+    <span class="dep-arr" style="margin-left:.3rem">→</span>
+    <span class="dep-node dep-par">Phase 11 (Search)</span>
+    <span class="dep-arr">‖</span>
+    <span class="dep-node dep-par">Phase 12 Notifications</span>
+    <span style="font-size:.7rem;color:var(--txt3);white-space:nowrap">(search and notification setup can overlap)</span>
+  </div>
+  <div class="dep-path" style="margin-top:.5rem">
+    <span style="font-size:.72rem;font-weight:700;color:var(--txt3);white-space:nowrap">Always parallel:</span>
+    <span class="dep-arr" style="margin-left:.3rem">→</span>
+    <span class="dep-node dep-par">UI/UX Design</span>
+    <span style="font-size:.7rem;color:var(--txt3)">runs 1–2 phases ahead of engineering; screens designed before the phase begins</span>
+  </div>
+
+  <h3>8.4 Architectural Milestones</h3>
+  <table>
+    <thead><tr><th>Milestone</th><th>Trigger</th><th>Significance</th></tr></thead>
+    <tbody>
+      <tr><td>Foundation Complete</td><td>Phase 2 exit</td><td>All technical risk items resolved. Architecture is proven. Domain layer testable in isolation.</td></tr>
+      <tr><td>First Real User Value</td><td>Phase 3 exit</td><td>First screen a user could actually use. Transaction logging is the core habit loop.</td></tr>
+      <tr><td>MVP Alpha Gate</td><td>Phase 8 exit</td><td>Product is usable end-to-end. Validates the core value proposition.</td></tr>
+      <tr><td>Intelligence Complete</td><td>Phase 10 exit</td><td>Full AI platform operational. Primary differentiator live.</td></tr>
+      <tr><td>Feature Freeze</td><td>Phase 12 exit</td><td>No new features after this point. Hardening phases only. Scope is locked.</td></tr>
+      <tr><td>v1.0 Release</td><td>Phase 15 exit</td><td>Production launch. All quality gates passed. Phased rollout begins.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── §9 Sprint Planning ────────────────────────────────────────── -->
+<section id="s9">
+  <h2>§9 Sprint Planning Framework</h2>
+  <p class="lead">Sprints are 2 weeks long, Monday–Friday. Sprint velocity is measured in story points using a stable team reference point. Initial velocity is established in Sprint 2 after team ramp-up. All sprint plans below are based on a 3-engineer team with 20% capacity reserved for tech debt and process.</p>
+
+  <h3>9.1 Sprint 1 — Technical Foundation (Weeks 1–2)</h3>
+  <div class="sprint-card">
+    <div class="sprint-meta"><span class="sprint-id">Sprint 1</span><span class="sprint-range">Weeks 1–2 · Phase 0</span></div>
+    <div class="sprint-title">Bootstrap project, CI/CD, and verified SQLCipher setup</div>
+    <ul>
+      <li>Expo + RN + TypeScript project initialisation with strict config</li>
+      <li>Expo Router 4 navigation skeleton (tabs + auth stack)</li>
+      <li>expo-sqlite + drizzle-orm baseline — SQLCipher encryption verified working</li>
+      <li>GitHub Actions CI: lint → type-check → unit test → EAS build check</li>
+      <li>Zustand stores and CompositionRoot skeleton</li>
+      <li>Feature flag infrastructure (local only)</li>
+      <li>All engineers running the app locally on simulator and physical device</li>
+    </ul>
+    <div class="phase-exit" style="margin-top:.5rem"><strong>Sprint DoD:</strong> CI green. App runs on iOS and Android. SQLCipher confirmed (attempt to open DB with wrong key fails). Zero lint errors. All engineers onboarded to repo.</div>
+  </div>
+
+  <h3>9.2 Sprint 2 — Architecture Layer (Weeks 3–4)</h3>
+  <div class="sprint-card">
+    <div class="sprint-meta"><span class="sprint-id">Sprint 2</span><span class="sprint-range">Weeks 3–4 · Phase 1</span></div>
+    <div class="sprint-title">Domain skeleton, event bus, error hierarchy, logging, i18n, migrations</div>
+    <ul>
+      <li>Money, ULID, DateRange, Currency value objects — unit tested</li>
+      <li>Domain event bus with synchronous dispatch and async handler isolation</li>
+      <li>8 error classes instantiated, handled, and unit tested</li>
+      <li>Structured logger with 5 levels and PII scrubbing middleware</li>
+      <li>i18n infrastructure: locale detection, key loading, FormatService wrappers</li>
+      <li>SQLite migration runner with atomic transactions and version tracking</li>
+      <li>dependency-cruiser: zero cycles enforced in CI</li>
+    </ul>
+    <div class="phase-exit" style="margin-top:.5rem"><strong>Sprint DoD:</strong> Domain layer compiles in plain Node.js. All value objects unit tested. Event bus tested with 3+ subscriber scenarios. Migration runner applies and rolls back a test migration. i18n loads en-US and displays one translated string.</div>
+  </div>
+
+  <h3>9.3 Sprint 3 — Auth &amp; Security (Weeks 5–6)</h3>
+  <div class="sprint-card">
+    <div class="sprint-meta"><span class="sprint-id">Sprint 3</span><span class="sprint-range">Weeks 5–6 · Phase 2</span></div>
+    <div class="sprint-title">Biometric lock, PIN fallback, session lifecycle, 3-level error boundaries</div>
+    <ul>
+      <li>expo-local-authentication: Face ID + Fingerprint integration</li>
+      <li>PIN setup flow: 6-digit entry, confirmation, hashed storage in SecureStore</li>
+      <li>SQLCipher key derivation from biometric credential chain</li>
+      <li>Session state machine: re-challenge after 5-min background</li>
+      <li>3-level error boundary: screen, root, global JS handler — tested with deliberate throws</li>
+      <li>Auth screens: lock screen, biometric prompt, PIN entry, PIN reset</li>
+      <li>UI design: lock screen and auth flows finalised with design system tokens</li>
+    </ul>
+    <div class="phase-exit" style="margin-top:.5rem"><strong>Sprint DoD:</strong> Biometric unlock cycle verified on physical iOS + Android. PIN lockout after 5 attempts confirmed. SQLCipher key inaccessible after app lock. Re-challenge fires after 5-min background. Error boundaries catch deliberate throws at all 3 levels.</div>
+  </div>
+
+  <h3>9.4 Sprints 4–5 — Account &amp; Transaction Engine (Weeks 7–10)</h3>
+  <div class="sprint-card">
+    <div class="sprint-meta"><span class="sprint-id">Sprint 4</span><span class="sprint-range">Weeks 7–8 · Phase 3 Part 1</span></div>
+    <div class="sprint-title">Account management, transaction domain + repository, SQLite schema v1</div>
+    <ul>
+      <li>Account entity, repository interface, SQLite repository impl</li>
+      <li>Transaction entity, repository interface, SQLite repository impl with keyset pagination</li>
+      <li>Category entity, default seeder (40 default categories), custom category CRUD</li>
+      <li>SQLite schema v1: all 3 tables with composite indexes — query plan verified</li>
+      <li>CreateTransaction, UpdateTransaction, DeleteTransaction use cases</li>
+      <li>Domain events: TransactionCreated, TransactionUpdated, TransactionDeleted</li>
+      <li>10,000-record performance seeder and benchmark suite in CI</li>
+    </ul>
+  </div>
+  <div class="sprint-card">
+    <div class="sprint-meta"><span class="sprint-id">Sprint 5</span><span class="sprint-range">Weeks 9–10 · Phase 3 Part 2</span></div>
+    <div class="sprint-title">Transaction list screen, quick-add, account screens, 60fps FlashList</div>
+    <ul>
+      <li>Transaction list screen: FlashList with keyset pagination, pull-to-refresh</li>
+      <li>Quick-add bottom sheet: number pad, category picker, date, note — one-tap flow</li>
+      <li>Transaction detail screen: view, edit, delete</li>
+      <li>Account list screen + account detail screen</li>
+      <li>Account balance display: computed from transaction aggregate in real-time</li>
+      <li>Date grouping headers in transaction list (Today, Yesterday, This Week, by month)</li>
+      <li>Accessibility: VoiceOver walkthrough of transaction entry flow</li>
+    </ul>
+    <div class="phase-exit" style="margin-top:.5rem"><strong>Sprint 4–5 DoD (Phase 3):</strong> 10,000-record list scrolls at 60fps. All CRUD operations work. Account balance always matches transaction sum. Domain events received by test subscribers. Performance benchmark passes in CI.</div>
+  </div>
+
+  <h3>9.5 Sprint 6 — Budget Engine (Weeks 11–12)</h3>
+  <div class="sprint-card">
+    <div class="sprint-meta"><span class="sprint-id">Sprint 6</span><span class="sprint-range">Weeks 11–12 · Phase 4</span></div>
+    <div class="sprint-title">Budget periods, tracking, pre-aggregation, budget screens</div>
+    <ul>
+      <li>Budget entity, BudgetPeriod, BudgetLimit per category</li>
+      <li>Budget vs. actual: real-time from transaction stream; monthly_summaries table seeded</li>
+      <li>Budget period transitions: period close, next-period creation, rollover logic</li>
+      <li>Budget screen: per-category progress bars, colour thresholds, total overview</li>
+      <li>Budget create/edit form: category selection, limit input, period configuration</li>
+      <li>BudgetThresholdApproaching, BudgetExceeded domain events</li>
+    </ul>
+    <div class="phase-exit" style="margin-top:.5rem"><strong>Sprint DoD:</strong> Budget creates and tracks correctly. Real-time update on transaction entry confirmed. BudgetExceeded event fires. Monthly summary table has correct aggregates.</div>
+  </div>
+
+  <h3>9.6 Sprint 7 — Debt Management (Weeks 13–14)</h3>
+  <div class="sprint-card">
+    <div class="sprint-meta"><span class="sprint-id">Sprint 7</span><span class="sprint-range">Weeks 13–14 · Phase 5</span></div>
+    <div class="sprint-title">Debt accounts, payment recording, payoff strategies, projections</div>
+    <ul>
+      <li>Debt entity + DebtPayment, repository impl, use cases</li>
+      <li>Snowball and Avalanche strategy computations — validated against reference cases</li>
+      <li>Payoff projection: months to payoff, total interest — formula verified</li>
+      <li>Debt list screen, debt detail screen, payment recording form</li>
+      <li>Debt progress visualisation: balance chart over time, payoff countdown</li>
+    </ul>
+  </div>
+
+  <h3>9.7 Sprint 8 — Goals &amp; Emergency Fund (Weeks 15–16)</h3>
+  <div class="sprint-card">
+    <div class="sprint-meta"><span class="sprint-id">Sprint 8</span><span class="sprint-range">Weeks 15–16 · Phase 6</span></div>
+    <div class="sprint-title">Savings goals, emergency fund recommendation, milestone events</div>
+    <ul>
+      <li>SavingsGoal entity, contribution recording, progress tracking</li>
+      <li>Emergency fund: recommended amount computed from 3-month expense average</li>
+      <li>Goal list, goal detail, contribution form screens</li>
+      <li>GoalMilestoneReached event at 25/50/75/100% — celebration stub (full UI in Phase 12)</li>
+    </ul>
+  </div>
+
+  <h3>9.8 Sprint Template for Phases 7–15</h3>
+  <p>Each sprint after Sprint 8 follows this standard structure:</p>
+  <table>
+    <thead><tr><th>Day</th><th>Activity</th></tr></thead>
+    <tbody>
+      <tr><td>Day 1 (Mon)</td><td>Sprint Planning: backlog review, story sizing, sprint goal definition, capacity check</td></tr>
+      <tr><td>Days 1–9</td><td>Development: daily standups (15 min), active PR reviews, CI monitoring, blocker escalation same-day</td></tr>
+      <tr><td>Day 8 (Thu)</td><td>Mid-sprint check: velocity tracking, scope adjustment if needed, design review of in-progress screens</td></tr>
+      <tr><td>Day 9 (Fri)</td><td>Feature freeze for sprint: no new PRs opened; focus on stabilising in-flight work</td></tr>
+      <tr><td>Day 10 (Mon)</td><td>Sprint Review (demo of working software) → Retrospective → next sprint planning kickoff</td></tr>
+    </tbody>
+  </table>
+  <div class="callout">
+    <strong>Sprint Capacity Rule:</strong> Each sprint allocates 20% of available engineering hours to technical debt, refactoring, documentation, and tooling. This is non-negotiable and tracked in the sprint board. The remaining 80% is available for feature stories. No sprint is planned at &gt;90% of the 80% allocation to maintain buffer for unplanned work.
+  </div>
+</section>
+
+<!-- ─── §10 Quality Gates ─────────────────────────────────────────── -->
+<section id="s10">
+  <h2>§10 Quality Gates</h2>
+  <p class="lead">Quality gates are mandatory checkpoints that must be passed before a phase or release stage advances. They are not aspirational targets — they are blocking criteria. A gate that fails halts progression until resolved.</p>
+
+  <h3>10.1 Phase Gate Criteria</h3>
+  <p>Every phase transition requires ALL of the following:</p>
+  <table>
+    <thead><tr><th>Gate</th><th>Criteria</th><th>Verifier</th></tr></thead>
+    <tbody>
+      <tr><td>Architecture Review</td><td>No layer boundary violations detected by ESLint. Zero dependency cycles in dependency-cruiser output. All new modules have an assigned owner in the module matrix. Any new ADR merged and accepted.</td><td>CI + Tech Lead review</td></tr>
+      <tr><td>Test Coverage</td><td>Domain layer ≥ 80% branch coverage. Application service layer ≥ 70% branch coverage. All critical user flows covered by at least one integration test.</td><td>Jest coverage report in CI</td></tr>
+      <tr><td>Performance Gate</td><td>All list queries &lt;50ms on 10,000-record dataset. Cold start &lt;3,000ms (Phases 0–12), &lt;2,500ms (Phase 14+). Frame rate ≥ 58fps on FlashList with 1,000 visible items.</td><td>Automated benchmark suite in CI</td></tr>
+      <tr><td>Security Gate</td><td>No open High or Critical security findings from the sprint's security checklist review. PII scrubber verified against updated log paths. Feature flags cover all new incomplete features.</td><td>Tech Lead security checklist</td></tr>
+      <tr><td>Accessibility Gate</td><td>All new screens pass: touch targets ≥ 44pt, accessibilityLabel present on all interactive elements, color contrast ≥ 4.5:1 for body text. VoiceOver walkthrough of any new primary flow.</td><td>Manual QA + axe-mobile (where applicable)</td></tr>
+      <tr><td>Localisation Gate</td><td>Zero hardcoded English strings in new code (ESLint i18n rule). All new translation keys present in en-US file. No layout overflow in fr-FR or RTL locale on any new screen.</td><td>CI ESLint + manual locale check</td></tr>
+      <tr><td>Build Gate</td><td>Installable build successfully produced for both iOS and Android via EAS Build. Build installed on at least one physical iOS device and one physical Android device and smoke-tested.</td><td>EAS Build + manual install</td></tr>
+      <tr><td>Exit Criteria Documentation</td><td>Phase exit criteria checklist completed and signed off by Tech Lead and Product Manager. All acceptance criteria for sprint stories marked verified.</td><td>Project management tool</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.2 Release-Stage Quality Gates</h3>
+  <table>
+    <thead><tr><th>Stage</th><th>Additional Gates (beyond Phase Gate)</th></tr></thead>
+    <tbody>
+      <tr><td>Internal Alpha</td><td>Phase 8 all exit criteria met. Zero open P0 bugs. Export function verified (data recovery possible). Sentry active.</td></tr>
+      <tr><td>Closed Beta</td><td>Phase 10 exit criteria met. Crash-free sessions ≥ 99.0% in Alpha. All Must Have features complete and stable. Privacy policy documented.</td></tr>
+      <tr><td>Open Beta</td><td>Phase 12 exit criteria met. Security penetration test complete. All High/Critical security findings resolved. GDPR compliance verified.</td></tr>
+      <tr><td>Release Candidate</td><td>Phase 14 exit criteria met. Crash-free sessions ≥ 99.5% in Open Beta. All P0/P1 bugs resolved. Localisation QA all 6 locales verified. App Store/Play Store metadata complete.</td></tr>
+      <tr><td>v1.0 Production</td><td>Phase 15 exit criteria met. App Store approval received (both stores). Phased rollout plan confirmed. Monitoring runbooks activated. Release owner formal sign-off.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.3 Automated vs. Manual Gates</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">Automated (CI enforces, blocks merge)</div>
+      <ul>
+        <li>TypeScript strict type errors: zero tolerance</li>
+        <li>ESLint rule violations: zero tolerance</li>
+        <li>Dependency cycles: zero tolerance</li>
+        <li>Unit test failures: zero tolerance</li>
+        <li>Domain layer infrastructure imports: zero tolerance</li>
+        <li>Test coverage below floor: blocks merge</li>
+        <li>Bundle size regression &gt;5%: blocks merge (warning at 3%)</li>
+        <li>Performance benchmark failures: blocks merge (Phases 13+)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-label">Manual (Tech Lead sign-off required)</div>
+      <ul>
+        <li>Architecture review (ADR requirement check)</li>
+        <li>VoiceOver / TalkBack accessibility walkthrough</li>
+        <li>RTL layout verification</li>
+        <li>Physical device smoke test (both platforms)</li>
+        <li>Security checklist review</li>
+        <li>Phase gate sign-off documentation</li>
+        <li>Release stage approval</li>
+        <li>AI prompt privacy audit</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ─── §11 Risk Management ───────────────────────────────────────── -->
+<section id="s11">
+  <h2>§11 Risk Management</h2>
+  <p class="lead">This section documents delivery and project risks, distinct from the architectural risks in SPEC-ARC-001 §15. The risk register is reviewed monthly and updated at every phase gate.</p>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">DRISK-01</span>
+      <span class="risk-pill rp-high">HIGH</span>
+      <span class="risk-name">MVP Scope Creep</span>
+    </div>
+    <div class="risk-detail">
+      <strong>Description:</strong> Stakeholders or engineers add features to MVP scope during Phases 3–8, extending the timeline without equivalent scope removal.<br>
+      <strong>Probability:</strong> High (common in all software projects).<br>
+      <strong>Mitigation:</strong> (1) MVP scope is written, agreed, and version-controlled (this document §6). (2) Any scope addition requires a formal impact assessment (written, &lt;1 page) that identifies what is removed or what timeline adjustment is accepted. (3) Tech Lead and Product Manager co-own scope gate — both must approve any change. (4) Scope freeze for MVP is declared at Phase 3 start; all subsequent scope discussions go to v1.1 backlog.
+    </div>
+  </div>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">DRISK-02</span>
+      <span class="risk-pill rp-high">HIGH</span>
+      <span class="risk-name">Key Engineer Unavailability</span>
+    </div>
+    <div class="risk-detail">
+      <strong>Description:</strong> A critical engineer (Tech Lead or module owner) is unavailable for 2+ weeks during a critical-path phase, causing schedule impact.<br>
+      <strong>Probability:</strong> Medium.<br>
+      <strong>Mitigation:</strong> (1) Architecture documentation (SPEC-ARC-001) and ADR records ensure knowledge is not siloed. (2) Pair-programming on critical path phases (Auth, Transaction Engine) ensures two engineers know each module. (3) 3-week buffer exists at Phase 15 to absorb unplanned slippage. (4) Cross-training: each engineer reviews and contributes to at least one module outside their primary ownership per phase.
+    </div>
+  </div>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">DRISK-03</span>
+      <span class="risk-pill rp-high">HIGH</span>
+      <span class="risk-name">Estimation Inaccuracy — Phase 3 and 10</span>
+    </div>
+    <div class="risk-detail">
+      <strong>Description:</strong> Phase 3 (Transaction Engine) and Phase 10 (AI Platform) are the two highest-complexity phases. Underestimation could push the critical path by 2–4 weeks.<br>
+      <strong>Probability:</strong> Medium-High.<br>
+      <strong>Mitigation:</strong> (1) Phase 3 allocated 4 weeks (2 sprints) — more than comparable scope in simpler apps, because offline-first + SQLCipher + performance benchmarks add testing complexity. (2) Phase 10 allocated 6 weeks (3 sprints) — AI integration is exploratory by nature; prompt engineering and caching require iteration. (3) Both phases have explicit performance benchmarks in their exit criteria; these are measured in Sprint 4 (not deferred to Phase 14) to surface issues early. (4) Weekly velocity check: if Sprint 4 finishes at &lt;80% of planned scope, Phase 5–6 are re-sequenced to recover.
+    </div>
+  </div>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">DRISK-04</span>
+      <span class="risk-pill rp-med">MEDIUM</span>
+      <span class="risk-name">Anthropic API Pricing / Availability Change</span>
+    </div>
+    <div class="risk-detail">
+      <strong>Description:</strong> Anthropic changes pricing during Phase 10 development or post-launch in a way that makes per-user AI costs unsustainable, or the API experiences extended outages.<br>
+      <strong>Probability:</strong> Low-Medium.<br>
+      <strong>Mitigation:</strong> (1) IAIProvider interface abstracts the provider — a pricing-driven migration to an alternative LLM (OpenAI, local model) is a configuration change, not an architectural change. (2) AI features always degrade gracefully (cached responses, static fallback content). (3) Daily rate limit (10 requests/user/day) is enforced client-side to cap per-user cost regardless of pricing. (4) Business model: AI features are in the premium tier, so per-user cost can be factored into pricing.
+    </div>
+  </div>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">DRISK-05</span>
+      <span class="risk-pill rp-med">MEDIUM</span>
+      <span class="risk-name">App Store Rejection</span>
+    </div>
+    <div class="risk-detail">
+      <strong>Description:</strong> Apple or Google rejects the v1.0 submission, causing a delay of 1–4 weeks during Phase 15.<br>
+      <strong>Probability:</strong> Low-Medium (first submissions have ~15% rejection rate).<br>
+      <strong>Mitigation:</strong> (1) App Store guidelines reviewed during Phase 15 preparation (not at submission time). (2) Privacy labels and GDPR compliance implemented in Phase 13, which directly reduces privacy-related rejection risk. (3) Phase 15 timeline includes a 10-day buffer specifically for resubmission. (4) Common rejection categories (IAP compliance, privacy, content) are reviewed by tech lead before submission using the App Store Review Guidelines checklist. (5) TestFlight submission made in Week 40 (during Phase 14) to get early feedback from App Review.
+    </div>
+  </div>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">DRISK-06</span>
+      <span class="risk-pill rp-med">MEDIUM</span>
+      <span class="risk-name">Expo SDK Upgrade Breaking Change Mid-Development</span>
+    </div>
+    <div class="risk-detail">
+      <strong>Description:</strong> A mandatory Expo SDK upgrade (security patch, breaking API change) during development introduces regressions that cost 1–2 weeks to resolve.<br>
+      <strong>Probability:</strong> Medium (SDK evolves on a semi-annual cycle).<br>
+      <strong>Mitigation:</strong> (1) SDK version is locked in package.json for each phase; upgrades only at phase boundaries. (2) Upgrade evaluation: changelog reviewed before each phase starts; upgrade deferred if it touches critical-path modules. (3) E2E test suite (Phases 13+) provides regression coverage to quickly identify upgrade-introduced breaks. (4) Architecture is not Expo-native-specific in domain/application layers — an SDK upgrade affects only the infrastructure and presentation layers.
+    </div>
+  </div>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">DRISK-07</span>
+      <span class="risk-pill rp-low">LOW</span>
+      <span class="risk-name">SQLite Data Corruption (Migration Failure)</span>
+    </div>
+    <div class="risk-detail">
+      <strong>Description:</strong> A schema migration fails in production for a subset of users, leaving their database in an inconsistent state and causing data loss.<br>
+      <strong>Probability:</strong> Low (with proper safeguards).<br>
+      <strong>Mitigation:</strong> (1) All migrations are wrapped in a SQLite transaction — partial application is impossible. (2) Down migrations are written and CI-tested for every up migration. (3) First production deployment of any new migration reaches only 1% of users for 24 hours before wider rollout. (4) Export function available before any major schema migration is triggered — users are prompted to export first. (5) Sentry monitors for migration-related error codes with immediate alert to on-call.
+    </div>
+  </div>
+
+  <div class="risk-block">
+    <div class="risk-meta">
+      <span class="risk-id">DRISK-08</span>
+      <span class="risk-pill rp-low">LOW</span>
+      <span class="risk-name">Gamification Anti-Pattern Leakage</span>
+    </div>
+    <div class="risk-detail">
+      <strong>Description:</strong> A gamification feature ships with dark-pattern characteristics (variable-ratio schedule, FOMO mechanics, artificial urgency) that harm user wellbeing and violate SPEC-GAM-001 §8.<br>
+      <strong>Probability:</strong> Low (with structured review).<br>
+      <strong>Mitigation:</strong> (1) SPEC-GAM-001 §8 anti-pattern list is a mandatory Phase 12 exit criterion checklist item reviewed by both Tech Lead and Product Manager. (2) Each gamification feature requires a "behavioral design justification" note in its story description linking to a specific positive behavioral science reference from SPEC-GAM-001 §1. (3) Full opt-out is a Phase 12 launch criterion — if opt-out is incomplete, Phase 12 does not exit.
+    </div>
+  </div>
+</section>
+
+<!-- ─── §12 Resource Planning ─────────────────────────────────────── -->
+<section id="s12">
+  <h2>§12 Resource Planning &amp; Team Structure</h2>
+  <p class="lead">The team composition below is calibrated for a startup or small-studio context, where engineers take on multiple roles across the stack. Resource needs scale at each phase transition.</p>
+
+  <h3>12.1 Core Team</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">Technical Lead / Architect</div>
+      <p><strong>From:</strong> Phase 0. <strong>Capacity:</strong> 100%.</p>
+      <p>Owns architecture decisions, ADR process, CI/CD pipeline, domain layer design, security review, performance benchmarks, code review sign-off, phase gate sign-off. Primary engineer on Phases 0–2.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Mobile Engineer #1</div>
+      <p><strong>From:</strong> Phase 1. <strong>Capacity:</strong> 100%.</p>
+      <p>Primary feature engineer. Owns presentation layer, Zustand stores, FlashList implementation, screen design integration. Leads Phases 3, 9, 11. Secondary on Phases 4–8.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Mobile Engineer #2</div>
+      <p><strong>From:</strong> Phase 3. <strong>Capacity:</strong> 100%.</p>
+      <p>Domain and infrastructure layer specialist. Owns repository implementations, SQL schema, gamification engine, notification system. Leads Phases 5, 6, 12. Secondary on Phases 3, 7, 8.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">UI/UX Designer</div>
+      <p><strong>From:</strong> Phase 2. <strong>Capacity:</strong> 60% (part-time or contractor).</p>
+      <p>Designs screens 1–2 phases ahead of engineering. Owns design system tokens, component library, screen mockups, accessibility review, App Store visual assets (Phase 15). Delivers final designs before each phase kickoff.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Product Manager</div>
+      <p><strong>From:</strong> Phase 0. <strong>Capacity:</strong> 50% initially, 100% from Phase 8.</p>
+      <p>Owns product backlog, user story acceptance criteria, MVP scope gate, release communications, App Store copy, beta tester management, post-launch feedback synthesis.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">QA Engineer</div>
+      <p><strong>From:</strong> Phase 5. <strong>Capacity:</strong> 60% Phases 5–12, 100% Phases 13–15.</p>
+      <p>Owns manual test cases, physical device testing matrix, regression test suites, accessibility walkthroughs, localisation QA. Produces bug reports in standardised format with reproduction steps.</p>
+    </div>
+  </div>
+
+  <h3>12.2 Specialist Consultants (Phase-Scoped)</h3>
+  <table>
+    <thead><tr><th>Role</th><th>Phase(s)</th><th>Scope</th></tr></thead>
+    <tbody>
+      <tr><td>AI / Prompt Engineer</td><td>Phase 10</td><td>Anthropic prompt design, response quality review, cost optimisation, caching strategy validation. 4-week engagement.</td></tr>
+      <tr><td>Security Consultant</td><td>Phase 13</td><td>Penetration testing (black-box), GDPR compliance audit, security findings report. 2-week engagement.</td></tr>
+      <tr><td>Behavioral Designer</td><td>Phase 12</td><td>Gamification anti-pattern audit against SPEC-GAM-001 §8. One-week review engagement at Phase 12 exit gate.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>12.3 Team Ramp-Up Schedule</h3>
+  <table>
+    <thead><tr><th>Weeks</th><th>Active Team Members</th><th>FTE Equivalent</th></tr></thead>
+    <tbody>
+      <tr><td>1–2 (Phase 0)</td><td>Tech Lead + PM (50%)</td><td>1.5 FTE</td></tr>
+      <tr><td>3–6 (Phases 1–2)</td><td>Tech Lead + Eng #1 + PM (50%) + Designer (60%)</td><td>2.6 FTE</td></tr>
+      <tr><td>7–14 (Phases 3–5)</td><td>Tech Lead + Eng #1 + Eng #2 + PM (50%) + Designer (60%) + QA (60%)</td><td>4.1 FTE</td></tr>
+      <tr><td>15–38 (Phases 6–12)</td><td>Full team as above</td><td>4.1 FTE</td></tr>
+      <tr><td>39–46 (Phases 13–15)</td><td>Full team + Security Consultant (Phase 13) + QA at 100%</td><td>4.5–5.5 FTE</td></tr>
+    </tbody>
+  </table>
+
+  <h3>12.4 Responsibilities by Discipline</h3>
+  <table>
+    <thead><tr><th>Responsibility</th><th>Owner</th><th>Reviewer</th></tr></thead>
+    <tbody>
+      <tr><td>Architecture decisions</td><td>Tech Lead</td><td>All engineers (ADR review)</td></tr>
+      <tr><td>Domain model changes</td><td>Tech Lead</td><td>Eng #1 or #2</td></tr>
+      <tr><td>SQLite schema changes</td><td>Eng #2</td><td>Tech Lead</td></tr>
+      <tr><td>Screen design</td><td>Designer</td><td>PM, Tech Lead</td></tr>
+      <tr><td>Accessibility</td><td>QA + Eng #1</td><td>Tech Lead</td></tr>
+      <tr><td>Gamification design</td><td>PM</td><td>Tech Lead (anti-pattern check)</td></tr>
+      <tr><td>AI prompt design</td><td>AI Consultant (Phase 10), then Tech Lead</td><td>PM</td></tr>
+      <tr><td>Security</td><td>Tech Lead</td><td>Security Consultant (Phase 13)</td></tr>
+      <tr><td>Release approval</td><td>PM + Tech Lead (both must approve)</td><td>—</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── §13 Documentation Strategy ───────────────────────────────── -->
+<section id="s13">
+  <h2>§13 Documentation Strategy</h2>
+  <p class="lead">Documentation is a first-class deliverable. Every architectural decision, specification, and operational procedure is documented before it is built — not after. The SPEC-* series is the foundation; this section defines the complete documentation ecosystem.</p>
+
+  <h3>13.1 Documentation Inventory</h3>
+  <div class="tbl-wrap">
+  <table>
+    <thead><tr><th>Document</th><th>Location</th><th>Owner</th><th>Phase Created</th><th>Update Cadence</th></tr></thead>
+    <tbody>
+      <tr><td>SPEC-ARC-001 (Architecture)</td><td>docs/specs/arc-spec.html</td><td>Tech Lead</td><td>Pre-Phase 0</td><td>On architectural change</td></tr>
+      <tr><td>SPEC-RDM-001 (This document)</td><td>docs/specs/rdm-spec.html</td><td>PM + Tech Lead</td><td>Pre-Phase 0</td><td>Quarterly + phase gates</td></tr>
+      <tr><td>SPEC-PMO-001 (Monitoring)</td><td>docs/specs/pmo-spec.html</td><td>Tech Lead</td><td>Pre-Phase 0</td><td>Per release</td></tr>
+      <tr><td>SPEC-GAM-001 (Gamification)</td><td>docs/specs/gam-spec.html</td><td>PM</td><td>Pre-Phase 12</td><td>On feature change</td></tr>
+      <tr><td>Architecture Decision Records</td><td>docs/adr/ADR-NNN.md</td><td>Tech Lead (per ADR)</td><td>Ongoing from Phase 0</td><td>Per decision</td></tr>
+      <tr><td>Database Schema Reference</td><td>docs/db-schema.md (auto-generated)</td><td>Eng #2</td><td>Phase 1</td><td>On each migration</td></tr>
+      <tr><td>Module Dependency Graph</td><td>docs/module-graph.svg (auto-generated)</td><td>CI pipeline</td><td>Phase 1</td><td>On each PR</td></tr>
+      <tr><td>Developer Onboarding Guide</td><td>docs/onboarding.md</td><td>Tech Lead</td><td>Phase 1</td><td>On stack/tooling change</td></tr>
+      <tr><td>Tech Debt Log</td><td>docs/tech-debt.md</td><td>All engineers</td><td>Phase 1</td><td>Continuous; reviewed monthly</td></tr>
+      <tr><td>Performance Benchmark Results</td><td>docs/benchmarks/ (CI artefacts)</td><td>CI</td><td>Phase 3</td><td>Per sprint</td></tr>
+      <tr><td>Operational Runbooks</td><td>docs/runbooks/</td><td>Tech Lead</td><td>Phase 8 (MVP Alpha)</td><td>Per incident type added</td></tr>
+      <tr><td>Release Notes</td><td>docs/releases/vX.Y.Z.md</td><td>PM</td><td>First release</td><td>Per release</td></tr>
+      <tr><td>Privacy Policy</td><td>Legal + in-app</td><td>PM</td><td>Phase 13</td><td>On data practice change</td></tr>
+      <tr><td>App Store Metadata</td><td>docs/store-assets/</td><td>PM + Designer</td><td>Phase 15</td><td>Per major release</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3>13.2 Documentation Standards</h3>
+  <ul>
+    <li><strong>Spec-first:</strong> No feature is started without its section in the relevant SPEC-* document being written and reviewed first. Code that does not match its spec is a bug, not the spec that needs updating.</li>
+    <li><strong>ADR for every major decision:</strong> The threshold: if the decision would take more than 15 minutes to explain to a new engineer, it needs an ADR. If the rationale would be lost without documentation, write an ADR.</li>
+    <li><strong>Living documents:</strong> SPEC-* documents are versioned and updated when specs change. A spec that no longer matches the code is a liability. Outdated spec sections are marked DEPRECATED with a timestamp.</li>
+    <li><strong>Auto-generated where possible:</strong> Database schema docs and module dependency graphs are generated by CI tools, not hand-maintained. Manual maintenance of machine-verifiable facts is waste.</li>
+    <li><strong>Developer onboarding as a quality metric:</strong> A new engineer should be able to run the project locally within 30 minutes using only the onboarding guide. This is tested whenever a new engineer joins.</li>
+  </ul>
+</section>
+
+<!-- ─── §14 Release Strategy ──────────────────────────────────────── -->
+<section id="s14">
+  <h2>§14 Release Strategy</h2>
+  <p class="lead">Finance Bag follows a structured release pipeline with six stages from internal debug to production. Each stage has entry and exit criteria, a distinct audience, and a defined purpose in validating quality before the next stage.</p>
+
+  <h3>14.1 Release Pipeline</h3>
+  <div class="rel-pipe">
+    <div class="rel-stage">
+      <div class="rel-badge">Stage 1</div>
+      <div class="rel-name">Internal Debug</div>
+      <div class="rel-gate">Metro bundler · Dev team only</div>
+    </div>
+    <div class="rel-stage">
+      <div class="rel-badge">Stage 2</div>
+      <div class="rel-name">Internal Build</div>
+      <div class="rel-gate">EAS Build · All team members</div>
+    </div>
+    <div class="rel-stage">
+      <div class="rel-badge">Stage 3</div>
+      <div class="rel-name">Alpha</div>
+      <div class="rel-gate">TestFlight/Internal · 10–20 testers · Phase 8 gate</div>
+    </div>
+    <div class="rel-stage">
+      <div class="rel-badge">Stage 4</div>
+      <div class="rel-name">Closed Beta</div>
+      <div class="rel-gate">TestFlight/Closed · 50–100 testers · Phase 10 gate</div>
+    </div>
+    <div class="rel-stage">
+      <div class="rel-badge">Stage 5</div>
+      <div class="rel-name">Open Beta</div>
+      <div class="rel-gate">Public TestFlight/Open · 200–500 · Phase 12 gate</div>
+    </div>
+    <div class="rel-stage rel-prod">
+      <div class="rel-badge">Stage 6</div>
+      <div class="rel-name">v1.0 Production</div>
+      <div class="rel-gate">App Store/Play Store · Phase 15 gate</div>
+    </div>
+  </div>
+
+  <h3>14.2 Release Stage Details</h3>
+  <table>
+    <thead><tr><th>Stage</th><th>Purpose</th><th>Entry Criteria</th><th>Feedback Mechanism</th></tr></thead>
+    <tbody>
+      <tr><td>Internal Debug</td><td>Active development validation</td><td>Sprint story marked complete</td><td>Engineer direct observation</td></tr>
+      <tr><td>Internal Build</td><td>Cross-team validation; every sprint</td><td>Sprint DoD fully met; CI green</td><td>Team Slack; bug tracker</td></tr>
+      <tr><td>Alpha</td><td>Validate MVP assumption with target users</td><td>Phase 8 all exit criteria; zero P0 bugs; export working</td><td>In-app feedback form; direct interviews; Sentry</td></tr>
+      <tr><td>Closed Beta</td><td>Validate full intelligence features with engaged users</td><td>Phase 10 exit; ≥ 99.0% crash-free in Alpha; Must Have features stable</td><td>TestFlight feedback; survey; Sentry; structured task testing</td></tr>
+      <tr><td>Open Beta</td><td>Scale testing, localisation validation, stress test</td><td>Phase 12 exit; security penetration test passed; all High/Critical findings resolved</td><td>App Store beta feedback; Sentry; PMO monitoring dashboard</td></tr>
+      <tr><td>v1.0 Production</td><td>Public launch</td><td>Phase 15 exit; App Store approved; ≥ 99.5% crash-free in Open Beta; all P0/P1 resolved</td><td>App Store reviews; support inbox; Sentry; PMO SLOs</td></tr>
+    </tbody>
+  </table>
+
+  <h3>14.3 Production Rollout Strategy</h3>
+  <p>v1.0 uses a phased rollout to limit blast radius of any post-launch defect:</p>
+  <table>
+    <thead><tr><th>Rollout %</th><th>Duration</th><th>Gate to Advance</th><th>Rollback Trigger</th></tr></thead>
+    <tbody>
+      <tr><td>10%</td><td>24 hours</td><td>Crash-free ≥ 99.5%; no P0 incidents; error budget burn &lt;5× baseline</td><td>Any P0 incident OR crash-free &lt;99.0%</td></tr>
+      <tr><td>25%</td><td>24 hours</td><td>Same criteria maintained</td><td>Same criteria</td></tr>
+      <tr><td>50%</td><td>24 hours</td><td>Same criteria maintained</td><td>Same criteria</td></tr>
+      <tr><td>100%</td><td>Permanent</td><td>All prior gates passed</td><td>Feature flag disable; OTA rollback if non-native</td></tr>
+    </tbody>
+  </table>
+
+  <h3>14.4 Version Numbering</h3>
+  <table>
+    <thead><tr><th>Version Type</th><th>Format</th><th>Trigger</th><th>Examples</th></tr></thead>
+    <tbody>
+      <tr><td>Major</td><td>X.0.0</td><td>New bounded context, breaking schema change, major UX overhaul</td><td>2.0.0 (cloud sync), 3.0.0 (investments)</td></tr>
+      <tr><td>Minor</td><td>X.Y.0</td><td>New feature module, significant AI model upgrade, new locale</td><td>1.1.0 (challenges), 1.2.0 (AI predictions)</td></tr>
+      <tr><td>Patch</td><td>X.Y.Z</td><td>Bug fixes, performance optimisations, copy updates, OTA-eligible changes</td><td>1.0.1, 1.0.2</td></tr>
+      <tr><td>Hotfix</td><td>X.Y.Z+1</td><td>P0/P1 production incident requiring emergency release</td><td>1.0.1 (hotfix for crash)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── §15 Post-Launch Plan ──────────────────────────────────────── -->
+<section id="s15">
+  <h2>§15 Post-Launch Plan</h2>
+  <p class="lead">Launch is the beginning, not the end. The first 90 days post-launch are as planned as the development phases, with clear objectives for each week and month.</p>
+
+  <h3>15.1 Launch Week (Days 1–7)</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">War Room Monitoring</div>
+      <p>All team members monitor Sentry, PMO dashboard, and App Store reviews daily. Tech Lead on-call 24/7 for first 72 hours. Any P0 triggers immediate all-hands response regardless of time zone.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Rollout Gating</div>
+      <p>10% → 25% → 50% → 100% progression per §14.3. Each gate requires explicit PM + Tech Lead approval. No automatic advancement.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">User Feedback Collection</div>
+      <p>In-app rating prompt shown after 7 days of use or after first goal completion (whichever comes first). Support inbox monitored within 4 hours during launch week. App Store reviews read and categorised daily.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">Hotfix Readiness</div>
+      <p>Hotfix branch prepared. EAS Build configured for expedited release. Apple expedited review process bookmarked. Team can deploy a P0 hotfix within 4 hours of root cause identification.</p>
+    </div>
+  </div>
+
+  <h3>15.2 Month 1 (Days 8–30): Stabilisation</h3>
+  <ul>
+    <li><strong>Bug fix sprint:</strong> Sprint dedicated entirely to P1 and P2 bug fixes from launch feedback. No new features.</li>
+    <li><strong>Performance baseline:</strong> First month's performance metrics establish the production baseline for all future comparison.</li>
+    <li><strong>Retention analysis:</strong> Day-1, Day-7, Day-14 retention cohorts analysed. Identify drop-off points in onboarding flow.</li>
+    <li><strong>Support inbox triage:</strong> Support requests categorised into: bug, feature request, UX confusion, documentation gap. Each category has a resolution owner.</li>
+    <li><strong>v1.0.1 patch:</strong> First patch release targeting all P1 bugs identified in launch week, plus any onboarding friction identified from retention data.</li>
+  </ul>
+
+  <h3>15.3 Month 2 (Days 31–60): Optimisation</h3>
+  <ul>
+    <li><strong>Feature engagement analysis:</strong> Which features are used, which are ignored. Budget, debt, and goals usage rates tracked.</li>
+    <li><strong>Gamification effectiveness review:</strong> Are achievement unlocks correlated with retention? Are any achievements never unlocked by real users?</li>
+    <li><strong>AI insights usage:</strong> Cache hit rate, request counts, which insight types are opened vs. dismissed.</li>
+    <li><strong>v1.0.2 patch:</strong> Addresses UX friction points identified from retention and engagement data.</li>
+    <li><strong>v1.1 planning kickoff:</strong> Backlog grooming session using launch feedback + engagement data to prioritise Could Have features from §7.</li>
+  </ul>
+
+  <h3>15.4 Month 3 (Days 61–90): Growth</h3>
+  <ul>
+    <li><strong>v1.1 development begins:</strong> First Could Have features based on user demand data (likely: recurring transactions, multi-currency, advanced categories).</li>
+    <li><strong>30-day retention analysis:</strong> Cohort analysis: do gamification users retain better than non-gamification users? Data informs future feature prioritisation.</li>
+    <li><strong>Security review:</strong> 90-day post-launch security scan. Check for any new CVEs in dependencies. Update as needed.</li>
+    <li><strong>Localisation expansion:</strong> If user data shows demand in specific locales not yet launched, prioritise next locale addition.</li>
+  </ul>
+
+  <h3>15.5 Ongoing Operational Cadence</h3>
+  <table>
+    <thead><tr><th>Cadence</th><th>Activity</th></tr></thead>
+    <tbody>
+      <tr><td>Weekly</td><td>Sentry error report review. Crash-free session rate check. New App Store review digest.</td></tr>
+      <tr><td>Monthly</td><td>Full PMO SLO review. Retention cohort report. Feature engagement dashboard update. Tech debt log review. Security dependency scan.</td></tr>
+      <tr><td>Quarterly</td><td>Roadmap revision (§17). Architecture review: is the codebase drifting from SPEC-ARC-001? Performance benchmark regression check. User research session (5–10 user interviews).</td></tr>
+      <tr><td>Semi-annually</td><td>Full accessibility audit. Expo SDK upgrade evaluation. Major dependency version assessment. Privacy policy review.</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ─── §16 Success Metrics ───────────────────────────────────────── -->
+<section id="s16">
+  <h2>§16 Success Metrics &amp; KPIs</h2>
+  <p class="lead">Success is measured across four dimensions: delivery predictability, product stability, user engagement, and technical health. Targets are set for v1.0 launch; revised targets for v1.1+ are established from actual baseline data after Month 1.</p>
+
+  <h3>16.1 Delivery KPIs</h3>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Sprint Velocity Variance</div>
+      <div class="kpi-val">≤ 20%</div>
+      <div class="kpi-desc">Sprint-to-sprint velocity variation. &gt;20% triggers planning review.</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Phase Gate Delays</div>
+      <div class="kpi-val">0</div>
+      <div class="kpi-desc">Phases that fail their first gate review and require re-entry</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Defect Escape Rate</div>
+      <div class="kpi-val">≤ 2</div>
+      <div class="kpi-desc">P1+ bugs reaching production per release</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Architecture Violations</div>
+      <div class="kpi-val">0</div>
+      <div class="kpi-desc">Dependency cycle or layer violations merged to main</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Test Coverage Floor</div>
+      <div class="kpi-val">80%</div>
+      <div class="kpi-desc">Domain layer branch coverage — minimum maintained at all times</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Tech Debt Velocity</div>
+      <div class="kpi-val">20%</div>
+      <div class="kpi-desc">Sprint capacity dedicated to debt reduction — maintained not reduced</div>
+    </div>
+  </div>
+
+  <h3>16.2 Product Stability KPIs</h3>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Crash-Free Sessions</div>
+      <div class="kpi-val">≥ 99.5%</div>
+      <div class="kpi-desc">Sentry-measured. Drops below 99.0% trigger rollback.</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Cold Start Time</div>
+      <div class="kpi-val">&lt; 2.5s</div>
+      <div class="kpi-desc">P95 on target device (iPhone 12 / mid-range Android)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">List Scroll FPS</div>
+      <div class="kpi-val">≥ 58 fps</div>
+      <div class="kpi-desc">FlashList on 1,000-item transaction list</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">DB Query P95</div>
+      <div class="kpi-val">&lt; 50ms</div>
+      <div class="kpi-desc">All list queries on 10,000-record dataset</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">App Store Rating</div>
+      <div class="kpi-val">≥ 4.5★</div>
+      <div class="kpi-desc">Target by end of Month 3 (100+ ratings)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">P0 Time-to-Fix</div>
+      <div class="kpi-val">&lt; 4h</div>
+      <div class="kpi-desc">Root cause identified + hotfix deployed (OTA) for any P0 incident</div>
+    </div>
+  </div>
+
+  <h3>16.3 User Engagement KPIs</h3>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Day 7 Retention</div>
+      <div class="kpi-val">≥ 40%</div>
+      <div class="kpi-desc">Users still active 7 days after first launch</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Day 30 Retention</div>
+      <div class="kpi-val">≥ 25%</div>
+      <div class="kpi-desc">Users still active 30 days after first launch</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Transaction Entry Rate</div>
+      <div class="kpi-val">≥ 3/wk</div>
+      <div class="kpi-desc">Avg weekly transactions for retained users (Week 2+)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Budget Setup Rate</div>
+      <div class="kpi-val">≥ 60%</div>
+      <div class="kpi-desc">Active users who create at least one budget within 7 days</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">FHS Engagement</div>
+      <div class="kpi-val">≥ 50%</div>
+      <div class="kpi-desc">Active users who view FHS screen at least once per week</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">AI Insights Open Rate</div>
+      <div class="kpi-val">≥ 35%</div>
+      <div class="kpi-desc">AI insight cards opened / total insights generated</div>
+    </div>
+  </div>
+
+  <h3>16.4 Technical Health KPIs</h3>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Open P0 Bugs</div>
+      <div class="kpi-val">0</div>
+      <div class="kpi-desc">Always. Any P0 triggers immediate all-hands response.</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Bundle Size</div>
+      <div class="kpi-val">&lt; 8 MB</div>
+      <div class="kpi-desc">JS bundle size. Growth tracked per release.</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">AI Cache Hit Rate</div>
+      <div class="kpi-val">≥ 60%</div>
+      <div class="kpi-desc">Repeat AI queries served from cache; reduces API cost</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Dependency Age</div>
+      <div class="kpi-val">&lt; 6 mo</div>
+      <div class="kpi-desc">Maximum age of any minor version behind current for core deps</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Memory Ceiling</div>
+      <div class="kpi-val">&lt; 150 MB</div>
+      <div class="kpi-desc">Resident memory under normal navigation (not stress test)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Tech Debt Items</div>
+      <div class="kpi-val">&lt; 20</div>
+      <div class="kpi-desc">Open documented tech debt items at any given time</div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── §17 Future Product Evolution ─────────────────────────────── -->
+<section id="s17">
+  <h2>§17 Future Product Evolution</h2>
+  <p class="lead">This section maps the product roadmap beyond v1.0. Each version builds on the preceding one without requiring architectural re-work, because the CRDT-ready data model, IAIProvider abstraction, plugin architecture, and Clean Architecture layering are all established in v1.0.</p>
+
+  <h3>17.1 v1.x Series — Personal Finance Mastery</h3>
+  <table>
+    <thead><tr><th>Version</th><th>Theme</th><th>Key Features</th><th>Estimated After v1.0</th></tr></thead>
+    <tbody>
+      <tr><td>v1.1</td><td>User Requests</td><td>Recurring transactions, split transactions, merchant auto-categorisation, additional MoSCoW Could Have items from §7</td><td>2–3 months</td></tr>
+      <tr><td>v1.2</td><td>Enhanced Intelligence</td><td>AI prediction refinement (additional model context), gamification challenges (full 10-type set), seasonal events, bill reminders</td><td>5–6 months</td></tr>
+      <tr><td>v1.3</td><td>Localisation Expansion</td><td>pt-BR, zh-CN, de-DE locales; additional currency support (40 → 80 currencies); fiscal year flexibility</td><td>8–9 months</td></tr>
+      <tr><td>v1.4</td><td>Performance &amp; Scale</td><td>Hot/warm/cold archival for 5+ year datasets, export performance for 20,000+ transactions, SQLite FTS5 improvements</td><td>11–12 months</td></tr>
+    </tbody>
+  </table>
+
+  <h3>17.2 v2.x Series — Connected Finance</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">v2.0 — Cloud Sync</div>
+      <p>Multi-device synchronisation with CRDT-based conflict resolution. Delta sync protocol. Device registry (up to 5 devices). Offline-30-day eligibility. End-to-end encrypted sync payload. Account recovery via cloud backup.</p>
+      <p><strong>Architecture impact:</strong> MOD-19 Sync activated. New cloud infrastructure. No changes to domain or application layers.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">v2.1 — Family Sharing</div>
+      <p>Shared family budget space. Multiple family members contribute transactions to shared accounts. Separate personal + family views. Role-based access (owner, contributor, viewer). Family FHS aggregate.</p>
+      <p><strong>Architecture impact:</strong> New Family bounded context. Multi-tenancy concept above current single-user model. Sync engine extended for multi-participant graph.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">v2.2 — Bank Statement Import</div>
+      <p>CSV/OFX/QIF import from bank exports. Auto-categorisation of imported transactions using rules engine + AI. Duplicate detection. Historical import (bulk up to 2 years back). No live bank connection required.</p>
+      <p><strong>Architecture impact:</strong> New Import bounded context. No changes to existing transaction model.</p>
+    </div>
+  </div>
+
+  <h3>17.3 v3.x Series — Expanded Financial Life</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-label">v3.0 — Investment Tracking</div>
+      <p>Portfolio management: stocks, ETFs, mutual funds, crypto (manual entry). Daily price data (bundled weekly snapshot + optional live feed). Portfolio performance vs. benchmark. Investment allocation in FHS computation extension.</p>
+    </div>
+    <div class="card">
+      <div class="card-label">v3.1 — Tax Planning Assistant</div>
+      <p>Tax-year boundary tracking. Deductible expense tagging. Annual tax summary export by jurisdiction. AI-powered tax optimisation suggestions (not tax advice). Jurisdiction-specific rule sets as versioned bundles.</p>
+    </div>
+  </div>
+
+  <h3>17.4 v4.x+ Series — Platform Expansion</h3>
+  <table>
+    <thead><tr><th>Version</th><th>Platform</th><th>Key Architecture Change</th></tr></thead>
+    <tbody>
+      <tr><td>v4.0</td><td>Business Finance</td><td>Double-entry bookkeeping bounded context. Separate from personal finance. Shared Money value object and infrastructure.</td></tr>
+      <tr><td>v4.1</td><td>Open Banking Integration</td><td>Read-only bank API connection (Plaid/TrueLayer/Open Banking). Auto-sync transactions. Privacy: live connection is opt-in; transactions stored locally post-sync.</td></tr>
+      <tr><td>v5.0</td><td>Desktop (Web/Electron)</td><td>Web adapter using sql.js (WASM SQLite). Domain + application layers reused unchanged. New web presentation layer. Sync with mobile via v2.0 infrastructure.</td></tr>
+      <tr><td>v5.1</td><td>Wearable (watchOS/Wear OS)</td><td>Thin WatchConnectivity terminal. Quick-add transaction via complication. Phone app writes to SQLite; wearable is input-only. No database on wearable.</td></tr>
+      <tr><td>v6.0</td><td>AI Agent</td><td>Autonomous financial advisor: proactive suggestions, scheduled actions (e.g. "set aside £50 for your goal today"), voice interface. Requires user consent for each agent action type.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>17.5 Architectural Stability Across Versions</h3>
+  <div class="callout callout-violet">
+    <strong>The architectural guarantee:</strong> The 11 principles in SPEC-ARC-001 §1, the 7-layer Clean Architecture, the ULID key scheme, the soft-delete policy, and the Money value object are invariants across all versions. New bounded contexts register as plugins via the plugin architecture (SPEC-ARC-001 §8). Existing modules do not change to accommodate new ones. The domain event bus is the universal integration mechanism.
+  </div>
+</section>
+
+<!-- ─── §18 Final Delivery Checklist & BR ─────────────────────────── -->
+<section id="s18">
+  <h2>§18 Final Delivery Checklist &amp; Business Rules</h2>
+  <p class="lead">The master pre-release checklist covering every dimension of readiness. All items must be checked before the v1.0 production release gate opens. Items are grouped by domain and assigned to a responsible role.</p>
+
+  <h3>18.1 Architecture Readiness</h3>
+  <div class="check-section">
+    <div class="check-hdr">Architecture</div>
+    <div class="check-item"><div class="check-box"></div><span>All 22 modules (MOD-01–22) implemented and passing their respective exit criteria</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Zero dependency cycles detected in final dependency-cruiser output</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Zero layer boundary violations: domain contains no infrastructure imports</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Domain layer compiles and all domain tests pass in plain Node.js environment</span></div>
+    <div class="check-item"><div class="check-box"></div><span>All 15 ADRs linked from the project README, all in Accepted state</span></div>
+    <div class="check-item"><div class="check-box"></div><span>CompositionRoot wires all 22 modules; no direct instantiation in application code</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Plugin architecture registry empty (no premature plugins) but functional (accepts test plugin)</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Feature flag system: all Phase 12+ features behind flags; production config verified</span></div>
+    <div class="check-item"><div class="check-box"></div><span>SPEC-ARC-001 §17 cross-spec consistency validation: all 18 checks confirmed passed</span></div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Security &amp; Privacy</div>
+    <div class="check-item"><div class="check-box"></div><span>SQLCipher AES-256-CBC verified: database unreadable with incorrect key on both platforms</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Anthropic API key stored only in Expo SecureStore — confirmed absent from logs, exports, crash reports</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Biometric re-challenge fires after 5-minute background on both iOS and Android</span></div>
+    <div class="check-item"><div class="check-box"></div><span>PII scrubber verified: all 13 sensitive field types scrubbed from all log paths</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Penetration test complete; zero open High/Critical findings</span></div>
+    <div class="check-item"><div class="check-box"></div><span>GDPR: right-to-access (export), right-to-erasure (PII nulling), consent withdrawal — all verified functional</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Privacy policy displayed in-app; consent stored in user_preferences; withdrawal stops all data collection</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Screen capture prevention active on all financial data screens</span></div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Performance</div>
+    <div class="check-item"><div class="check-box"></div><span>Cold start &lt;2,500ms on P95 device (iPhone 12 / mid-range Android) — measured, not estimated</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Transaction list scrolls at ≥58fps with 1,000 visible items on P95 device</span></div>
+    <div class="check-item"><div class="check-box"></div><span>All SQLite queries use index scans — verified with EXPLAIN QUERY PLAN on every production query</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Resident memory &lt;150MB under normal navigation (6 screens deep, 10,000-transaction dataset)</span></div>
+    <div class="check-item"><div class="check-box"></div><span>JS bundle size &lt;8MB — verified in CI bundle analyser output</span></div>
+    <div class="check-item"><div class="check-box"></div><span>All performance benchmarks pass in CI against 10,000-record synthetic dataset</span></div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Testing</div>
+    <div class="check-item"><div class="check-box"></div><span>Domain layer branch coverage ≥80% — Jest coverage report confirms</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Application service layer branch coverage ≥70%</span></div>
+    <div class="check-item"><div class="check-box"></div><span>All critical flows covered by integration tests: auth, transaction CRUD, budget tracking, debt payment, goal contribution, FHS update</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Gamification: 27 behaviour event tests, all achievement unlock tests, 7 streak scenarios including grace period edge case</span></div>
+    <div class="check-item"><div class="check-box"></div><span>E2E smoke suite: 20 test cases — all pass on physical iOS and Android devices</span></div>
+    <div class="check-item"><div class="check-box"></div><span>AI graceful degradation: all 4 AI modules display correct fallback content when API mocked as unavailable</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Migration tests: every migration applied and rolled back against prior schema snapshot in CI</span></div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Accessibility</div>
+    <div class="check-item"><div class="check-box"></div><span>VoiceOver (iOS): full journey walkthrough — onboarding, transaction entry, budget review, FHS screen — without sighted assistance</span></div>
+    <div class="check-item"><div class="check-box"></div><span>TalkBack (Android): same journey as above</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Color contrast ≥4.5:1 for all body text; ≥3:1 for all UI components — verified with contrast checker</span></div>
+    <div class="check-item"><div class="check-box"></div><span>All status indicators use icon + label in addition to color</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Text scaling: all screens usable at 200% system font scale without overflow or truncation</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Reduced motion: all animations respect AccessibilityInfo.isReduceMotionEnabled</span></div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Localisation</div>
+    <div class="check-item"><div class="check-box"></div><span>Zero hardcoded English strings in production build (ESLint i18n rule clean)</span></div>
+    <div class="check-item"><div class="check-box"></div><span>All 6 launch locales (en-US, en-GB, fr-FR, es-ES, ar-SA, pt-BR): all translation keys present, no missing fallbacks</span></div>
+    <div class="check-item"><div class="check-box"></div><span>RTL layout (ar-SA): full app walkthrough on physical Arabic-locale device — no LTR layout leakage</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Number and date formatting: verified for all 6 locales with Intl.NumberFormat and Intl.DateTimeFormat</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Currency display: all 20 launch currencies display correct symbol, decimal places, and locale formatting</span></div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Offline Mode &amp; Data Integrity</div>
+    <div class="check-item"><div class="check-box"></div><span>Full feature set usable with airplane mode enabled — no feature requires network for core operation</span></div>
+    <div class="check-item"><div class="check-box"></div><span>All domain invariants: FHS 6 invariants, budget invariants, debt balance floor — each has a failing test that confirms enforcement</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Soft deletes only: no hard DELETE SQL statements exist in production query set (grep verification)</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Export verified: exported CSV/JSON contains all user data; re-import scenario documented (manual recovery)</span></div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">AI Integration</div>
+    <div class="check-item"><div class="check-box"></div><span>AI prompt privacy audit: no transaction IDs, account numbers, user names, or other PII in any prompt</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Rate limiter verified: 11th AI request in a 24-hour window is blocked with graceful user message</span></div>
+    <div class="check-item"><div class="check-box"></div><span>AI response cache verified: same prompt+context hash returns cached result within TTL</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Timeout handling: 15,000ms timeout returns cached or static fallback — no spinner-forever state</span></div>
+  </div>
+
+  <div class="check-section">
+    <div class="check-hdr">Store Compliance &amp; Release</div>
+    <div class="check-item"><div class="check-box"></div><span>Apple App Store: submission approved; privacy labels accurate; no use of private APIs</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Google Play Store: submission approved; content rating questionnaire completed; target API level current</span></div>
+    <div class="check-item"><div class="check-box"></div><span>App Store assets: screenshots all device sizes, App Preview video, description copy, keywords — all reviewed and approved by PM</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Sentry production project configured; error budget monitoring active; PMO runbooks loaded</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Phased rollout plan documented; rollback trigger thresholds defined; Tech Lead and PM both confirmed on-call for launch week</span></div>
+    <div class="check-item"><div class="check-box"></div><span>Release owner formal sign-off obtained (PM + Tech Lead both sign)</span></div>
+  </div>
+
+  <h3>18.2 Delivery Business Rules</h3>
+
+  <div class="br-block">
+    <div class="br-id">BR-RDM-01</div>
+    <div class="br-body">No phase may begin before the preceding phase's exit criteria have been fully verified and signed off by the Tech Lead. Phase exit sign-off is a written record (not an implicit assumption) stored in the project management tool and linked from the phase's definition in this document.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-02</div>
+    <div class="br-body">MVP scope (§6) is frozen at Phase 3 start. Any post-freeze addition to MVP scope requires a written impact assessment (≤1 page) identifying what is removed or what timeline extension is accepted. Verbal approval is not sufficient; both the PM and Tech Lead must sign off in writing.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-03</div>
+    <div class="br-body">Every 2-week sprint must produce a functioning, installable internal build on the final day of the sprint. A sprint that does not produce a build has failed its Definition of Done regardless of how many stories were completed. Build production is a non-negotiable sprint outcome.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-04</div>
+    <div class="br-body">20% of each sprint's engineering capacity is reserved for technical debt reduction, refactoring, documentation, and tooling improvement. This allocation is non-negotiable and is tracked separately in the sprint board. It may not be reallocated to feature work to "catch up" on a lagging sprint.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-05</div>
+    <div class="br-body">Architecture violations (dependency cycles, layer boundary violations, <code>any</code> type in non-generated code) are P0 defects that block sprint completion. They are never deferred. A PR introducing an architecture violation must not be merged; CI enforces this automatically.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-06</div>
+    <div class="br-body">All gamification features are opt-in and subject to a mandatory anti-pattern review against SPEC-GAM-001 §8 before any gamification feature ships. If a feature cannot be implemented without anti-patterns, it is redesigned or removed — it is not shipped with a known anti-pattern and "fixed later."</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-07</div>
+    <div class="br-body">No production release may proceed without a minimum 48-hour staging soak for native builds and a 24-hour staging soak for OTA updates. The soak period is measured from successful staging deployment, not from the decision to release. Emergency hotfixes (P0) may use a 4-hour soak with explicit Tech Lead sign-off.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-08</div>
+    <div class="br-body">The Security Hardening phase (Phase 13) is mandatory and cannot be skipped or merged with Phase 14 to save time. All High and Critical security findings from the penetration test must be resolved before the Open Beta stage gate opens. Medium findings must have a documented resolution timeline.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-09</div>
+    <div class="br-body">Post-launch bug fixes take absolute priority over new feature development for the first 30 days after any production release. During stabilisation sprints, no new feature work is started until the P0/P1 bug count reaches zero and the P2 bug list is triaged with resolution timelines.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-10</div>
+    <div class="br-body">Performance benchmarks must be measured on P95 representative devices (iPhone 12 / equivalent mid-range Android), not on developer machines or high-end devices. A benchmark that passes on a developer machine but fails on P95 devices is a failing benchmark. CI runs benchmarks on defined emulator configurations that approximate P95 device performance.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-11</div>
+    <div class="br-body">The risk register (§11) is reviewed and probability/impact scores updated at every phase gate. A risk whose probability has increased since the last review triggers an immediate mitigation activation review with the full team — it is not deferred to the next monthly review.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-12</div>
+    <div class="br-body">The critical path (§8.1) is re-evaluated at every phase gate. Any change to the critical path — a new dependency identified, a phase duration revised, a parallel opportunity discovered — triggers a delivery plan revision. The revised critical path is communicated to all stakeholders before the next sprint begins.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-13</div>
+    <div class="br-body">Every new external dependency (library, SDK, service) added after Phase 2 requires a dependency decision note: why this dependency over alternatives, what the removal strategy is, and what the architectural boundary it operates within is. This note is part of the PR description and becomes an ADR if the dependency is a significant architectural choice.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-14</div>
+    <div class="br-body">This document (SPEC-RDM-001) is a living document. It is formally reviewed and updated quarterly, at every phase gate, and whenever a risk materialises or a scope change is accepted. The document version is incremented on each update. An outdated delivery plan that no longer reflects reality is a project risk, not an administrative matter.</div>
+  </div>
+  <div class="br-block">
+    <div class="br-id">BR-RDM-15</div>
+    <div class="br-body">Future version planning (§17) is a directional roadmap, not a commitment. Versions v1.1 through v6.0 are defined architecturally to confirm the current v1.0 design does not block them, but their scope, timeline, and priority are determined by actual user engagement data and market conditions after v1.0 launch — not by pre-launch assumptions made in this document.</div>
+  </div>
+
+  <h3>18.3 Document Metadata</h3>
+  <table>
+    <thead><tr><th>Field</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Specification ID</td><td>SPEC-RDM-001</td></tr>
+      <tr><td>Version</td><td>1.0.0</td></tr>
+      <tr><td>Status</td><td>APPROVED</td></tr>
+      <tr><td>Role Authors</td><td>Principal Technical Program Manager · Enterprise Software Delivery Manager · Senior Agile Coach · Product Manager · FinTech Solution Architect</td></tr>
+      <tr><td>Development Phases</td><td>16 (Phase 0 through Phase 15)</td></tr>
+      <tr><td>Total Duration</td><td>46 weeks (~11.5 months) for 3-engineer team to v1.0</td></tr>
+      <tr><td>MVP Alpha Gate</td><td>Week 20 (Phase 8 completion)</td></tr>
+      <tr><td>Sprint Count</td><td>23 sprints (Sprint 1 through Sprint 23)</td></tr>
+      <tr><td>Business Rules</td><td>BR-RDM-01 through BR-RDM-15</td></tr>
+      <tr><td>Delivery Risks Documented</td><td>DRISK-01 through DRISK-08</td></tr>
+      <tr><td>Future Versions Mapped</td><td>v1.1 through v6.0</td></tr>
+      <tr><td>Supersedes</td><td>None (inaugural version)</td></tr>
+      <tr><td>Related Specifications</td><td>SPEC-ARC-001, SPEC-PMO-001, SPEC-GAM-001, all domain SPEC-* documents</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-rdm-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-rdm-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
