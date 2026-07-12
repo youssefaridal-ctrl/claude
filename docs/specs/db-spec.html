@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPEC-DB-001 — Database Architecture & Data Model</title>
+<style>
+  :root{--bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;--text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;--accent:#06B6D4;--accent-dim:rgba(6,182,212,0.13);--accent-glow:rgba(6,182,212,0.06);--sidebar-w:268px;}
+  @media(prefers-color-scheme:light){:root{--bg:#F8F9FA;--surface:#FFFFFF;--surface2:#F0F9FF;--border:#E2E8F0;--text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;--accent-dim:rgba(6,182,212,0.09);--accent-glow:rgba(6,182,212,0.04);}}
+  :root[data-theme="dark"]{--bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;--text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;--accent-dim:rgba(6,182,212,0.13);--accent-glow:rgba(6,182,212,0.06);}
+  :root[data-theme="light"]{--bg:#F8F9FA;--surface:#FFFFFF;--surface2:#F0F9FF;--border:#E2E8F0;--text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;--accent-dim:rgba(6,182,212,0.09);--accent-glow:rgba(6,182,212,0.04);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:15px;line-height:1.65;}
+  .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;display:flex;flex-direction:column;z-index:100;}
+  .sb-head{padding:20px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;}
+  .mod-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid rgba(6,182,212,0.3);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+  .sb-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.3;}
+  .sb-sub{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .nav-list{list-style:none;padding:10px 8px;flex:1;}
+  .nav-item a{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:12.5px;color:var(--text-muted);text-decoration:none;transition:all .15s;}
+  .nav-item a:hover{background:var(--surface2);color:var(--text);}
+  .nav-item a.active{background:var(--accent-dim);color:var(--accent);font-weight:600;}
+  .nav-num{font-size:10px;font-weight:700;color:var(--accent);min-width:20px;font-variant-numeric:tabular-nums;}
+  .theme-area{padding:12px 16px;border-top:1px solid var(--border);}
+  .theme-btn{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text-muted);font-size:12px;cursor:pointer;transition:color .15s;}
+  .theme-btn:hover{color:var(--text);}
+  .main{margin-left:var(--sidebar-w);flex:1;max-width:960px;padding:48px 52px 120px;}
+  .doc-header{border-bottom:2px solid var(--border);padding-bottom:36px;margin-bottom:56px;}
+  .doc-eyebrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .spec-id{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
+  .spec-ver{font-size:11px;color:var(--text-dim);background:var(--surface2);border-radius:4px;padding:2px 8px;}
+  .status-pill{font-size:11px;font-weight:600;border-radius:20px;padding:3px 10px;background:rgba(245,158,11,.15);color:#F59E0B;border:1px solid rgba(245,158,11,.3);}
+  .doc-title{font-size:32px;font-weight:800;letter-spacing:-.025em;line-height:1.15;color:var(--text);text-wrap:balance;margin-bottom:12px;}
+  .doc-sub{font-size:16px;color:var(--text-muted);text-wrap:balance;max-width:680px;margin-bottom:24px;}
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .meta-item{background:var(--surface2);border-radius:8px;padding:10px 14px;}
+  .meta-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;}
+  .meta-val{font-size:13px;font-weight:600;color:var(--text);}
+  section{margin-bottom:64px;scroll-margin-top:28px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:26px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+  .sec-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:var(--accent);color:#fff;font-size:12px;font-weight:800;border-radius:6px;flex-shrink:0;}
+  .sec-title{font-size:21px;font-weight:700;letter-spacing:-.015em;color:var(--text);}
+  h3{font-size:15px;font-weight:700;color:var(--text);margin:28px 0 10px;letter-spacing:-.01em;}
+  h4{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.07em;margin:20px 0 8px;}
+  p{color:var(--text-muted);margin-bottom:12px;}
+  strong{color:var(--text);font-weight:600;}
+  .tw{overflow-x:auto;margin:14px 0;border-radius:8px;border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead{background:var(--surface2);}
+  th{text-align:left;padding:10px 14px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:9px 14px;border-bottom:1px solid var(--border);color:var(--text-muted);vertical-align:top;font-variant-numeric:tabular-nums;font-size:13px;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--accent-glow);}
+  td code{font-family:'SF Mono',ui-monospace,monospace;font-size:11.5px;background:var(--surface2);padding:1px 5px;border-radius:3px;color:var(--text);}
+  .cb{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:16px 18px;font-family:'SF Mono',ui-monospace,'Cascadia Code',monospace;font-size:12.5px;line-height:1.75;margin:14px 0;overflow-x:auto;white-space:pre;}
+  .cb .kw{color:#67E8F9;}
+  .cb .ty{color:#A5F3FC;}
+  .cb .st{color:#86EFAC;}
+  .cb .cm{color:var(--text-dim);font-style:italic;}
+  .cb .nu{color:#FCD34D;}
+  .cb .pk{color:#F9A8D4;}
+  .rc{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:14px 16px;margin:10px 0;}
+  .rc-id{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:4px;}
+  .rc-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;}
+  .rc-body{font-size:13px;color:var(--text-muted);line-height:1.6;}
+  .rc-body code{font-family:'SF Mono',ui-monospace,monospace;font-size:11.5px;background:var(--surface2);padding:1px 5px;border-radius:3px;color:var(--text);}
+  .entity{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin:20px 0;overflow:hidden;}
+  .entity-head{background:var(--accent-dim);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:12px;}
+  .entity-name{font-size:14px;font-weight:800;color:var(--accent);letter-spacing:.03em;font-family:'SF Mono',ui-monospace,monospace;}
+  .entity-desc{font-size:12.5px;color:var(--text-muted);}
+  .entity-domain{font-size:10px;font-weight:700;background:var(--surface2);color:var(--text-dim);padding:2px 8px;border-radius:4px;letter-spacing:.05em;text-transform:uppercase;margin-left:auto;white-space:nowrap;}
+  .entity table{font-size:12.5px;}
+  .entity th{font-size:10.5px;}
+  .entity td{padding:7px 14px;}
+  .fk{color:#A78BFA;}
+  .pk-label{color:#FCD34D;font-weight:700;}
+  .req{color:#F87171;font-size:10px;font-weight:700;}
+  .opt{color:var(--text-dim);font-size:10px;}
+  .domain-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:16px 0;}
+  .domain-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:14px 16px;}
+  .domain-icon{font-size:18px;margin-bottom:7px;}
+  .domain-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .domain-desc{font-size:12px;color:var(--text-muted);line-height:1.5;}
+  .rel-row{display:flex;align-items:flex-start;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);}
+  .rel-row:last-child{border-bottom:none;}
+  .rel-type{font-size:11px;font-weight:700;background:var(--accent-dim);color:var(--accent);padding:3px 8px;border-radius:4px;white-space:nowrap;letter-spacing:.03em;min-width:90px;text-align:center;}
+  .rel-entities{font-size:13px;color:var(--text);font-family:'SF Mono',ui-monospace,monospace;font-size:12px;}
+  .rel-desc{font-size:12.5px;color:var(--text-muted);flex:1;}
+  ul.sl{list-style:none;padding:0;margin:10px 0;}
+  ul.sl li{padding:5px 0 5px 16px;position:relative;color:var(--text-muted);font-size:13.5px;}
+  ul.sl li::before{content:'–';position:absolute;left:0;color:var(--accent);}
+  ul.ol{list-style:none;counter-reset:ol;padding:0;margin:10px 0;}
+  ul.ol li{counter-increment:ol;padding:5px 0 5px 24px;position:relative;color:var(--text-muted);font-size:13.5px;}
+  ul.ol li::before{content:counter(ol)'.';position:absolute;left:0;font-weight:700;color:var(--accent);font-size:12px;}
+  .note{background:rgba(6,182,212,.07);border:1px solid rgba(6,182,212,.2);border-radius:7px;padding:12px 16px;margin:14px 0;font-size:13px;color:var(--text-muted);}
+  .warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:7px;padding:12px 16px;margin:14px 0;font-size:13px;color:var(--text-muted);}
+  .xref{background:var(--accent-glow);border:1px solid rgba(6,182,212,.2);border-radius:7px;padding:10px 14px;margin:16px 0;font-size:12.5px;color:var(--text-muted);}
+  .xref strong{color:var(--accent);}
+  .idx-tag{display:inline-flex;align-items:center;font-size:11px;font-weight:600;border-radius:4px;padding:2px 7px;margin:2px;background:var(--surface2);color:var(--text-muted);border:1px solid var(--border);}
+  @media(max-width:900px){.main{padding:28px 18px 80px;}.domain-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="mod-badge">🗄️ DB</div>
+    <div class="sb-title">Database Architecture</div>
+    <div class="sb-sub">SPEC-DB-001 v1.0</div>
+  </div>
+  <ul class="nav-list" id="nav-list">
+    <li class="nav-item"><a href="#s1"><span class="nav-num">01</span>Overview & Philosophy</a></li>
+    <li class="nav-item"><a href="#s2"><span class="nav-num">02</span>Architecture Overview</a></li>
+    <li class="nav-item"><a href="#s3"><span class="nav-num">03</span>Core Entity Model</a></li>
+    <li class="nav-item"><a href="#s4"><span class="nav-num">04</span>Entity Relationships</a></li>
+    <li class="nav-item"><a href="#s5"><span class="nav-num">05</span>Monthly Snapshot Model</a></li>
+    <li class="nav-item"><a href="#s6"><span class="nav-num">06</span>Data Versioning</a></li>
+    <li class="nav-item"><a href="#s7"><span class="nav-num">07</span>Search & Query Model</a></li>
+    <li class="nav-item"><a href="#s8"><span class="nav-num">08</span>Indexing Strategy</a></li>
+    <li class="nav-item"><a href="#s9"><span class="nav-num">09</span>Archiving Strategy</a></li>
+    <li class="nav-item"><a href="#s10"><span class="nav-num">10</span>Data Validation</a></li>
+    <li class="nav-item"><a href="#s11"><span class="nav-num">11</span>Security Model</a></li>
+    <li class="nav-item"><a href="#s12"><span class="nav-num">12</span>Performance Architecture</a></li>
+    <li class="nav-item"><a href="#s13"><span class="nav-num">13</span>Backup & Recovery</a></li>
+    <li class="nav-item"><a href="#s14"><span class="nav-num">14</span>Future Compatibility</a></li>
+    <li class="nav-item"><a href="#s15"><span class="nav-num">15</span>Business Rules</a></li>
+    <li class="nav-item"><a href="#s16"><span class="nav-num">16</span>Edge Cases</a></li>
+  </ul>
+  <div class="theme-area"><button class="theme-btn" id="theme-btn">Toggle Light / Dark</button></div>
+</nav>
+
+<main class="main">
+<header class="doc-header">
+  <div class="doc-eyebrow">
+    <span class="spec-id">SPEC-DB-001</span>
+    <span class="spec-ver">v1.0</span>
+    <span class="status-pill">DRAFT</span>
+  </div>
+  <h1 class="doc-title">Database Architecture<br>&amp; Data Model</h1>
+  <p class="doc-sub">The single source of truth for Finance Bag. A complete logical and conceptual specification of all entities, relationships, snapshot strategy, indexing, archiving, security, and future scalability.</p>
+  <div class="meta-grid">
+    <div class="meta-item"><div class="meta-label">Module</div><div class="meta-val">DB</div></div>
+    <div class="meta-item"><div class="meta-label">Accent</div><div class="meta-val">#06B6D4</div></div>
+    <div class="meta-item"><div class="meta-label">Entities</div><div class="meta-val">32 core</div></div>
+    <div class="meta-item"><div class="meta-label">Data Domains</div><div class="meta-val">13</div></div>
+    <div class="meta-item"><div class="meta-label">Storage Engine</div><div class="meta-val">SQLite + Drizzle</div></div>
+    <div class="meta-item"><div class="meta-label">Version</div><div class="meta-val">1.0 — Full Spec</div></div>
+  </div>
+</header>
+
+<!-- S1 -->
+<section id="s1">
+  <div class="sec-head"><span class="sec-num">1</span><h2 class="sec-title">Overview &amp; Database Philosophy</h2></div>
+
+  <p>The database is the single source of truth for Finance Bag. Every feature module reads from and writes to this shared foundation through its own domain functions — no module may access another module's tables directly. The data model is designed to remain correct, auditable, and performant across 10+ years of financial history without redesign.</p>
+
+  <div class="note"><strong>Foundational Invariants.</strong> These rules apply to every entity in the database without exception: (1) All monetary values stored as <strong>integer centimes (×100)</strong> — no floats, ever. (2) Deleted records use <strong>soft delete only</strong> — <code>deleted_at</code> timestamp, no hard deletes on financial data. (3) <strong>Computed fields are never stored</strong> — all derived values calculated at read time. (4) The <strong>salary period</strong> is the fundamental unit of financial time — not the calendar month.</div>
+
+  <h3>1.1 Four Design Pillars</h3>
+  <div class="domain-grid">
+    <div class="domain-card"><div class="domain-icon">🔒</div><div class="domain-name">Integrity First</div><div class="domain-desc">Referential integrity, validation constraints, and audit trails take precedence over query simplicity. A write that would corrupt data must fail, not silently succeed.</div></div>
+    <div class="domain-card"><div class="domain-icon">📴</div><div class="domain-name">Offline-First</div><div class="domain-desc">The database is the entire persistence layer. No feature requires a network call. SQLite with WAL mode provides ACID compliance and concurrent read access without a server.</div></div>
+    <div class="domain-card"><div class="domain-icon">📸</div><div class="domain-name">Snapshot Immutability</div><div class="domain-desc">Closed periods are sealed. Historical data is append-only. Editing a current record never modifies the archived record that captured its prior state.</div></div>
+    <div class="domain-card"><div class="domain-icon">🔭</div><div class="domain-name">Future-Proof Schema</div><div class="domain-desc">Every table carries a <code>schema_version</code> in the migrations registry. New columns are additive and nullable. Breaking changes require a versioned migration with rollback support.</div></div>
+  </div>
+
+  <h3>1.2 Hot vs Cold Data Model</h3>
+  <p>The database maintains a deliberate separation between operational (hot) data and historical (cold) data. This distinction governs access patterns, retention, and indexing strategy.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Dimension</th><th>Hot Data (Operational)</th><th>Cold Data (Historical)</th></tr></thead>
+    <tbody>
+      <tr><td>Definition</td><td>Current period records, active entities</td><td>Sealed monthly archives, snapshot tables</td></tr>
+      <tr><td>Access pattern</td><td>Frequent reads &amp; writes</td><td>Infrequent reads, write-once</td></tr>
+      <tr><td>Mutability</td><td>Fully mutable (within business rules)</td><td>Immutable after sealing</td></tr>
+      <tr><td>Volume</td><td>Small and bounded</td><td>Grows linearly over time</td></tr>
+      <tr><td>Index density</td><td>High — optimized for dashboard speed</td><td>Lower — optimized for report queries</td></tr>
+      <tr><td>Examples</td><td><code>salary_periods</code>, <code>expenses</code>, <code>debts</code></td><td><code>monthly_archives</code>, <code>fhs_history</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1.3 Ownership Rules</h3>
+  <ul class="sl">
+    <li>Each table is <strong>owned by exactly one module</strong>. Only the owning module's functions may write to that table.</li>
+    <li>Cross-module reads are permitted (e.g., Dashboard reads from SAL, BUD, DBT, EMF, GOL tables) but cross-module writes are prohibited.</li>
+    <li>The EVT module's <code>event_log</code> is readable by all modules for diagnostic purposes.</li>
+    <li>Archive tables (<code>monthly_archives</code> and all snapshot tables) are written by the EVT automation engine and read by RPT.</li>
+    <li>The <code>audit_log</code> is written by a shared audit service and read by no module directly (diagnostic/support tool only).</li>
+  </ul>
+</section>
+
+<!-- S2 -->
+<section id="s2">
+  <div class="sec-head"><span class="sec-num">2</span><h2 class="sec-title">Architecture Overview</h2></div>
+
+  <h3>2.1 Data Domains</h3>
+  <div class="domain-grid">
+    <div class="domain-card"><div class="domain-icon">👤</div><div class="domain-name">Identity Domain</div><div class="domain-desc">User singleton, profile, settings, localization, currency reference data.</div></div>
+    <div class="domain-card"><div class="domain-icon">📅</div><div class="domain-name">Temporal Domain</div><div class="domain-desc">Salary periods — the master time unit. All financial data anchors to a period, not a calendar month.</div></div>
+    <div class="domain-card"><div class="domain-icon">💰</div><div class="domain-name">Income Domain</div><div class="domain-desc">Salary records, income sources (future: multiple streams), income history.</div></div>
+    <div class="domain-card"><div class="domain-icon">📊</div><div class="domain-name">Budget Domain</div><div class="domain-desc">Categories, allocations per period, expenses, tags, attachments.</div></div>
+    <div class="domain-card"><div class="domain-icon">💳</div><div class="domain-name">Liability Domain</div><div class="domain-desc">Debts, payment records, amortization schedules (computed), debt snapshots.</div></div>
+    <div class="domain-card"><div class="domain-icon">🛡️</div><div class="domain-name">Reserve Domain</div><div class="domain-desc">Emergency fund (singleton), contributions, milestone events.</div></div>
+    <div class="domain-card"><div class="domain-icon">🎯</div><div class="domain-name">Goal Domain</div><div class="domain-desc">Financial goals, contributions, inter-goal dependencies (DAG edges).</div></div>
+    <div class="domain-card"><div class="domain-icon">🗺️</div><div class="domain-name">Roadmap Domain</div><div class="domain-desc">Roadmap nodes, dependency edges, completion progress.</div></div>
+    <div class="domain-card"><div class="domain-icon">📈</div><div class="domain-name">Analytics Domain</div><div class="domain-desc">FHS daily history, behavioral scores, report records.</div></div>
+    <div class="domain-card"><div class="domain-icon">📦</div><div class="domain-name">Archive Domain</div><div class="domain-desc">Sealed monthly archives and all period-end snapshot tables. Append-only after sealing.</div></div>
+    <div class="domain-card"><div class="domain-icon">🔔</div><div class="domain-name">Event Domain</div><div class="domain-desc">Event log, scheduled reminders, notification preferences, automation log.</div></div>
+    <div class="domain-card"><div class="domain-icon">📋</div><div class="domain-name">Audit Domain</div><div class="domain-desc">Immutable audit log of all sensitive mutations. Write-once, never modified.</div></div>
+    <div class="domain-card"><div class="domain-icon">⚙️</div><div class="domain-name">System Domain</div><div class="domain-desc">Schema migrations, app state key-value store, feature flags (future).</div></div>
+  </div>
+
+  <h3>2.2 Layer Architecture</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Layer</th><th>Components</th><th>Access Pattern</th></tr></thead>
+    <tbody>
+      <tr><td><strong>L1 — Reference</strong></td><td><code>currencies</code>, <code>localizations</code>, <code>category_templates</code></td><td>Read-only at runtime; seeded at install</td></tr>
+      <tr><td><strong>L2 — Identity</strong></td><td><code>users</code>, <code>profiles</code>, <code>settings</code></td><td>Read-heavy; 1 row each (singleton)</td></tr>
+      <tr><td><strong>L3 — Operational</strong></td><td>All hot domain tables (salary, budget, debt, EMF, goals)</td><td>High read/write frequency</td></tr>
+      <tr><td><strong>L4 — Event</strong></td><td><code>event_log</code>, <code>scheduled_reminders</code>, <code>automation_log</code></td><td>High write (append), moderate read</td></tr>
+      <tr><td><strong>L5 — Archive</strong></td><td><code>monthly_archives</code> + all snapshot tables</td><td>Write-once; infrequent reads</td></tr>
+      <tr><td><strong>L6 — Audit</strong></td><td><code>audit_log</code>, <code>dead_letter_queue</code></td><td>Write-only at runtime; read for diagnostics</td></tr>
+      <tr><td><strong>L7 — System</strong></td><td><code>schema_migrations</code>, <code>app_state</code></td><td>Read on startup; writes during migration</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>2.3 ID Strategy</h3>
+  <p>All primary keys use <strong>ULID</strong> (Universally Unique Lexicographically Sortable Identifier). ULIDs are preferable to UUID v4 for database performance because they are monotonically increasing — new rows sort after existing rows naturally, reducing B-tree page splits and improving insert performance in SQLite.</p>
+  <div class="cb"><span class="cm">// ULID format: 26-character base32 string</span>
+<span class="cm">// First 10 chars = timestamp (ms precision) — ensures chronological sort</span>
+<span class="cm">// Last 16 chars = random — ensures uniqueness</span>
+<span class="cm">// Example: 01HZQBN7V3K5XW2PM4RNDE8FYA</span>
+<span class="cm">// All PKs: TEXT NOT NULL PRIMARY KEY — stored as string, never integer autoincrement</span>
+<span class="cm">// Exception: system domain tables may use INTEGER AUTOINCREMENT for migration counters</span></div>
+
+  <h3>2.4 Referential Integrity Model</h3>
+  <ul class="sl">
+    <li><strong>FOREIGN KEY constraints enabled</strong> — SQLite requires <code>PRAGMA foreign_keys = ON</code> per connection. This must be set at connection initialization, not once globally.</li>
+    <li><strong>Cascade DELETE is prohibited</strong> on financial data tables. Deleting a parent record never silently removes children. Instead, the owning module must explicitly soft-delete children first.</li>
+    <li><strong>Cascade UPDATE</strong> is only used for surrogate key changes during migrations, never during normal operation.</li>
+    <li><strong>NULL FK is allowed</strong> only where the relationship is optional (e.g., <code>source_entity_id</code> on events, <code>category_id</code> on uncategorized expenses).</li>
+  </ul>
+</section>
+
+<!-- S3 -->
+<section id="s3">
+  <div class="sec-head"><span class="sec-num">3</span><h2 class="sec-title">Core Entity Model</h2></div>
+
+  <p>32 core entities organized by data domain. Each entity lists its logical fields with type, constraint, and purpose. Field types are logical (not SQL): <strong>id</strong>=ULID text, <strong>text</strong>=variable-length string, <strong>centimes</strong>=non-negative integer ×100, <strong>ts</strong>=Unix milliseconds integer, <strong>bool</strong>=0/1 integer, <strong>pct</strong>=integer 0–10000 (basis points, i.e. 75.00% = 7500).</p>
+
+  <!-- IDENTITY DOMAIN -->
+  <h3>3.1 Identity Domain</h3>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">users</span><span class="entity-desc">Application user — singleton on mobile (1 row)</span><span class="entity-domain">Identity</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td>ULID — fixed at install, never changes</td></tr>
+      <tr><td>display_name</td><td>text</td><td>NOT NULL</td><td>User's chosen display name</td></tr>
+      <tr><td>onboarded_at</td><td>ts</td><td>NOT NULL</td><td>Timestamp of onboarding completion</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td>Row creation timestamp</td></tr>
+      <tr><td>updated_at</td><td>ts</td><td>NOT NULL</td><td>Last modification timestamp</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">profiles</span><span class="entity-desc">Display, locale, and currency preferences — 1:1 with users</span><span class="entity-domain">Identity</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td>Same ULID as users.id (shared PK)</td></tr>
+      <tr><td>currency_code</td><td>text</td><td>NOT NULL, FK→currencies</td><td>ISO 4217 code (e.g. 'DZD', 'EUR')</td></tr>
+      <tr><td>locale</td><td>text</td><td>NOT NULL</td><td>BCP 47 locale string (e.g. 'fr-DZ')</td></tr>
+      <tr><td>language</td><td>text</td><td>NOT NULL</td><td>ISO 639-1 language code</td></tr>
+      <tr><td>theme</td><td>text</td><td>NOT NULL, DEFAULT 'dark'</td><td>'dark' | 'light' | 'system'</td></tr>
+      <tr><td>avatar_emoji</td><td>text</td><td>NULL</td><td>Single emoji chosen as avatar</td></tr>
+      <tr><td>salary_day</td><td>int</td><td>NOT NULL, 1–28</td><td>Day of month salary is received (BR-SAL-01)</td></tr>
+      <tr><td>updated_at</td><td>ts</td><td>NOT NULL</td><td>Last profile update</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">settings</span><span class="entity-desc">Application-wide feature flags and preferences — singleton</span><span class="entity-domain">Identity</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>text</td><td>PK, DEFAULT 'app-settings'</td><td>Singleton row key</td></tr>
+      <tr><td>biometric_lock</td><td>bool</td><td>NOT NULL, DEFAULT 0</td><td>Whether biometric/PIN auth is required on open</td></tr>
+      <tr><td>obscure_amounts</td><td>bool</td><td>NOT NULL, DEFAULT 0</td><td>Hide amounts in notification shade</td></tr>
+      <tr><td>dashboard_layout</td><td>text</td><td>NOT NULL, DEFAULT 'BALANCED'</td><td>'FOCUS' | 'BALANCED' | 'FULL'</td></tr>
+      <tr><td>widget_order_json</td><td>text</td><td>NULL</td><td>JSON array of widget IDs in user-defined order</td></tr>
+      <tr><td>onboarding_step</td><td>int</td><td>NOT NULL, DEFAULT 0</td><td>Last completed onboarding step (0=not started)</td></tr>
+      <tr><td>updated_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">currencies</span><span class="entity-desc">Currency reference data — seeded at install, read-only</span><span class="entity-domain">Identity / Reference</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">code</span></td><td>text</td><td>PK</td><td>ISO 4217 code</td></tr>
+      <tr><td>name</td><td>text</td><td>NOT NULL</td><td>Full currency name</td></tr>
+      <tr><td>symbol</td><td>text</td><td>NOT NULL</td><td>Display symbol (e.g. 'DA', '€', '$')</td></tr>
+      <tr><td>decimal_places</td><td>int</td><td>NOT NULL, DEFAULT 2</td><td>Significant decimal places for display</td></tr>
+      <tr><td>symbol_position</td><td>text</td><td>NOT NULL, DEFAULT 'suffix'</td><td>'prefix' | 'suffix'</td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- TEMPORAL DOMAIN -->
+  <h3>3.2 Temporal Domain</h3>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">salary_periods</span><span class="entity-desc">The master time unit. Every financial record anchors to a period, not a calendar month.</span><span class="entity-domain">Temporal</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td>ULID</td></tr>
+      <tr><td>period_label</td><td>text</td><td>NOT NULL, UNIQUE</td><td>Human label, e.g. 'July 2026' — display only</td></tr>
+      <tr><td>start_date</td><td>text</td><td>NOT NULL</td><td>ISO date (YYYY-MM-DD) — inclusive</td></tr>
+      <tr><td>end_date</td><td>text</td><td>NOT NULL</td><td>ISO date — inclusive</td></tr>
+      <tr><td>status</td><td>text</td><td>NOT NULL, DEFAULT 'ACTIVE'</td><td>'ACTIVE' | 'CLOSED' | 'ARCHIVED'</td></tr>
+      <tr><td>salary_day</td><td>int</td><td>NOT NULL, 1–28</td><td>Snapshot of salary_day at period creation</td></tr>
+      <tr><td>archived_at</td><td>ts</td><td>NULL</td><td>When monthly archive was sealed</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- INCOME DOMAIN -->
+  <h3>3.3 Income Domain</h3>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">salary_records</span><span class="entity-desc">Income entries per period. Multiple records per period are supported (mid-period corrections).</span><span class="entity-domain">Income</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>period_id</td><td>id</td><td>NOT NULL, FK→salary_periods</td><td>Owning period</td></tr>
+      <tr><td>amount</td><td>centimes</td><td>NOT NULL, &gt;0</td><td>Gross income amount</td></tr>
+      <tr><td>source_label</td><td>text</td><td>NULL</td><td>Optional label ('Main salary', 'Freelance', etc.)</td></tr>
+      <tr><td>received_date</td><td>text</td><td>NOT NULL</td><td>ISO date when income was received</td></tr>
+      <tr><td>notes</td><td>text</td><td>NULL</td><td>Free-text notes</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete</td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- BUDGET DOMAIN -->
+  <h3>3.4 Budget Domain</h3>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">budget_categories</span><span class="entity-desc">Master category list. Categories persist across periods; allocations are per-period.</span><span class="entity-domain">Budget</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>name</td><td>text</td><td>NOT NULL</td><td>Category display name</td></tr>
+      <tr><td>icon</td><td>text</td><td>NOT NULL</td><td>Emoji icon</td></tr>
+      <tr><td>color_hex</td><td>text</td><td>NOT NULL</td><td>6-char hex color for charts</td></tr>
+      <tr><td>category_type</td><td>text</td><td>NOT NULL, DEFAULT 'FLEXIBLE'</td><td>'ESSENTIAL' | 'FLEXIBLE' | 'SAVINGS' | 'DEBT' | 'EMF' | 'GOAL'</td></tr>
+      <tr><td>is_system</td><td>bool</td><td>NOT NULL, DEFAULT 0</td><td>1 = created by app (debt/EMF/goal system categories); cannot be deleted</td></tr>
+      <tr><td>sort_order</td><td>int</td><td>NOT NULL, DEFAULT 0</td><td>Display sort position</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">budget_allocations</span><span class="entity-desc">Per-period budget amount for each category. One row per (period, category) pair.</span><span class="entity-domain">Budget</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>period_id</td><td>id</td><td>NOT NULL, FK→salary_periods</td><td></td></tr>
+      <tr><td>category_id</td><td>id</td><td>NOT NULL, FK→budget_categories</td><td></td></tr>
+      <tr><td>allocated_amount</td><td>centimes</td><td>NOT NULL, ≥0</td><td>Budgeted amount for this period</td></tr>
+      <tr><td>rollover_from_prev</td><td>centimes</td><td>NOT NULL, DEFAULT 0</td><td>Unspent amount carried forward from prior period</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>updated_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td colspan="4" style="font-size:11px;color:var(--text-dim);">UNIQUE(period_id, category_id)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">expenses</span><span class="entity-desc">Individual spending records. The highest-volume table in the operational layer.</span><span class="entity-domain">Budget</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>period_id</td><td>id</td><td>NOT NULL, FK→salary_periods</td><td></td></tr>
+      <tr><td>category_id</td><td>id</td><td>NULL, FK→budget_categories</td><td>NULL = uncategorized</td></tr>
+      <tr><td>amount</td><td>centimes</td><td>NOT NULL, &gt;0</td><td></td></tr>
+      <tr><td>description</td><td>text</td><td>NOT NULL</td><td>What was purchased / paid</td></tr>
+      <tr><td>expense_date</td><td>text</td><td>NOT NULL</td><td>ISO date of transaction</td></tr>
+      <tr><td>notes</td><td>text</td><td>NULL</td><td>Extended notes</td></tr>
+      <tr><td>attachment_id</td><td>id</td><td>NULL, FK→attachments</td><td>Optional receipt photo</td></tr>
+      <tr><td>is_recurring</td><td>bool</td><td>NOT NULL, DEFAULT 0</td><td>Whether this expense repeats</td></tr>
+      <tr><td>recurrence_rule_json</td><td>text</td><td>NULL</td><td>RecurrenceRule JSON if is_recurring=1</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>updated_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">tags</span><span class="entity-desc">User-defined labels that can be applied to expenses for cross-category grouping.</span><span class="entity-domain">Budget</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>name</td><td>text</td><td>NOT NULL, UNIQUE</td><td>Tag label (case-insensitive unique)</td></tr>
+      <tr><td>color_hex</td><td>text</td><td>NOT NULL</td><td>Display color</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">expense_tags</span><span class="entity-desc">Junction table — many-to-many between expenses and tags.</span><span class="entity-domain">Budget</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th></th></tr></thead><tbody>
+      <tr><td>expense_id</td><td>id</td><td>NOT NULL, FK→expenses</td><td>Composite PK (part 1)</td></tr>
+      <tr><td>tag_id</td><td>id</td><td>NOT NULL, FK→tags</td><td>Composite PK (part 2)</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td colspan="4" style="font-size:11px;color:var(--text-dim);">PRIMARY KEY (expense_id, tag_id)</td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- LIABILITY DOMAIN -->
+  <h3>3.5 Liability Domain</h3>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">debts</span><span class="entity-desc">Master debt records. Each debt has a lifecycle from ACTIVE to PAID_OFF.</span><span class="entity-domain">Liability</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>creditor_name</td><td>text</td><td>NOT NULL</td><td>Name of the lending institution or person</td></tr>
+      <tr><td>debt_type</td><td>text</td><td>NOT NULL</td><td>'LOAN' | 'CREDIT_CARD' | 'MORTGAGE' | 'PERSONAL' | 'OTHER'</td></tr>
+      <tr><td>original_balance</td><td>centimes</td><td>NOT NULL, &gt;0</td><td>Balance at time of creation</td></tr>
+      <tr><td>current_balance</td><td>centimes</td><td>NOT NULL, ≥0</td><td>Current outstanding balance (mutable)</td></tr>
+      <tr><td>interest_rate_bps</td><td>int</td><td>NOT NULL, ≥0</td><td>Annual interest rate in basis points (e.g. 1200 = 12.00%)</td></tr>
+      <tr><td>monthly_payment</td><td>centimes</td><td>NOT NULL, &gt;0</td><td>Contractual monthly payment amount</td></tr>
+      <tr><td>payment_due_day</td><td>int</td><td>NOT NULL, 1–28</td><td>Day of month payment is due (capped at 28)</td></tr>
+      <tr><td>start_date</td><td>text</td><td>NOT NULL</td><td>ISO date debt was taken on</td></tr>
+      <tr><td>projected_payoff_date</td><td>text</td><td>NULL</td><td>Computed at read time; not stored</td></tr>
+      <tr><td>status</td><td>text</td><td>NOT NULL, DEFAULT 'ACTIVE'</td><td>'ACTIVE' | 'PAID_OFF' | 'PAUSED'</td></tr>
+      <tr><td>notes</td><td>text</td><td>NULL</td><td></td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>updated_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">debt_payments</span><span class="entity-desc">Individual payment records against a debt. The authoritative history of what was actually paid.</span><span class="entity-domain">Liability</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>debt_id</td><td>id</td><td>NOT NULL, FK→debts</td><td></td></tr>
+      <tr><td>period_id</td><td>id</td><td>NOT NULL, FK→salary_periods</td><td>Period in which payment was made</td></tr>
+      <tr><td>amount</td><td>centimes</td><td>NOT NULL, &gt;0</td><td>Total payment amount</td></tr>
+      <tr><td>principal_portion</td><td>centimes</td><td>NOT NULL, ≥0</td><td>Amount applied to principal</td></tr>
+      <tr><td>interest_portion</td><td>centimes</td><td>NOT NULL, ≥0</td><td>Amount applied to interest</td></tr>
+      <tr><td>payment_date</td><td>text</td><td>NOT NULL</td><td>ISO date payment was made</td></tr>
+      <tr><td>balance_after</td><td>centimes</td><td>NOT NULL, ≥0</td><td>Remaining debt balance after this payment</td></tr>
+      <tr><td>is_extra_payment</td><td>bool</td><td>NOT NULL, DEFAULT 0</td><td>Whether this exceeds the monthly_payment</td></tr>
+      <tr><td>notes</td><td>text</td><td>NULL</td><td></td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete</td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- RESERVE DOMAIN -->
+  <h3>3.6 Reserve Domain</h3>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">emergency_fund</span><span class="entity-desc">Singleton entity — one emergency fund per user.</span><span class="entity-domain">Reserve</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>text</td><td>PK, DEFAULT 'emf-singleton'</td><td>Singleton row key</td></tr>
+      <tr><td>target_amount</td><td>centimes</td><td>NOT NULL, &gt;0</td><td>Total EMF target</td></tr>
+      <tr><td>current_balance</td><td>centimes</td><td>NOT NULL, ≥0</td><td>Accumulated balance to date</td></tr>
+      <tr><td>monthly_contribution</td><td>centimes</td><td>NOT NULL, &gt;0</td><td>Planned monthly contribution</td></tr>
+      <tr><td>contribution_day</td><td>int</td><td>NOT NULL, 1–28</td><td>Day of month contribution is due</td></tr>
+      <tr><td>monthly_expense_basis</td><td>centimes</td><td>NOT NULL, &gt;0</td><td>Monthly expenses used to compute target months coverage</td></tr>
+      <tr><td>target_months</td><td>int</td><td>NOT NULL, ≥1</td><td>Number of months of coverage targeted</td></tr>
+      <tr><td>status</td><td>text</td><td>NOT NULL, DEFAULT 'ACTIVE'</td><td>'ACTIVE' | 'PAUSED' | 'COMPLETED'</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>updated_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">emf_contributions</span><span class="entity-desc">Individual contribution records for the emergency fund.</span><span class="entity-domain">Reserve</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>emf_id</td><td>text</td><td>NOT NULL, FK→emergency_fund</td><td>Always 'emf-singleton'</td></tr>
+      <tr><td>period_id</td><td>id</td><td>NOT NULL, FK→salary_periods</td><td></td></tr>
+      <tr><td>amount</td><td>centimes</td><td>NOT NULL, &gt;0</td><td></td></tr>
+      <tr><td>contribution_date</td><td>text</td><td>NOT NULL</td><td>ISO date</td></tr>
+      <tr><td>balance_after</td><td>centimes</td><td>NOT NULL, ≥0</td><td>EMF balance after this contribution</td></tr>
+      <tr><td>milestone_reached</td><td>text</td><td>NULL</td><td>'LEVEL_0'–'LEVEL_3' if this contribution crossed a milestone</td></tr>
+      <tr><td>notes</td><td>text</td><td>NULL</td><td></td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete</td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- GOAL DOMAIN -->
+  <h3>3.7 Goal Domain</h3>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">financial_goals</span><span class="entity-desc">User-defined savings targets with timelines and contribution schedules.</span><span class="entity-domain">Goal</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>name</td><td>text</td><td>NOT NULL</td><td>Goal display name</td></tr>
+      <tr><td>icon</td><td>text</td><td>NOT NULL</td><td>Emoji icon</td></tr>
+      <tr><td>target_amount</td><td>centimes</td><td>NOT NULL, &gt;0</td><td>Total funding target</td></tr>
+      <tr><td>current_balance</td><td>centimes</td><td>NOT NULL, DEFAULT 0</td><td>Accumulated contributions to date</td></tr>
+      <tr><td>monthly_contribution</td><td>centimes</td><td>NOT NULL, &gt;0</td><td>Planned monthly contribution</td></tr>
+      <tr><td>contribution_day</td><td>int</td><td>NOT NULL, 1–28</td><td>Day of month contribution is due</td></tr>
+      <tr><td>target_date</td><td>text</td><td>NULL</td><td>Optional ISO date deadline</td></tr>
+      <tr><td>priority</td><td>int</td><td>NOT NULL, DEFAULT 1</td><td>User-defined priority (1=highest)</td></tr>
+      <tr><td>status</td><td>text</td><td>NOT NULL, DEFAULT 'ACTIVE'</td><td>'ACTIVE' | 'PAUSED' | 'COMPLETED' | 'CANCELLED'</td></tr>
+      <tr><td>roadmap_node_id</td><td>id</td><td>NULL, FK→roadmap_nodes</td><td>Linked roadmap node if goal is part of a roadmap</td></tr>
+      <tr><td>notes</td><td>text</td><td>NULL</td><td></td></tr>
+      <tr><td>completed_at</td><td>ts</td><td>NULL</td><td>Set when current_balance ≥ target_amount</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>updated_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">goal_contributions</span><span class="entity-desc">Individual contribution records per goal.</span><span class="entity-domain">Goal</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>goal_id</td><td>id</td><td>NOT NULL, FK→financial_goals</td><td></td></tr>
+      <tr><td>period_id</td><td>id</td><td>NOT NULL, FK→salary_periods</td><td></td></tr>
+      <tr><td>amount</td><td>centimes</td><td>NOT NULL, &gt;0</td><td></td></tr>
+      <tr><td>contribution_date</td><td>text</td><td>NOT NULL</td><td>ISO date</td></tr>
+      <tr><td>balance_after</td><td>centimes</td><td>NOT NULL, ≥0</td><td>Goal balance after this contribution</td></tr>
+      <tr><td>notes</td><td>text</td><td>NULL</td><td></td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">goal_dependencies</span><span class="entity-desc">DAG edges between goals. Encodes "Goal B cannot start until Goal A is funded."</span><span class="entity-domain">Goal</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td>prerequisite_goal_id</td><td>id</td><td>NOT NULL, FK→financial_goals</td><td>The goal that must complete first (Composite PK part 1)</td></tr>
+      <tr><td>dependent_goal_id</td><td>id</td><td>NOT NULL, FK→financial_goals</td><td>The goal that is unlocked (Composite PK part 2)</td></tr>
+      <tr><td>dependency_type</td><td>text</td><td>NOT NULL, DEFAULT 'HARD'</td><td>'HARD' (must complete) | 'SOFT' (recommended order)</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td colspan="4" style="font-size:11px;color:var(--text-dim);">PRIMARY KEY (prerequisite_goal_id, dependent_goal_id) — DAG enforced at application layer; no cycles permitted</td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- ROADMAP DOMAIN -->
+  <h3>3.8 Roadmap Domain</h3>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">roadmap_nodes</span><span class="entity-desc">Milestones in the financial roadmap DAG. Each node represents a financial achievement.</span><span class="entity-domain">Roadmap</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>title</td><td>text</td><td>NOT NULL</td><td>Milestone title</td></tr>
+      <tr><td>description</td><td>text</td><td>NULL</td><td></td></tr>
+      <tr><td>node_type</td><td>text</td><td>NOT NULL</td><td>'DEBT_PAYOFF' | 'EMF_MILESTONE' | 'GOAL' | 'CUSTOM'</td></tr>
+      <tr><td>linked_entity_type</td><td>text</td><td>NULL</td><td>'debt' | 'emf' | 'goal' — which entity this tracks</td></tr>
+      <tr><td>linked_entity_id</td><td>id</td><td>NULL</td><td>FK to the linked entity (polymorphic)</td></tr>
+      <tr><td>status</td><td>text</td><td>NOT NULL, DEFAULT 'LOCKED'</td><td>'LOCKED' | 'AVAILABLE' | 'IN_PROGRESS' | 'COMPLETED'</td></tr>
+      <tr><td>sort_order</td><td>int</td><td>NOT NULL, DEFAULT 0</td><td>Display order (Kahn's topological sort result)</td></tr>
+      <tr><td>completed_at</td><td>ts</td><td>NULL</td><td></td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">roadmap_edges</span><span class="entity-desc">Directed edges in the roadmap DAG. Encodes prerequisite relationships between nodes.</span><span class="entity-domain">Roadmap</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td>from_node_id</td><td>id</td><td>NOT NULL, FK→roadmap_nodes</td><td>Prerequisite node (Composite PK part 1)</td></tr>
+      <tr><td>to_node_id</td><td>id</td><td>NOT NULL, FK→roadmap_nodes</td><td>Dependent node (Composite PK part 2)</td></tr>
+      <tr><td>edge_type</td><td>text</td><td>NOT NULL, DEFAULT 'HARD'</td><td>'HARD' | 'SOFT'</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td colspan="4" style="font-size:11px;color:var(--text-dim);">PRIMARY KEY (from_node_id, to_node_id)</td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- ANALYTICS DOMAIN -->
+  <h3>3.9 Analytics Domain</h3>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">fhs_history</span><span class="entity-desc">Daily Financial Health Score snapshots. One row per calendar date.</span><span class="entity-domain">Analytics</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>date</td><td>text</td><td>NOT NULL, UNIQUE</td><td>ISO date — one row per day</td></tr>
+      <tr><td>fhs_total</td><td>int</td><td>NOT NULL, 0–100</td><td>Composite FHS score</td></tr>
+      <tr><td>savings_pts</td><td>int</td><td>NOT NULL, 0–20</td><td>Component 1: Savings Rate</td></tr>
+      <tr><td>debt_pts</td><td>int</td><td>NOT NULL, 0–20</td><td>Component 2: Debt Burden</td></tr>
+      <tr><td>emf_pts</td><td>int</td><td>NOT NULL, 0–20</td><td>Component 3: EMF Readiness</td></tr>
+      <tr><td>budget_pts</td><td>int</td><td>NOT NULL, 0–15</td><td>Component 4: Budget Balance</td></tr>
+      <tr><td>goal_pts</td><td>int</td><td>NOT NULL, 0–15</td><td>Component 5: Goal Progress</td></tr>
+      <tr><td>stability_pts</td><td>int</td><td>NOT NULL, 0–10</td><td>Component 6: Monthly Stability</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td colspan="4" style="font-size:11px;color:var(--text-dim);">Retention: 365 days</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">saved_report_filters</span><span class="entity-desc">User-saved report filter configurations for the Reports module.</span><span class="entity-domain">Analytics</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>name</td><td>text</td><td>NOT NULL</td><td>User-given filter name</td></tr>
+      <tr><td>filter_json</td><td>text</td><td>NOT NULL</td><td>Serialized ReportFilter object</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete. Max 10 active rows.</td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- ARCHIVE DOMAIN -->
+  <h3>3.10 Archive Domain</h3>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">monthly_archives</span><span class="entity-desc">Sealed, immutable summary of a closed salary period. The root of all historical snapshot data.</span><span class="entity-domain">Archive</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>period_id</td><td>id</td><td>NOT NULL, UNIQUE, FK→salary_periods</td><td>One archive per period</td></tr>
+      <tr><td>period_label</td><td>text</td><td>NOT NULL</td><td>Denormalized period label for query performance</td></tr>
+      <tr><td>start_date</td><td>text</td><td>NOT NULL</td><td>Denormalized from salary_periods</td></tr>
+      <tr><td>end_date</td><td>text</td><td>NOT NULL</td><td>Denormalized from salary_periods</td></tr>
+      <tr><td>total_income</td><td>centimes</td><td>NOT NULL</td><td>Sum of all salary_records for the period</td></tr>
+      <tr><td>total_allocated</td><td>centimes</td><td>NOT NULL</td><td>Sum of all budget_allocations</td></tr>
+      <tr><td>total_spent</td><td>centimes</td><td>NOT NULL</td><td>Sum of all expenses</td></tr>
+      <tr><td>total_debt_payments</td><td>centimes</td><td>NOT NULL</td><td>Sum of all debt_payments</td></tr>
+      <tr><td>total_goal_contribs</td><td>centimes</td><td>NOT NULL</td><td>Sum of all goal_contributions</td></tr>
+      <tr><td>total_emf_contribs</td><td>centimes</td><td>NOT NULL</td><td>Sum of all emf_contributions</td></tr>
+      <tr><td>total_saved</td><td>centimes</td><td>NOT NULL</td><td>Unspent balance at period close</td></tr>
+      <tr><td>fhs_at_open</td><td>int</td><td>NOT NULL, 0–100</td><td>FHS at period start</td></tr>
+      <tr><td>fhs_at_close</td><td>int</td><td>NOT NULL, 0–100</td><td>FHS at period close</td></tr>
+      <tr><td>sealed_at</td><td>ts</td><td>NOT NULL</td><td>When this archive was finalized (immutable after this)</td></tr>
+      <tr><td>schema_version</td><td>text</td><td>NOT NULL</td><td>DB schema version at time of sealing (migration support)</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">archive_category_snapshots</span><span class="entity-desc">Per-category budget and spending snapshot at period close. Child of monthly_archives.</span><span class="entity-domain">Archive</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>archive_id</td><td>id</td><td>NOT NULL, FK→monthly_archives</td><td></td></tr>
+      <tr><td>category_id</td><td>id</td><td>NOT NULL, FK→budget_categories</td><td></td></tr>
+      <tr><td>category_name</td><td>text</td><td>NOT NULL</td><td>Denormalized — captures name at time of archive</td></tr>
+      <tr><td>allocated_amount</td><td>centimes</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>spent_amount</td><td>centimes</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>rollover_amount</td><td>centimes</td><td>NOT NULL, DEFAULT 0</td><td></td></tr>
+      <tr><td colspan="4" style="font-size:11px;color:var(--text-dim);">UNIQUE(archive_id, category_id) — Immutable after parent sealed_at</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">archive_debt_snapshots</span><span class="entity-desc">Debt balance snapshot per debt at period close.</span><span class="entity-domain">Archive</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>archive_id</td><td>id</td><td>NOT NULL, FK→monthly_archives</td><td></td></tr>
+      <tr><td>debt_id</td><td>id</td><td>NOT NULL, FK→debts</td><td></td></tr>
+      <tr><td>creditor_name</td><td>text</td><td>NOT NULL</td><td>Denormalized</td></tr>
+      <tr><td>balance_at_open</td><td>centimes</td><td>NOT NULL</td><td>Balance at period start</td></tr>
+      <tr><td>balance_at_close</td><td>centimes</td><td>NOT NULL</td><td>Balance at period end</td></tr>
+      <tr><td>total_paid_this_period</td><td>centimes</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>principal_reduced</td><td>centimes</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>interest_paid</td><td>centimes</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>status_at_close</td><td>text</td><td>NOT NULL</td><td>'ACTIVE' | 'PAID_OFF'</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">archive_goal_snapshots</span><span class="entity-desc">Goal progress snapshot per goal at period close.</span><span class="entity-domain">Archive</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>archive_id</td><td>id</td><td>NOT NULL, FK→monthly_archives</td><td></td></tr>
+      <tr><td>goal_id</td><td>id</td><td>NOT NULL, FK→financial_goals</td><td></td></tr>
+      <tr><td>goal_name</td><td>text</td><td>NOT NULL</td><td>Denormalized</td></tr>
+      <tr><td>target_amount</td><td>centimes</td><td>NOT NULL</td><td>Denormalized at archive time</td></tr>
+      <tr><td>balance_at_open</td><td>centimes</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>balance_at_close</td><td>centimes</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>contributed_this_period</td><td>centimes</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>completion_pct_at_close</td><td>pct</td><td>NOT NULL</td><td>Basis points: 10000 = 100%</td></tr>
+      <tr><td>status_at_close</td><td>text</td><td>NOT NULL</td><td>'ACTIVE' | 'COMPLETED' | 'PAUSED'</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">archive_emf_snapshot</span><span class="entity-desc">EMF state snapshot at period close. One row per archive (EMF is a singleton).</span><span class="entity-domain">Archive</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">archive_id</span></td><td>id</td><td>PK, FK→monthly_archives</td><td>1:1 with archive</td></tr>
+      <tr><td>target_amount</td><td>centimes</td><td>NOT NULL</td><td>Denormalized</td></tr>
+      <tr><td>balance_at_open</td><td>centimes</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>balance_at_close</td><td>centimes</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>contributed_this_period</td><td>centimes</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>milestone_level_at_close</td><td>text</td><td>NOT NULL</td><td>'NONE' | 'LEVEL_0' | 'LEVEL_1' | 'LEVEL_2' | 'LEVEL_3'</td></tr>
+      <tr><td>completion_pct_at_close</td><td>pct</td><td>NOT NULL</td><td>Basis points</td></tr>
+    </tbody></table>
+  </div>
+
+  <!-- ATTACHMENTS -->
+  <h3>3.11 Supporting Entities</h3>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">attachments</span><span class="entity-desc">File attachments (receipts, statements). Linked to expenses or salary records.</span><span class="entity-domain">Budget / System</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>file_name</td><td>text</td><td>NOT NULL</td><td>Original file name</td></tr>
+      <tr><td>file_size_bytes</td><td>int</td><td>NOT NULL, &gt;0</td><td></td></tr>
+      <tr><td>mime_type</td><td>text</td><td>NOT NULL</td><td>'image/jpeg' | 'image/png' | 'application/pdf'</td></tr>
+      <tr><td>local_uri</td><td>text</td><td>NOT NULL</td><td>Device-local file URI (within app sandbox)</td></tr>
+      <tr><td>thumbnail_uri</td><td>text</td><td>NULL</td><td>Pre-generated thumbnail URI (images only)</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>deleted_at</td><td>ts</td><td>NULL</td><td>Soft delete (file also removed from sandbox)</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">audit_log</span><span class="entity-desc">Immutable record of sensitive data mutations. Write-once by the audit service.</span><span class="entity-domain">Audit</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">id</span></td><td>id</td><td>PK</td><td></td></tr>
+      <tr><td>table_name</td><td>text</td><td>NOT NULL</td><td>Table that was mutated</td></tr>
+      <tr><td>row_id</td><td>text</td><td>NOT NULL</td><td>PK of the mutated row</td></tr>
+      <tr><td>operation</td><td>text</td><td>NOT NULL</td><td>'INSERT' | 'UPDATE' | 'SOFT_DELETE'</td></tr>
+      <tr><td>changed_fields_json</td><td>text</td><td>NOT NULL</td><td>JSON of {field: {before, after}} for changed fields</td></tr>
+      <tr><td>triggered_by</td><td>text</td><td>NOT NULL</td><td>Module code that triggered the mutation (e.g. 'DBT')</td></tr>
+      <tr><td>session_id</td><td>text</td><td>NULL</td><td>App session identifier</td></tr>
+      <tr><td>created_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td colspan="4" style="font-size:11px;color:var(--text-dim);">Retention: 365 days. No UPDATE or DELETE permitted on this table.</td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">app_state</span><span class="entity-desc">Key-value store for app-level state that doesn't belong in a typed table.</span><span class="entity-domain">System</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">key</span></td><td>text</td><td>PK</td><td>State key (e.g. 'last_fhs_check_date', 'active_period_id')</td></tr>
+      <tr><td>value_json</td><td>text</td><td>NOT NULL</td><td>JSON-encoded value (string, number, boolean, object)</td></tr>
+      <tr><td>updated_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+    </tbody></table>
+  </div>
+
+  <div class="entity">
+    <div class="entity-head"><span class="entity-name">schema_migrations</span><span class="entity-desc">Tracks applied database migrations for version management and rollback support.</span><span class="entity-domain">System</span></div>
+    <table><thead><tr><th>Field</th><th>Type</th><th>Constraint</th><th>Description</th></tr></thead><tbody>
+      <tr><td><span class="pk-label">version</span></td><td>int</td><td>PK</td><td>Sequential migration number (1, 2, 3…)</td></tr>
+      <tr><td>name</td><td>text</td><td>NOT NULL</td><td>Human-readable migration name</td></tr>
+      <tr><td>checksum</td><td>text</td><td>NOT NULL</td><td>SHA-256 of migration SQL for integrity verification</td></tr>
+      <tr><td>applied_at</td><td>ts</td><td>NOT NULL</td><td></td></tr>
+      <tr><td>rollback_sql</td><td>text</td><td>NULL</td><td>SQL to undo this migration (if reversible)</td></tr>
+    </tbody></table>
+  </div>
+</section>
+
+<!-- S4 -->
+<section id="s4">
+  <div class="sec-head"><span class="sec-num">4</span><h2 class="sec-title">Entity Relationships</h2></div>
+
+  <h3>4.1 Relationship Catalog</h3>
+
+  <div class="rel-row"><span class="rel-type">1:1</span><div><div class="rel-entities">users → profiles</div><div class="rel-desc">Each user has exactly one profile. Shared primary key — profiles.id = users.id. No join needed; the PK is the FK.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:1</span><div><div class="rel-entities">users → settings</div><div class="rel-desc">Singleton row in settings with a fixed key. Logically 1:1 though not enforced by FK (singleton pattern).</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">salary_periods → salary_records</div><div class="rel-desc">One period can have multiple salary records (initial entry + corrections). The active total is the SUM of non-deleted records.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">salary_periods → budget_allocations</div><div class="rel-desc">One allocation row per (period, category) pair. Allocations are created fresh each period, not carried over automatically.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">salary_periods → expenses</div><div class="rel-desc">All expenses belong to the period in which they were incurred. Cross-period expense correction is not permitted — instead, soft-delete and re-enter.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">salary_periods → debt_payments</div><div class="rel-desc">Payments are anchored to the period in which they were recorded, enabling per-period debt analysis in Reports.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">salary_periods → emf_contributions</div><div class="rel-desc">Each contribution belongs to a period. Multiple contributions per period are permitted (lump sums allowed).</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">salary_periods → goal_contributions</div><div class="rel-desc">Same as EMF — each contribution anchored to a period.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:1</span><div><div class="rel-entities">salary_periods → monthly_archives</div><div class="rel-desc">One archive per period, created at period close. UNIQUE constraint on period_id in monthly_archives. Archive is immutable once sealed.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">budget_categories → budget_allocations</div><div class="rel-desc">A category can have allocations in many periods. Deleting a category (soft) does not affect historical allocations.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">budget_categories → expenses</div><div class="rel-desc">A category groups many expenses. FK is nullable — uncategorized expenses have category_id = NULL.</div></div></div>
+  <div class="rel-row"><span class="rel-type">M:N</span><div><div class="rel-entities">expenses ↔ tags (via expense_tags)</div><div class="rel-desc">An expense can have many tags; a tag can apply to many expenses. Junction table with composite PK. Deleting a tag soft-deletes the tag row; the junction rows are also soft-deleted (set deleted_at via trigger).</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">debts → debt_payments</div><div class="rel-desc">Each debt has a payment history. Payments are never moved between debts. Cascade rule: soft-deleting a debt does NOT cascade to payments (audit integrity).</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">emergency_fund → emf_contributions</div><div class="rel-desc">The singleton EMF entity owns all contributions. The FK always resolves to 'emf-singleton'.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">financial_goals → goal_contributions</div><div class="rel-desc">Each goal owns its contribution history. Completing a goal (status=COMPLETED) does not cascade-delete contributions.</div></div></div>
+  <div class="rel-row"><span class="rel-type">M:N</span><div><div class="rel-entities">financial_goals ↔ financial_goals (via goal_dependencies)</div><div class="rel-desc">Self-referential many-to-many relationship. Encodes the goal DAG. Application layer enforces acyclicity using Kahn's algorithm before any edge insertion.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:1</span><div><div class="rel-entities">financial_goals → roadmap_nodes</div><div class="rel-desc">A goal may optionally be linked to a roadmap node via roadmap_node_id. Not all goals are on the roadmap; not all roadmap nodes are goals.</div></div></div>
+  <div class="rel-row"><span class="rel-type">M:N</span><div><div class="rel-entities">roadmap_nodes ↔ roadmap_nodes (via roadmap_edges)</div><div class="rel-desc">Self-referential DAG for the financial roadmap. BFS propagation runs from completed nodes to unlock dependents.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">monthly_archives → archive_category_snapshots</div><div class="rel-desc">One snapshot row per category per archive. All archive child tables are immutable after parent.sealed_at is set.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">monthly_archives → archive_debt_snapshots</div><div class="rel-desc">One row per active debt at period close. Fully paid debts are still captured for historical completeness.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">monthly_archives → archive_goal_snapshots</div><div class="rel-desc">One row per active or recently completed goal at period close.</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:1</span><div><div class="rel-entities">monthly_archives → archive_emf_snapshot</div><div class="rel-desc">One EMF snapshot per archive (shared PK pattern — archive_emf_snapshot.archive_id = monthly_archives.id).</div></div></div>
+  <div class="rel-row"><span class="rel-type">1:N</span><div><div class="rel-entities">expenses → attachments</div><div class="rel-desc">An expense can have one attachment (receipt photo). Future: multiple attachments per expense via a junction table.</div></div></div>
+
+  <h3>4.2 Polymorphic Relationships</h3>
+  <p>The <code>roadmap_nodes.linked_entity_id</code> field is a polymorphic FK — it may reference a row in <code>debts</code>, <code>emergency_fund</code>, or <code>financial_goals</code> depending on the value of <code>linked_entity_type</code>. SQLite cannot enforce a polymorphic FK at the database level; integrity is enforced at the application layer.</p>
+  <p>Similarly, <code>event_log.source_entity_id</code> (from the EVT spec) is polymorphic — it references different entity types depending on <code>source_module</code>. The application resolves the reference using the module identifier.</p>
+
+  <h3>4.3 Cascade Rules Summary</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Parent</th><th>Child</th><th>On Parent Soft-Delete</th><th>On Parent Hard-Delete</th></tr></thead>
+    <tbody>
+      <tr><td>salary_periods</td><td>salary_records</td><td>No cascade (period close ≠ deletion)</td><td>Prohibited</td></tr>
+      <tr><td>salary_periods</td><td>expenses</td><td>No cascade</td><td>Prohibited</td></tr>
+      <tr><td>budget_categories</td><td>expenses</td><td>category_id set to NULL (uncategorize)</td><td>Prohibited</td></tr>
+      <tr><td>financial_goals</td><td>goal_contributions</td><td>No cascade (history preserved)</td><td>Prohibited</td></tr>
+      <tr><td>financial_goals</td><td>goal_dependencies</td><td>Cascade soft-delete both edges</td><td>Prohibited</td></tr>
+      <tr><td>debts</td><td>debt_payments</td><td>No cascade (payment history preserved)</td><td>Prohibited</td></tr>
+      <tr><td>tags</td><td>expense_tags</td><td>Cascade soft-delete junction rows</td><td>Prohibited</td></tr>
+      <tr><td>expenses</td><td>attachments</td><td>Cascade soft-delete + file removal</td><td>Prohibited</td></tr>
+      <tr><td>monthly_archives</td><td>archive_*_snapshots</td><td>Not applicable (archives are immutable)</td><td>Prohibited</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- S5 -->
+<section id="s5">
+  <div class="sec-head"><span class="sec-num">5</span><h2 class="sec-title">Monthly Snapshot Model</h2></div>
+
+  <p>At the end of each salary period, the system creates an immutable archive snapshot that permanently records the period's financial state. Once sealed, no record in the archive tables may ever be modified or deleted. The snapshot model provides trustworthy historical reporting even after categories are renamed, debts are paid off, or goals are deleted.</p>
+
+  <div class="note"><strong>Sealing Immutability Guarantee.</strong> A monthly archive is sealed by setting <code>sealed_at</code> to a non-null timestamp. After that point, any write attempt to that archive row or its child snapshot rows is rejected at the application layer. The <code>schema_version</code> field records the spec version at sealing time so future migrations can interpret the data correctly.</div>
+
+  <h3>5.1 Sealing Trigger</h3>
+  <p>Sealing is triggered by the <code>BUDGET_PERIOD_ADVANCED</code> system event. The EVT module publishes this event; the DB layer handles the SEAL_MONTHLY_ARCHIVE automation. The sealing process is transactional — all or nothing. A partial seal is treated as a failure and retried.</p>
+
+  <h3>5.2 Sealing Process (6 Steps)</h3>
+  <ul class="ol">
+    <li><strong>Verify period is CLOSED.</strong> The <code>salary_periods.status</code> must equal <code>'CLOSED'</code> before archiving may begin. An ACTIVE period cannot be sealed.</li>
+    <li><strong>Create monthly_archives row.</strong> Aggregate all financial totals for the period: total_income, total_allocated, total_spent, total_debt_payments, total_goal_contribs, total_emf_contribs, total_saved. Read FHS at open (from prior period's archive or fhs_history) and FHS at close (from current fhs_history row). Copy denormalized period_label, start_date, end_date.</li>
+    <li><strong>Create archive_category_snapshots.</strong> For each category that had a budget allocation in this period, insert one row. Capture category_name at this moment (denormalized) so future renames do not alter historical records.</li>
+    <li><strong>Create archive_debt_snapshots.</strong> For each active or newly-paid debt, insert one row capturing balance_at_open, balance_at_close, total paid, principal vs interest split, and status_at_close. Creditor_name is denormalized.</li>
+    <li><strong>Create archive_goal_snapshots.</strong> For each goal that received a contribution or changed status this period, insert one row. goal_name and target_amount are denormalized. completion_pct_at_close is stored in basis points (0–10000).</li>
+    <li><strong>Create archive_emf_snapshot.</strong> Single row sharing the archive_id as PK. Captures EMF balance movement, contribution total, milestone level, and completion percentage in basis points. Then set <code>sealed_at = NOW()</code> on the monthly_archives row to finalize the seal.</li>
+  </ul>
+
+  <h3>5.3 Archive Integrity Verification</h3>
+  <p>After sealing, the system verifies: (1) <code>total_income − total_allocated − total_saved</code> does not produce a negative unallocated remainder without explanation, (2) each snapshot row's FK matches the archive_id, (3) <code>sealed_at IS NOT NULL</code>. If any check fails, the archive is flagged as <code>INTEGRITY_ERROR</code> and an alert is raised — the data is retained for manual inspection, not deleted.</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Table</th><th>Immutable After Seal?</th><th>Denormalized Fields</th><th>Retention</th></tr></thead>
+    <tbody>
+      <tr><td><code>monthly_archives</code></td><td>Yes</td><td>period_label, start_date, end_date</td><td>Indefinite</td></tr>
+      <tr><td><code>archive_category_snapshots</code></td><td>Yes</td><td>category_name</td><td>Indefinite</td></tr>
+      <tr><td><code>archive_debt_snapshots</code></td><td>Yes</td><td>creditor_name</td><td>Indefinite</td></tr>
+      <tr><td><code>archive_goal_snapshots</code></td><td>Yes</td><td>goal_name, target_amount</td><td>Indefinite</td></tr>
+      <tr><td><code>archive_emf_snapshot</code></td><td>Yes</td><td>None (EMF is singleton)</td><td>Indefinite</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.4 Entity Not Present in a Period</h3>
+  <p>If a debt or goal had no activity in a period but was active, it still receives a snapshot row so the archive is a complete cross-section of financial state. Goals and debts with <code>deleted_at IS NOT NULL</code> at period start are excluded unless they had activity before deletion.</p>
+
+  <h3>5.5 Re-Sealing Prohibited</h3>
+  <p>Once <code>sealed_at</code> is set, re-sealing (overwriting or amending the archive) is explicitly prohibited. If a data error is discovered in a sealed archive, a correction_log entry is appended — the original archive record is never altered. Corrections are annotated but do not modify historical totals.</p>
+</section>
+
+<!-- S6 -->
+<section id="s6">
+  <div class="sec-head"><span class="sec-num">6</span><h2 class="sec-title">Data Versioning Strategy</h2></div>
+
+  <p>The schema_migrations table records every applied migration in sequence. The version field is a monotonically increasing integer. No migration may be applied out of order, and no migration may be rolled back once applied to production data without explicit operator intervention.</p>
+
+  <h3>6.1 Migration Table Structure</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><code>version</code></td><td>INTEGER PK</td><td>Monotonically increasing migration sequence number</td></tr>
+      <tr><td><code>name</code></td><td>TEXT NOT NULL</td><td>Human-readable migration name (e.g. <code>add_expense_notes_column</code>)</td></tr>
+      <tr><td><code>checksum</code></td><td>TEXT NOT NULL</td><td>SHA-256 of the migration SQL — prevents silent modification of applied migrations</td></tr>
+      <tr><td><code>applied_at</code></td><td>INTEGER NOT NULL</td><td>Unix ms timestamp when migration completed</td></tr>
+      <tr><td><code>rollback_sql</code></td><td>TEXT NULLABLE</td><td>Reverse migration SQL; null means irreversible</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>6.2 Migration Rules</h3>
+  <ul class="sl">
+    <li>Migrations run in strict ascending version order on app startup before any reads or writes.</li>
+    <li>If the current schema checksum does not match the recorded checksum, the app refuses to start and surfaces a data integrity error to the user.</li>
+    <li>Additive changes (new columns with DEFAULT, new tables) are always safe. Destructive changes require a multi-step migration: add new, backfill, verify, remove old.</li>
+    <li>Column renames require creating a new column, backfilling, then dropping the old — never renaming directly in SQLite (no ALTER COLUMN support).</li>
+    <li>Archive tables (<code>monthly_archives</code>, <code>archive_*</code>) store <code>schema_version</code> at sealing time so the application knows which version's logic to use when reading historical rows.</li>
+  </ul>
+
+  <h3>6.3 app_state Version Tracking</h3>
+  <p>The <code>app_state</code> table stores a <code>db_schema_version</code> key that is updated after each successful migration batch. On startup, the app reads this key to determine the current schema version before attempting to run migrations. This provides a fast pre-check without scanning the migrations table.</p>
+
+  <h3>6.4 Entity-Level schema_version</h3>
+  <p>Archive tables include a <code>schema_version</code> TEXT field (e.g. <code>'1.0'</code>, <code>'2.3'</code>) captured at seal time. This allows the reporting layer to apply version-specific parsing rules when reading archived data — essential for long-lived archives that predate schema changes. The format is MAJOR.MINOR where MAJOR increments on breaking changes.</p>
+</section>
+
+<!-- S7 -->
+<section id="s7">
+  <div class="sec-head"><span class="sec-num">7</span><h2 class="sec-title">Search &amp; Query Model</h2></div>
+
+  <p>Finance Bag's search is entirely local. All queries execute against the SQLite database without network calls. The query model balances completeness (returning correct results across soft-deleted or archived data) with performance (sub-100ms response on 5+ years of data).</p>
+
+  <h3>7.1 Expense Search</h3>
+  <p>The primary search surface is expense search, accessed from the Reports and Budget modules. Expense search supports the following filter dimensions, all combinable:</p>
+
+  <div class="tw"><table>
+    <thead><tr><th>Dimension</th><th>Filter Type</th><th>Source Field(s)</th></tr></thead>
+    <tbody>
+      <tr><td>Free text</td><td>LIKE pattern on description + notes</td><td><code>expenses.description</code>, <code>expenses.notes</code></td></tr>
+      <tr><td>Date range</td><td>ISO date bounds</td><td><code>expenses.expense_date</code></td></tr>
+      <tr><td>Amount range</td><td>Integer centimes bounds</td><td><code>expenses.amount</code></td></tr>
+      <tr><td>Category</td><td>Single or multi-select</td><td><code>expenses.category_id</code></td></tr>
+      <tr><td>Tag</td><td>Single or multi-select via expense_tags</td><td><code>expense_tags.tag_id</code></td></tr>
+      <tr><td>Period</td><td>Single or multi-select</td><td><code>expenses.period_id</code></td></tr>
+      <tr><td>Recurring flag</td><td>Boolean</td><td><code>expenses.is_recurring</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Soft-deleted expenses (<code>deleted_at IS NOT NULL</code>) are always excluded from search results unless the query explicitly requests deleted records (admin/debug context only).</p>
+
+  <h3>7.2 Saved Report Filters</h3>
+  <p>Users may save up to 10 active search filter combinations as named saved_report_filters. Each filter stores a <code>filter_json</code> blob containing the full filter state. Saved filters are not versioned — they serialize the current filter UI state at save time. A hard limit of 10 active (non-deleted) rows is enforced at the application layer before insert.</p>
+
+  <h3>7.3 Cross-Period Aggregation Queries</h3>
+  <p>Reports module queries aggregate across multiple periods. Common patterns:</p>
+  <ul class="sl">
+    <li><strong>Spending by category over N periods</strong> — GROUP BY category_id, period_id with SUM(amount) where deleted_at IS NULL.</li>
+    <li><strong>FHS trend</strong> — SELECT from fhs_history ordered by date with a 365-day window; no joins required.</li>
+    <li><strong>Net savings trend</strong> — JOIN salary_records and expenses by period_id, aggregate per period.</li>
+    <li><strong>Debt paydown curve</strong> — SELECT balance_at_close from archive_debt_snapshots ordered by archive.end_date for a specific debt_id.</li>
+    <li><strong>Goal progress timeline</strong> — SELECT balance_at_close from archive_goal_snapshots ordered by archive.end_date for a specific goal_id.</li>
+  </ul>
+
+  <h3>7.4 Query Scope Rules</h3>
+  <ul class="sl">
+    <li>All operational queries must include <code>deleted_at IS NULL</code> unless archive/history is explicitly requested.</li>
+    <li>Archived data queries operate on the archive_* tables, never join back to operational tables to fill gaps (historical data must be self-contained in the archive).</li>
+    <li>The <code>fhs_history</code> table is append-only; queries always read with ORDER BY date DESC LIMIT N.</li>
+    <li>Aggregate queries on expenses must always group by period first to avoid cross-period contamination in paginated results.</li>
+  </ul>
+</section>
+
+<!-- S8 -->
+<section id="s8">
+  <div class="sec-head"><span class="sec-num">8</span><h2 class="sec-title">Indexing Strategy</h2></div>
+
+  <p>Indexes are chosen based on actual query patterns derived from the feature specifications. No speculative indexes are created. Each index is named with a consistent convention: <code>idx_{table}_{columns}</code>. Composite indexes list columns in selectivity order (highest cardinality first). Covering indexes are used where the query can be satisfied entirely from the index without a table scan.</p>
+
+  <div class="note"><strong>SQLite B-tree note.</strong> ULID primary keys provide naturally ordered B-tree insertions (monotonically increasing prefix). UUID v4 would cause random page splits; ULIDs avoid this entirely, keeping the primary index hot and compact.</div>
+
+  <h3>8.1 Index Catalog by Table</h3>
+
+  <div class="tw"><table>
+    <thead><tr><th>Table</th><th>Index Name</th><th>Columns</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>expenses</code></td><td><code>idx_expenses_period_deleted</code></td><td>(period_id, deleted_at)</td><td>Budget period view — primary hot path</td></tr>
+      <tr><td><code>expenses</code></td><td><code>idx_expenses_category_date</code></td><td>(category_id, expense_date, deleted_at)</td><td>Category spend history</td></tr>
+      <tr><td><code>expenses</code></td><td><code>idx_expenses_date_amount</code></td><td>(expense_date, amount)</td><td>Date-range + amount filter in Reports</td></tr>
+      <tr><td><code>expense_tags</code></td><td><code>idx_expense_tags_tag</code></td><td>(tag_id, expense_id)</td><td>Reverse lookup: expenses for a tag</td></tr>
+      <tr><td><code>salary_records</code></td><td><code>idx_salary_period</code></td><td>(period_id, deleted_at)</td><td>Income aggregation per period</td></tr>
+      <tr><td><code>budget_allocations</code></td><td><code>idx_budget_alloc_period</code></td><td>(period_id, category_id)</td><td>Budget view join (also UNIQUE constraint)</td></tr>
+      <tr><td><code>debt_payments</code></td><td><code>idx_debt_payments_debt</code></td><td>(debt_id, payment_date, deleted_at)</td><td>Debt payment history per debt</td></tr>
+      <tr><td><code>debt_payments</code></td><td><code>idx_debt_payments_period</code></td><td>(period_id, deleted_at)</td><td>Period-level debt summary</td></tr>
+      <tr><td><code>debts</code></td><td><code>idx_debts_status</code></td><td>(status, deleted_at)</td><td>Active debt list</td></tr>
+      <tr><td><code>goal_contributions</code></td><td><code>idx_goal_contribs_goal</code></td><td>(goal_id, contribution_date)</td><td>Goal progress history</td></tr>
+      <tr><td><code>goal_contributions</code></td><td><code>idx_goal_contribs_period</code></td><td>(period_id)</td><td>Period-level goal summary</td></tr>
+      <tr><td><code>financial_goals</code></td><td><code>idx_goals_status</code></td><td>(status, deleted_at)</td><td>Active goals list</td></tr>
+      <tr><td><code>emf_contributions</code></td><td><code>idx_emf_contribs_period</code></td><td>(period_id)</td><td>EMF contribution per period</td></tr>
+      <tr><td><code>fhs_history</code></td><td><code>idx_fhs_date</code></td><td>(date DESC)</td><td>FHS trend reads (always newest first)</td></tr>
+      <tr><td><code>event_log</code></td><td><code>idx_events_type_created</code></td><td>(event_type, created_at)</td><td>Event queries by type</td></tr>
+      <tr><td><code>event_log</code></td><td><code>idx_events_key_created</code></td><td>(event_key, created_at)</td><td>Idempotency deduplication check</td></tr>
+      <tr><td><code>event_log</code></td><td><code>idx_events_state_retry</code></td><td>(state, next_retry_at)</td><td>Retry queue scan</td></tr>
+      <tr><td><code>audit_log</code></td><td><code>idx_audit_table_row</code></td><td>(table_name, row_id, created_at)</td><td>Row-level audit history</td></tr>
+      <tr><td><code>audit_log</code></td><td><code>idx_audit_created</code></td><td>(created_at)</td><td>Time-based audit purge scan</td></tr>
+      <tr><td><code>salary_periods</code></td><td><code>idx_periods_status</code></td><td>(status)</td><td>Find ACTIVE period fast</td></tr>
+      <tr><td><code>roadmap_nodes</code></td><td><code>idx_rmn_status_sort</code></td><td>(status, sort_order)</td><td>Roadmap list ordered by topological sort</td></tr>
+      <tr><td><code>monthly_archives</code></td><td><code>idx_archives_period</code></td><td>(period_id)</td><td>Archive lookup by period (also UNIQUE)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>8.2 Partial Index Pattern</h3>
+  <p>Where SQLite supports it, partial indexes are used on soft-deleted tables to index only active records: <code>WHERE deleted_at IS NULL</code>. This keeps the index compact when historical data accumulates. The expenses table especially benefits — over years of data, most rows will be from prior periods.</p>
+
+  <h3>8.3 Index Anti-Patterns to Avoid</h3>
+  <ul class="sl">
+    <li>Do not index <code>notes</code> or <code>description</code> columns with a standard B-tree index — full text search uses LIKE patterns which cannot use these indexes anyway.</li>
+    <li>Do not add covering indexes for singleton tables (users, settings, emergency_fund) — they are one-row tables and any index overhead exceeds the benefit.</li>
+    <li>Do not create indexes on the composite-PK junction tables (expense_tags, goal_dependencies, roadmap_edges) — the composite PK already provides efficient lookup in both directions for small datasets.</li>
+  </ul>
+</section>
+
+<!-- S9 -->
+<section id="s9">
+  <div class="sec-head"><span class="sec-num">9</span><h2 class="sec-title">Archiving Strategy</h2></div>
+
+  <p>Archiving is the process of permanently sealing a closed period's financial state into the archive tables while the operational tables continue to hold current-period live data. Archiving is not the same as backup — it is a business process that produces an immutable historical record.</p>
+
+  <h3>9.1 Two-Tier Data Lifecycle</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Tier</th><th>Tables</th><th>Access Pattern</th><th>Mutability</th><th>Retention</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Hot (Operational)</strong></td><td>expenses, salary_records, debt_payments, goal_contributions, emf_contributions, debts, financial_goals, budget_allocations</td><td>High read + write, current period</td><td>Full CRUD (soft delete)</td><td>Active until period closed; soft-deleted rows retained indefinitely</td></tr>
+      <tr><td><strong>Cold (Archive)</strong></td><td>monthly_archives, archive_category_snapshots, archive_debt_snapshots, archive_goal_snapshots, archive_emf_snapshot</td><td>Read-only after sealing; write once at seal time</td><td>Immutable after <code>sealed_at IS NOT NULL</code></td><td>Indefinite — financial history must never expire</td></tr>
+      <tr><td><strong>Analytics</strong></td><td>fhs_history, audit_log, event_log</td><td>Append-only; queried for trend display</td><td>Append only; no updates</td><td>fhs_history: 365 days; audit_log: 365 days; event_log: 90 days</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.2 Period Lifecycle States</h3>
+  <ul class="ol">
+    <li><strong>ACTIVE</strong> — the current open period. Only one period may be ACTIVE at a time. All new transactions are associated with this period.</li>
+    <li><strong>CLOSED</strong> — the period's end date has passed. No new transactions may be attached. The period is eligible for archiving (sealing). The salary_periods row is not yet archived.</li>
+    <li><strong>ARCHIVED</strong> — the period has been sealed into monthly_archives. <code>archived_at</code> is set. The salary_periods row is updated to ARCHIVED status. Operational rows for this period remain in hot tables (soft-deleted ones included) for potential audit or re-aggregation, but are excluded from all active-period UI.</li>
+  </ul>
+
+  <h3>9.3 Retention Policy for Operational Tables</h3>
+  <p>Operational tables do not auto-purge financial transaction rows. The following time-bounded tables have explicit retention limits enforced by the CLEANUP_OLD_EVENTS automation:</p>
+  <ul class="sl">
+    <li><code>event_log</code> — rows with <code>created_at</code> older than 90 days are hard-deleted (events are non-financial system data).</li>
+    <li><code>fhs_history</code> — rows with <code>date</code> older than 365 days are hard-deleted (trend display only requires the last year; full history lives in archive FHS fields).</li>
+    <li><code>audit_log</code> — rows with <code>created_at</code> older than 365 days are hard-deleted (compliance window). If a future version requires longer retention, this limit is configurable via app_state.</li>
+    <li><code>dead_letter_queue</code> — rows older than 30 days that have been resolved are hard-deleted.</li>
+  </ul>
+
+  <div class="warn"><strong>Financial data rows (expenses, debt_payments, salary_records, goal_contributions, emf_contributions) are never hard-deleted</strong>, even after their period is ARCHIVED. They remain in the operational tables in perpetuity for potential re-aggregation, audit, or data export. Soft-delete (<code>deleted_at</code>) is the only removal mechanism.</div>
+
+  <h3>9.4 Large Attachment Management</h3>
+  <p>The <code>attachments</code> table stores only metadata. Actual file bytes are stored in the device's local file system at <code>local_uri</code>. The <code>thumbnail_uri</code> points to a compressed preview. When an expense is soft-deleted, its attachment record is soft-deleted but the file is retained for a configurable grace period (default 30 days) before the file system entry is cleaned up. The file cleanup is handled by the app, not by a SQLite trigger.</p>
+</section>
+
+<!-- S10 -->
+<section id="s10">
+  <div class="sec-head"><span class="sec-num">10</span><h2 class="sec-title">Data Validation &amp; Integrity</h2></div>
+
+  <p>Data integrity is enforced at three layers: SQLite CHECK constraints (always enforced, even on direct DB access), application-layer validation (rich error messages, business rule enforcement), and cross-entity consistency checks (run before writes that span multiple tables).</p>
+
+  <h3>10.1 SQLite CHECK Constraints (Always-On)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Table</th><th>Constraint</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td><code>expenses</code></td><td><code>chk_amount_positive</code></td><td><code>amount &gt; 0</code></td></tr>
+      <tr><td><code>salary_records</code></td><td><code>chk_salary_positive</code></td><td><code>amount &gt; 0</code></td></tr>
+      <tr><td><code>budget_allocations</code></td><td><code>chk_alloc_nonneg</code></td><td><code>allocated_amount &gt;= 0</code></td></tr>
+      <tr><td><code>debts</code></td><td><code>chk_balance_nonneg</code></td><td><code>current_balance &gt;= 0</code></td></tr>
+      <tr><td><code>debts</code></td><td><code>chk_rate_bps</code></td><td><code>interest_rate_bps &gt;= 0 AND interest_rate_bps &lt;= 100000</code></td></tr>
+      <tr><td><code>debts</code></td><td><code>chk_payment_day</code></td><td><code>payment_due_day &gt;= 1 AND payment_due_day &lt;= 28</code></td></tr>
+      <tr><td><code>emergency_fund</code></td><td><code>chk_contrib_day</code></td><td><code>contribution_day &gt;= 1 AND contribution_day &lt;= 28</code></td></tr>
+      <tr><td><code>financial_goals</code></td><td><code>chk_goal_contrib_day</code></td><td><code>contribution_day &gt;= 1 AND contribution_day &lt;= 28</code></td></tr>
+      <tr><td><code>financial_goals</code></td><td><code>chk_goal_target_pos</code></td><td><code>target_amount &gt; 0</code></td></tr>
+      <tr><td><code>profiles</code></td><td><code>chk_salary_day</code></td><td><code>salary_day &gt;= 1 AND salary_day &lt;= 28</code></td></tr>
+      <tr><td><code>fhs_history</code></td><td><code>chk_fhs_range</code></td><td><code>fhs_total &gt;= 0 AND fhs_total &lt;= 100</code></td></tr>
+      <tr><td><code>fhs_history</code></td><td><code>chk_fhs_components</code></td><td>Each component within its spec-defined max (e.g. <code>savings_pts &lt;= 20</code>)</td></tr>
+      <tr><td><code>archive_goal_snapshots</code></td><td><code>chk_completion_pct</code></td><td><code>completion_pct_at_close &gt;= 0 AND completion_pct_at_close &lt;= 10000</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>10.2 Application-Layer Validation Rules</h3>
+  <ul class="sl">
+    <li><strong>Period must be ACTIVE before writes.</strong> Any mutation to expenses, salary_records, debt_payments, goal_contributions, emf_contributions must check that the target period_id maps to an ACTIVE salary period.</li>
+    <li><strong>UNIQUE constraint on budget_allocations.</strong> (period_id, category_id) is UNIQUE. Attempting to create a second allocation for the same category in the same period is rejected with a meaningful error, not silently overwritten.</li>
+    <li><strong>Debt current_balance must not go negative.</strong> Enforced at application layer rather than a CHECK constraint to provide a user-friendly error message when an over-payment is attempted.</li>
+    <li><strong>Goal contributions must not exceed target_amount − current_balance.</strong> Over-contributions are rejected; the goal enters COMPLETED state exactly when current_balance reaches target_amount.</li>
+    <li><strong>salary_periods UNIQUE on period_label.</strong> Period labels follow the format YYYY-MM (e.g. 2025-03). Only one period per label is allowed.</li>
+    <li><strong>Max 10 saved_report_filters.</strong> Enforced before INSERT; if the user has 10 active filters, they must delete one before creating a new one.</li>
+    <li><strong>DAG integrity on goal_dependencies.</strong> Before inserting a dependency row, the application checks that the new edge does not create a cycle. Kahn's algorithm is run on the full dependency graph. If a cycle would result, the insert is rejected.</li>
+    <li><strong>DAG integrity on roadmap_edges.</strong> Same cycle-prevention logic as goal_dependencies — BFS/DFS from the proposed to_node_id must not reach from_node_id before insertion is permitted.</li>
+  </ul>
+
+  <h3>10.3 Cross-Entity Consistency Rules</h3>
+  <ul class="sl">
+    <li>When a debt is marked PAID_OFF, <code>current_balance</code> must be ≤ 0 (or exactly 0 after rounding). Any outstanding balance is flagged as a consistency warning, not silently zeroed.</li>
+    <li>When a goal is marked COMPLETED, <code>current_balance</code> must equal <code>target_amount</code>. A goal with remaining balance cannot self-complete.</li>
+    <li>A salary period cannot be CLOSED if it is currently the only ACTIVE period and no new period has been opened yet.</li>
+    <li>The EMF singleton row (<code>id = 'emf-singleton'</code>) must always exist. If not found, it is created lazily on first access with zero balances.</li>
+  </ul>
+</section>
+
+<!-- S11 -->
+<section id="s11">
+  <div class="sec-head"><span class="sec-num">11</span><h2 class="sec-title">Security Model</h2></div>
+
+  <p>Finance Bag stores sensitive personal financial data on-device. The security model prioritizes local encryption, access control at the OS level, and auditability without requiring any server-side authentication infrastructure.</p>
+
+  <h3>11.1 Encryption at Rest</h3>
+  <p>The SQLite database file is encrypted using SQLCipher (or expo-sqlite's built-in encryption API). The encryption key is derived from the user's device biometric/PIN authentication secret via the platform Keychain (iOS) or Keystore (Android). The key is never stored in plaintext. The database cannot be opened without the derived key — raw file access yields ciphertext.</p>
+
+  <h3>11.2 Biometric Lock</h3>
+  <p>When <code>settings.biometric_lock = TRUE</code>, the app re-challenges biometric authentication after a configurable inactivity timeout (default 5 minutes). The database connection is closed on lock and re-opened only after successful re-authentication. The <code>settings</code> table itself stores only the preference flag — the biometric challenge is handled at the OS platform layer.</p>
+
+  <h3>11.3 Obscure Amounts</h3>
+  <p>When <code>settings.obscure_amounts = TRUE</code>, all monetary values in the UI are replaced with placeholder characters (e.g. ••••). This is a UI-layer feature only — amounts are stored and computed normally in the database. Obscuring affects: dashboard totals, expense amounts, debt balances, goal amounts, EMF balances.</p>
+
+  <h3>11.4 Audit Log</h3>
+  <p>The <code>audit_log</code> table records all data mutations at the row level. Every INSERT, UPDATE, and soft-delete operation on financial tables produces an audit row. The audit log is:</p>
+  <ul class="sl">
+    <li>Append-only — no UPDATE or DELETE is permitted on audit_log rows by the application.</li>
+    <li>Immutable in the sense that the application has no delete path for audit rows within the 365-day retention window.</li>
+    <li>Stored locally on-device — not synced to any external service in v1.</li>
+    <li>Scoped per session — <code>session_id</code> identifies the app session (generated at launch) so sequences of operations can be correlated.</li>
+    <li><code>triggered_by</code> identifies the module or automation that caused the change (e.g. <code>'BUD'</code>, <code>'EVT:AUTOMATION'</code>, <code>'USER'</code>).</li>
+  </ul>
+
+  <h3>11.5 Data Export Security</h3>
+  <p>When the user requests a data export (SEC.DATA_EXPORT_REQUESTED event), the following security controls apply:</p>
+  <ul class="sl">
+    <li>Re-authentication is required (biometric or PIN) before export begins, regardless of the current session lock state.</li>
+    <li>The export is written to a temporary file in the app's private sandboxed storage first. The user must explicitly choose a destination via the OS share sheet.</li>
+    <li>The export file name includes a timestamp to prevent silent overwriting of prior exports.</li>
+    <li>The audit log records the export event including timestamp and what data was exported.</li>
+  </ul>
+
+  <h3>11.6 FK Enforcement</h3>
+  <p><code>PRAGMA foreign_keys = ON</code> must be set for every SQLite connection before any read or write. This is non-negotiable — SQLite disables FK enforcement by default. The connection initialization sequence must include this pragma as step one. Failure to set it means child rows can exist without valid parent rows, violating referential integrity silently.</p>
+</section>
+
+<!-- S12 -->
+<section id="s12">
+  <div class="sec-head"><span class="sec-num">12</span><h2 class="sec-title">Performance Architecture</h2></div>
+
+  <p>All performance targets are measured on a mid-range 3-year-old device with 3 years of Finance Bag usage data (~1,000 expenses/year = ~3,000 expense rows). These targets govern query design decisions.</p>
+
+  <h3>12.1 Performance Targets</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Operation</th><th>Target</th><th>Constraint</th></tr></thead>
+    <tbody>
+      <tr><td>Dashboard load (cold, all widgets)</td><td>&lt; 200ms</td><td>Dashboard snapshot pre-computed and cached in app_state</td></tr>
+      <tr><td>Budget period view (current period)</td><td>&lt; 80ms</td><td>Indexed on (period_id, deleted_at)</td></tr>
+      <tr><td>Expense search (free text, no date range)</td><td>&lt; 150ms</td><td>LIKE with leading wildcard must be accepted as a known slow-path</td></tr>
+      <tr><td>Expense search (date range filter)</td><td>&lt; 80ms</td><td>Date range leverages idx_expenses_date_amount</td></tr>
+      <tr><td>FHS calculation (full recompute)</td><td>&lt; 50ms</td><td>All inputs already aggregated; no table scans</td></tr>
+      <tr><td>Monthly archive sealing</td><td>&lt; 500ms total</td><td>All 5 snapshot tables written in one transaction</td></tr>
+      <tr><td>Period advance (close + open)</td><td>&lt; 300ms</td><td>Triggers archive + FHS snapshot + new period row</td></tr>
+      <tr><td>Roadmap topological sort</td><td>&lt; 30ms</td><td>Graph size bounded by number of active roadmap nodes (max ~50)</td></tr>
+      <tr><td>Audit log write</td><td>&lt; 10ms per row</td><td>Async write; does not block the originating transaction</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>12.2 WAL Mode</h3>
+  <p>SQLite is configured in WAL (Write-Ahead Log) mode via <code>PRAGMA journal_mode = WAL</code>. WAL mode provides concurrent readers during writes and dramatically improves write throughput for the event-heavy patterns in Finance Bag (EVT module publishes frequently). WAL checkpoint is set to auto-checkpoint at 1000 pages to prevent unbounded WAL file growth.</p>
+
+  <h3>12.3 Dashboard Snapshot Cache</h3>
+  <p>The dashboard snapshot is the most performance-critical path in the app. Rather than recomputing it on every navigation to the Dashboard screen, the REBUILD_DASHBOARD_SNAPSHOT automation pre-computes the full dashboard state after any financial mutation and stores the result as JSON in <code>app_state</code> (key: <code>dashboard_snapshot</code>). The Dashboard screen reads this key on mount — no aggregation queries run at render time.</p>
+  <p>The snapshot is invalidated (and scheduled for rebuild) whenever any of the following events fire: SALARY_RECORDED, EXPENSE_CREATED/UPDATED/DELETED, DEBT_PAYMENT_RECORDED, GOAL_CONTRIBUTION_RECORDED, EMF_CONTRIBUTION_RECORDED, FHS_SIGNIFICANT_CHANGE.</p>
+
+  <h3>12.4 Query Optimization Rules</h3>
+  <ul class="sl">
+    <li>Never use <code>SELECT *</code> in production queries — select only the columns needed to reduce data transferred from storage layer.</li>
+    <li>Aggregate queries (SUM, COUNT, AVG) on large tables must always use indexed columns in the WHERE clause to enable index-only scans.</li>
+    <li>LIKE queries with a leading wildcard (<code>'%text%'</code>) cannot use a B-tree index and will full-scan the expenses table. This is acceptable as a user-initiated search, not a background query. For >10,000 expense rows, this may require progressive result delivery.</li>
+    <li>All writes to the database are serialized through a single connection (SQLite single-writer model). Concurrent writes from different modules must go through the same connection instance or queue.</li>
+    <li>Use <code>PRAGMA cache_size = -8000</code> (8MB page cache) for the primary connection to keep hot B-tree pages in memory across queries within a session.</li>
+  </ul>
+</section>
+
+<!-- S13 -->
+<section id="s13">
+  <div class="sec-head"><span class="sec-num">13</span><h2 class="sec-title">Backup &amp; Recovery</h2></div>
+
+  <p>Finance Bag is an offline-first app. There is no cloud sync in v1. Backup is the user's responsibility, but the app provides structured export tools to facilitate it. Recovery is the process of restoring a previously exported backup to a new or reset device.</p>
+
+  <h3>13.1 Export Formats</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Format</th><th>Use Case</th><th>Contents</th><th>Security</th></tr></thead>
+    <tbody>
+      <tr><td>Full DB backup (.sqlite)</td><td>Device migration / full restore</td><td>Entire encrypted SQLite file</td><td>Encrypted at rest; requires re-authentication before export</td></tr>
+      <tr><td>CSV export</td><td>Spreadsheet analysis / data portability</td><td>expenses, salary_records, debts, debt_payments, goals, goal_contributions per-table CSVs in a ZIP</td><td>Plaintext — user must protect the file</td></tr>
+      <tr><td>JSON export</td><td>Developer / third-party tool import</td><td>Full entity hierarchy as nested JSON; includes archive snapshots</td><td>Plaintext — user must protect the file</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>13.2 Backup Triggers</h3>
+  <ul class="sl">
+    <li><strong>Manual export</strong> — User-initiated from Settings. Requires re-authentication. Produces a file shared via OS share sheet.</li>
+    <li><strong>iCloud / Google Drive auto-backup (v2)</strong> — Not in v1. Placeholder in spec for future cloud sync module. The database encryption key must be derivable from cloud-stored credentials in that scenario, not the device-local biometric key.</li>
+    <li><strong>Onboarding import</strong> — At fresh install, the user may import a full DB backup file to restore their financial history. Import validates schema_version compatibility before applying.</li>
+  </ul>
+
+  <h3>13.3 Recovery Process</h3>
+  <ul class="ol">
+    <li>User initiates restore from Settings → Import Backup.</li>
+    <li>User selects a .sqlite backup file via OS file picker.</li>
+    <li>App reads the <code>app_state</code> key <code>db_schema_version</code> from the backup file to check compatibility.</li>
+    <li>If schema version is compatible (same MAJOR version), the app replaces the current database file with the backup.</li>
+    <li>If schema version is older (lower MAJOR or MINOR), the app runs forward migrations after restoring.</li>
+    <li>If schema version is newer than the app version, restore is rejected with an error prompting the user to update the app first.</li>
+    <li>After restore, the app rebuilds the dashboard snapshot and re-indexes any tables that need it.</li>
+  </ul>
+
+  <h3>13.4 Data Loss Prevention</h3>
+  <ul class="sl">
+    <li>Before a restore, the app creates a backup of the current database to a temp location. If the restore fails, the prior database is reinstated.</li>
+    <li>Partial writes during the sealing process are protected by SQLite transaction ACID guarantees — a failed seal leaves no partial archive rows.</li>
+    <li>The app detects database corruption on startup via <code>PRAGMA integrity_check</code> (quick mode). If corruption is detected, the user is prompted to restore from backup rather than attempting to repair.</li>
+  </ul>
+</section>
+
+<!-- S14 -->
+<section id="s14">
+  <div class="sec-head"><span class="sec-num">14</span><h2 class="sec-title">Future Compatibility</h2></div>
+
+  <p>The database schema is designed to evolve without requiring full data migrations for minor additions. The following patterns ensure long-term maintainability.</p>
+
+  <h3>14.1 Additive-Only Schema Evolution Principle</h3>
+  <p>New features add new columns (with DEFAULT values) or new tables. They do not rename existing columns, change column types, or remove columns without a multi-step migration. The only destructive schema changes permitted are removing columns that have been deprecated for at least two major app versions and confirmed to have zero usage via migration-time inspection.</p>
+
+  <h3>14.2 JSON Escape Hatch Fields</h3>
+  <p>Several tables include a JSON blob field that provides an extensibility escape hatch without requiring schema migrations for minor additions:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Table</th><th>JSON Field</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><code>settings</code></td><td><code>dashboard_layout</code>, <code>widget_order_json</code></td><td>Dashboard widget configuration; schema can evolve without column changes</td></tr>
+      <tr><td><code>expenses</code></td><td><code>recurrence_rule_json</code></td><td>RecurrenceRule object for recurring expenses</td></tr>
+      <tr><td><code>event_rules</code></td><td><code>condition_json</code>, <code>action_json</code></td><td>Rule conditions and actions; new rule types added without schema changes</td></tr>
+      <tr><td><code>scheduled_reminders</code></td><td><code>recurrence_rule_json</code></td><td>RecurrenceRule object; same type as EVT spec</td></tr>
+      <tr><td><code>saved_report_filters</code></td><td><code>filter_json</code></td><td>Filter state blob; new filter dimensions added without column changes</td></tr>
+      <tr><td><code>app_state</code></td><td><code>value_json</code></td><td>All app-level key-value state; unlimited extensibility</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>14.3 AI Module Readiness</h3>
+  <p>The data model is designed to be queryable by a future AI module without schema changes:</p>
+  <ul class="sl">
+    <li><strong>fhs_history</strong> provides a complete time-series of financial health for ML model training.</li>
+    <li><strong>archive_*_snapshots</strong> provide period-level aggregates that form natural training features.</li>
+    <li><strong>expense.description</strong> and <strong>notes</strong> fields are free text that can be used for category suggestion ML models.</li>
+    <li><strong>audit_log</strong> provides behavioral patterns (which modules users interact with most, at what times).</li>
+    <li>The <code>app_state</code> table can hold AI model configuration, inference cache, and recommendation history without schema changes.</li>
+    <li>The event bus (EVT module) is already instrumented to emit AI-readable events (AI.* event type category) when the AI module is enabled.</li>
+  </ul>
+
+  <h3>14.4 Multi-Currency Future State</h3>
+  <p>The <code>currencies</code> reference table and <code>profiles.currency_code</code> FK are designed to support future multi-currency operation. In v1, all amounts are in a single currency (the user's selected currency). The <code>currencies.decimal_places</code> field supports non-centimal currencies (JPY = 0 decimal places). A future migration would add a <code>currency_code</code> column to expenses and other monetary tables, defaulting to the user's primary currency, enabling per-transaction currency tracking.</p>
+
+  <h3>14.5 Cloud Sync Future State</h3>
+  <p>ULID primary keys are ideal for multi-device sync scenarios because they are generated client-side and are globally unique without coordination. If cloud sync is added in a future version, the ULID scheme requires no PK changes. The <code>updated_at</code> timestamps on mutable tables support conflict resolution via last-write-wins or merge strategies. The audit_log provides a complete change history that a sync server could use for conflict resolution.</p>
+</section>
+
+<!-- S15 -->
+<section id="s15">
+  <div class="sec-head"><span class="sec-num">15</span><h2 class="sec-title">Business Rules</h2></div>
+
+  <p>Business rules at the database layer enforce invariants that must hold regardless of which UI path or automation triggered the write. These are distinct from UI validation (which provides user-friendly errors) and from event automation (which responds to data changes). DB business rules are the last line of defense.</p>
+
+  <div class="rc">
+    <div class="rc-id">BR-DB-01</div>
+    <div class="rc-title">Day-of-Month Cap at 28</div>
+    <div class="rc-body">Any field representing a day-of-month (salary_day, payment_due_day, contribution_day) must be capped at 28. This prevents issues with months that have fewer than 31 days. CHECK constraints enforce 1–28. Values 29, 30, 31 are rejected at application layer with an explicit error message.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-DB-02</div>
+    <div class="rc-title">One Active Period at a Time</div>
+    <div class="rc-body">The salary_periods table may have at most one row with <code>status = 'ACTIVE'</code>. Enforced by a partial unique index: <code>CREATE UNIQUE INDEX idx_one_active_period ON salary_periods (status) WHERE status = 'ACTIVE'</code>. Attempting to create a second ACTIVE period raises a UNIQUE constraint violation.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-DB-03</div>
+    <div class="rc-title">No Hard Deletes on Financial Data</div>
+    <div class="rc-body">The application must never issue a DELETE statement on financial transaction tables (expenses, salary_records, debt_payments, goal_contributions, emf_contributions, debts, financial_goals, emergency_fund). Only soft-delete via <code>UPDATE SET deleted_at = NOW()</code> is permitted. The audit_log records this operation as SOFT_DELETE.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-DB-04</div>
+    <div class="rc-title">Singleton Table Integrity</div>
+    <div class="rc-body">Tables with singleton semantics (users, settings, emergency_fund) must have exactly one row. <code>emergency_fund</code> uses <code>id = 'emf-singleton'</code>; <code>settings</code> uses <code>id = 'app-settings'</code>. These IDs are hardcoded string constants in the application. Inserting a second row to these tables raises a PK conflict. If the singleton row does not exist, it is created lazily on first access.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-DB-05</div>
+    <div class="rc-title">Shared PK for 1:1 Relationships</div>
+    <div class="rc-body">The <code>profiles</code> table uses <code>id</code> as both primary key and a FK to <code>users.id</code>. This shared-PK pattern means a profile can only exist if the user exists, and exactly one profile per user is guaranteed by the PK constraint. The same pattern applies to <code>archive_emf_snapshot</code> (shared PK with monthly_archives).</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-DB-06</div>
+    <div class="rc-title">Money Arithmetic Invariant</div>
+    <div class="rc-body">All arithmetic on monetary amounts uses integer centimes only. Division operations that would produce fractional centimes must round using ROUND_HALF_UP. The result of interest_portion + principal_portion must equal the total payment amount exactly (no rounding discrepancy tolerated). Rounding discrepancies are assigned to the principal_portion.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-DB-07</div>
+    <div class="rc-title">Archive Immutability After Sealing</div>
+    <div class="rc-body">Once <code>monthly_archives.sealed_at IS NOT NULL</code>, no UPDATE to that row or any of its child snapshot rows is permitted. The application enforces this by checking sealed_at before any write to archive tables. A sealed archive may never be re-sealed, amended, or deleted by normal application paths.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-DB-08</div>
+    <div class="rc-title">Cascade DELETE Prohibited</div>
+    <div class="rc-body">No FK relationship in the database may use ON DELETE CASCADE. Referential actions on financial data are handled explicitly by the application layer. When a parent entity is soft-deleted, the application decides which child entities to also soft-delete (and records each in audit_log). Silent cascade deletion is incompatible with the auditability requirement.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-DB-09</div>
+    <div class="rc-title">ULID Format Enforcement</div>
+    <div class="rc-body">All primary keys must be ULIDs: 26-character base32 strings, first 10 characters encoding a millisecond-precision timestamp. UUID v4 keys are prohibited in financial tables. UUID v4 may only be used as idempotency keys in the EVT module's event_log — and only temporarily, as the specification prohibits UUID v4 idempotency keys (see BR-EVT-09 in SPEC-EVT-001).</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">BR-DB-10</div>
+    <div class="rc-title">Foreign Key Pragma Per Connection</div>
+    <div class="rc-body"><code>PRAGMA foreign_keys = ON</code> must be the first statement executed after opening any SQLite connection. No exceptions. FK enforcement is off by default in SQLite and will not persist across connections. The DB initialization layer must set this pragma before returning the connection to any module.</div>
+  </div>
+</section>
+
+<!-- S16 -->
+<section id="s16">
+  <div class="sec-head"><span class="sec-num">16</span><h2 class="sec-title">Edge Cases</h2></div>
+
+  <p>These edge cases represent scenarios that are difficult to handle correctly but likely to occur in real usage. Each has a specified correct behavior that the application must implement.</p>
+
+  <h3>16.1 Period Boundary Edge Cases</h3>
+
+  <div class="rc">
+    <div class="rc-id">EC-DB-01</div>
+    <div class="rc-title">Expense Entered After Period Closed</div>
+    <div class="rc-body">If a user records an expense after the period has been CLOSED (e.g. forgot to enter a receipt), the application must allow back-dating the expense to the prior period — but only if that period has not yet been ARCHIVED (sealed). Once a period is sealed, no expense may be added to it. The UI must surface a clear warning when editing a closed-but-not-sealed period.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-DB-02</div>
+    <div class="rc-title">Debt Payment Exceeds Outstanding Balance</div>
+    <div class="rc-body">If a debt_payment.amount > debts.current_balance (e.g. the user made a final overpayment), the system accepts the payment but caps <code>balance_after = 0</code>, automatically marks <code>debts.status = 'PAID_OFF'</code>, and publishes DEBT_PAID_OFF event. The overpayment amount is not tracked as a credit — it is treated as rounding/escrow and the difference is discarded.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-DB-03</div>
+    <div class="rc-title">Goal Contribution Overshoots Target</div>
+    <div class="rc-body">If a goal_contribution.amount would cause current_balance to exceed target_amount, the contribution is silently capped at (target_amount − current_balance). The recorded amount is the capped value, not the entered value. The UI must show the user the capped amount before confirming. After the contribution, the goal transitions to COMPLETED status automatically.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-DB-04</div>
+    <div class="rc-title">Salary Day 29–31 in User Profile (Legacy Migration)</div>
+    <div class="rc-body">If a user migrated from a version that allowed salary_day up to 31, their profile may contain a value > 28. On read, the application clamps the value to 28 for all business logic purposes. A one-time migration sets the stored value to 28. No functional regression — Feb 28 is always used for salary_day = 29/30/31 in practice.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-DB-05</div>
+    <div class="rc-title">Category Deleted Mid-Period</div>
+    <div class="rc-body">If a budget_category is soft-deleted (<code>deleted_at IS NOT NULL</code>) while expenses referencing it exist in the current period, those expenses retain their <code>category_id</code> FK (no cascade). The budget view shows the category as "Deleted" in the expense list. When the period is sealed, the archive_category_snapshots row includes the category even if deleted, so historical reports remain accurate. The deleted category is not available for new expense assignment.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-DB-06</div>
+    <div class="rc-title">Uncategorized Expenses</div>
+    <div class="rc-body"><code>expenses.category_id</code> is nullable. An expense with <code>category_id = NULL</code> is treated as "Uncategorized". Uncategorized expenses contribute to period total spending but do not reduce any category's allocated amount. The FHS budget score treats uncategorized spend as untracked allocation, penalizing the score proportionally. Users are prompted to categorize expenses but are not blocked from saving uncategorized ones.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-DB-07</div>
+    <div class="rc-title">No Salary Recorded for a Period</div>
+    <div class="rc-body">A salary period with no associated salary_records is valid (e.g. the user had no income that period). In this case, total_income = 0 in the archive snapshot. The FHS income stability component handles this gracefully — consecutive zero-income periods reduce the stability score. The budget view shows ₹0 income with a prompt to add salary rather than an error state.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-DB-08</div>
+    <div class="rc-title">Circular Dependency in goal_dependencies</div>
+    <div class="rc-body">The application must prevent circular dependencies in the goal_dependencies DAG. Before inserting a new dependency row, it runs a DFS from the proposed <code>dependent_goal_id</code> to verify it cannot reach <code>prerequisite_goal_id</code> through existing edges. If a cycle would result, the insert is rejected with a user-visible error: "This dependency would create a circular chain." The check runs in O(V + E) time on the in-memory adjacency list.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-DB-09</div>
+    <div class="rc-title">Archive Sealing Interrupted Mid-Transaction</div>
+    <div class="rc-body">If the device loses power or the app crashes mid-seal, SQLite's WAL mode ensures the transaction is rolled back atomically. The monthly_archives row will have <code>sealed_at = NULL</code> (or will not exist). On next startup, the system detects the orphaned CLOSED period (status = 'CLOSED', no sealed archive) and re-triggers the sealing process. The incomplete partial archive rows (if any) are detected by the absence of <code>sealed_at</code> and are cleaned up before a fresh seal attempt.</div>
+  </div>
+
+  <div class="rc">
+    <div class="rc-id">EC-DB-10</div>
+    <div class="rc-title">First-Time Launch with No Data</div>
+    <div class="rc-body">On first launch, the app runs all migrations against a fresh empty database, inserts the singleton rows (users, profiles, settings with defaults, emergency_fund with zero balances), creates the first salary period with ACTIVE status, and inserts the system budget categories (ESSENTIAL, FLEXIBLE, SAVINGS, DEBT, EMF, GOAL). No FHS row is created yet — FHS computation requires at least one salary record. The app_state key <code>onboarding_complete</code> is set to false until the user completes the onboarding flow.</div>
+  </div>
+
+  <div class="xref"><strong>Cross-References:</strong> SPEC-SAL-001 (period management), SPEC-BUD-001 (category lifecycle), SPEC-DBT-001 (debt payment logic), SPEC-EMF-001 (EMF contribution logic), SPEC-GOL-001 (goal completion logic), SPEC-EVT-001 (event triggers for archive sealing), SPEC-DSH-001 (dashboard snapshot cache).</div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
