@@ -1,0 +1,1540 @@
+<!doctype html>
+<title>SPEC-SEC-001 — Security, Privacy & Backup | Finance Bag</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root {
+    --acc: #DC2626; --acc-dim: #FCA5A5; --acc-bg: rgba(220,38,38,.08);
+    --bg: #18181B; --surf: #27272A; --surf2: #3F3F46;
+    --bd: #3F3F46; --txt: #F4F4F5; --txt2: #A1A1AA; --txt3: #71717A;
+    --green: #22C55E; --amber: #F59E0B; --sky: #0EA5E9; --red: #EF4444;
+    --code-bg: #1A1A1F;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #F9FAFB; --surf: #FFFFFF; --surf2: #F3F4F6;
+      --bd: #E5E7EB; --txt: #18181B; --txt2: #52525B; --txt3: #A1A1AA;
+      --acc-bg: rgba(220,38,38,.06); --code-bg: #F1F5F9;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #18181B; --surf: #27272A; --surf2: #3F3F46;
+    --bd: #3F3F46; --txt: #F4F4F5; --txt2: #A1A1AA; --txt3: #71717A;
+    --acc-bg: rgba(220,38,38,.08); --code-bg: #1A1A1F;
+  }
+  :root[data-theme="light"] {
+    --bg: #F9FAFB; --surf: #FFFFFF; --surf2: #F3F4F6;
+    --bd: #E5E7EB; --txt: #18181B; --txt2: #52525B; --txt3: #A1A1AA;
+    --acc-bg: rgba(220,38,38,.06); --code-bg: #F1F5F9;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body { background: var(--bg); color: var(--txt); font-family: 'Inter', system-ui, -apple-system, sans-serif; display: flex; min-height: 100vh; }
+  a { color: var(--acc); text-decoration: none; }
+
+  /* NAV */
+  nav { width: 240px; min-width: 240px; background: var(--surf); border-right: 1px solid var(--bd); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .nav-brand { padding: 20px 16px 12px; border-bottom: 1px solid var(--bd); }
+  .nav-logo { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  .nav-title { font-size: .82rem; color: var(--txt2); margin-top: 2px; }
+  .nav-list { list-style: none; padding: 10px 8px; flex: 1; }
+  .nav-item a { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; font-size: .78rem; color: var(--txt2); transition: background .15s, color .15s; }
+  .nav-item a:hover, .nav-item a.active { background: var(--acc-bg); color: var(--acc); }
+  .nav-num { font-size: .66rem; font-weight: 700; letter-spacing: .04em; color: var(--acc); min-width: 20px; font-variant-numeric: tabular-nums; }
+  .theme-area { padding: 12px; border-top: 1px solid var(--bd); }
+  .theme-btn { width: 100%; padding: 7px; border-radius: 6px; background: var(--surf2); border: 1px solid var(--bd); color: var(--txt2); font-size: .73rem; cursor: pointer; }
+
+  /* MAIN */
+  .main { flex: 1; min-width: 0; padding: 40px 48px 80px; max-width: 960px; }
+  .doc-header { border-bottom: 1px solid var(--bd); padding-bottom: 28px; margin-bottom: 48px; }
+  .doc-eyebrow { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .spec-id { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--acc); }
+  .spec-ver { font-size: .7rem; color: var(--txt3); }
+  .status-pill { font-size: .65rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: var(--acc-bg); color: var(--acc); border: 1px solid var(--acc); }
+  .doc-title { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; text-wrap: balance; }
+  .doc-sub { margin-top: 10px; font-size: .92rem; color: var(--txt2); line-height: 1.6; max-width: 640px; }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 24px; }
+  .meta-item { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: 10px 14px; }
+  .meta-label { font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--txt3); margin-bottom: 4px; }
+  .meta-val { font-size: .88rem; font-weight: 600; color: var(--txt); }
+
+  /* SECTIONS */
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  .sec-header { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 2px solid var(--acc); }
+  .sec-num { font-size: 2rem; font-weight: 900; color: var(--acc); opacity: .25; min-width: 44px; line-height: 1; }
+  .sec-title { font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; }
+  .sec-sub { font-size: .85rem; color: var(--txt2); margin-top: 4px; line-height: 1.5; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 24px 0 10px; color: var(--txt); }
+  h4 { font-size: .88rem; font-weight: 700; margin: 18px 0 8px; color: var(--txt2); text-transform: uppercase; letter-spacing: .05em; }
+  p { font-size: .88rem; line-height: 1.7; color: var(--txt2); margin-bottom: 10px; }
+  ul, ol { padding-left: 20px; margin-bottom: 10px; }
+  li { font-size: .88rem; line-height: 1.7; color: var(--txt2); margin-bottom: 3px; }
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: .79rem; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; color: var(--acc-dim); }
+  strong { color: var(--txt); font-weight: 600; }
+
+  /* TABLES */
+  .tw { overflow-x: auto; margin: 14px 0; border-radius: 8px; border: 1px solid var(--bd); }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  thead { background: var(--surf2); }
+  th { padding: 10px 14px; text-align: left; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--txt3); white-space: nowrap; }
+  td { padding: 9px 14px; border-top: 1px solid var(--bd); color: var(--txt2); vertical-align: top; }
+  tr:hover td { background: var(--acc-bg); }
+
+  /* SPEC BLOCKS */
+  .spec-block { background: var(--surf); border: 1px solid var(--bd); border-left: 3px solid var(--acc); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .spec-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .warn-block { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.3); border-left: 3px solid var(--amber); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .warn-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; }
+  .critical-block { background: rgba(220,38,38,.07); border: 1px solid rgba(220,38,38,.3); border-left: 3px solid var(--red); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .critical-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--red); margin-bottom: 10px; }
+  .ok-block { background: rgba(34,197,94,.07); border: 1px solid rgba(34,197,94,.25); border-left: 3px solid var(--green); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .ok-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+
+  /* TIER CHIPS */
+  .tier { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; }
+  .tier-pub { background: rgba(161,161,170,.15); color: var(--txt3); }
+  .tier-int { background: rgba(14,165,233,.12); color: var(--sky); }
+  .tier-priv { background: rgba(245,158,11,.12); color: var(--amber); }
+  .tier-sens { background: rgba(239,68,68,.12); color: var(--red); }
+  .tier-crit { background: rgba(220,38,38,.2); color: #FCA5A5; border: 1px solid rgba(220,38,38,.4); }
+
+  /* THREAT CHIPS */
+  .threat-s { background: rgba(220,38,38,.15); color: #FCA5A5; border-radius: 4px; padding: 1px 6px; font-size: .7rem; font-weight: 700; }
+  .threat-t { background: rgba(245,158,11,.15); color: var(--amber); border-radius: 4px; padding: 1px 6px; font-size: .7rem; font-weight: 700; }
+  .threat-r { background: rgba(139,92,246,.15); color: #C4B5FD; border-radius: 4px; padding: 1px 6px; font-size: .7rem; font-weight: 700; }
+  .threat-i { background: rgba(239,68,68,.15); color: #FCA5A5; border-radius: 4px; padding: 1px 6px; font-size: .7rem; font-weight: 700; }
+  .threat-d { background: rgba(14,165,233,.15); color: var(--sky); border-radius: 4px; padding: 1px 6px; font-size: .7rem; font-weight: 700; }
+  .threat-e { background: rgba(34,197,94,.15); color: var(--green); border-radius: 4px; padding: 1px 6px; font-size: .7rem; font-weight: 700; }
+
+  /* RISK CHIPS */
+  .risk-hi { color: var(--red); font-weight: 700; }
+  .risk-med { color: var(--amber); font-weight: 600; }
+  .risk-lo { color: var(--green); font-weight: 600; }
+
+  @media (max-width: 800px) {
+    nav { display: none; }
+    .main { padding: 24px 20px 60px; }
+  }
+</style>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">Finance Bag</div>
+    <div class="nav-title">SPEC-SEC-001 · Security & Privacy</div>
+  </div>
+  <ul class="nav-list" id="nav-list">
+    <li class="nav-item"><a href="#s1"><span class="nav-num">01</span>Overview & Philosophy</a></li>
+    <li class="nav-item"><a href="#s2"><span class="nav-num">02</span>Threat Model</a></li>
+    <li class="nav-item"><a href="#s3"><span class="nav-num">03</span>Data Classification</a></li>
+    <li class="nav-item"><a href="#s4"><span class="nav-num">04</span>Authentication Security</a></li>
+    <li class="nav-item"><a href="#s5"><span class="nav-num">05</span>Authorization Model</a></li>
+    <li class="nav-item"><a href="#s6"><span class="nav-num">06</span>Encryption Architecture</a></li>
+    <li class="nav-item"><a href="#s7"><span class="nav-num">07</span>Local Storage Security</a></li>
+    <li class="nav-item"><a href="#s8"><span class="nav-num">08</span>Privacy Framework</a></li>
+    <li class="nav-item"><a href="#s9"><span class="nav-num">09</span>Backup Architecture</a></li>
+    <li class="nav-item"><a href="#s10"><span class="nav-num">10</span>Cloud Synchronization</a></li>
+    <li class="nav-item"><a href="#s11"><span class="nav-num">11</span>Disaster Recovery</a></li>
+    <li class="nav-item"><a href="#s12"><span class="nav-num">12</span>Session Management</a></li>
+    <li class="nav-item"><a href="#s13"><span class="nav-num">13</span>Audit Logging</a></li>
+    <li class="nav-item"><a href="#s14"><span class="nav-num">14</span>Fraud & Abuse Prevention</a></li>
+    <li class="nav-item"><a href="#s15"><span class="nav-num">15</span>Performance Budget</a></li>
+    <li class="nav-item"><a href="#s16"><span class="nav-num">16</span>Compliance Readiness</a></li>
+    <li class="nav-item"><a href="#s17"><span class="nav-num">17</span>Edge Cases</a></li>
+    <li class="nav-item"><a href="#s18"><span class="nav-num">18</span>Future Security</a></li>
+  </ul>
+  <div class="theme-area"><button class="theme-btn" id="theme-btn">Toggle Light / Dark</button></div>
+</nav>
+
+<main class="main">
+<header class="doc-header">
+  <div class="doc-eyebrow">
+    <span class="spec-id">SPEC-SEC-001</span>
+    <span class="spec-ver">v1.0</span>
+    <span class="status-pill">DRAFT</span>
+  </div>
+  <h1 class="doc-title">Security, Privacy, Backup<br>&amp; Cloud Synchronization</h1>
+  <p class="doc-sub">The complete security and privacy specification for Finance Bag — a defense-in-depth architecture that protects users' most sensitive financial data across every layer: at rest, in transit, in memory, and in the cloud.</p>
+  <div class="meta-grid">
+    <div class="meta-item"><div class="meta-label">Module</div><div class="meta-val">SEC</div></div>
+    <div class="meta-item"><div class="meta-label">Accent</div><div class="meta-val">#DC2626</div></div>
+    <div class="meta-item"><div class="meta-label">Encryption</div><div class="meta-val">AES-256-GCM</div></div>
+    <div class="meta-item"><div class="meta-label">Threat Model</div><div class="meta-val">STRIDE</div></div>
+    <div class="meta-item"><div class="meta-label">Data Tiers</div><div class="meta-val">5 classified</div></div>
+    <div class="meta-item"><div class="meta-label">BR Count</div><div class="meta-val">18 defined</div></div>
+    <div class="meta-item"><div class="meta-label">Principles</div><div class="meta-val">Zero Trust / PoLP</div></div>
+    <div class="meta-item"><div class="meta-label">Privacy Model</div><div class="meta-val">Privacy by Design</div></div>
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════════════════ §1 ═══ -->
+<section id="s1">
+  <div class="sec-header">
+    <span class="sec-num">01</span>
+    <div>
+      <h2 class="sec-title">Overview & Security Philosophy</h2>
+      <p class="sec-sub">The foundational principles that shape every security decision in Finance Bag — non-negotiable, not optional defaults.</p>
+    </div>
+  </div>
+
+  <h3>1.1 The Core Premise</h3>
+  <p>Financial information is uniquely sensitive. It reveals not just wealth but behaviour: where a person shops, what they owe, who they depend on, how much they earn. A breach of Finance Bag is not a data inconvenience — it is a personal violation. Every architectural decision in this specification begins from that premise.</p>
+
+  <div class="critical-block">
+    <div class="critical-block-title">Non-Negotiable Security Axioms</div>
+    <ul>
+      <li>Security must never depend on a single defensive layer. If one layer fails, the next must hold.</li>
+      <li>Usability cannot be sacrificed — a security feature that users disable is worse than none at all.</li>
+      <li>All financial data is encrypted at rest. No unencrypted copy ever touches persistent storage.</li>
+      <li>No financial data leaves the device without explicit user action. Telemetry, analytics, and crash reports contain zero financial data.</li>
+      <li>The encryption key is never stored alongside the data it protects.</li>
+    </ul>
+  </div>
+
+  <h3>1.2 Six Foundational Principles</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Principle</th><th>Definition in Finance Bag context</th><th>Where enforced</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Privacy by Design</strong></td><td>Privacy protection is built into the architecture from the start, not added as a retrofit. Default settings are always the most privacy-preserving option.</td><td>Data model, analytics opt-in, export controls</td></tr>
+      <tr><td><strong>Security by Design</strong></td><td>Threat modeling precedes feature design. Every component is designed assuming it may be attacked.</td><td>Encryption layer, auth flow, local storage</td></tr>
+      <tr><td><strong>Offline-First</strong></td><td>All authentication, encryption, and access control operates locally without server dependency. A Finance Bag user in airplane mode with no account has the same security guarantees as a connected user.</td><td>Local biometric auth, SQLCipher, local backup</td></tr>
+      <tr><td><strong>Zero Trust</strong></td><td>No component trusts another implicitly. Biometric success does not mean the database is trusted. A valid session token does not bypass re-authentication for sensitive operations.</td><td>Re-auth gates, integrity checks, session scoping</td></tr>
+      <tr><td><strong>Least Privilege</strong></td><td>Each component accesses only the data it needs, for only as long as it needs it. The encryption key is held in memory only while the DB connection is open.</td><td>DB connection lifecycle, permission model, key management</td></tr>
+      <tr><td><strong>Defense in Depth</strong></td><td>Multiple independent security layers protect each piece of data. Compromising any single layer does not expose data — the attacker must compromise all layers simultaneously.</td><td>Biometric + encryption + app sandbox + OS security</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1.3 Security Layers Overview</h3>
+  <p>Finance Bag implements 5 independent security layers. Each layer is independently necessary; together they provide defense in depth.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Layer</th><th>Name</th><th>Mechanism</th><th>Protects against</th></tr></thead>
+    <tbody>
+      <tr><td>L1</td><td>OS Sandbox</td><td>iOS App Sandbox / Android Application Sandbox</td><td>Other apps reading Finance Bag's files</td></tr>
+      <tr><td>L2</td><td>Biometric Gate</td><td>expo-local-authentication (Face ID / Touch ID / Fingerprint)</td><td>Unauthorized persons unlocking the app on a known device</td></tr>
+      <tr><td>L3</td><td>Database Encryption</td><td>SQLCipher AES-256-CBC via expo-sqlite (encrypted mode)</td><td>File extraction from device storage, forensic disk reads, backups</td></tr>
+      <tr><td>L4</td><td>Key Storage</td><td>expo-secure-store backed by iOS Keychain / Android Keystore with Secure Enclave / StrongBox TEE</td><td>Key extraction without biometric authorization</td></tr>
+      <tr><td>L5</td><td>Transport Security</td><td>TLS 1.3 minimum for all network communication (future cloud sync)</td><td>Network interception, MITM attacks</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>1.4 Security Scope: v1.0 vs Future</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Capability</th><th>v1.0 status</th></tr></thead>
+    <tbody>
+      <tr><td>Local database encryption</td><td>Implemented</td></tr>
+      <tr><td>Biometric authentication</td><td>Implemented</td></tr>
+      <tr><td>Secure key storage (TEE/Keychain)</td><td>Implemented</td></tr>
+      <tr><td>Local encrypted backup</td><td>Implemented</td></tr>
+      <tr><td>Audit logging</td><td>Implemented</td></tr>
+      <tr><td>Privacy controls (analytics opt-in, amount obscuring)</td><td>Implemented</td></tr>
+      <tr><td>Cloud authentication (email/magic link)</td><td>Architecture designed; activation future</td></tr>
+      <tr><td>Cloud synchronization</td><td>Architecture designed; activation future</td></tr>
+      <tr><td>Passkeys / WebAuthn</td><td>Future (§18)</td></tr>
+      <tr><td>Certificate pinning</td><td>Future (§18)</td></tr>
+      <tr><td>AI fraud detection</td><td>Future (§18)</td></tr>
+      <tr><td>Behavioral authentication</td><td>Future (§18)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §2 ═══ -->
+<section id="s2">
+  <div class="sec-header">
+    <span class="sec-num">02</span>
+    <div>
+      <h2 class="sec-title">Threat Model</h2>
+      <p class="sec-sub">Structured threat analysis using STRIDE, identifying threat actors, attack surfaces, and trust boundaries — the foundation for every security control in this specification.</p>
+    </div>
+  </div>
+
+  <h3>2.1 Threat Actors</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Actor</th><th>Capability</th><th>Motivation</th><th>Most likely attack</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Opportunistic thief</strong></td><td>Physical access to unlocked device; no technical skills</td><td>Immediate financial gain; blackmail</td><td>Open app while screen is unlocked; screenshot amounts</td></tr>
+      <tr><td><strong>Intimate partner</strong></td><td>Physical access; knows PIN; may have device passcode</td><td>Monitoring spending; financial control</td><td>Unlock app with known PIN; read expense history</td></tr>
+      <tr><td><strong>Targeted attacker</strong></td><td>Technical skills; motivated to access one specific person's finances</td><td>Fraud; blackmail; divorce proceedings</td><td>Rooting/jailbreaking device; extracting and decrypting DB file</td></tr>
+      <tr><td><strong>Malicious app</strong></td><td>Code running on same device; sandboxed</td><td>Data harvesting; credential theft</td><td>Reading Finance Bag's file path; clipboard sniffing; screenshot via accessibility API</td></tr>
+      <tr><td><strong>Network adversary</strong></td><td>MITM position on public network</td><td>Intercept credentials or sync data</td><td>TLS stripping; DNS spoofing on public WiFi</td></tr>
+      <tr><td><strong>Compromised cloud provider</strong></td><td>Server-side access to backup storage</td><td>Mass data harvest; ransom</td><td>Read unencrypted backups in cloud storage</td></tr>
+      <tr><td><strong>Forensic analyst</strong></td><td>Full physical device access; professional tools (Cellebrite, GrayKey)</td><td>Law enforcement; corporate espionage</td><td>Disk image extraction; memory forensics</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>2.2 STRIDE Threat Analysis</h3>
+  <p>STRIDE categories: <span class="threat-s">S</span> Spoofing &nbsp;<span class="threat-t">T</span> Tampering &nbsp;<span class="threat-r">R</span> Repudiation &nbsp;<span class="threat-i">I</span> Info Disclosure &nbsp;<span class="threat-d">D</span> Denial of Service &nbsp;<span class="threat-e">E</span> Elevation of Privilege</p>
+  <div class="tw"><table>
+    <thead><tr><th>STRIDE</th><th>Threat scenario</th><th>Risk</th><th>Mitigation</th></tr></thead>
+    <tbody>
+      <tr><td><span class="threat-s">S</span></td><td>Attacker bypasses biometric auth by spoofing a 3D face model or lifted fingerprint</td><td class="risk-hi">High</td><td>OS-level biometric hardware controls (Face ID uses depth + IR sensors; cannot be spoofed with a photo). App adds attempt counting on top.</td></tr>
+      <tr><td><span class="threat-s">S</span></td><td>Attacker replaces Finance Bag APK/IPA with a trojanized version</td><td class="risk-med">Medium</td><td>iOS App Store review + code signing. Android: APK signing; advise users not to sideload.</td></tr>
+      <tr><td><span class="threat-t">T</span></td><td>Attacker directly modifies finance.db bytes on a rooted device to alter balances</td><td class="risk-hi">High</td><td>SQLCipher encryption prevents meaningful modification without the key. PRAGMA integrity_check on every startup detects corruption.</td></tr>
+      <tr><td><span class="threat-t">T</span></td><td>Attacker modifies a backup file before restore</td><td class="risk-med">Medium</td><td>HMAC-SHA256 over backup ciphertext is verified before restore. Tampered backup is rejected.</td></tr>
+      <tr><td><span class="threat-r">R</span></td><td>User denies having initiated a large expense or account deletion</td><td class="risk-lo">Low</td><td>Append-only audit_log with timestamp records every write operation. Immutable after creation.</td></tr>
+      <tr><td><span class="threat-i">I</span></td><td>Attacker extracts finance.db from device file system (via ADB, iCloud backup, or device forensics)</td><td class="risk-hi">High</td><td>L3 SQLCipher encryption. Even an extracted DB file is unreadable without the key. iOS Keychain-backed key inaccessible without device passcode + biometric.</td></tr>
+      <tr><td><span class="threat-i">I</span></td><td>Sensitive amounts visible in iOS App Switcher / Android Recent Apps screenshot</td><td class="risk-med">Medium</td><td>On background event (AppState → background), all sensitive screens are replaced with a blur overlay / branded splash before the OS captures the screenshot.</td></tr>
+      <tr><td><span class="threat-i">I</span></td><td>Notification preview leaks transaction amounts on lock screen</td><td class="risk-med">Medium</td><td><code>security.notification_preview</code> preference defaults to <code>minimal</code> (shows "Finance Bag reminder" only). User opts in to full preview.</td></tr>
+      <tr><td><span class="threat-i">I</span></td><td>Clipboard contains a copied amount and is read by another app</td><td class="risk-lo">Low</td><td>Clipboard content expires after 60 seconds (iOS 16+ UIPasteboard.expiration; Android: future intent). Amount copy is offered as a user-initiated action with a toast warning.</td></tr>
+      <tr><td><span class="threat-d">D</span></td><td>Attacker or user accidentally triggers factory reset by brute-forcing the typed confirmation</td><td class="risk-lo">Low</td><td>Typed confirmation is locale-specific and case-sensitive. Factory reset also requires device passcode re-authentication.</td></tr>
+      <tr><td><span class="threat-d">D</span></td><td>Malicious app floods EventBus with fake events to corrupt period state</td><td class="risk-lo">Low</td><td>EventBus is an in-process pub/sub; not exposed to IPC. No cross-app event injection possible within sandbox.</td></tr>
+      <tr><td><span class="threat-e">E</span></td><td>User elevates to developer options without 7-tap unlock and reads raw DB contents</td><td class="risk-lo">Low</td><td>Developer options require 7-tap unlock per session (resets on every launch). DB contents shown in dev options are read-only and redacted of financial amounts.</td></tr>
+      <tr><td><span class="threat-e">E</span></td><td>Jailbroken iOS / rooted Android bypasses sandbox, gaining access to all app files</td><td class="risk-hi">High</td><td>L3 SQLCipher remains effective post-jailbreak: key is still required. App detects jailbreak and disables biometric fallback (PIN only). Data remains encrypted.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>2.3 Trust Boundaries</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Boundary</th><th>What it separates</th><th>Crossing mechanism</th></tr></thead>
+    <tbody>
+      <tr><td><strong>App Sandbox Boundary</strong></td><td>Finance Bag process vs. all other processes and the OS</td><td>No IPC exposed. File system paths not accessible to other apps on non-rooted devices.</td></tr>
+      <tr><td><strong>Biometric Gate</strong></td><td>Unauthenticated app state vs. authenticated app state</td><td>Successful biometric or PIN challenge. Crossing this boundary opens the DB connection and loads the encryption key into memory.</td></tr>
+      <tr><td><strong>DB Encryption Boundary</strong></td><td>Encrypted bytes on disk vs. plaintext records in memory</td><td>SQLCipher cipher is applied/removed at the SQLite page level using the key held in the Secure Enclave / Android Keystore.</td></tr>
+      <tr><td><strong>Keystore Boundary</strong></td><td>Key material in TEE vs. user-space memory</td><td>biometricOnly flag means key is only released to user-space after successful hardware biometric verification.</td></tr>
+      <tr><td><strong>Network Boundary</strong></td><td>Device vs. internet / cloud services</td><td>TLS 1.3 for all outbound traffic. No inbound connections (no server running on device). Certificate validation enforced by OS.</td></tr>
+      <tr><td><strong>Backup Boundary</strong></td><td>In-app encrypted backup vs. external storage (iCloud, Google Drive, file system)</td><td>AES-256-GCM encrypted .fbk file. The backup key is derived from the DB key and never stored in the backup itself.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §3 ═══ -->
+<section id="s3">
+  <div class="sec-header">
+    <span class="sec-num">03</span>
+    <div>
+      <h2 class="sec-title">Data Classification</h2>
+      <p class="sec-sub">Five tiers of data sensitivity, each with defined storage, encryption, access, retention, and deletion rules — applied consistently across every table and feature.</p>
+    </div>
+  </div>
+
+  <h3>3.1 Classification Tiers</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Tier</th><th>Label</th><th>Examples in Finance Bag</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tier tier-pub">Public</span></td><td>Public</td><td>App version string, FAQ content, legal documents, open-source license text, onboarding illustration assets</td></tr>
+      <tr><td><span class="tier tier-int">Internal</span></td><td>Internal</td><td>UI preferences (theme, font size, language), widget ordering, app_state flags (onboarding_step, dashboard snapshot cache), category names and emoji</td></tr>
+      <tr><td><span class="tier tier-priv">Private</span></td><td>Private</td><td>Expense notes (free-text), goal names, debt creditor names, budget category labels, salary period labels, user display name, avatar emoji</td></tr>
+      <tr><td><span class="tier tier-sens">Sensitive</span></td><td>Sensitive</td><td>All monetary amounts (expenses, income, debts, goals, EMF balances), salary amounts, contribution amounts, payment history, Financial Health Score</td></tr>
+      <tr><td><span class="tier tier-crit">Critical</span></td><td>Critical</td><td>Database encryption key, backup decryption key, biometric authorization result, device passcode (never stored), session tokens (future cloud)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>3.2 Per-Tier Requirements</h3>
+
+  <h4>Public</h4>
+  <div class="tw"><table>
+    <thead><tr><th>Requirement</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Storage</td><td>Bundled in app binary or loaded from CDN; no user-specific public data exists</td></tr>
+      <tr><td>Encryption at rest</td><td>Not required — no sensitive content</td></tr>
+      <tr><td>Encryption in transit</td><td>HTTPS for CDN assets (future); no secret material in transit</td></tr>
+      <tr><td>Access</td><td>No auth required</td></tr>
+      <tr><td>Retention</td><td>Until next app update replaces the asset</td></tr>
+      <tr><td>Deletion</td><td>Overwritten on app update; cache cleared on factory reset</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Internal</h4>
+  <div class="tw"><table>
+    <thead><tr><th>Requirement</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Storage</td><td>preferences table inside finance.db (encrypted at rest as a consequence of L3)</td></tr>
+      <tr><td>Encryption at rest</td><td>Inherited from database encryption. Not individually encrypted.</td></tr>
+      <tr><td>Encryption in transit</td><td>Included in encrypted backup payload. Future sync: TLS only.</td></tr>
+      <tr><td>Access</td><td>App session (biometric gate must have been passed this session). No re-auth required for individual preference reads.</td></tr>
+      <tr><td>Retention</td><td>Indefinite during active use. Deleted on factory reset / account deletion.</td></tr>
+      <tr><td>Deletion</td><td>Preferences table cleared on factory reset. SQL DELETE + VACUUM.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Private</h4>
+  <div class="tw"><table>
+    <thead><tr><th>Requirement</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Storage</td><td>Inside finance.db (encrypted at rest). expense.notes treated as maximum-sensitivity within Private tier.</td></tr>
+      <tr><td>Encryption at rest</td><td>Inherited from database encryption (AES-256).</td></tr>
+      <tr><td>Encryption in transit</td><td>Encrypted in .fbk backup. Never in crash reports or analytics.</td></tr>
+      <tr><td>Access</td><td>Active app session. Goal/debt names additionally require biometric re-auth before bulk export.</td></tr>
+      <tr><td>Retention</td><td>Indefinite during active use. Soft-deleted records retained until archive sealing; then in archive. Purged on account deletion.</td></tr>
+      <tr><td>Deletion</td><td>Soft delete (deleted_at timestamp). Hard delete only on factory reset or account deletion, which closes the DB and deletes the file.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Sensitive</h4>
+  <div class="tw"><table>
+    <thead><tr><th>Requirement</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Storage</td><td>Always stored as integer centimes inside encrypted finance.db. Never as floats. Never in logs, crash reports, or app_state cache as raw values.</td></tr>
+      <tr><td>Encryption at rest</td><td>Mandatory database-level AES-256. Individual field encryption not applied (whole-DB encryption at SQLCipher level is sufficient given the key model).</td></tr>
+      <tr><td>Encryption in transit</td><td>Encrypted inside .fbk backup. Never transmitted without explicit user export action + re-authentication.</td></tr>
+      <tr><td>Access</td><td>Active biometric session. Re-authentication required for export, deletion of historical data, and viewing of aggregate financial summaries in audit contexts.</td></tr>
+      <tr><td>Retention</td><td>Operational data: indefinite while period is active. Archived data: indefinite (user's financial history). Deleted only on explicit account deletion or factory reset.</td></tr>
+      <tr><td>Deletion</td><td>Soft delete only while operational (SPEC-DB-001 BR-DB-03). Hard delete only via account deletion flow which deletes the encrypted DB file entirely.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h4>Critical</h4>
+  <div class="tw"><table>
+    <thead><tr><th>Requirement</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Storage</td><td>DB encryption key stored exclusively in expo-secure-store (iOS Keychain with Secure Enclave binding; Android Keystore with StrongBox TEE). Never written to finance.db, search.db, logs, or any file.</td></tr>
+      <tr><td>Encryption at rest</td><td>Key material is managed by the OS Keystore — protected by device passcode + biometric. The OS handles hardware-backed key storage.</td></tr>
+      <tr><td>Encryption in transit</td><td>Encryption keys MUST NEVER be transmitted over any network. Backup key is derived locally from the DB key using HKDF and never sent anywhere.</td></tr>
+      <tr><td>Access</td><td>Hardware biometric authentication required per the biometricOnly flag. A new biometric challenge on every DB open. Key is never cached in app memory beyond the DB connection lifetime.</td></tr>
+      <tr><td>Retention</td><td>DB key: until factory reset, account deletion, or explicit key rotation. Session tokens (future): access token 15 min; refresh token 30 days.</td></tr>
+      <tr><td>Deletion</td><td>expo-secure-store.deleteItemAsync on factory reset. iOS Keychain items are deleted when the app is uninstalled (with accessGroup cleanup). Android Keystore key is deleted programmatically on factory reset.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §4 ═══ -->
+<section id="s4">
+  <div class="sec-header">
+    <span class="sec-num">04</span>
+    <div>
+      <h2 class="sec-title">Authentication Security</h2>
+      <p class="sec-sub">How users authenticate to Finance Bag — locally today, with cloud accounts in future — and the controls that prevent unauthorized access at every auth pathway.</p>
+    </div>
+  </div>
+
+  <h3>4.1 Authentication Model Overview</h3>
+  <p>Finance Bag v1.0 is a local-first, account-free application. Authentication is biometric-only, device-local, and requires no network connectivity. A future cloud account layer will add email-based authentication on top of the local biometric layer — it does not replace it.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Auth method</th><th>v1.0</th><th>Future</th><th>Protects</th></tr></thead>
+    <tbody>
+      <tr><td>Device biometric (Face ID / Touch ID / Fingerprint)</td><td>Implemented</td><td>Remains primary</td><td>App unlock; DB key retrieval; sensitive operations</td></tr>
+      <tr><td>6-digit PIN (biometric fallback)</td><td>Implemented</td><td>Remains fallback</td><td>App unlock when biometric unavailable</td></tr>
+      <tr><td>Email + magic link (passwordless)</td><td>Architecture only</td><td>Cloud auth layer</td><td>Cloud account creation; sync authorization</td></tr>
+      <tr><td>Phone number + OTP</td><td>Not planned</td><td>Optional 2FA channel</td><td>Account recovery; suspicious sign-in alerts</td></tr>
+      <tr><td>Passkey / WebAuthn</td><td>Not planned</td><td>Future primary auth</td><td>Cross-device account access</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>4.2 Local Biometric Authentication</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">Biometric Auth Flow</div>
+    <ol>
+      <li><strong>App foreground event</strong> triggers auth check. If <code>security.biometric_lock = true</code> AND the last successful auth is older than <code>security.auto_lock_timeout</code> seconds, the auth screen is presented.</li>
+      <li>The auth screen presents a biometric prompt via <code>expo-local-authentication</code>. The prompt message reads: "Unlock Finance Bag to access your accounts."</li>
+      <li>On success: the DB encryption key is retrieved from expo-secure-store (TEE-backed) using the biometric auth result as authorization proof. The DB connection is opened with the key. The app proceeds.</li>
+      <li>On failure: <code>auth.failed_attempt_count</code> (stored in-memory, never persisted) increments. After 3 failures, PIN entry is offered as fallback. After 5 total failures, the PIN entry is locked for a progressively increasing duration (15s → 30s → 60s → 5 min → 15 min → permanent lock requiring email recovery).</li>
+      <li>On permanent lock: all in-memory data is cleared. DB connection is closed. The user must initiate the Account Recovery flow.</li>
+    </ol>
+  </div>
+
+  <h3>4.3 PIN Fallback</h3>
+  <ul>
+    <li>PIN is a 6-digit numeric code set during onboarding (required if biometric is enabled).</li>
+    <li>PIN is stored as a salted hash (Argon2id, memory=64MB, iterations=3, parallelism=1) in expo-secure-store — never in finance.db.</li>
+    <li>PIN salt is a random 32-byte value generated at PIN creation time, stored alongside the hash.</li>
+    <li>PIN verification happens in the app process. The hash is fetched from secure storage, the candidate is hashed with the stored salt, and compared in constant time.</li>
+    <li>PIN can only be changed after a successful biometric or current PIN verification.</li>
+    <li>A PIN that has never been set means biometric failure results in a "Contact support" message and no further fallback.</li>
+  </ul>
+
+  <h3>4.4 Auto-Lock Behavior</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Condition</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>App enters background (AppState → background/inactive)</td><td>Blur overlay applied immediately over the current screen to prevent screenshot capture. Timer starts based on <code>security.auto_lock_timeout</code> preference.</td></tr>
+      <tr><td>App returns to foreground within timeout window</td><td>Blur overlay removed. No re-auth required. DB connection remains open.</td></tr>
+      <tr><td>App returns to foreground after timeout expires</td><td>Auth screen presented. DB connection closed. Key cleared from memory. Re-auth required before DB access.</td></tr>
+      <tr><td><code>security.auto_lock_timeout = immediately</code></td><td>Auth screen presented on every foreground event, regardless of time elapsed.</td></tr>
+      <tr><td>Device reboot</td><td>All in-memory state cleared by OS. Fresh auth required on next open regardless of timeout setting.</td></tr>
+      <tr><td>App killed by OS</td><td>Equivalent to device reboot for Finance Bag's auth state.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>4.5 Future Cloud Authentication</h3>
+  <p>When cloud features are activated, users create an account via email. The authentication model is passwordless by design.</p>
+  <div class="spec-block">
+    <div class="spec-block-title">Magic Link Email Flow (Future)</div>
+    <ol>
+      <li>User enters email address.</li>
+      <li>Server generates a 64-byte random token (CSPRNG), stores a SHA-256 hash of it with 15-minute expiry, and sends the plaintext token as a URL in an email.</li>
+      <li>User taps the magic link. The app receives the token via deep link.</li>
+      <li>App sends token to server. Server hashes it and compares to stored hash. On match: issues a short-lived access token (JWT, 15-minute TTL) and a long-lived refresh token (opaque, 30-day TTL, stored in expo-secure-store).</li>
+      <li>Server marks the magic link token as consumed (one-use only). A reused token returns 401 and triggers a security alert event to the user's email.</li>
+      <li>Subsequent API calls use the access token in the Authorization header. Silent re-auth via refresh token happens when the access token expires.</li>
+    </ol>
+  </div>
+
+  <h3>4.6 Account Lockout & Recovery</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Scenario</th><th>Recovery path</th></tr></thead>
+    <tbody>
+      <tr><td>5 failed PIN attempts (progressive lockout)</td><td>Wait for lockout to expire. After permanent lockout: account recovery email (future cloud) or factory reset (local-only).</td></tr>
+      <tr><td>Biometric hardware unavailable (enrollment cleared)</td><td>PIN fallback. If PIN also unavailable: factory reset.</td></tr>
+      <tr><td>Device passcode changed (iOS Keychain invalidated)</td><td>iOS invalidates biometricOnly Keychain items on passcode change. App detects missing key on next unlock attempt and offers re-encryption flow (must know the old PIN to re-derive the key — if forgotten, factory reset).</td></tr>
+      <tr><td>Forgotten PIN, no cloud account</td><td>Factory reset is the only path. Local-only data cannot be recovered without the key. App presents this warning clearly before confirming factory reset.</td></tr>
+      <tr><td>Forgotten PIN, with cloud account (future)</td><td>Account recovery via email magic link. Cloud backup restored. PIN reset required after restore.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §5 ═══ -->
+<section id="s5">
+  <div class="sec-header">
+    <span class="sec-num">05</span>
+    <div>
+      <h2 class="sec-title">Authorization Model</h2>
+      <p class="sec-sub">What an authenticated session can and cannot do — and the escalation gates that protect sensitive and destructive operations.</p>
+    </div>
+  </div>
+
+  <h3>5.1 Permission Levels</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Level</th><th>Name</th><th>Requirements</th><th>Capabilities</th></tr></thead>
+    <tbody>
+      <tr><td>P0</td><td>Unauthenticated</td><td>None</td><td>View onboarding, read FAQ, change language setting (locale.language only)</td></tr>
+      <tr><td>P1</td><td>Session Authenticated</td><td>Biometric or PIN passed this session within auto-lock window</td><td>Full read/write access to all financial data, preferences, dashboard, search, reports</td></tr>
+      <tr><td>P2</td><td>Re-authenticated</td><td>Fresh biometric or PIN challenge (within last 60s)</td><td>Everything in P1 + sensitive operations listed in §5.2</td></tr>
+      <tr><td>P3</td><td>Developer Mode</td><td>7-tap unlock this session + P2</td><td>Everything in P2 + developer options (read-only DB inspection, event log, mock data generator)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.2 Sensitive Operations Requiring P2 Re-Authentication</h3>
+  <p>These operations require a fresh authentication challenge even if the user already has an active P1 session. This prevents an attacker who finds an unlocked screen from performing destructive or disclosure actions.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Operation</th><th>Why P2 required</th></tr></thead>
+    <tbody>
+      <tr><td>Export all data (CSV, JSON, or .sqlite)</td><td>Data leaves the device; irreversible</td></tr>
+      <tr><td>Restore from backup</td><td>Overwrites all current data; irreversible</td></tr>
+      <tr><td>Factory reset</td><td>Destroys all data; irreversible</td></tr>
+      <tr><td>Delete account (future cloud)</td><td>Permanent server-side deletion; irreversible</td></tr>
+      <tr><td>Change security settings (biometric toggle, PIN, auto-lock timeout)</td><td>Modifies the auth perimeter itself</td></tr>
+      <tr><td>View the DB encryption key (developer mode only)</td><td>Key material in view; Critical tier</td></tr>
+      <tr><td>Initiate cloud sync (future)</td><td>Data leaves the device</td></tr>
+      <tr><td>Revoke all cloud sessions (future)</td><td>Security action affecting all devices</td></tr>
+      <tr><td>View audit log</td><td>Security-sensitive meta-data about account history</td></tr>
+      <tr><td>Generate mock data (developer mode)</td><td>Destructive to data integrity; cannot be undone without factory reset</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5.3 Re-Authentication Gate Design</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">Re-Auth Gate UX Rules</div>
+    <ul>
+      <li>The gate is presented as a modal sheet that temporarily covers the current screen. The user can dismiss it (cancelling the sensitive operation) or authenticate.</li>
+      <li>A 60-second window is granted after successful re-auth during which additional P2 operations in the same screen do not re-challenge. Navigating away resets the window.</li>
+      <li>The gate must clearly state what operation it is protecting: "Authenticate to export your financial data."</li>
+      <li>Failed re-auth closes the modal and cancels the operation. It does not count against the main session failure counter.</li>
+      <li>The gate cannot be bypassed by background/foreground cycling.</li>
+    </ul>
+  </div>
+
+  <h3>5.4 Future Administrative Permissions</h3>
+  <p>When family profiles or business accounts are introduced, an additional P4 (Administrator) permission level will be defined. Administrators can: invite members, set org-level mandatory preferences, view shared categories, and remove members. The P4 gate requires email-based MFA in addition to biometric re-auth. This level is not implemented in v1.0 and this section serves as a reservation in the permission model.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §6 ═══ -->
+<section id="s6">
+  <div class="sec-header">
+    <span class="sec-num">06</span>
+    <div>
+      <h2 class="sec-title">Encryption Architecture</h2>
+      <p class="sec-sub">The complete encryption strategy across every storage layer — algorithms, key sizes, derivation methods, rotation procedures, and the hardware root of trust.</p>
+    </div>
+  </div>
+
+  <h3>6.1 Database Encryption (At-Rest)</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">SQLCipher Configuration</div>
+    <ul>
+      <li><strong>Algorithm:</strong> AES-256-CBC (SQLCipher 4 default cipher)</li>
+      <li><strong>PBKDF2 iterations:</strong> 256,000 (SQLCipher 4 default; <code>PRAGMA kdf_iter = 256000</code>)</li>
+      <li><strong>HMAC:</strong> HMAC-SHA512 per page (page-level integrity)</li>
+      <li><strong>Page size:</strong> 4096 bytes (SQLite default; cipher overhead per page is 16 bytes for salt + 32 bytes for HMAC)</li>
+      <li><strong>Key type:</strong> Raw 32-byte binary key (not a passphrase). The key is passed as <code>PRAGMA key = "x'&lt;hex&gt;'"</code> using hex encoding.</li>
+      <li><strong>Key source:</strong> Randomly generated 32 bytes at first launch, stored in expo-secure-store with <code>requireAuthentication: true</code> and <code>authenticationPrompt</code> set.</li>
+      <li><strong>Both databases:</strong> finance.db and search.db use the same encryption key.</li>
+    </ul>
+  </div>
+
+  <h3>6.2 Key Management</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Key</th><th>How generated</th><th>Where stored</th><th>How accessed</th><th>Lifetime</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>DB_KEY</strong></td>
+        <td>32 cryptographically random bytes via <code>crypto.getRandomValues</code> at first launch</td>
+        <td>expo-secure-store key <code>"fb_db_key"</code> with <code>keychainService: "com.financebag.db"</code> and <code>requireAuthentication: true</code></td>
+        <td>iOS: Keychain with Secure Enclave + biometricOnly. Android: Keystore with StrongBox TEE where available, falling back to hardware-backed TEE.</td>
+        <td>Until factory reset or explicit key rotation</td>
+      </tr>
+      <tr>
+        <td><strong>BACKUP_KEY</strong></td>
+        <td>Derived from DB_KEY using HKDF-SHA256 with info=<code>"finance-bag-backup-v1"</code> and salt=<code>random 16 bytes stored in backup header</code></td>
+        <td>Never stored — derived fresh for each backup operation and discarded after use</td>
+        <td>Derived at backup-creation time using the DB_KEY (which requires biometric auth to retrieve)</td>
+        <td>Single backup operation lifetime (in-memory only)</td>
+      </tr>
+      <tr>
+        <td><strong>SEARCH_KEY</strong></td>
+        <td>Same key as DB_KEY (both DBs use same key)</td>
+        <td>Same expo-secure-store slot as DB_KEY</td>
+        <td>Same biometric-gated access as DB_KEY</td>
+        <td>Same as DB_KEY</td>
+      </tr>
+      <tr>
+        <td><strong>SESSION_TOKEN (future)</strong></td>
+        <td>JWT issued by cloud auth server</td>
+        <td>expo-secure-store key <code>"fb_session"</code> (no biometric requirement — used for silent re-auth)</td>
+        <td>Read without biometric; sent as Bearer token in Authorization header</td>
+        <td>Access token: 15 min. Refresh token: 30 days, rotated on use.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h3>6.3 Key Derivation for Backup</h3>
+  <p>The backup encryption key is never stored. It is derived from the DB_KEY at backup creation time using HKDF and a fresh random salt. The salt is stored in the backup file header (in plaintext — its purpose is to make each backup's derived key unique, not to protect the salt itself). Recovering the backup key requires the DB_KEY, which requires biometric auth. An attacker with a backup file but without the device (and thus without the DB_KEY) cannot derive the backup key.</p>
+  <div class="spec-block">
+    <div class="spec-block-title">Backup Key Derivation</div>
+    <ul>
+      <li><code>backup_salt = random_bytes(16)</code> — unique per backup, stored in backup header</li>
+      <li><code>backup_key = HKDF(IKM=DB_KEY, salt=backup_salt, info="finance-bag-backup-v1", length=32)</code></li>
+      <li><code>backup_iv = random_bytes(12)</code> — unique per backup, stored in backup header</li>
+      <li>Backup ciphertext: <code>AES-256-GCM(key=backup_key, iv=backup_iv, plaintext=gzip(db_wal_checkpoint))</code></li>
+      <li>Authentication tag: 16 bytes appended to ciphertext (GCM tag — covers the AAD of the backup header)</li>
+      <li>AAD (Additional Authenticated Data): JSON header bytes including app version, timestamp, schema version — authenticated but not encrypted</li>
+    </ul>
+  </div>
+
+  <h3>6.4 Transport Encryption (Future)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Requirement</th><th>Specification</th></tr></thead>
+    <tbody>
+      <tr><td>Minimum TLS version</td><td>TLS 1.3 (reject TLS 1.2 and below)</td></tr>
+      <tr><td>Certificate validation</td><td>OS default CA bundle. Certificate pinning via HPKP or custom TrustKit to be implemented before cloud launch.</td></tr>
+      <tr><td>Cipher suites</td><td>TLS_AES_256_GCM_SHA384, TLS_CHACHA20_POLY1305_SHA256 (TLS 1.3 mandatory suites)</td></tr>
+      <tr><td>HSTS</td><td>Strict-Transport-Security required on all API endpoints</td></tr>
+      <tr><td>Certificate transparency</td><td>CT enforcement via iOS App Transport Security; Android Network Security Config with cleartextTrafficPermitted=false</td></tr>
+      <tr><td>Proxy / debugging</td><td>Charles / Proxyman interception blocked by certificate pinning in production builds</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>6.5 Key Rotation</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">DB Key Rotation Procedure</div>
+    <ol>
+      <li>Key rotation requires P2 re-authentication.</li>
+      <li>Generate a new 32-byte random key: <code>new_key</code>.</li>
+      <li>Open the existing DB with <code>old_key</code>.</li>
+      <li>Execute SQLCipher's <code>PRAGMA rekey = "x'&lt;new_key_hex&gt;'"</code>. This re-encrypts all pages in place without copying the database file.</li>
+      <li>On PRAGMA rekey success: store <code>new_key</code> in expo-secure-store, replacing <code>old_key</code>.</li>
+      <li>If any step fails: abort rotation, retain <code>old_key</code>. Log a SECURITY_EVENT to audit_log.</li>
+      <li>After rotation: invalidate all existing backups (they used a BACKUP_KEY derived from the old DB_KEY and are now unrestorable without re-deriving with the old key, which no longer exists). Display a warning: "Your previous backups cannot be restored with the new key. Create a new backup now."</li>
+    </ol>
+  </div>
+
+  <h3>6.6 Hardware Root of Trust</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Platform</th><th>Hardware security module</th><th>Key binding</th></tr></thead>
+    <tbody>
+      <tr><td><strong>iOS</strong></td><td>Secure Enclave (SEP — A7 chip and later). All modern iPhones since iPhone 5s.</td><td>Keychain item with <code>kSecAttrAccessibleWhenPasscodeSetThisDeviceOnly</code> + <code>kSecAccessControlBiometryCurrentSet</code>. Key is bound to the current biometric enrollment; if enrollment changes (new face/finger added), the item is invalidated.</td></tr>
+      <tr><td><strong>Android</strong></td><td>StrongBox (dedicated security chip, required for Android 9+ on certified devices) or Hardware-backed Keystore TEE (ARM TrustZone). Fallback: software Keystore (less secure — app detects and warns user).</td><td>Android Keystore key with <code>setUserAuthenticationRequired(true)</code>, <code>setInvalidatedByBiometricEnrollment(true)</code>, <code>setUserAuthenticationParameters(0, KEY_AGREEMENT)</code>.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §7 ═══ -->
+<section id="s7">
+  <div class="sec-header">
+    <span class="sec-num">07</span>
+    <div>
+      <h2 class="sec-title">Local Storage Security</h2>
+      <p class="sec-sub">How every category of data is stored securely on the device — databases, credentials, caches, temporary files, and the safeguards against tamper and leakage.</p>
+    </div>
+  </div>
+
+  <h3>7.1 Storage Inventory</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Data</th><th>Storage location</th><th>Encrypted</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>All financial data, preferences, audit log, event log</td><td><code>finance.db</code> — SQLite in app sandbox Documents directory</td><td>Yes — AES-256 SQLCipher</td><td>Excluded from iCloud backup by default (NSURLIsExcludedFromBackupKey = true on iOS). Android: internal storage only, not on SD card.</td></tr>
+      <tr><td>Search index</td><td><code>search.db</code> — SQLite in app sandbox Documents directory</td><td>Yes — same key as finance.db</td><td>Excluded from iCloud backup (regenerable from finance.db).</td></tr>
+      <tr><td>DB encryption key, PIN hash, refresh token</td><td>expo-secure-store (iOS Keychain / Android Keystore)</td><td>Yes — OS hardware-backed</td><td>Never in files. Never in AsyncStorage or MMKV.</td></tr>
+      <tr><td>User-uploaded attachments (receipts, photos)</td><td><code>attachments/</code> subdirectory in app sandbox Documents</td><td>Yes — stored as AES-256-GCM encrypted blobs (individual file encryption)</td><td>Encrypted at write time; decrypted to in-memory buffer at read time. Never to /tmp unencrypted.</td></tr>
+      <tr><td>Encrypted backup files (.fbk)</td><td><code>backups/</code> subdirectory in app sandbox Documents</td><td>Yes — AES-256-GCM per §6.3</td><td>Exported backups may optionally be shared to Files app / cloud drives — they are already encrypted before export.</td></tr>
+      <tr><td>App state / UI cache (dashboard snapshot)</td><td><code>app_state</code> row in finance.db</td><td>Yes — inherited from DB encryption</td><td>No financial amounts are stored in app_state in plaintext form — only aggregate percentages and status flags.</td></tr>
+      <tr><td>HTTP cache (future CDN assets)</td><td>OS-managed HTTP cache in app sandbox Caches directory</td><td>No</td><td>Contains only Public-tier content (FAQ text, FAQ icons, legal docs). Never financial data.</td></tr>
+      <tr><td>Crash reports (optional)</td><td>Uploaded to crash reporting service (user opt-in)</td><td>N/A — stripped of financial data before upload</td><td>Financial amounts, names, notes, categories are redacted to "[REDACTED]" before any crash context is captured.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>7.2 iOS Backup Exclusion</h3>
+  <p>All files containing financial data must be excluded from the iOS iCloud backup mechanism. The <code>NSURLIsExcludedFromBackupKey</code> attribute is set to <code>true</code> on <code>finance.db</code>, <code>search.db</code>, the <code>attachments/</code> directory, and the <code>backups/</code> directory. The only files permitted in iCloud backups are app preferences that don't contain financial data.</p>
+
+  <div class="warn-block">
+    <div class="warn-block-title">Important: Encrypted backups are the intentional backup path</div>
+    <p style="margin:0">Finance Bag's .fbk files are the official backup mechanism. iCloud backup is explicitly disabled for financial data. Users who want cloud backup must use Finance Bag's own encrypted export to iCloud Drive or Google Drive (future). This ensures the backup key is always required to restore.</p>
+  </div>
+
+  <h3>7.3 Screenshot Protection</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Scenario</th><th>Protection mechanism</th></tr></thead>
+    <tbody>
+      <tr><td>iOS App Switcher thumbnail capture</td><td>On <code>AppState</code> change to <code>inactive</code>, a branded blur overlay (<code>BlurView</code> over entire RootView) is mounted with <code>zIndex: 9999</code> before the OS captures the thumbnail. Removed on return to <code>active</code>.</td></tr>
+      <tr><td>Android Recent Apps thumbnail</td><td><code>FLAG_SECURE</code> window flag set at the root <code>Activity</code> level when <code>security.biometric_lock = true</code>. This prevents Recent Apps thumbnail capture AND prevents screenshots from all screens while the flag is set.</td></tr>
+      <tr><td>Screen recording (iOS)</td><td>iOS does not provide API to detect or block screen recording. The blur overlay for App Switcher does not help here. Documented limitation — no mitigation in v1.0.</td></tr>
+      <tr><td>Manual screenshot by user</td><td>Not blocked on iOS (App Store policy). On Android with FLAG_SECURE, screenshots are blocked by the OS. User-initiated screenshots are considered intentional disclosure by the user.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>7.4 Clipboard Security</h3>
+  <ul>
+    <li>When a user copies a financial amount to clipboard, a toast displays: "Amount copied — will clear in 60 seconds."</li>
+    <li>A 60-second timer clears the clipboard using <code>Clipboard.setString('')</code>. If the user navigates away before 60 seconds, the timer continues in the background.</li>
+    <li>On iOS 16+, <code>UIPasteboard.expiration</code> is set to 60 seconds as a native fallback even if the app is killed.</li>
+    <li>The clipboard clear timer is cancelled if the user explicitly taps "Keep" on the toast.</li>
+  </ul>
+
+  <h3>7.5 Attachment Security</h3>
+  <p>Receipts and images attached to expense records are encrypted individually before being written to disk. This approach ensures attachments are protected even if an attacker bypasses SQLCipher but gains raw file system access.</p>
+  <ul>
+    <li>Encryption: AES-256-GCM. Key: derived from DB_KEY using HKDF with info=<code>"finance-bag-attachment-v1"</code> and salt=<code>expense.id bytes</code>. This makes each attachment's encryption key unique to its associated record.</li>
+    <li>IV: 12 random bytes prepended to the ciphertext in the stored file.</li>
+    <li>File extension: <code>.fbatt</code> (Finance Bag Attachment). Content type not inferrable from extension.</li>
+    <li>Thumbnails: generated in-memory only, never written to disk. Rendered from the decrypted attachment buffer at display time.</li>
+    <li>Temporary decryption: decrypted to an in-memory buffer for display. Never written to <code>/tmp</code> or the OS temp directory.</li>
+  </ul>
+
+  <h3>7.6 Startup Integrity Check</h3>
+  <p>On every cold app launch, before presenting any UI or opening the biometric gate, Finance Bag runs a non-blocking integrity check:</p>
+  <ol>
+    <li><code>PRAGMA integrity_check</code> on finance.db (run in background thread after biometric auth).</li>
+    <li>If integrity_check returns errors: present a "Database Integrity Warning" screen offering restore from backup or factory reset. Do not allow further reads from a corrupt DB.</li>
+    <li>Schema version check: compare <code>app_state.schema_version</code> to the expected version for this app build. If a migration is needed, run it before opening the main app.</li>
+    <li>Key availability check: confirm expo-secure-store can retrieve the DB key (without actually opening the DB — just checking the key slot exists). If the key is missing: present key recovery flow before biometric prompt.</li>
+  </ol>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §8 ═══ -->
+<section id="s8">
+  <div class="sec-header">
+    <span class="sec-num">08</span>
+    <div>
+      <h2 class="sec-title">Privacy Framework</h2>
+      <p class="sec-sub">How Finance Bag implements Privacy by Design — consent, data minimization, user rights, and the roadmap toward full GDPR and CCPA compliance.</p>
+    </div>
+  </div>
+
+  <h3>8.1 Privacy Principles in Practice</h3>
+  <div class="tw"><table>
+    <thead><tr><th>GDPR Principle</th><th>Implementation in Finance Bag</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Lawfulness, Fairness, Transparency</strong></td><td>No hidden data collection. All data collection is explicit and user-initiated. Privacy notice accessible from Settings → Help → Privacy Policy at all times.</td></tr>
+      <tr><td><strong>Purpose Limitation</strong></td><td>Data collected for one purpose (personal finance tracking) is never used for another (advertising profiling, third-party sale). Preference keys <code>privacy.analytics_consent</code> and <code>privacy.crash_reports</code> default to <code>false</code>.</td></tr>
+      <tr><td><strong>Data Minimization</strong></td><td>No third-party analytics SDK in v1.0. Crash reports stripped of financial data. No user identifier transmitted to any server without explicit cloud account creation.</td></tr>
+      <tr><td><strong>Accuracy</strong></td><td>Users control all data. No automated data collection that could introduce inaccuracies. Import features validate and allow user review before committing.</td></tr>
+      <tr><td><strong>Storage Limitation</strong></td><td>Retention limits enforced: event_log 90 days, audit_log 365 days, search click signals 30 days. All data deleted on factory reset or account deletion.</td></tr>
+      <tr><td><strong>Integrity and Confidentiality</strong></td><td>Full encryption at rest and in transit. Biometric access control. Audit logging of all access.</td></tr>
+      <tr><td><strong>Accountability</strong></td><td>Audit log captures all security events. Consent timestamps recorded. Data export available for user review.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>8.2 Consent Management</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">Consent Rules</div>
+    <ul>
+      <li><strong>Explicit, granular, and revocable.</strong> Each consent category is a separate preference with a boolean value. Consent is never bundled.</li>
+      <li><strong>Default: off.</strong> All optional data collection preferences default to <code>false</code>. Users opt in, never opt out.</li>
+      <li><strong>Timestamped.</strong> <code>privacy.consent_version</code> stores the privacy policy version the user last accepted. When the policy changes, a consent re-confirmation screen is presented on next launch.</li>
+      <li><strong>Revocable at any time.</strong> Settings → Privacy → individual toggles. Revoking consent triggers immediate data purge of that category (e.g., revoking analytics consent deletes all anonymous usage events from local storage).</li>
+    </ul>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Preference key</th><th>What it covers</th><th>Default</th><th>Data purge on revoke</th></tr></thead>
+    <tbody>
+      <tr><td><code>privacy.analytics_consent</code></td><td>Anonymous usage events (screen views, feature interactions — no financial data)</td><td>false</td><td>Delete all buffered usage events from local queue</td></tr>
+      <tr><td><code>privacy.crash_reports</code></td><td>Redacted crash reports uploaded to crash service</td><td>false</td><td>Delete pending crash reports from local queue</td></tr>
+      <tr><td><code>privacy.save_search_history</code></td><td>Local search history stored in search_history table</td><td>true</td><td>DELETE FROM search_history; DELETE FROM click_signal_log</td></tr>
+      <tr><td><code>privacy.click_signal_logging</code></td><td>Search result click signals for frequency ranking</td><td>true</td><td>DELETE FROM click_signal_log</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>8.3 User Data Rights</h3>
+
+  <h4>Right to Access (Data Subject Access Request)</h4>
+  <p>Users can export all their data at any time via Settings → Data Management → Export. The export includes all financial data, preferences, and audit log (with amounts clearly labeled). No request submission or waiting period — access is instantaneous.</p>
+
+  <h4>Right to Rectification</h4>
+  <p>Users can edit any record they created — expenses, categories, goals, debts, EMF contributions. Archived records cannot be edited (immutability by design per SPEC-DB-001 §5) but can be corrected via an adjustment entry in the current period.</p>
+
+  <h4>Right to Erasure ("Right to be Forgotten")</h4>
+  <p>Settings → Account → Delete All My Data performs a targeted erasure: all financial records are deleted (DB file replaced with empty schema), preferences reset to defaults, search history cleared, audit log cleared, backups deleted from local storage. Account profile (display name, avatar) is also deleted. This is distinct from factory reset only in that app configuration (language, theme) may optionally be preserved.</p>
+
+  <h4>Right to Data Portability</h4>
+  <p>Exports in three machine-readable formats: CSV (Excel/Numbers compatible), JSON (structured for developers), and encrypted .fbk (Finance Bag native). All exports include every record the user has created with no omissions.</p>
+
+  <h3>8.4 Data Minimization in Practice</h3>
+  <ul>
+    <li><strong>No device identifiers transmitted:</strong> Device ID (<code>device_id</code>) is stored locally in expo-secure-store for session management but never transmitted to any server unless the user explicitly enables cloud sync.</li>
+    <li><strong>No advertising identifiers:</strong> IDFA (iOS) and GAID (Android) are never accessed.</li>
+    <li><strong>No location data:</strong> No location permission requested or used.</li>
+    <li><strong>No contact access:</strong> No contacts permission requested or used.</li>
+    <li><strong>Crash reports are pre-sanitized:</strong> Before any crash context is sent, a sanitizer replaces all integer centimes values, user-typed strings (notes, names, labels), and ULID identifiers with <code>"[REDACTED]"</code>. Only stack traces and system state are transmitted.</li>
+  </ul>
+
+  <h3>8.5 Privacy Notice Requirements</h3>
+  <p>The Privacy Notice bundled in-app must clearly state:</p>
+  <ol>
+    <li>What data is collected (only what the user enters; no automated collection unless opted in)</li>
+    <li>Where data is stored (on-device only in v1.0; encrypted)</li>
+    <li>What data leaves the device (nothing without explicit export; crash reports if opted in, with description of redaction)</li>
+    <li>How data is protected (AES-256, biometric auth, no third-party sharing)</li>
+    <li>User rights and how to exercise them (export, delete, contact DPO)</li>
+    <li>Contact information for privacy inquiries</li>
+  </ol>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §9 ═══ -->
+<section id="s9">
+  <div class="sec-header">
+    <span class="sec-num">09</span>
+    <div>
+      <h2 class="sec-title">Backup Architecture</h2>
+      <p class="sec-sub">A complete backup system with automatic scheduling, encryption, versioning, integrity verification, and a safe restore flow — all without transmitting unencrypted data outside the device.</p>
+    </div>
+  </div>
+
+  <h3>9.1 Backup File Format (.fbk)</h3>
+  <p>Finance Bag Backup files use the <code>.fbk</code> extension. The format is: a fixed-length plaintext header (JSON) followed by the AES-256-GCM ciphertext of a gzip-compressed SQLite WAL checkpoint of finance.db.</p>
+  <div class="spec-block">
+    <div class="spec-block-title">Backup File Structure</div>
+    <ul>
+      <li><strong>Magic bytes:</strong> <code>FBKV1\x00</code> (6 bytes) — identifies Finance Bag Backup format and version</li>
+      <li><strong>Header length:</strong> 4-byte little-endian uint32 — length of JSON header in bytes</li>
+      <li><strong>JSON header (plaintext, AAD-authenticated):</strong> <code>{ "app_version": "1.0.0", "schema_version": 14, "created_at": "2026-07-12T03:00:00Z", "backup_salt_hex": "...", "backup_iv_hex": "...", "finance_db_size_bytes": 2048000, "record_counts": { "expenses": 342, "periods": 6, ... } }</code></li>
+      <li><strong>GCM auth tag:</strong> 16 bytes (covers header as AAD + ciphertext)</li>
+      <li><strong>Ciphertext:</strong> AES-256-GCM encrypted gzip of the WAL-checkpointed finance.db SQLite file</li>
+    </ul>
+  </div>
+
+  <h3>9.2 What Is Backed Up</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Included in backup</th><th>Excluded from backup</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>
+          <ul>
+            <li>All tables in finance.db (all financial data, preferences, audit log, event log)</li>
+            <li>search.db (regenerable, but included for faster restore)</li>
+            <li>Attachment files (individually encrypted .fbatt files)</li>
+          </ul>
+        </td>
+        <td>
+          <ul>
+            <li>DB encryption key (never leaves the Keychain/Keystore)</li>
+            <li>Device-specific preferences (<code>sync_eligible: false</code>) — biometric settings, auto-lock timeout</li>
+            <li>PIN hash (device-specific; user must re-set PIN after restore)</li>
+            <li>Session tokens (short-lived; invalid on restore)</li>
+            <li>OS-level cache data</li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.3 Backup Types</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Type</th><th>Trigger</th><th>Naming</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Automatic</strong></td><td>Daily at 03:00 local time, while device is charging (preferred) or on WiFi. Backoff if device is actively in use.</td><td><code>auto_2026-07-12T03-00-00.fbk</code></td><td>Maximum 7 automatic backups retained. The oldest is deleted when the 8th is created.</td></tr>
+      <tr><td><strong>Pre-operation</strong></td><td>Automatically triggered before: period sealing, account deletion, factory reset, key rotation</td><td><code>pre_seal_2026-07-12T10-22-41.fbk</code></td><td>Named with the triggering operation. Maximum 3 retained. Stored alongside regular backups.</td></tr>
+      <tr><td><strong>Manual</strong></td><td>User-initiated from Settings → Backup → Create Backup Now</td><td>User-supplied name + timestamp: <code>manual_before-salary-change_2026-07-12.fbk</code></td><td>Maximum 10 manual backups retained locally. User can also immediately share to Files/Drive.</td></tr>
+      <tr><td><strong>Export</strong></td><td>User-initiated export to external storage (Files app, iCloud Drive, Google Drive)</td><td>User-supplied name</td><td>Same .fbk format. Once exported, Finance Bag loses tracking of it. The file is self-contained and can be restored from any location.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>9.4 Backup Creation Process</h3>
+  <ol>
+    <li><strong>Pre-auth:</strong> Backup creation requires P2 re-authentication (a sensitive operation that may produce exportable data).</li>
+    <li><strong>WAL checkpoint:</strong> Execute <code>PRAGMA wal_checkpoint(FULL)</code> to ensure all WAL pages are flushed to the main database file.</li>
+    <li><strong>File copy:</strong> Copy the database file to a temp location within the app sandbox (not /tmp).</li>
+    <li><strong>Compress:</strong> gzip the copied database file at compression level 6.</li>
+    <li><strong>Derive backup key:</strong> Fetch DB_KEY from expo-secure-store (biometric auth was already completed in step 1). Generate random 16-byte salt. Derive BACKUP_KEY via HKDF.</li>
+    <li><strong>Encrypt:</strong> AES-256-GCM encrypt the compressed data. Generate 12-byte random IV. Produce ciphertext + 16-byte GCM tag.</li>
+    <li><strong>Assemble .fbk:</strong> Write magic bytes + header length + JSON header + GCM tag + ciphertext to final backup file path.</li>
+    <li><strong>Verify:</strong> Attempt a test-decrypt of the first 4KB of the backup to confirm the file was written correctly.</li>
+    <li><strong>Register:</strong> Write backup metadata to <code>app_state.backup_manifest_json</code>.</li>
+    <li><strong>Cleanup:</strong> Delete the temp unencrypted copy.</li>
+    <li><strong>Log:</strong> Write <code>BACKUP_CREATED</code> event to audit_log.</li>
+  </ol>
+
+  <h3>9.5 Backup Restoration Process</h3>
+  <div class="critical-block">
+    <div class="critical-block-title">Restore is destructive — all current data will be replaced</div>
+    <p style="margin:0">Restore replaces the entire current database with the backup contents. A pre-restore backup is automatically created before proceeding (§9.3 pre-operation type).</p>
+  </div>
+  <ol>
+    <li><strong>P2 re-authentication</strong> required.</li>
+    <li><strong>Compatibility check:</strong> Read backup JSON header. Compare <code>schema_version</code> to current app's minimum supported restore schema version. If the backup is older than supported, reject with a clear message. If the backup is newer (from a future app version), reject with upgrade prompt.</li>
+    <li><strong>Pre-restore backup:</strong> Automatically create a pre-operation backup of current data (step 3 in §9.4, abbreviated). If this backup fails, abort the restore.</li>
+    <li><strong>Derive restore key:</strong> Fetch DB_KEY from expo-secure-store. Read backup_salt from .fbk header. Derive BACKUP_KEY via HKDF.</li>
+    <li><strong>Decrypt and verify:</strong> AES-256-GCM decrypt. GCM tag verification is performed by the cipher — any tampering causes decryption to fail with an authentication error. If decryption fails: abort, leave current DB intact, present error.</li>
+    <li><strong>Decompress:</strong> gzip decompress to a temporary SQLite file in app sandbox.</li>
+    <li><strong>Integrity check:</strong> Open the temp SQLite with DB_KEY. Run <code>PRAGMA integrity_check</code>. If it fails: abort, delete temp file, present error.</li>
+    <li><strong>Migrate:</strong> If backup schema_version is older than current schema, run forward migrations on the temp DB.</li>
+    <li><strong>Replace:</strong> Close all current DB connections. Rename temp DB file to <code>finance.db</code>. Reopen DB connection.</li>
+    <li><strong>Post-restore:</strong> Trigger <code>REBUILD_SEARCH_INDEX</code> event (search.db rebuilt from restored finance.db). Display "Restore complete. Your data has been restored to [backup date]." PIN reset prompt if PIN was stored (device-specific, not in backup).</li>
+    <li><strong>Log:</strong> Write <code>BACKUP_RESTORED</code> event to audit_log.</li>
+  </ol>
+
+  <h3>9.6 Incremental Backup (Future)</h3>
+  <p>v1.0 uses full database backup (the entire finance.db file). This is appropriate given typical database sizes at year 1 (≈2–5 MB). When database sizes grow beyond 20 MB (projected at year 3+ for heavy users), incremental backup based on SQLite WAL page tracking or change journal will be introduced. The .fbk format version field accommodates this — version 2 will support incremental payloads with a delta manifest in the header.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §10 ═══ -->
+<section id="s10">
+  <div class="sec-header">
+    <span class="sec-num">10</span>
+    <div>
+      <h2 class="sec-title">Cloud Synchronization</h2>
+      <p class="sec-sub">An offline-first synchronization architecture that is CRDT-compatible, privacy-preserving, and conflict-aware — designed for future activation without architectural surgery.</p>
+    </div>
+  </div>
+
+  <div class="warn-block">
+    <div class="warn-block-title">v1.0 Status: Architecture Defined, Not Yet Activated</div>
+    <p style="margin:0">Cloud synchronization is not active in v1.0. This section specifies the full architecture so that when cloud sync launches, no data model changes are required. All ULIDs, <code>updated_at</code> timestamps, and <code>sync_eligible</code> preference flags are already in place as sync readiness hooks (SPEC-DB-001 §14).</p>
+  </div>
+
+  <h3>10.1 Synchronization Principles</h3>
+  <ul>
+    <li><strong>Offline-first:</strong> The local database is always the source of truth for the current device. Sync is an eventual consistency mechanism, not a dependency. The app functions identically with or without a network connection.</li>
+    <li><strong>No financial data in transit without user account:</strong> Sync requires an explicit cloud account creation. Anonymous users remain fully local.</li>
+    <li><strong>Preference sync separate from data sync:</strong> Preferences (sync_eligible=true) are synced as a lightweight JSON document. Financial data sync is a larger, more complex operation introduced in a later phase.</li>
+    <li><strong>Conflict resolution is deterministic:</strong> All conflicts resolve by a defined rule — no ambiguous merge states.</li>
+    <li><strong>Zero-knowledge architecture (goal):</strong> The server stores only encrypted data. The cloud provider cannot read user financial data. All encryption and decryption happens on-device.</li>
+  </ul>
+
+  <h3>10.2 Synchronization Phases</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Phase</th><th>What syncs</th><th>When activated</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Phase 1 — Preference Sync</strong></td><td>All preferences with <code>sync_eligible = true</code>. This is a small JSON document (typically <5KB). Does not include financial data.</td><td>On cloud account creation (future)</td></tr>
+      <tr><td><strong>Phase 2 — Backup Sync</strong></td><td>Encrypted .fbk backup files uploaded to user's cloud storage bucket. Server stores opaque ciphertext only.</td><td>After Phase 1 is stable</td></tr>
+      <tr><td><strong>Phase 3 — Live Data Sync</strong></td><td>Financial records (expenses, periods, goals, debts) synced across devices using ULID ordering and per-record <code>updated_at</code> timestamps as CRDT vectors.</td><td>After Phase 2 is stable; significant complexity</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>10.3 Conflict Detection and Resolution</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">Conflict Classification</div>
+    <ul>
+      <li><strong>Type A — No conflict:</strong> Changes to different records on different devices. Resolution: merge both. Winner: all changes applied. No user notification required.</li>
+      <li><strong>Type B — Same record, non-overlapping fields:</strong> Device A changes <code>expense.category_id</code>; Device B changes <code>expense.notes</code>. Resolution: field-level merge. Both changes applied. No user notification.</li>
+      <li><strong>Type C — Same record, same field, different values:</strong> Device A changes <code>expense.amount_cents</code> to 5000; Device B changes it to 6000. Resolution: last-write-wins on <code>updated_at</code> (device clock skew tolerance: ±60 seconds; ties broken by device_id lexicographic order). User notified via a "Sync merged changes" digest notification (max 1 per day).</li>
+      <li><strong>Type D — Delete vs. update:</strong> Device A soft-deletes a record; Device B updates the same record. Resolution: delete wins. The update is discarded. This prevents "ghost resurrection" of deleted data.</li>
+      <li><strong>Type E — Archive conflict:</strong> A period is sealed on one device while the other device has unsynced changes to that period. Resolution: the sealed period takes precedence (archives are immutable per SPEC-DB-001 §5). The conflicting changes are surfaced to the user as "Changes that could not be applied."</li>
+    </ul>
+  </div>
+
+  <h3>10.4 Sync Payload Security</h3>
+  <ul>
+    <li><strong>Preference sync payload:</strong> JSON document encrypted with a SYNC_KEY derived from the user's cloud account credentials (via HKDF). The server stores the ciphertext; the plaintext is never on the server.</li>
+    <li><strong>Backup sync payload:</strong> .fbk files are already encrypted per §9. Uploaded as-is to cloud storage. No additional encryption layer needed.</li>
+    <li><strong>Live data sync payload (Phase 3):</strong> Delta records encrypted per-field or per-record using the DB_KEY-derived SYNC_KEY. Server cannot read individual field values.</li>
+    <li><strong>Sync token:</strong> The cloud auth session token (§4.5) authorizes all sync API calls. It is separate from the SYNC_KEY. Compromising the session token does not expose data decryption capability.</li>
+  </ul>
+
+  <h3>10.5 Multi-Device Synchronization</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Concern</th><th>Handling</th></tr></thead>
+    <tbody>
+      <tr><td>Device registration</td><td>Each device generates a unique <code>device_id</code> (random UUID, stored in expo-secure-store). Device registration associates the device_id with the cloud account. Maximum 5 registered devices per account.</td></tr>
+      <tr><td>Sync vector clocks</td><td>Each device maintains a local <code>sync_vector</code> in app_state — a map of <code>device_id → last_synced_at</code> for every known device. Used to compute delta on each sync.</td></tr>
+      <tr><td>Partial sync</td><td>If a sync is interrupted, the sync_vector is not updated for that device. The next sync re-fetches all changes from that device since the last committed sync_vector entry.</td></tr>
+      <tr><td>Background sync</td><td>Sync runs in a background task (expo-background-fetch or WorkManager on Android) at configurable intervals. It requires an active cloud account session and network connectivity. Battery-conscious: syncs are coalesced and not more frequent than every 15 minutes.</td></tr>
+      <tr><td>Device removal</td><td>Revoking a device from the account invalidates its session token on the server. Future sync attempts from that device return 401. The local data is not deleted from the revoked device (user may still access local data).</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §11 ═══ -->
+<section id="s11">
+  <div class="sec-header">
+    <span class="sec-num">11</span>
+    <div>
+      <h2 class="sec-title">Disaster Recovery</h2>
+      <p class="sec-sub">Defined recovery paths for every failure scenario — from a corrupt database to a stolen device — with clear user guidance and no silent data loss.</p>
+    </div>
+  </div>
+
+  <h3>11.1 Failure Scenarios and Recovery Paths</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Failure scenario</th><th>Detection</th><th>Recovery path</th><th>Data loss risk</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Corrupted database</strong></td>
+        <td><code>PRAGMA integrity_check</code> on startup returns errors</td>
+        <td>1. Present "Database Integrity Warning" with two options: "Restore from backup" or "Factory reset."<br>2. If backup restore: follow §9.5 restore flow.<br>3. If factory reset: §15 BR-SET-15 flow.<br>4. If user cancels both: read-only mode (future — v1 shows error screen and prevents app use to avoid further corruption).</td>
+        <td>Data since last backup is lost. All data if no backup exists.</td>
+      </tr>
+      <tr>
+        <td><strong>Missing encryption key</strong></td>
+        <td>expo-secure-store returns null for DB_KEY slot on startup</td>
+        <td>1. Present "Your data key is missing" screen.<br>2. Offer PIN-based re-derivation (if a key derivation PIN was set during setup).<br>3. If re-derivation succeeds: re-open DB.<br>4. If re-derivation fails or was never set up: only option is factory reset (data is unrecoverable without the key).<br>5. Log <code>SECURITY_EVENT KEY_MISSING</code> to a separate lightweight log file (not finance.db).</td>
+        <td>All data if key cannot be re-derived.</td>
+      </tr>
+      <tr>
+        <td><strong>Lost device</strong></td>
+        <td>User reports device missing</td>
+        <td>1. If cloud account: revoke device session remotely. Data on device is encrypted; attacker cannot access without biometric + key.<br>2. If no cloud account: no remote action possible. Data is encrypted at rest — practical risk is low.<br>3. Restore to new device from .fbk backup (if user has one).</td>
+        <td>Data since last backup is unrecoverable on the new device if no cloud sync.</td>
+      </tr>
+      <tr>
+        <td><strong>Stolen unlocked device (screen unlocked, app open)</strong></td>
+        <td>User reports theft</td>
+        <td>1. Attacker has P1 access until auto-lock timeout. P2 operations remain protected.<br>2. User should immediately: change device passcode via iCloud/Google (which invalidates biometric enrollment and thus the Keystore key on Android; iOS Secure Enclave item remains but passcode change also invalidates it).<br>3. If cloud account: revoke all sessions via a trusted device.</td>
+        <td>Attacker can read any data visible on screen and navigate the app for up to auto_lock_timeout seconds.</td>
+      </tr>
+      <tr>
+        <td><strong>Failed or incomplete backup</strong></td>
+        <td>Backup creation returns error or app is killed mid-backup</td>
+        <td>1. Partial .fbk file is detected by failed test-decrypt in step 8 of §9.4 and deleted.<br>2. Previous successful backup is unchanged.<br>3. A local push notification is scheduled: "Your scheduled backup failed. Tap to retry."<br>4. Next auto-backup attempt uses exponential backoff (1h, 4h, 24h).</td>
+        <td>None — previous backup remains intact.</td>
+      </tr>
+      <tr>
+        <td><strong>Failed database migration (app update)</strong></td>
+        <td>Schema migration throws an error during startup</td>
+        <td>1. Immediately abort migration.<br>2. Restore from the pre-migration backup (automatically created before migration as a pre-operation backup per §9.3).<br>3. If pre-migration backup also fails to restore: log error, present "Something went wrong" screen with support contact. Do not proceed with a partially-migrated DB.</td>
+        <td>None — pre-migration backup is the safety net.</td>
+      </tr>
+      <tr>
+        <td><strong>Unexpected app shutdown during period sealing</strong></td>
+        <td>App crash or OS kill during sealing transaction</td>
+        <td>SQLite WAL mode ensures atomic transactions: an incomplete sealing transaction is either fully committed or fully rolled back on next DB open. If rolled back: the period remains in CLOSING state. Sealing can be retried. If committed: the sealed archive is intact.</td>
+        <td>None — WAL atomicity guarantees.</td>
+      </tr>
+      <tr>
+        <td><strong>Data inconsistency after interrupted sync</strong></td>
+        <td>Sync vector shows incomplete sync; post-sync integrity check fails</td>
+        <td>1. Roll back the partial sync transaction (all sync operations run within a single SQLite transaction per sync batch).<br>2. Retain local data as it was before sync began.<br>3. Retry sync from the last committed sync_vector checkpoint.<br>4. After 3 consecutive failures: pause auto-sync and notify user.</td>
+        <td>None — transactional sync.</td>
+      </tr>
+      <tr>
+        <td><strong>Corrupted backup file</strong></td>
+        <td>AES-GCM authentication tag verification fails during restore</td>
+        <td>1. Reject backup immediately. Do not attempt partial restore.<br>2. Current database is untouched.<br>3. Present: "This backup file could not be verified. It may have been corrupted or tampered with." Offer to try an older backup.</td>
+        <td>None — tamper detection prevents partial restore.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <h3>11.2 Recovery Decision Tree</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">User-Facing Recovery Decision Logic</div>
+    <ul>
+      <li><strong>"I can still open the app"</strong> → Normal operation. No recovery needed. Consider creating a manual backup.</li>
+      <li><strong>"The app shows a database error"</strong> → §11.1 Corrupted database path. Restore from backup if available.</li>
+      <li><strong>"I lost or broke my device"</strong> → Restore .fbk backup to new device (Settings → Backup → Restore). If no backup: start fresh.</li>
+      <li><strong>"I forgot my PIN and can't unlock the app"</strong> → Factory reset required. All local data will be lost. If cloud backup exists: restore after reset.</li>
+      <li><strong>"My backup file won't restore"</strong> → §11.1 Corrupted backup path. Try an older backup version. If all fail: contact support.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §12 ═══ -->
+<section id="s12">
+  <div class="sec-header">
+    <span class="sec-num">12</span>
+    <div>
+      <h2 class="sec-title">Session Management</h2>
+      <p class="sec-sub">How authenticated sessions are created, maintained, scoped, and terminated — on-device today and across cloud accounts in the future.</p>
+    </div>
+  </div>
+
+  <h3>12.1 Local Session (v1.0)</h3>
+  <p>A local session is not a token — it is an in-memory state flag representing that the user has successfully authenticated since the last auto-lock expiry. It exists only in RAM and is implicitly invalidated when the app is killed or the auto-lock timeout expires.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Session state</th><th>Condition</th><th>DB connection</th><th>Key in memory</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Unauthenticated</strong></td><td>App cold-start, or timeout expired, or app returned from background after timeout</td><td>Closed</td><td>No</td></tr>
+      <tr><td><strong>Authenticating</strong></td><td>Biometric/PIN challenge in progress</td><td>Closed</td><td>No</td></tr>
+      <tr><td><strong>Authenticated (P1)</strong></td><td>Successful biometric/PIN; within auto-lock timeout window</td><td>Open</td><td>Yes (SQLCipher holds it; not in JS heap)</td></tr>
+      <tr><td><strong>Re-authenticated (P2)</strong></td><td>Fresh challenge passed within last 60 seconds; triggered by sensitive operation</td><td>Open</td><td>Yes</td></tr>
+      <tr><td><strong>Locked (screen blur)</strong></td><td>App in background; timeout not yet expired</td><td>Open</td><td>Yes (SQLCipher retains)</td></tr>
+      <tr><td><strong>Locked (session expired)</strong></td><td>Background duration exceeded auto-lock timeout</td><td>Closed by DB service on AppState event</td><td>No (cleared on DB close)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>12.2 Cloud Session (Future)</h3>
+  <p>Cloud sessions are managed via short-lived JWT access tokens and long-lived opaque refresh tokens. The local biometric session and the cloud session are independent layers.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Token</th><th>TTL</th><th>Storage</th><th>Refresh mechanism</th><th>Invalidation</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Access Token (JWT)</strong></td><td>15 minutes</td><td>In-memory only (never persisted to disk or Keystore)</td><td>Silent refresh via refresh token before expiry</td><td>Server-side on logout, password change, suspicious activity, explicit revoke-all</td></tr>
+      <tr><td><strong>Refresh Token</strong></td><td>30 days (rolling)</td><td>expo-secure-store key <code>"fb_refresh_token"</code> (no biometric requirement)</td><td>Sent to token refresh endpoint; rotated on use (refresh token rotation)</td><td>Server-side: one-use (each refresh issues a new token and invalidates the old). Invalidated on logout, revoke-all, suspicious activity detection.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>12.3 Session Lifecycle Events</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event</th><th>Action taken</th></tr></thead>
+    <tbody>
+      <tr><td>Successful biometric auth</td><td>P1 session started. DB connection opened. Session start timestamp recorded in-memory.</td></tr>
+      <tr><td>Auto-lock timeout reached</td><td>DB connection closed (key cleared from SQLCipher memory). Blur overlay applied. Next foreground triggers auth prompt.</td></tr>
+      <tr><td>App killed by OS</td><td>All in-memory state cleared by OS. Equivalent to session end.</td></tr>
+      <tr><td>User explicitly locks app</td><td>Same as auto-lock timeout expiry. DB connection closed immediately.</td></tr>
+      <tr><td>5 failed auth attempts</td><td>Session enters lockout state. Progressive backoff applied. After permanent lockout: recovery flow.</td></tr>
+      <tr><td>Cloud logout (future)</td><td>Refresh token deleted from expo-secure-store. Access token cleared from memory. Sync paused. User returned to login screen.</td></tr>
+      <tr><td>Logout everywhere (future)</td><td>Cloud server invalidates all refresh tokens for all registered devices. On next sync attempt, all devices receive 401 and clear their cloud session. Local data and local DB session are unaffected.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>12.4 Session Security Hardening</h3>
+  <ul>
+    <li><strong>No session ID on disk:</strong> The local session (P1/P2) is represented only by in-memory flags. It cannot be stolen via file access.</li>
+    <li><strong>JWT claims validation:</strong> On every access token use, the app validates: <code>iss</code> (issuer), <code>aud</code> (audience = app's bundle ID), <code>exp</code> (expiry), <code>iat</code> (issued-at, not more than 15 min ago), <code>sub</code> (user ID matches stored user ID). Any claim mismatch triggers immediate session invalidation.</li>
+    <li><strong>Token binding (future):</strong> Access tokens will be bound to the device's public key (DPOP — Demonstrating Proof of Possession, RFC 9449). This prevents token replay from a different device even if the token is extracted from memory.</li>
+    <li><strong>Concurrent session limits:</strong> Maximum 5 concurrent cloud sessions (one per registered device). A 6th device login invalidates the oldest session.</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §13 ═══ -->
+<section id="s13">
+  <div class="sec-header">
+    <span class="sec-num">13</span>
+    <div>
+      <h2 class="sec-title">Audit Logging</h2>
+      <p class="sec-sub">An append-only, tamper-evident record of every security-relevant event — stored in the encrypted database and retained for one year.</p>
+    </div>
+  </div>
+
+  <h3>13.1 Audit Log Schema</h3>
+  <p>Audit events are written to the <code>audit_log</code> table in finance.db (defined in SPEC-DB-001). Every row is append-only — no UPDATE or DELETE is permitted on this table.</p>
+  <div class="spec-block">
+    <div class="spec-block-title">audit_log table columns</div>
+    <ul>
+      <li><code>id</code> — ULID, primary key</li>
+      <li><code>event_type</code> — TEXT, enumerated (see §13.2)</li>
+      <li><code>actor</code> — TEXT, always <code>"user"</code> in v1.0 (reserved for future admin/system actors)</li>
+      <li><code>entity_type</code> — TEXT NULLABLE, e.g., <code>"expense"</code>, <code>"period"</code>, <code>"backup"</code></li>
+      <li><code>entity_id</code> — TEXT NULLABLE, ULID of the affected entity</li>
+      <li><code>metadata_json</code> — TEXT NULLABLE, structured context (see §13.3 examples)</li>
+      <li><code>ip_address</code> — TEXT NULLABLE, reserved for future cloud auth events</li>
+      <li><code>device_id</code> — TEXT, identifies which device generated the event</li>
+      <li><code>created_at</code> — INTEGER UNIX timestamp (milliseconds)</li>
+    </ul>
+  </div>
+
+  <h3>13.2 Audited Event Catalog</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Event type</th><th>Trigger</th><th>metadata_json includes</th></tr></thead>
+    <tbody>
+      <tr><td><code>AUTH_SUCCESS</code></td><td>Successful biometric or PIN unlock</td><td><code>{"method": "biometric|pin", "attempt_number": 1}</code></td></tr>
+      <tr><td><code>AUTH_FAILURE</code></td><td>Failed biometric or PIN attempt</td><td><code>{"method": "biometric|pin", "attempt_number": 2, "lockout_remaining_ms": 0}</code></td></tr>
+      <tr><td><code>SESSION_LOCK</code></td><td>App locked (timeout, manual, background)</td><td><code>{"reason": "timeout|manual|background", "session_duration_s": 312}</code></td></tr>
+      <tr><td><code>REAUTH_SUCCESS</code></td><td>Successful P2 re-authentication gate</td><td><code>{"operation": "export|backup_restore|factory_reset|..."}</code></td></tr>
+      <tr><td><code>REAUTH_FAILURE</code></td><td>Failed P2 re-authentication</td><td><code>{"operation": "export", "attempt_number": 1}</code></td></tr>
+      <tr><td><code>EXPORT_INITIATED</code></td><td>User initiates data export</td><td><code>{"format": "csv|json|sqlite", "include_attachments": true}</code></td></tr>
+      <tr><td><code>EXPORT_COMPLETED</code></td><td>Export file written successfully</td><td><code>{"format": "csv", "file_size_bytes": 48392, "record_count": 342}</code></td></tr>
+      <tr><td><code>BACKUP_CREATED</code></td><td>Backup file written and verified</td><td><code>{"type": "auto|manual|pre_operation", "file_size_bytes": 2048000, "schema_version": 14}</code></td></tr>
+      <tr><td><code>BACKUP_RESTORED</code></td><td>Backup successfully restored</td><td><code>{"backup_created_at": "2026-07-10T03:00:00Z", "schema_version_restored": 13, "migrated_to": 14}</code></td></tr>
+      <tr><td><code>BACKUP_DELETED</code></td><td>Backup file deleted (auto-rotation or manual)</td><td><code>{"backup_created_at": "2026-06-01T03:00:00Z", "reason": "rotation|user_deleted"}</code></td></tr>
+      <tr><td><code>FACTORY_RESET_INITIATED</code></td><td>User confirms factory reset typed confirmation</td><td><code>{"confirmed_phrase": true, "reason": "user_requested"}</code> (note: no personal data)</td></tr>
+      <tr><td><code>FACTORY_RESET_COMPLETED</code></td><td>Factory reset finishes successfully</td><td><code>{"duration_ms": 1240}</code></td></tr>
+      <tr><td><code>SETTING_CHANGED</code></td><td>Any preference written via PreferenceService.set()</td><td><code>{"key": "security.auto_lock_timeout", "old_value": "5min", "new_value": "immediately"}</code> — financial values redacted</td></tr>
+      <tr><td><code>KEY_ROTATION_INITIATED</code></td><td>DB encryption key rotation started</td><td><code>{}</code></td></tr>
+      <tr><td><code>KEY_ROTATION_COMPLETED</code></td><td>DB encryption key rotation successful</td><td><code>{"duration_ms": 3420}</code></td></tr>
+      <tr><td><code>KEY_ROTATION_FAILED</code></td><td>Key rotation failed at any step</td><td><code>{"step": "rekey_pragma", "error_code": "SQLITE_ERROR"}</code></td></tr>
+      <tr><td><code>SECURITY_EVENT</code></td><td>Generic security-relevant events</td><td><code>{"type": "jailbreak_detected|key_missing|integrity_check_failed|attempt_limit_reached", "detail": "..."}</code></td></tr>
+      <tr><td><code>SYNC_INITIATED</code></td><td>Cloud sync attempt started (future)</td><td><code>{"device_count": 2, "phase": "preference|backup|live"}</code></td></tr>
+      <tr><td><code>SYNC_COMPLETED</code></td><td>Cloud sync completed (future)</td><td><code>{"conflicts_resolved": 0, "records_synced": 12, "duration_ms": 820}</code></td></tr>
+      <tr><td><code>SYNC_CONFLICT_RESOLVED</code></td><td>A Type C or D conflict was resolved (future)</td><td><code>{"entity_type": "expense", "entity_id": "01J...", "resolution": "last_write_wins", "winning_device_id": "..."}</code></td></tr>
+      <tr><td><code>ACCOUNT_DELETION_INITIATED</code></td><td>User confirms account deletion</td><td><code>{"scope": "data_only|full_account"}</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>13.3 Audit Log Retention & Access</h3>
+  <ul>
+    <li><strong>Retention:</strong> 365 days. Rows older than 365 days are purged by the nightly maintenance job. Rows created by the current day are never purged.</li>
+    <li><strong>Access:</strong> Viewing the audit log requires P2 re-authentication (§5.2). Displayed in Settings → Security → Audit Log. The last 30 events are shown; all events available in the full export.</li>
+    <li><strong>Export:</strong> Included in all full data exports (CSV, JSON, encrypted .sqlite). The audit log is excluded from preference-only sync payloads.</li>
+    <li><strong>Tamper resistance:</strong> The audit_log table has no UPDATE or DELETE triggers or permissions. Application code must never issue UPDATE/DELETE on this table. The append-only constraint is enforced by code convention and documented as BR-SEC-09. Future: a SQLite trigger that raises an error on any attempt to modify existing rows.</li>
+    <li><strong>Encryption:</strong> Stored inside finance.db — inherits database encryption. Not stored in a separate file where selective deletion could avoid detection.</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §14 ═══ -->
+<section id="s14">
+  <div class="sec-header">
+    <span class="sec-num">14</span>
+    <div>
+      <h2 class="sec-title">Fraud &amp; Abuse Prevention</h2>
+      <p class="sec-sub">Controls against brute-force, replay, tampering, and device compromise — with proportionate responses that protect users without creating friction for legitimate ones.</p>
+    </div>
+  </div>
+
+  <h3>14.1 Brute-Force Protection</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Attack vector</th><th>Control</th><th>Lockout behavior</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Biometric bypass</strong></td><td>Hardware-enforced by Secure Enclave / StrongBox. After 5 failed Face ID attempts: Face ID disabled for session. After 10 failed attempts (iOS): 30-day Face ID lockout enforced by OS. App tracks failures in-memory for additional layering.</td><td>OS-managed biometric lockout + app-level PIN fallback after 3 app-level failures</td></tr>
+      <tr><td><strong>PIN brute-force</strong></td><td>App-level attempt counter (in-memory). Progressive delay on each failure: 15s, 30s, 60s, 5 min, 15 min. After 5 total auth failures (biometric + PIN combined): permanent lockout requiring recovery flow.</td><td>Permanent lockout → email recovery (future) or factory reset</td></tr>
+      <tr><td><strong>Cloud password / magic link brute-force (future)</strong></td><td>Server-side: rate limit magic link requests to 3 per email per hour, 10 per IP per hour. Magic links are one-use and expire in 15 minutes.</td><td>HTTP 429 with Retry-After header; IP-level rate limiting at edge</td></tr>
+      <tr><td><strong>Backup PIN brute-force (if PIN-protected export)</strong></td><td>Export files are AES-256-GCM encrypted. No brute-force shortcut exists for AES-256 with a strong key. The backup key is derived from the DB_KEY (hardware-backed) — not from a user-chosen password.</td><td>N/A — no PIN on backup files in v1.0. Future export passwords use Argon2id with work factor that makes brute-force infeasible.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>14.2 Replay Attack Prevention</h3>
+  <ul>
+    <li><strong>Idempotency keys:</strong> All future API calls that modify server state include an idempotency key (ULID format). The server rejects duplicate keys within a 24-hour window.</li>
+    <li><strong>JWT nonce (future):</strong> Access tokens include a <code>jti</code> (JWT ID) claim. The server maintains a short-lived jti blacklist for tokens that have been used for sensitive operations.</li>
+    <li><strong>Magic link one-use:</strong> As described in §4.5, magic link tokens are marked consumed on first use. A replayed magic link returns 401 and triggers a security alert email.</li>
+    <li><strong>Local event deduplication:</strong> EventBus deduplication (idempotency keys per SPEC-EVT-001) prevents replay of automation events within Finance Bag's own event pipeline.</li>
+  </ul>
+
+  <h3>14.3 Jailbreak & Root Detection</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">Detection Heuristics (v1.0)</div>
+    <ul>
+      <li><strong>iOS jailbreak indicators:</strong> Presence of <code>/Applications/Cydia.app</code>, <code>/bin/bash</code>, <code>/usr/sbin/sshd</code>, <code>/etc/apt</code>, writable <code>/private/</code>, or ability to open a socket on localhost port 22.</li>
+      <li><strong>Android root indicators:</strong> Presence of <code>su</code> binary in PATH, known root management apps (Magisk), writeable <code>/system</code> partition, SafetyNet/Play Integrity API returning BASIC or MEETS_BASIC_INTEGRITY only (not MEETS_DEVICE_INTEGRITY).</li>
+    </ul>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Jailbreak detected?</th><th>Response in v1.0</th><th>Response in future</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Yes</strong></td><td>Display a persistent warning banner: "This device may be rooted or jailbroken. Your financial data may be at increased risk." Biometric fallback to PIN is disabled (biometric on a jailbroken device may be spoofable). App continues to function — data remains encrypted. Audit log: <code>SECURITY_EVENT jailbreak_detected</code>.</td><td>Optionally: block export, disable cloud sync, require user acknowledgement to continue. Behaviour configurable by enterprise policy.</td></tr>
+      <tr><td><strong>No (false negative)</strong></td><td>SQLCipher encryption remains the last line of defense. No single detection mechanism is 100% reliable on a sufficiently compromised device.</td><td>Multiple detection layers added (behavioral, hardware attestation).</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>14.4 Anti-Tampering</h3>
+  <ul>
+    <li><strong>Code signing:</strong> iOS: mandatory Xcode signing with Apple Developer certificate; App Store distribution adds additional Apple signature. Android: mandatory APK signing with keystore; Play App Signing adds Google signature layer.</li>
+    <li><strong>No debug builds in production:</strong> <code>__DEV__</code> flag is false in release builds. Developer options require 7-tap unlock (§14.5 SPEC-SET-001). ADB debugging not possible on production iOS.</li>
+    <li><strong>Database integrity check on startup:</strong> <code>PRAGMA integrity_check</code> detects page-level corruption or tampering with the SQLite file structure. SQLCipher's HMAC per page also detects bit-flip tampering at the cipher level.</li>
+    <li><strong>Backup HMAC:</strong> AES-256-GCM authentication tag covers the entire backup ciphertext. Any byte modification causes decryption to fail with an authentication error.</li>
+    <li><strong>Binary obfuscation (future):</strong> JavaScript bundle obfuscation via Metro bundler + Hermes bytecode compilation. Not implemented in v1.0 — noted as a future hardening measure against reverse engineering.</li>
+  </ul>
+
+  <h3>14.5 Rate Limiting (Cloud, Future)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Endpoint / operation</th><th>Rate limit</th><th>Response on limit</th></tr></thead>
+    <tbody>
+      <tr><td>Magic link email request</td><td>3 per email/hour, 10 per IP/hour</td><td>HTTP 429 with Retry-After. After 5 attempts: email alert to user's address.</td></tr>
+      <tr><td>Token refresh</td><td>60 per device per hour</td><td>HTTP 429. Excessive refresh is a signal of token leakage; server logs security event.</td></tr>
+      <tr><td>Sync API calls</td><td>100 per device per 15 minutes</td><td>HTTP 429 with backoff guidance. Auto-sync pauses for 1 hour.</td></tr>
+      <tr><td>Backup upload</td><td>10 per device per day (size also capped per plan tier)</td><td>HTTP 429. Manual upload prompt shown to user with remaining quota.</td></tr>
+      <tr><td>Device registration</td><td>5 total per account (hard limit, not rate)</td><td>HTTP 403. User must deregister an existing device first.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>14.6 Abnormal Activity Detection (Future)</h3>
+  <p>When cloud accounts are active, the following signals are monitored server-side for anomaly detection. Anomalies trigger an email alert to the user and a temporary session freeze pending confirmation.</p>
+  <ul>
+    <li>Login from a new country or continent</li>
+    <li>More than 3 magic link requests in 1 hour</li>
+    <li>Sync payload size 10× larger than historical average</li>
+    <li>Mass export within 5 minutes of account creation</li>
+    <li>Refresh token used from a different IP than it was issued to</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §15 ═══ -->
+<section id="s15">
+  <div class="sec-header">
+    <span class="sec-num">15</span>
+    <div>
+      <h2 class="sec-title">Performance Budget</h2>
+      <p class="sec-sub">Security overhead targets — encryption, authentication, and integrity checks must not measurably degrade the experience a user without security enabled would have.</p>
+    </div>
+  </div>
+
+  <h3>15.1 Performance Targets</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Operation</th><th>Budget</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Biometric challenge to DB open</td><td>&lt; 300ms</td><td>Includes Keychain/Keystore fetch + SQLCipher PRAGMA key. Measured on iPhone 12 / Pixel 6.</td></tr>
+      <tr><td>Startup integrity check (PRAGMA integrity_check)</td><td>&lt; 200ms for DBs up to 10MB</td><td>Runs in a background thread after biometric auth. Does not block UI render.</td></tr>
+      <tr><td>SQLCipher read overhead vs. unencrypted SQLite</td><td>&lt; 10% additional latency per query</td><td>AES-NI hardware acceleration on modern ARM chips reduces overhead to ~5% in practice.</td></tr>
+      <tr><td>Backup creation (5MB database)</td><td>&lt; 2s</td><td>Includes WAL checkpoint + gzip + AES-256-GCM. Runs in background; user can continue using app.</td></tr>
+      <tr><td>Backup restore (5MB)</td><td>&lt; 5s</td><td>Includes decrypt + decompress + integrity check + migration. DB unavailable during restore.</td></tr>
+      <tr><td>Attachment encrypt + write (4MB photo)</td><td>&lt; 500ms</td><td>AES-256-GCM on a 4MB file with hardware AES acceleration. UI shows progress indicator for files &gt; 1MB.</td></tr>
+      <tr><td>Screenshot blur overlay application</td><td>&lt; 16ms (1 frame)</td><td>Must be applied before the OS captures the App Switcher thumbnail. Uses a pre-mounted but hidden BlurView component — not mounted on-demand.</td></tr>
+      <tr><td>Re-auth modal presentation</td><td>&lt; 100ms</td><td>Modal is pre-mounted in the navigation tree. Biometric challenge itself is OS-managed and not counted.</td></tr>
+      <tr><td>Clipboard clear timer</td><td>Exactly 60 seconds</td><td>±5s tolerance acceptable. Uses React Native's setTimeout with a cleanup useEffect.</td></tr>
+      <tr><td>Auto-backup (background task)</td><td>No impact on foreground UI</td><td>Auto-backup runs in a background task (expo-background-fetch) that the OS schedules. It does not run while the app is in the foreground.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>15.2 Memory Budget</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Component</th><th>Memory overhead</th></tr></thead>
+    <tbody>
+      <tr><td>SQLCipher vs. standard SQLite</td><td>~2–3 MB additional (cipher context, key schedule)</td></tr>
+      <tr><td>DB_KEY in Keystore memory</td><td>32 bytes (negligible; managed by OS)</td></tr>
+      <tr><td>Backup AES-GCM working buffer</td><td>Up to 64 MB peak during backup creation (gzip + cipher buffer). Freed immediately after backup completes.</td></tr>
+      <tr><td>Attachment decryption buffer</td><td>Equal to attachment file size (in-memory decryption). For 10 MB attachment: 10 MB. Buffer is freed when the displaying component unmounts.</td></tr>
+      <tr><td>Blur overlay component (pre-mounted)</td><td>&lt; 1 MB (BlurView is lightweight)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>15.3 Battery Budget</h3>
+  <ul>
+    <li><strong>Auto-backup:</strong> Triggered by expo-background-fetch which runs when the OS decides conditions are favorable (typically device charging + WiFi). Finance Bag expresses a preference for charging state via the background task options. The OS may override this on battery-constrained devices.</li>
+    <li><strong>Biometric auth:</strong> Secure Enclave / StrongBox operations are hardware-accelerated and consume negligible battery (< 1 mJ per challenge).</li>
+    <li><strong>AES-NI acceleration:</strong> All modern iPhone and Android chipsets (A9+, Cortex-A53+) include hardware AES acceleration via NEON / AES extensions. SQLCipher uses hardware AES when available, reducing CPU time and battery per query by ~60% versus software AES.</li>
+    <li><strong>Background sync (future):</strong> Syncs are batched and coalesced. Minimum interval: 15 minutes. Sync is opportunistic — it runs when the app has recently been in foreground, when the device has battery > 20%, and when on WiFi. These conditions are configurable by the user.</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §16 ═══ -->
+<section id="s16">
+  <div class="sec-header">
+    <span class="sec-num">16</span>
+    <div>
+      <h2 class="sec-title">Compliance Readiness</h2>
+      <p class="sec-sub">How Finance Bag's architecture maps to GDPR, CCPA, OWASP MASVS, and SOC 2 — and the specific gaps that must be addressed before formal certification.</p>
+    </div>
+  </div>
+
+  <h3>16.1 GDPR (EU General Data Protection Regulation)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>GDPR Requirement</th><th>Status</th><th>Implementation</th></tr></thead>
+    <tbody>
+      <tr><td>Lawful basis for processing</td><td class="risk-lo">Covered</td><td>Contractual necessity (user-initiated personal finance tracking). Consent for optional analytics.</td></tr>
+      <tr><td>Privacy by design</td><td class="risk-lo">Covered</td><td>This entire specification. Defaults are most privacy-preserving. Data minimization by design.</td></tr>
+      <tr><td>Data Subject Access Request (DSAR)</td><td class="risk-lo">Covered</td><td>Settings → Export — instantaneous, comprehensive, multiple formats.</td></tr>
+      <tr><td>Right to erasure</td><td class="risk-lo">Covered</td><td>Delete All My Data flow; Factory Reset flow (§15 SPEC-SET-001 BR-SET-15).</td></tr>
+      <tr><td>Data portability</td><td class="risk-lo">Covered</td><td>CSV, JSON, encrypted .sqlite exports.</td></tr>
+      <tr><td>Consent management</td><td class="risk-lo">Covered</td><td>Granular, explicit, default-off, revocable, timestamped consent (§8.2).</td></tr>
+      <tr><td>Data retention limits</td><td class="risk-lo">Covered</td><td>audit_log 365d, event_log 90d, click signals 30d. All data deleted on account deletion.</td></tr>
+      <tr><td>Security of processing (Art. 32)</td><td class="risk-lo">Covered</td><td>AES-256 at rest, TLS 1.3 in transit, biometric access control, audit logging.</td></tr>
+      <tr><td>Data Protection Officer (DPO)</td><td class="risk-med">Gap — future</td><td>DPO designation required when processing EU personal data at scale. Register with supervisory authority when user base reaches threshold.</td></tr>
+      <tr><td>Data Protection Impact Assessment (DPIA)</td><td class="risk-med">Gap — future</td><td>DPIA required before activating cloud sync (involves systematic processing of financial data). Must be completed before cloud launch.</td></tr>
+      <tr><td>Privacy Notice (Art. 13/14)</td><td class="risk-lo">Covered</td><td>Bundled in-app, accessible from Settings. Must be available in all supported languages (FR, EN, AR).</td></tr>
+      <tr><td>Breach notification (Art. 33)</td><td class="risk-med">Gap — future</td><td>Procedure needed for server-side breach when cloud is active. v1.0 (local-only) has no server to breach.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>16.2 CCPA (California Consumer Privacy Act)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>CCPA Requirement</th><th>Status</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Right to know (categories of data collected)</td><td class="risk-lo">Covered</td><td>Privacy Notice lists all data categories. No hidden collection.</td></tr>
+      <tr><td>Right to delete</td><td class="risk-lo">Covered</td><td>Equivalent to GDPR right to erasure.</td></tr>
+      <tr><td>Right to opt-out of sale</td><td class="risk-lo">Covered (by absence)</td><td>Finance Bag does not sell personal data. No "Do Not Sell" opt-out required as no selling occurs.</td></tr>
+      <tr><td>Non-discrimination</td><td class="risk-lo">Covered</td><td>Privacy choices (opting out of analytics) do not affect access to Finance Bag features.</td></tr>
+      <tr><td>Privacy policy disclosure</td><td class="risk-lo">Covered</td><td>In-app privacy policy. App Store / Play Store listings also include privacy summary.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>16.3 OWASP Mobile Application Security Verification Standard (MASVS)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>MASVS Control</th><th>Level</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>MASVS-STORAGE-1: Sensitive data is not stored insecurely</td><td>L1</td><td class="risk-lo">Covered — SQLCipher, expo-secure-store, no logs with financial data</td></tr>
+      <tr><td>MASVS-STORAGE-2: Sensitive data is excluded from backups</td><td>L1</td><td class="risk-lo">Covered — NSURLIsExcludedFromBackupKey, encrypted .fbk only</td></tr>
+      <tr><td>MASVS-CRYPTO-1: Strong cryptography used</td><td>L1</td><td class="risk-lo">Covered — AES-256-GCM, HKDF-SHA256, Argon2id for PIN</td></tr>
+      <tr><td>MASVS-AUTH-1: App enforces authentication at entry point</td><td>L1</td><td class="risk-lo">Covered — biometric gate on foreground</td></tr>
+      <tr><td>MASVS-AUTH-2: Biometric auth is bound to a key pair</td><td>L2</td><td class="risk-lo">Covered — DB_KEY is hardware-bound (Secure Enclave / Keystore) per §6.6</td></tr>
+      <tr><td>MASVS-NETWORK-1: Traffic encrypted with TLS</td><td>L1</td><td class="risk-lo">Covered (future cloud) — TLS 1.3 minimum, ATS/NSC enforced</td></tr>
+      <tr><td>MASVS-NETWORK-2: Certificate pinning</td><td>L2</td><td class="risk-med">Partial — architecture planned (§18); not yet implemented</td></tr>
+      <tr><td>MASVS-PLATFORM-1: App doesn't expose sensitive functions via IPC</td><td>L1</td><td class="risk-lo">Covered — no IPC exposed; EventBus is in-process only</td></tr>
+      <tr><td>MASVS-CODE-4: App detects tampering</td><td>L2</td><td class="risk-med">Partial — integrity_check detects DB tampering; binary tampering detection not implemented in v1.0</td></tr>
+      <tr><td>MASVS-RESILIENCE-1: App detects rooting/jailbreak</td><td>L2</td><td class="risk-lo">Covered — heuristic detection per §14.3</td></tr>
+      <tr><td>MASVS-RESILIENCE-2: App prevents debugging in production</td><td>L2</td><td class="risk-med">Partial — Hermes bytecode. Full obfuscation future.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>16.4 SOC 2 Type II Readiness</h3>
+  <p>SOC 2 Type II requires a 6-month observation period demonstrating controls are operating effectively. Finance Bag's architecture is aligned with the 5 Trust Service Criteria:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Trust Service Criterion</th><th>Architecture alignment</th><th>Gap for formal SOC 2</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Security (CC6–CC9)</strong></td><td>Encryption, access control, audit logging, incident response plan (§11)</td><td>Formal incident response procedure; vendor risk management program</td></tr>
+      <tr><td><strong>Availability (A1)</strong></td><td>Local-first ensures availability without server dependency. Backup + recovery (§9, §11).</td><td>Cloud SLA definition when servers are active</td></tr>
+      <tr><td><strong>Processing Integrity (PI1)</strong></td><td>ACID database transactions; integrity_check on startup; WAL atomicity</td><td>Formal test procedures; monitoring dashboards</td></tr>
+      <tr><td><strong>Confidentiality (C1)</strong></td><td>AES-256 at rest; TLS in transit; export requires re-auth; no third-party data sharing</td><td>Formal data classification policy document; NDA process for employees</td></tr>
+      <tr><td><strong>Privacy (P1–P8)</strong></td><td>Privacy by design; consent management; DSAR; deletion flow</td><td>DPIA completion; DPO designation; formal privacy policy review cycle</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §17 ═══ -->
+<section id="s17">
+  <div class="sec-header">
+    <span class="sec-num">17</span>
+    <div>
+      <h2 class="sec-title">Edge Cases</h2>
+      <p class="sec-sub">Explicitly defined behaviors for every non-nominal security scenario — preventing undefined states and silent failures.</p>
+    </div>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>ID</th><th>Scenario</th><th>Required behavior</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>EC-SEC-01</strong></td>
+        <td><strong>Device stolen while screen unlocked, Finance Bag open</strong></td>
+        <td>Attacker has P1 session until auto-lock timeout. P2 operations remain blocked. User should immediately remotely lock/wipe device via iCloud/Google. Any P1-accessible data (dashboard, recent expenses) is visible but all amounts can be obscured if <code>security.obscure_amounts = true</code>. Audit log entry at next successful auth shows device_id and timestamp gap.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SEC-02</strong></td>
+        <td><strong>User changes device passcode (iOS/Android) while Finance Bag is installed</strong></td>
+        <td>On iOS: <code>kSecAccessControlBiometryCurrentSet</code> Keychain items are invalidated when the passcode changes. On next Finance Bag open, expo-secure-store returns nil for DB_KEY. App detects missing key and presents key recovery flow. If PIN-based key derivation was configured: offer PIN re-derivation. If not: only factory reset available. Audit log: <code>SECURITY_EVENT KEY_MISSING</code>.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SEC-03</strong></td>
+        <td><strong>User enrolls a new biometric (e.g., adds a second face to Face ID)</strong></td>
+        <td>iOS: <code>kSecAccessControlBiometryCurrentSet</code> invalidates the Keychain item when enrollment changes. Same behavior as EC-SEC-02 — key missing on next open. This is by design: a new biometric enrollment could indicate a new person was added to the device. The app must not silently accept the new enrollment without re-authenticating.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SEC-04</strong></td>
+        <td><strong>Device clock is manually set backward (clock rollback attack)</strong></td>
+        <td>SQLite timestamps use Unix epoch milliseconds (wall clock). A backward clock change could cause confusion in auto-lock timeout calculation. The app uses monotonic clock for timeout calculations (where available via React Native's <code>Date.now()</code> polyfill on Hermes which uses system monotonic clock). JWT expiry validation (future) always uses server-provided timestamps, not device clock.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SEC-05</strong></td>
+        <td><strong>Backup created during active period sealing transaction</strong></td>
+        <td>Backup creation checks if the DB is in an active write transaction (WAL mode allows this check). If a transaction is in progress: backup waits up to 10 seconds, then proceeds with PRAGMA wal_checkpoint(PASSIVE) which does not block. The resulting backup captures the DB state as of the last committed transaction before the sealing started. If sealing completes before the backup finishes: the backup captures the sealed state. Either result is consistent.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SEC-06</strong></td>
+        <td><strong>User exports data, then immediately requests deletion</strong></td>
+        <td>Export and deletion are independent operations, each requiring P2 re-auth. Export produces a copy that is now outside Finance Bag's control (on device filesystem or shared to another app). Deletion of in-app data proceeds normally. The exported copy is not recalled — Finance Bag cannot control files shared to other apps. The user is warned of this in the export confirmation dialog.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SEC-07</strong></td>
+        <td><strong>Backup restored from a backup made with a different DB_KEY (e.g., after key rotation)</strong></td>
+        <td>The backup was encrypted with a BACKUP_KEY derived from the DB_KEY at backup-creation time. After key rotation, the old DB_KEY no longer exists in Keystore. The old BACKUP_KEY therefore cannot be re-derived. The backup is unrestorable. The app detects this when AES-GCM decryption fails (wrong key produces authentication failure). Error shown: "This backup was created with a previous encryption key that is no longer available. It cannot be restored."</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SEC-08</strong></td>
+        <td><strong>App is used on a newly purchased device (out of box, no previous data)</strong></td>
+        <td>No finance.db exists. Startup integrity check detects absence of DB file and follows EC-DB-10 (First Launch) flow from SPEC-DB-001. No security event is logged — absence of DB on first launch is expected. The DB key slot is also empty. A fresh DB_KEY is generated and stored in the Keystore. The user proceeds through onboarding.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SEC-09</strong></td>
+        <td><strong>Sync conflict resolution results in loss of an expense the user considers important (future)</strong></td>
+        <td>A Type D conflict (delete wins over update) may cause the user's update to a soft-deleted expense to be discarded. The conflict is logged to audit_log with the full metadata of both conflicting operations. The user can see the conflict in Settings → Sync History → Conflicts. The discarded version is retained in the audit_log for 365 days, providing a read-only trail of what was lost.</td>
+      </tr>
+      <tr>
+        <td><strong>EC-SEC-10</strong></td>
+        <td><strong>User is mid-flow on a sensitive operation (export) when auto-lock timeout expires</strong></td>
+        <td>The auto-lock check fires on AppState background/inactive event, not on a timer while the app is in foreground. A user actively using the app (tapping the export flow) keeps the app in foreground state. The timeout only activates on backgrounding. If the user backgrounds mid-export (e.g., gets a call), the export is paused, the auto-lock fires if sufficient time passes in background, and on return the user must re-auth and restart the export flow.</td>
+      </tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════ §18 ═══ -->
+<section id="s18">
+  <div class="sec-header">
+    <span class="sec-num">18</span>
+    <div>
+      <h2 class="sec-title">Future Security</h2>
+      <p class="sec-sub">Architecture reservations and forward-compatibility slots for the next generation of security capabilities — designed to activate without structural changes to the current model.</p>
+    </div>
+  </div>
+
+  <h3>18.1 Passkeys / WebAuthn</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">Passkey Architecture (Future)</div>
+    <p>Passkeys (FIDO2 WebAuthn resident credentials) will replace the magic link flow for cloud authentication. The user's device generates an asymmetric key pair (P-256 or Ed25519), stores the private key in the Secure Enclave / Android Keystore, and registers the public key with Finance Bag's server.</p>
+    <ul>
+      <li>Local biometric auth (Face ID / fingerprint) unlocks the Secure Enclave key to sign the WebAuthn challenge — same hardware path as the current DB key retrieval.</li>
+      <li>The same biometric challenge that unlocks the database can simultaneously sign the cloud auth challenge. Users experience a single "face unlock" that does both.</li>
+      <li>Passkeys are synced cross-device via iCloud Keychain (iOS) and Google Password Manager (Android), providing built-in account recovery without relying on Finance Bag's servers.</li>
+      <li>Backward compatibility: magic link email remains as passkey fallback on devices that do not support FIDO2 (iOS 15 and older, Android without FIDO2 authenticator).</li>
+    </ul>
+  </div>
+
+  <h3>18.2 Hardware Security Modules (HSM) for Cloud</h3>
+  <p>When Finance Bag's cloud infrastructure is established, encryption keys used for server-side operations (sync payload signing, backup integrity verification keys) should be managed by a cloud HSM (AWS CloudHSM, Google Cloud HSM, or Azure Dedicated HSM) rather than software key stores. HSM provides FIPS 140-2 Level 3 or higher assurance. Key operations occur inside the HSM boundary; key material never leaves the HSM in plaintext. This is a server-side concern only — user data encryption keys always remain on-device.</p>
+
+  <h3>18.3 Certificate Pinning</h3>
+  <p>Before cloud features launch, certificate pinning must be implemented to prevent MITM attacks on the Finance Bag API even if a CA is compromised. Implementation approach:</p>
+  <ul>
+    <li><strong>Pin subject public key (SPKI):</strong> Pin the SHA-256 hash of the server's public key (not the full certificate). This allows certificate rotation without a client app update, as long as the key pair is retained.</li>
+    <li><strong>Backup pins:</strong> Include at least 2 backup pins (for the root CA and an intermediate CA) to prevent an app update being required if the primary pin must be rotated urgently.</li>
+    <li><strong>Pin rotation process:</strong> New pin pushed to app 30 days before old pin expires. Old pin and new pin both active during the overlap window. App update enforced when old pin expires.</li>
+    <li><strong>Bypass for debugging:</strong> Certificate pinning bypass is available in debug builds only (controlled by build flag). Never in production.</li>
+  </ul>
+
+  <h3>18.4 AI Fraud Detection</h3>
+  <p>A future AI-powered anomaly detection layer will analyze behavioral signals (server-side only — no on-device ML model in v1.0) to identify suspicious account activity. Signals considered:</p>
+  <ul>
+    <li>Login location changes (country, timezone)</li>
+    <li>Device change patterns (new device + immediate full export)</li>
+    <li>Bulk data operations (mass expense deletion within minutes of login)</li>
+    <li>Sync payload anomalies (unusual size, unusual entity type distribution)</li>
+    <li>Velocity signals (3+ magic link requests in an hour)</li>
+  </ul>
+  <p>The AI model produces a risk score (0.0–1.0) for each session event. Scores above 0.7 trigger a hold + user verification. Scores above 0.9 trigger an automatic session freeze. All AI decisions are logged and reviewable by the user in an "Account Security" view. No AI decision is irreversible without human confirmation.</p>
+
+  <h3>18.5 Behavioral Authentication</h3>
+  <p>Passive biometric signals (typing rhythm, swipe pattern, hold angle) can supplement or replace active biometric challenges for low-stakes in-app operations. Architecture slot:</p>
+  <ul>
+    <li>A <code>BehavioralAuthProvider</code> interface is reserved in the auth layer. It receives interaction events from the React Native gesture responder and produces a continuous confidence score (0.0–1.0).</li>
+    <li>When confidence drops below a threshold (e.g., 0.6 sustained for 30 seconds), the app re-triggers an active biometric challenge as if the auto-lock had fired.</li>
+    <li>Behavioral auth is always supplementary — it cannot replace biometric hardware for key retrieval (which requires a hardware-verified challenge). It only controls the P1 → P2 escalation timing.</li>
+    <li>All behavioral data is processed on-device in real time. No behavioral signals are transmitted to any server. Feature is off by default; user opts in.</li>
+  </ul>
+
+  <h3>18.6 Secure Cloud Vault</h3>
+  <p>A future Finance Bag premium feature: a zero-knowledge cloud vault where users store financial documents (tax returns, insurance certificates, contracts) with end-to-end encryption. Architecture principles:</p>
+  <ul>
+    <li><strong>Zero-knowledge:</strong> Files are encrypted on-device before upload. The Finance Bag server stores only ciphertext. Server cannot read vault contents even with full database access.</li>
+    <li><strong>Key hierarchy:</strong> Vault encryption key derived from DB_KEY + a vault-specific HKDF derivation. Independent of the backup key derivation path.</li>
+    <li><strong>Sharing:</strong> Selective vault item sharing uses envelope encryption — the item is encrypted with a random content key; the content key is encrypted with the recipient's public key (from their passkey). Only the intended recipient can unwrap the content key.</li>
+    <li><strong>Deduplication without knowledge:</strong> Server-side deduplication uses deterministic encryption (AES-SIV) to identify duplicate uploads without knowing the plaintext. This is opt-in only (deterministic encryption is less secure than probabilistic but enables storage savings).</li>
+  </ul>
+
+  <h3>18.7 Business Rules Summary (SEC Module)</h3>
+  <div class="tw"><table>
+    <thead><tr><th>ID</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td><strong>BR-SEC-01</strong></td><td>All financial data must be encrypted at rest using AES-256 with a hardware-backed key. Unencrypted financial data must never be written to any persistent storage location.</td></tr>
+      <tr><td><strong>BR-SEC-02</strong></td><td>The database encryption key (DB_KEY) must be stored exclusively in the OS hardware-backed keystore (iOS Keychain / Android Keystore). It must never be written to finance.db, search.db, AsyncStorage, MMKV, any file, or any network destination.</td></tr>
+      <tr><td><strong>BR-SEC-03</strong></td><td>The backup encryption key (BACKUP_KEY) must never be stored. It is derived fresh for each backup operation and discarded after use. An attacker with a backup file and no access to the DB_KEY cannot restore the backup.</td></tr>
+      <tr><td><strong>BR-SEC-04</strong></td><td>P2 re-authentication (fresh biometric or PIN challenge within the last 60 seconds) is required before any of the 10 sensitive operations listed in §5.2. This cannot be bypassed by navigating, backgrounding, or reusing a prior P1 session.</td></tr>
+      <tr><td><strong>BR-SEC-05</strong></td><td>The app must apply a blur/brand overlay before the OS captures the App Switcher / Recent Apps screenshot. This must complete in under 16ms (1 animation frame) to be effective.</td></tr>
+      <tr><td><strong>BR-SEC-06</strong></td><td>finance.db and search.db must have <code>NSURLIsExcludedFromBackupKey = true</code> on iOS. On Android, both database files must be stored in internal storage only, never on external storage or SD cards.</td></tr>
+      <tr><td><strong>BR-SEC-07</strong></td><td>No financial data (amounts, names, notes, category labels, ULID identifiers of financial records) may appear in crash reports, analytics payloads, or any data transmitted off-device without explicit user export action + P2 re-authentication.</td></tr>
+      <tr><td><strong>BR-SEC-08</strong></td><td>The audit_log table is append-only. No UPDATE or DELETE statements may be issued against it by any application component. Rows may only be deleted by the scheduled 365-day retention purge job.</td></tr>
+      <tr><td><strong>BR-SEC-09</strong></td><td>All backup files must include an AES-GCM authentication tag covering the full ciphertext. Any backup whose authentication tag verification fails must be rejected entirely. Partial restores from tampered or corrupted backups are prohibited.</td></tr>
+      <tr><td><strong>BR-SEC-10</strong></td><td>PRAGMA integrity_check must be run on every cold app launch. If it returns any error other than "ok", the app must present a recovery screen and must not allow the user to proceed with normal operation on a potentially corrupt database.</td></tr>
+      <tr><td><strong>BR-SEC-11</strong></td><td>Jailbreak/root detection, when it fires, must log a SECURITY_EVENT to audit_log and disable biometric fallback until the next clean detection cycle. The user must be informed of the detected state via a persistent in-app banner.</td></tr>
+      <tr><td><strong>BR-SEC-12</strong></td><td>All consent preferences default to false. Finance Bag must never collect optional data (analytics, crash reports) before the user has explicitly opted in. Consent must be revocable at any time with immediate effect and data purge.</td></tr>
+      <tr><td><strong>BR-SEC-13</strong></td><td>Attachment files must be individually encrypted (AES-256-GCM) before being written to disk. Attachments must never be written to /tmp or any system temporary directory in decrypted form. Decryption occurs in-memory only for the duration of display.</td></tr>
+      <tr><td><strong>BR-SEC-14</strong></td><td>After a DB encryption key rotation, all previously created backup files must be treated as unrestorable and the user must be informed of this immediately. The app must prompt for a new backup to be created.</td></tr>
+      <tr><td><strong>BR-SEC-15</strong></td><td>Cloud sync (future) must encrypt all synced data on-device before transmission. The server must never receive plaintext financial data, plaintext preference values of Private or higher classification, or any decryption key material.</td></tr>
+      <tr><td><strong>BR-SEC-16</strong></td><td>Session tokens (future cloud) must be validated on every use: issuer, audience, expiry, issued-at, and subject claims must all pass. A token with any invalid claim must be rejected and the cloud session invalidated, requiring re-authentication.</td></tr>
+      <tr><td><strong>BR-SEC-17</strong></td><td>Magic link tokens (future cloud) are one-use only. A second use of the same token must return 401 and trigger a security alert email to the account's registered address.</td></tr>
+      <tr><td><strong>BR-SEC-18</strong></td><td>Factory reset (BR-SET-15) must be preceded by a pre-operation backup attempt. If the backup fails, the user must be explicitly warned that their data cannot be recovered after the reset and must confirm again before proceeding.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-sec-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-sec-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
