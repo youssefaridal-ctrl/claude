@@ -1,0 +1,1052 @@
+
+<title>SPEC-DBT-001 — Debt Management & Repayment Planner</title>
+<style>
+  :root {
+    --indigo: #6366F1; --indigo-dim: #4F46E5; --indigo-glow: rgba(99,102,241,.15);
+    --bg: #18181B; --surface: #27272A; --surface-2: #3F3F46;
+    --text: #F4F4F5; --muted: #A1A1AA;
+    --success: #22C55E; --warning: #F59E0B; --danger: #EF4444; --info: #38BDF8;
+    --sidebar-w: 268px;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#F4F4F5; --surface:#FFFFFF; --surface-2:#E4E4E7; --text:#18181B; --muted:#71717A; }
+  }
+  :root[data-theme="dark"]  { --bg:#18181B; --surface:#27272A; --surface-2:#3F3F46; --text:#F4F4F5; --muted:#A1A1AA; }
+  :root[data-theme="light"] { --bg:#F4F4F5; --surface:#FFFFFF; --surface-2:#E4E4E7; --text:#18181B; --muted:#71717A; }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; display: flex; min-height: 100vh; line-height: 1.65; }
+
+  nav#sidebar { position: fixed; top:0; left:0; width:var(--sidebar-w); height:100vh; background:var(--surface); border-right:1px solid var(--surface-2); overflow-y:auto; z-index:100; display:flex; flex-direction:column; }
+  .nav-brand { padding:20px 20px 16px; border-bottom:1px solid var(--surface-2); }
+  .nav-brand .badge { display:inline-block; background:var(--indigo-glow); color:var(--indigo); font-size:10px; font-weight:700; letter-spacing:.08em; padding:2px 8px; border-radius:20px; margin-bottom:6px; text-transform:uppercase; }
+  .nav-brand h1 { font-size:13px; font-weight:700; color:var(--text); line-height:1.3; }
+  .nav-brand p { font-size:11px; color:var(--muted); margin-top:3px; }
+  nav#sidebar ul { list-style:none; padding:10px 0 20px; }
+  nav#sidebar ul li a { display:flex; align-items:center; gap:8px; padding:7px 20px; font-size:12px; color:var(--muted); text-decoration:none; transition:color .15s,background .15s; border-left:2px solid transparent; }
+  nav#sidebar ul li a:hover { color:var(--text); background:var(--indigo-glow); }
+  nav#sidebar ul li a.active { color:var(--indigo); border-left-color:var(--indigo); background:var(--indigo-glow); font-weight:600; }
+  nav#sidebar ul li a .num { font-size:10px; color:var(--surface-2); font-variant-numeric:tabular-nums; min-width:18px; font-weight:600; }
+  nav#sidebar ul li a.active .num { color:var(--indigo); opacity:.7; }
+  .theme-toggle { margin:auto 16px 16px; padding:8px 12px; background:var(--surface-2); border:none; border-radius:8px; color:var(--muted); font-size:12px; cursor:pointer; text-align:center; width:calc(100% - 32px); transition:color .15s; }
+  .theme-toggle:hover { color:var(--text); }
+
+  main { margin-left:var(--sidebar-w); flex:1; padding:48px 52px 80px; max-width:960px; }
+
+  .doc-header { margin-bottom:48px; padding-bottom:32px; border-bottom:1px solid var(--surface-2); }
+  .doc-header .spec-id { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--danger); margin-bottom:16px; }
+  .doc-header .spec-id::before { content:''; display:inline-block; width:8px; height:8px; background:var(--danger); border-radius:50%; }
+  .doc-header h2 { font-size:32px; font-weight:800; line-height:1.15; text-wrap:balance; margin-bottom:12px; }
+  .doc-header p { font-size:15px; color:var(--muted); max-width:640px; line-height:1.7; }
+  .meta-row { display:flex; flex-wrap:wrap; gap:24px; margin-top:24px; }
+  .meta-item { display:flex; flex-direction:column; gap:3px; }
+  .meta-item .label { font-size:10px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); }
+  .meta-item .val { font-size:13px; font-weight:600; color:var(--text); }
+
+  section { margin-bottom:56px; scroll-margin-top:32px; }
+  section h2 { font-size:20px; font-weight:800; color:var(--text); margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid var(--surface-2); display:flex; align-items:center; gap:10px; }
+  section h2 .s-num { font-size:11px; color:var(--danger); font-weight:700; letter-spacing:.05em; background:rgba(239,68,68,.12); padding:2px 8px; border-radius:20px; }
+  h3 { font-size:15px; font-weight:700; color:var(--text); margin:24px 0 10px; }
+  h4 { font-size:13px; font-weight:700; color:var(--muted); margin:18px 0 8px; text-transform:uppercase; letter-spacing:.05em; }
+  p { color:var(--muted); margin-bottom:10px; font-size:14px; }
+  p strong { color:var(--text); }
+  ul, ol { padding-left:20px; margin-bottom:12px; }
+  li { color:var(--muted); font-size:14px; margin-bottom:4px; line-height:1.6; }
+  li strong { color:var(--text); }
+
+  .table-wrap { overflow-x:auto; margin:16px 0; border-radius:10px; border:1px solid var(--surface-2); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  thead th { background:var(--surface); padding:10px 14px; text-align:left; font-size:11px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); border-bottom:1px solid var(--surface-2); }
+  tbody tr { border-bottom:1px solid var(--surface-2); transition:background .1s; }
+  tbody tr:last-child { border-bottom:none; }
+  tbody tr:hover { background:var(--indigo-glow); }
+  tbody td { padding:10px 14px; color:var(--muted); vertical-align:top; }
+  tbody td strong { color:var(--text); }
+
+  .pill { display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px; margin:1px 2px; }
+  .pill-indigo { background:var(--indigo-glow); color:var(--indigo); }
+  .pill-green  { background:rgba(34,197,94,.12); color:var(--success); }
+  .pill-yellow { background:rgba(245,158,11,.12); color:var(--warning); }
+  .pill-red    { background:rgba(239,68,68,.12); color:var(--danger); }
+  .pill-blue   { background:rgba(56,189,248,.12); color:var(--info); }
+  .pill-gray   { background:var(--surface-2); color:var(--muted); }
+
+  .formula { background:var(--surface); border:1px solid var(--surface-2); border-radius:8px; padding:16px 18px; margin:14px 0; font-family:'SF Mono','Fira Code','Cascadia Code',monospace; font-size:13px; color:var(--info); line-height:1.8; white-space:pre; overflow-x:auto; }
+
+  .callout { border-radius:10px; padding:14px 16px; margin:16px 0; font-size:13px; line-height:1.65; display:flex; gap:12px; align-items:flex-start; }
+  .callout-icon { font-size:16px; flex-shrink:0; margin-top:1px; }
+  .callout-body { color:var(--muted); }
+  .callout-body strong { color:var(--text); display:block; margin-bottom:4px; font-size:13px; }
+  .callout-info    { background:rgba(56,189,248,.08); border:1px solid rgba(56,189,248,.2); }
+  .callout-warn    { background:rgba(245,158,11,.08); border:1px solid rgba(245,158,11,.2); }
+  .callout-success { background:rgba(34,197,94,.08);  border:1px solid rgba(34,197,94,.2); }
+  .callout-danger  { background:rgba(239,68,68,.08);  border:1px solid rgba(239,68,68,.2); }
+
+  /* KPI GRID */
+  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:10px; margin:16px 0; }
+  .kpi-card { background:var(--surface); border:1px solid var(--surface-2); border-radius:10px; padding:14px 16px; }
+  .kpi-card .k-val { font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1; margin-bottom:4px; }
+  .kpi-card .k-label { font-size:12px; color:var(--muted); }
+  .kpi-card .k-sub { font-size:11px; color:var(--muted); margin-top:4px; opacity:.7; }
+
+  /* DEBT CARDS */
+  .debt-type-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:10px; margin:14px 0; }
+  .debt-type-card { background:var(--surface); border:1px solid var(--surface-2); border-radius:10px; padding:12px 14px; display:flex; align-items:center; gap:10px; }
+  .debt-type-card .dt-icon { width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; background:rgba(239,68,68,.12); }
+  .debt-type-card .dt-info .dt-name { font-size:13px; font-weight:600; color:var(--text); }
+  .debt-type-card .dt-info .dt-sub { font-size:11px; color:var(--muted); }
+
+  /* STRATEGY CARDS */
+  .strat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; margin:16px 0; }
+  .strat-card { background:var(--surface); border:1px solid var(--surface-2); border-radius:12px; padding:18px; transition:border-color .2s; position:relative; }
+  .strat-card:hover { border-color:var(--danger); }
+  .strat-card .s-badge { position:absolute; top:14px; right:14px; font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; }
+  .strat-card .s-icon { font-size:24px; margin-bottom:10px; }
+  .strat-card .s-name { font-size:14px; font-weight:700; color:var(--text); margin-bottom:6px; }
+  .strat-card .s-desc { font-size:12px; color:var(--muted); line-height:1.6; margin-bottom:10px; }
+  .strat-card .s-row { display:flex; gap:8px; flex-wrap:wrap; }
+  .strat-card .s-tag { font-size:11px; padding:2px 8px; border-radius:20px; background:var(--surface-2); color:var(--muted); }
+
+  /* LIFECYCLE */
+  .lifecycle { display:flex; gap:0; margin:16px 0; position:relative; }
+  .lifecycle::before { content:''; position:absolute; top:20px; left:20px; right:20px; height:2px; background:var(--surface-2); z-index:0; }
+  .lc-step { flex:1; display:flex; flex-direction:column; align-items:center; gap:8px; position:relative; z-index:1; text-align:center; }
+  .lc-dot { width:40px; height:40px; border-radius:50%; background:var(--surface); border:2px solid var(--surface-2); display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .lc-step.active .lc-dot { border-color:var(--danger); background:rgba(239,68,68,.12); }
+  .lc-step.done .lc-dot { border-color:var(--success); background:rgba(34,197,94,.12); }
+  .lc-label { font-size:11px; color:var(--muted); font-weight:600; }
+  .lc-step.active .lc-label { color:var(--danger); }
+  .lc-step.done .lc-label { color:var(--success); }
+
+  /* PROGRESS BARS */
+  .progress-bar-wrap { margin:10px 0; }
+  .progress-bar { height:10px; border-radius:5px; background:var(--surface-2); overflow:hidden; margin-bottom:4px; }
+  .progress-fill { height:100%; border-radius:5px; transition:width .5s; }
+  .progress-label { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); }
+
+  /* SCENARIO COMPARISON */
+  .scenario-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin:16px 0; }
+  .scenario-card { background:var(--surface); border:1px solid var(--surface-2); border-radius:10px; padding:14px; }
+  .scenario-card.highlight { border-color:var(--success); background:rgba(34,197,94,.04); }
+  .scenario-card .sc-title { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px; }
+  .scenario-card .sc-val { font-size:18px; font-weight:800; color:var(--text); font-variant-numeric:tabular-nums; }
+  .scenario-card .sc-sub { font-size:11px; color:var(--muted); margin-top:3px; }
+  .scenario-card.highlight .sc-title { color:var(--success); }
+
+  /* NOTIF TYPES */
+  .notif-list { display:flex; flex-direction:column; gap:8px; margin:14px 0; }
+  .notif-item { background:var(--surface); border:1px solid var(--surface-2); border-radius:8px; padding:12px 14px; display:flex; align-items:flex-start; gap:12px; }
+  .notif-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:5px; }
+  .notif-body .n-title { font-size:13px; font-weight:600; color:var(--text); }
+  .notif-body .n-desc  { font-size:12px; color:var(--muted); margin-top:2px; }
+  .notif-body .n-timing { font-size:11px; color:var(--indigo); margin-top:4px; font-weight:600; }
+
+  /* EDGE CASE */
+  .edge-list { display:flex; flex-direction:column; gap:8px; margin:14px 0; }
+  .edge-item { background:var(--surface); border:1px solid var(--surface-2); border-radius:8px; padding:13px 15px; }
+  .edge-item .e-title { font-size:13px; font-weight:700; color:var(--text); margin-bottom:5px; display:flex; align-items:center; gap:8px; }
+  .edge-item .e-body { font-size:13px; color:var(--muted); line-height:1.6; }
+
+  @media (max-width:768px) {
+    nav#sidebar { display:none; }
+    main { margin-left:0; padding:24px 20px 60px; }
+    .scenario-row { grid-template-columns:1fr; }
+    .lifecycle { flex-wrap:wrap; gap:16px; }
+    .lifecycle::before { display:none; }
+  }
+</style>
+
+<nav id="sidebar">
+  <div class="nav-brand">
+    <div class="badge">Finance Bag</div>
+    <h1>SPEC-DBT-001</h1>
+    <p>Debt Management & Planner</p>
+  </div>
+  <ul>
+    <li><a href="#s1"><span class="num">01</span> Core Philosophy</a></li>
+    <li><a href="#s2"><span class="num">02</span> Debt Data Model</a></li>
+    <li><a href="#s3"><span class="num">03</span> Debt Types</a></li>
+    <li><a href="#s4"><span class="num">04</span> Debt Lifecycle</a></li>
+    <li><a href="#s5"><span class="num">05</span> Debt Dashboard</a></li>
+    <li><a href="#s6"><span class="num">06</span> Repayment Strategies</a></li>
+    <li><a href="#s7"><span class="num">07</span> Planning Engine</a></li>
+    <li><a href="#s8"><span class="num">08</span> Smart Planner</a></li>
+    <li><a href="#s9"><span class="num">09</span> Payment Tracking</a></li>
+    <li><a href="#s10"><span class="num">10</span> Notifications</a></li>
+    <li><a href="#s11"><span class="num">11</span> Progress Visualization</a></li>
+    <li><a href="#s12"><span class="num">12</span> Analytics</a></li>
+    <li><a href="#s13"><span class="num">13</span> Search & Filters</a></li>
+    <li><a href="#s14"><span class="num">14</span> Edge Cases</a></li>
+    <li><a href="#s15"><span class="num">15</span> Automation</a></li>
+    <li><a href="#s16"><span class="num">16</span> Scalability & Business Rules</a></li>
+  </ul>
+  <button class="theme-toggle" onclick="toggleTheme()">Toggle Light / Dark</button>
+</nav>
+
+<main>
+  <div class="doc-header">
+    <div class="spec-id">SPEC-DBT-001 &mdash; Debt Management</div>
+    <h2>Debt Management &amp; Repayment Planner</h2>
+    <p>Complete functional specification for the Debt Management module of Finance Bag. Defines debt types, data model, repayment strategies, planning engine with amortization formulas, payment tracking, analytics, and future scalability — no implementation code.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="label">Document</span><span class="val">SPEC-DBT-001</span></div>
+      <div class="meta-item"><span class="label">Version</span><span class="val">1.0.0</span></div>
+      <div class="meta-item"><span class="label">Status</span><span class="val">Draft — Internal</span></div>
+      <div class="meta-item"><span class="label">Date</span><span class="val">July 2026</span></div>
+      <div class="meta-item"><span class="label">Depends on</span><span class="val">SPEC-SAL-001, SPEC-BUD-001</span></div>
+    </div>
+  </div>
+
+  <!-- §1 PHILOSOPHY -->
+  <section id="s1">
+    <h2><span class="s-num">01</span> Core Philosophy</h2>
+    <p>The Debt Management module is not a passive debt register — it is an active financial coach. Its purpose is to transform the anxiety of debt into a structured, motivating plan with a clear finish line.</p>
+
+    <div class="callout callout-danger">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-body">
+        <strong>Founding Principle</strong>
+        Debt is not a permanent condition — it is a temporary obligation with a calculable end date. The application's job is to make that end date visible, credible, and achievable.
+      </div>
+    </div>
+
+    <h3>Design Tenets</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tenet</th><th>Meaning</th><th>Product Consequence</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Radical Transparency</strong></td><td>Users must see the full cost of their debt — principal, interest, time</td><td>Dashboard shows total interest to be paid, not just monthly payment</td></tr>
+          <tr><td><strong>Motivating Progress</strong></td><td>Small wins matter psychologically</td><td>Visual progress bars, milestone celebrations, "months saved" on extra payments</td></tr>
+          <tr><td><strong>Strategy Flexibility</strong></td><td>No single repayment method works for everyone</td><td>6 strategies supported; comparison view; user chooses</td></tr>
+          <tr><td><strong>Coaching, Not Judging</strong></td><td>Missed payments happen; shame makes it worse</td><td>Missed payment handling is empathetic; focus on recovery, not penalty</td></tr>
+          <tr><td><strong>Budget Integration</strong></td><td>Debt payments are a budget category (DEBT_PAYMENT, see SPEC-BUD-001)</td><td>Monthly payment amounts auto-sync to budget; no double entry</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Integration with the Broader App</h3>
+    <ul>
+      <li><strong>Budget Engine (SPEC-BUD-001):</strong> Each debt's monthly payment appears as a DEBT_PAYMENT category in the budget. Updating a debt's monthly payment auto-updates the budget category.</li>
+      <li><strong>Salary Module (SPEC-SAL-001):</strong> Debt-to-income ratio is calculated using the user's salary figure. The repayment planner factors in salary-day-aligned budget periods.</li>
+      <li><strong>Financial Health Score:</strong> Total debt load and repayment regularity contribute 25 points to the health score defined in SPEC-SAL-001.</li>
+    </ul>
+  </section>
+
+  <!-- §2 DATA MODEL -->
+  <section id="s2">
+    <h2><span class="s-num">02</span> Debt Data Model</h2>
+
+    <h3>Core Schema</h3>
+    <div class="formula">Credit {
+  -- Identity (mandatory)
+  id                UUID (primary key)
+  name              string (1–80 chars)         e.g. "BNP Personal Loan"
+  type              DebtType (enum, required)
+
+  -- Financial details (mandatory)
+  originalAmount    number (centimes, > 0)      Amount borrowed
+  currentBalance    number (centimes, ≥ 0)      Outstanding principal today
+  interestRate      number (0–100, annual %)    Annual percentage rate (APR)
+  monthlyPayment    number (centimes, > 0)      Scheduled monthly payment
+  currency          CurrencyCode (default: MAD)
+
+  -- Schedule (mandatory)
+  startDate         ISO-8601 date               Loan origination date
+  endDate           ISO-8601 date               Scheduled final payment date
+  paymentDueDay     integer (1–28)              Day of month payment is due
+
+  -- Financial details (optional)
+  minimumPayment    number (centimes)           For credit cards; may differ from monthlyPayment
+  interestRateType  'fixed' | 'variable'        default: 'fixed'
+  paymentFrequency  'monthly' | 'bi-weekly' | 'weekly' | 'quarterly'  default: 'monthly'
+  lenderName        string (0–100 chars)        Bank or creditor name
+  accountNumber     string (masked)             Last 4 digits only
+  notes             string (0–500 chars)
+
+  -- Status & behavior flags
+  status            DebtStatus                  ACTIVE | PAUSED | PAID | ARCHIVED
+  isLinkedToBudget  boolean                     Auto-sync payment to budget category
+  budgetCategoryId  UUID | null                 Link to DEBT_PAYMENT budget category
+
+  -- Repayment planning
+  strategyOverride  RepaymentStrategy | null    If null: uses global strategy
+  extraPayment      number (centimes)           User-defined recurring extra monthly payment
+
+  -- Audit
+  createdAt         ISO-8601
+  updatedAt         ISO-8601
+  paidAt            ISO-8601 | null             Set when currentBalance reaches 0
+  deletedAt         ISO-8601 | null             Soft delete
+}
+
+Payment {
+  id                UUID
+  creditId          UUID (FK → Credit)
+  type              PaymentType                 (see §9)
+  scheduledDate     ISO-8601 date
+  paidDate          ISO-8601 date | null
+  scheduledAmount   number (centimes)
+  paidAmount        number (centimes)
+  principalPortion  number (centimes)
+  interestPortion   number (centimes)
+  remainingBalance  number (centimes)           Balance after this payment
+  status            'PENDING' | 'PAID' | 'PARTIAL' | 'MISSED' | 'REVERSED'
+  note              string | null
+  createdAt         ISO-8601
+}</div>
+
+    <h3>Mandatory vs. Optional Fields</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Required?</th><th>Validation</th></tr></thead>
+        <tbody>
+          <tr><td>name</td><td><span class="pill pill-red">Required</span></td><td>1–80 chars, no duplicates under same type</td></tr>
+          <tr><td>type</td><td><span class="pill pill-red">Required</span></td><td>Must be a valid DebtType enum value</td></tr>
+          <tr><td>originalAmount</td><td><span class="pill pill-red">Required</span></td><td>&gt; 0; centimes</td></tr>
+          <tr><td>currentBalance</td><td><span class="pill pill-red">Required</span></td><td>≥ 0; ≤ originalAmount (warn if &gt;)</td></tr>
+          <tr><td>interestRate</td><td><span class="pill pill-red">Required</span></td><td>0–100; 0 is valid (family loan)</td></tr>
+          <tr><td>monthlyPayment</td><td><span class="pill pill-red">Required</span></td><td>&gt; 0; warn if &lt; computed minimum</td></tr>
+          <tr><td>startDate</td><td><span class="pill pill-red">Required</span></td><td>Must be ≤ today</td></tr>
+          <tr><td>endDate</td><td><span class="pill pill-red">Required</span></td><td>Must be &gt; startDate</td></tr>
+          <tr><td>paymentDueDay</td><td><span class="pill pill-red">Required</span></td><td>Integer 1–28</td></tr>
+          <tr><td>minimumPayment</td><td><span class="pill pill-gray">Optional</span></td><td>Used for credit cards; defaults to monthlyPayment</td></tr>
+          <tr><td>interestRateType</td><td><span class="pill pill-gray">Optional</span></td><td>Defaults to 'fixed'</td></tr>
+          <tr><td>paymentFrequency</td><td><span class="pill pill-gray">Optional</span></td><td>Defaults to 'monthly'</td></tr>
+          <tr><td>lenderName</td><td><span class="pill pill-gray">Optional</span></td><td>Free text</td></tr>
+          <tr><td>accountNumber</td><td><span class="pill pill-gray">Optional</span></td><td>Stored masked (last 4 only)</td></tr>
+          <tr><td>notes</td><td><span class="pill pill-gray">Optional</span></td><td>0–500 chars</td></tr>
+          <tr><td>currency</td><td><span class="pill pill-gray">Optional</span></td><td>Defaults to user's currency (MAD)</td></tr>
+          <tr><td>extraPayment</td><td><span class="pill pill-gray">Optional</span></td><td>≥ 0; defaults to 0</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- §3 DEBT TYPES -->
+  <section id="s3">
+    <h2><span class="s-num">03</span> Debt Types</h2>
+
+    <div class="debt-type-grid">
+      <div class="debt-type-card"><div class="dt-icon">🏦</div><div class="dt-info"><div class="dt-name">Personal Loan</div><div class="dt-sub">Fixed term, fixed rate</div></div></div>
+      <div class="debt-type-card"><div class="dt-icon">🏠</div><div class="dt-info"><div class="dt-name">Mortgage</div><div class="dt-sub">Long-term property loan</div></div></div>
+      <div class="debt-type-card"><div class="dt-icon">🚗</div><div class="dt-info"><div class="dt-name">Car Loan</div><div class="dt-sub">Vehicle financing</div></div></div>
+      <div class="debt-type-card"><div class="dt-icon">💳</div><div class="dt-info"><div class="dt-name">Credit Card</div><div class="dt-sub">Revolving credit</div></div></div>
+      <div class="debt-type-card"><div class="dt-icon">🎓</div><div class="dt-info"><div class="dt-name">Student Loan</div><div class="dt-sub">Education financing</div></div></div>
+      <div class="debt-type-card"><div class="dt-icon">👨‍👩‍👧</div><div class="dt-info"><div class="dt-name">Family Loan</div><div class="dt-sub">Informal, often 0% rate</div></div></div>
+      <div class="debt-type-card"><div class="dt-icon">💼</div><div class="dt-info"><div class="dt-name">Business Loan</div><div class="dt-sub">Commercial financing</div></div></div>
+      <div class="debt-type-card"><div class="dt-icon">🛒</div><div class="dt-info"><div class="dt-name">Buy Now Pay Later</div><div class="dt-sub">Short-term installments</div></div></div>
+      <div class="debt-type-card"><div class="dt-icon">📋</div><div class="dt-info"><div class="dt-name">Other</div><div class="dt-sub">User-defined type</div></div></div>
+    </div>
+
+    <h3>Type-Specific Behaviors</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Rate Type</th><th>Min Payment Logic</th><th>Special Behavior</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Personal Loan</strong></td><td>Fixed</td><td>Computed amortization</td><td>Standard amortization schedule</td></tr>
+          <tr><td><strong>Mortgage</strong></td><td>Fixed or Variable</td><td>Computed amortization</td><td>Very long term (120–360 months); insurance field (future)</td></tr>
+          <tr><td><strong>Car Loan</strong></td><td>Fixed</td><td>Computed amortization</td><td>Residual value support (future)</td></tr>
+          <tr><td><strong>Credit Card</strong></td><td>Variable</td><td>minimumPayment (% of balance or fixed floor)</td><td>Revolving balance; minimum payment ≠ full payoff; no endDate required</td></tr>
+          <tr><td><strong>Student Loan</strong></td><td>Fixed or Variable</td><td>Computed amortization</td><td>Grace period support; income-based repayment (future)</td></tr>
+          <tr><td><strong>Family Loan</strong></td><td>0% common</td><td>User-defined</td><td>No endDate required; informal schedule</td></tr>
+          <tr><td><strong>Business Loan</strong></td><td>Fixed or Variable</td><td>Computed amortization</td><td>Tax deductibility flag (future v2.0)</td></tr>
+          <tr><td><strong>BNPL</strong></td><td>0% or fixed</td><td>Fixed installment</td><td>Short term (3–24 months); often 0% if on time</td></tr>
+          <tr><td><strong>Other</strong></td><td>Any</td><td>User-defined</td><td>Fully manual; no auto-calculations unless rate + balance provided</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">🔌</div>
+      <div class="callout-body">
+        <strong>Extensibility</strong>
+        The <code>type</code> field is an enum but the engine processes all types through the same amortization logic. New types are addable without changing the calculation engine — only the UI labels, defaults, and validation hints change.
+      </div>
+    </div>
+  </section>
+
+  <!-- §4 LIFECYCLE -->
+  <section id="s4">
+    <h2><span class="s-num">04</span> Debt Lifecycle</h2>
+
+    <div class="lifecycle">
+      <div class="lc-step active"><div class="lc-dot">📝</div><div class="lc-label">Created</div></div>
+      <div class="lc-step active"><div class="lc-dot">🔴</div><div class="lc-label">Active</div></div>
+      <div class="lc-step"><div class="lc-dot">⏸️</div><div class="lc-label">Paused</div></div>
+      <div class="lc-step done"><div class="lc-dot">✅</div><div class="lc-label">Paid Off</div></div>
+      <div class="lc-step"><div class="lc-dot">📦</div><div class="lc-label">Archived</div></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Status</th><th>Description</th><th>Dashboard?</th><th>Budget Sync?</th><th>Transitions to</th></tr></thead>
+        <tbody>
+          <tr><td><strong>ACTIVE</strong></td><td>Debt is being actively tracked and repaid</td><td>Yes — primary view</td><td>Yes</td><td>PAUSED, PAID, ARCHIVED</td></tr>
+          <tr><td><strong>PAUSED</strong></td><td>Repayments temporarily halted (e.g. forbearance, deferral)</td><td>Yes — dimmed</td><td>No (payment amount → 0 in budget)</td><td>ACTIVE, ARCHIVED</td></tr>
+          <tr><td><strong>PAID</strong></td><td>currentBalance = 0; all payments complete</td><td>Celebration card; moves to history</td><td>No (auto-removes budget category)</td><td>ARCHIVED (after 30 days)</td></tr>
+          <tr><td><strong>ARCHIVED</strong></td><td>Manually archived; debt is inactive</td><td>No (accessible via history)</td><td>No</td><td>ACTIVE (restore)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>PAID Transition</h3>
+    <p>When <code>currentBalance</code> reaches 0 (via payment entry or manual update), the app:</p>
+    <ol>
+      <li>Sets <code>status = PAID</code> and <code>paidAt = today</code>.</li>
+      <li>Triggers a milestone celebration notification: "🎉 You paid off [name]! You saved X MAD in interest."</li>
+      <li>Removes the linked budget category for the next period.</li>
+      <li>Adds a "Debt-Free" entry to the financial history timeline.</li>
+      <li>Recalculates the Financial Health Score (debt component improves).</li>
+      <li>After 30 days in PAID status, prompts user to archive.</li>
+    </ol>
+  </section>
+
+  <!-- §5 DASHBOARD -->
+  <section id="s5">
+    <h2><span class="s-num">05</span> Debt Dashboard</h2>
+    <p>The dashboard provides a real-time overview of the user's complete debt picture. It is the first screen in the Debt module and updates instantly on any data change.</p>
+
+    <h3>Primary KPIs</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="k-val" style="color:var(--danger)">127,400 MAD</div><div class="k-label">Total Outstanding Debt</div><div class="k-sub">Across all active debts</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--warning)">3,850 MAD</div><div class="k-label">Total Monthly Payments</div><div class="k-sub">Sum of all scheduled</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--indigo)">4</div><div class="k-label">Active Debts</div><div class="k-sub">1 paid this year</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--warning)">8.4%</div><div class="k-label">Avg. Interest Rate</div><div class="k-sub">Weighted by balance</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--danger)">32%</div><div class="k-label">Debt-to-Income Ratio</div><div class="k-sub">Recommended: &lt;35%</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--info)">Aug 2029</div><div class="k-label">Estimated Payoff Date</div><div class="k-sub">Using current strategy</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--danger)">28,200 MAD</div><div class="k-label">Total Interest Remaining</div><div class="k-sub">If paid as scheduled</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--success)">61%</div><div class="k-label">Overall Paid Off</div><div class="k-sub">vs. original amounts</div></div>
+    </div>
+
+    <h3>KPI Definitions & Formulas</h3>
+    <div class="formula">totalOutstandingDebt    = Σ(active credits, currentBalance)
+
+totalMonthlyPayments    = Σ(active credits, monthlyPayment + extraPayment)
+
+weightedAverageRate     = Σ(credit.currentBalance × credit.interestRate)
+                          ÷ Σ(credit.currentBalance)
+
+debtToIncomeRatio (DTI) = totalMonthlyPayments / (monthlyIncome) × 100
+  -- monthlyIncome from SPEC-SAL-001 salary module
+  -- DTI thresholds:
+  --   Green:   DTI < 20%
+  --   Yellow:  20% ≤ DTI < 36%
+  --   Orange:  36% ≤ DTI < 50%
+  --   Red:     DTI ≥ 50%
+
+estimatedPayoffDate     = today + MAX(months to payoff per credit, using active strategy)
+
+totalInterestRemaining  = Σ(credit: totalAmountDue(credit) - credit.currentBalance)
+  -- totalAmountDue computed via amortization (§7)
+
+overallPaidOff %        = 1 - (totalOutstandingDebt / Σ(originalAmount)) × 100</div>
+
+    <h3>Dashboard Sections</h3>
+    <ul>
+      <li><strong>KPI Row:</strong> 8 metric cards, scrollable horizontally on mobile.</li>
+      <li><strong>Active Debts List:</strong> Each debt shown with name, remaining balance, progress bar (% paid off), next payment due, and monthly payment amount. Ordered by active strategy priority.</li>
+      <li><strong>Monthly Payment Calendar:</strong> Mini calendar showing payment due dates this month; color-coded by status (upcoming / due today / overdue / paid).</li>
+      <li><strong>Repayment Progress Chart:</strong> Area chart showing total debt balance projection over time under the current strategy.</li>
+      <li><strong>Quick Actions:</strong> Record Payment, Add New Debt, Switch Strategy, Simulate Extra Payment.</li>
+    </ul>
+
+    <div class="callout callout-warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>DTI Alert Banner</strong>
+        When DTI ≥ 36%, a non-dismissable banner appears at the top of the dashboard: "Your debt payments represent X% of your income. Consider a Debt Reduction budget template (see Budget module)."
+      </div>
+    </div>
+  </section>
+
+  <!-- §6 STRATEGIES -->
+  <section id="s6">
+    <h2><span class="s-num">06</span> Repayment Strategies</h2>
+    <p>The app supports 6 repayment strategies. The user selects one as their global strategy, which determines the priority order of debt repayment and drives all projections. Individual debts can override the global strategy.</p>
+
+    <div class="strat-grid">
+      <div class="strat-card">
+        <span class="s-badge pill-green pill">❤️ Motivating</span>
+        <div class="s-icon">⛄</div>
+        <div class="s-name">Debt Snowball</div>
+        <div class="s-desc">Pay minimums on all debts. Apply every extra dirham to the <strong>smallest balance</strong> first. Once paid, roll that payment to the next smallest.</div>
+        <div class="s-row">
+          <span class="s-tag">Quick wins</span>
+          <span class="s-tag">Psychological boost</span>
+          <span class="s-tag">Higher total interest</span>
+        </div>
+      </div>
+      <div class="strat-card">
+        <span class="s-badge pill-blue pill">💰 Optimal</span>
+        <div class="s-icon">🏔️</div>
+        <div class="s-name">Debt Avalanche</div>
+        <div class="s-desc">Pay minimums on all debts. Apply every extra dirham to the <strong>highest interest rate</strong> first. Mathematically minimizes total interest paid.</div>
+        <div class="s-row">
+          <span class="s-tag">Saves most money</span>
+          <span class="s-tag">Slower first payoff</span>
+          <span class="s-tag">Discipline required</span>
+        </div>
+      </div>
+      <div class="strat-card">
+        <div class="s-icon">💸</div>
+        <div class="s-name">Highest Payment First</div>
+        <div class="s-desc">Target the debt consuming the <strong>largest monthly payment</strong> first. Frees up maximum monthly cash flow soonest.</div>
+        <div class="s-row">
+          <span class="s-tag">Cash flow focus</span>
+          <span class="s-tag">Budget relief</span>
+          <span class="s-tag">Mid-range interest cost</span>
+        </div>
+      </div>
+      <div class="strat-card">
+        <div class="s-icon">📅</div>
+        <div class="s-name">Nearest Due Date First</div>
+        <div class="s-desc">Target the debt with the <strong>earliest end date</strong> first. Eliminates obligations on schedule, preserving credit standing.</div>
+        <div class="s-row">
+          <span class="s-tag">Credit score focus</span>
+          <span class="s-tag">Contractual alignment</span>
+        </div>
+      </div>
+      <div class="strat-card">
+        <div class="s-icon">📈</div>
+        <div class="s-name">Highest Interest First</div>
+        <div class="s-desc">Identical to Avalanche — targets the <strong>most expensive debt</strong> by rate. Presented separately as a standalone named strategy for clarity.</div>
+        <div class="s-row">
+          <span class="s-tag">Same as Avalanche</span>
+          <span class="s-tag">Rate-sorted priority</span>
+        </div>
+      </div>
+      <div class="strat-card">
+        <div class="s-icon">✏️</div>
+        <div class="s-name">Custom Strategy</div>
+        <div class="s-desc">User drags and drops debts into their preferred repayment order. Full manual control.</div>
+        <div class="s-row">
+          <span class="s-tag">Full control</span>
+          <span class="s-tag">User-defined priority</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>Strategy Comparison Table</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Strategy</th><th>Priority Criterion</th><th>Total Interest</th><th>Speed to First Payoff</th><th>Best For</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Snowball</strong></td><td>Lowest balance first</td><td>Highest</td><td>Fastest</td><td>Users who need motivation and quick wins</td></tr>
+          <tr><td><strong>Avalanche</strong></td><td>Highest rate first</td><td>Lowest</td><td>Slower</td><td>Users focused on saving maximum interest</td></tr>
+          <tr><td><strong>Highest Payment</strong></td><td>Largest monthly payment first</td><td>Medium</td><td>Medium</td><td>Users wanting to free up monthly cash flow</td></tr>
+          <tr><td><strong>Nearest Due Date</strong></td><td>Earliest end date first</td><td>Medium</td><td>Medium</td><td>Users with contractual obligations to honor</td></tr>
+          <tr><td><strong>Highest Interest</strong></td><td>Highest APR first</td><td>Lowest (= Avalanche)</td><td>Slower</td><td>Same as Avalanche — rate-sorted view</td></tr>
+          <tr><td><strong>Custom</strong></td><td>User-defined</td><td>Variable</td><td>Variable</td><td>Users with specific, non-standard priorities</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Strategy Recommendation Logic</h3>
+    <p>The app recommends a strategy based on the user's profile:</p>
+    <ul>
+      <li><strong>Recommend Snowball</strong> if: user has 3+ debts AND the smallest balance debt will be paid off within 6 months at current payments.</li>
+      <li><strong>Recommend Avalanche</strong> if: interest rate spread &gt;5% between debts (highest vs. lowest rate).</li>
+      <li><strong>Recommend Highest Payment</strong> if: DTI &gt;40% and user wants to reduce monthly obligations quickly.</li>
+      <li><strong>Show comparison view</strong> if: no clear winner — display "Strategy Comparison" with estimated savings for each approach.</li>
+    </ul>
+  </section>
+
+  <!-- §7 PLANNING ENGINE -->
+  <section id="s7">
+    <h2><span class="s-num">07</span> Planning Engine & Formulas</h2>
+    <p>The Planning Engine computes amortization schedules, payoff projections, and interest calculations. All computations are performed in centimes (integer arithmetic) and converted to display currency only at the presentation layer.</p>
+
+    <h3>Standard Amortization</h3>
+    <div class="formula">-- Monthly Payment (fixed-rate amortizing loan)
+P = currentBalance
+r = annualInterestRate / 100 / 12     (monthly rate)
+n = remainingMonths
+
+If r = 0 (interest-free):
+  monthlyPayment = P / n
+
+If r > 0:
+  monthlyPayment = P × [r × (1 + r)^n] / [(1 + r)^n - 1]
+
+-- Per-period interest and principal split:
+interestPortion(payment_k)   = remainingBalance(k-1) × r
+principalPortion(payment_k)  = monthlyPayment - interestPortion(payment_k)
+remainingBalance(k)          = remainingBalance(k-1) - principalPortion(payment_k)</div>
+
+    <h3>Months to Payoff (with extra payment)</h3>
+    <div class="formula">totalMonthly = monthlyPayment + extraPayment
+
+If r = 0:
+  monthsToPayoff = CEIL(currentBalance / totalMonthly)
+
+If r > 0:
+  monthsToPayoff = -ln(1 - (currentBalance × r) / totalMonthly) / ln(1 + r)
+  -- Result rounded up to nearest integer (CEIL)
+  -- Guard: if totalMonthly ≤ currentBalance × r → impossible (interest accumulates faster than payments)
+  --        Show warning: "Your payment does not cover monthly interest. Increase by X MAD."</div>
+
+    <h3>Total Interest Cost</h3>
+    <div class="formula">totalInterestPaid = (monthlyPayment × monthsToPayoff) - currentBalance
+
+interestSaved(extraPayment) = totalInterestPaid(0 extra) - totalInterestPaid(extraPayment)
+
+timeSaved(extraPayment) = monthsToPayoff(0 extra) - monthsToPayoff(extraPayment)  -- months</div>
+
+    <h3>Debt-to-Income Ratio Thresholds</h3>
+    <div class="formula">DTI = totalMonthlyDebtPayments / monthlyGrossIncome × 100
+
+DTI < 20%   → 🟢 Excellent — healthy debt load
+20% ≤ DTI < 36%  → 🟡 Acceptable — monitor
+36% ≤ DTI < 50%  → 🟠 Concerning — reduce debt
+DTI ≥ 50%        → 🔴 Critical — debt restructuring recommended</div>
+
+    <h3>Strategy Payoff Sequencing Algorithm</h3>
+    <div class="formula">Inputs:
+  debts[]     = all active debts (ordered by strategy priority)
+  budget      = totalMonthlyPayments (sum of all minimums + extra budget)
+  extraBudget = budget - Σ(minimumPayments)   (available to accelerate)
+
+Algorithm (monthly loop):
+  1. Apply minimumPayment to each debt → reduces each balance
+  2. Apply extraBudget entirely to debts[0] (highest priority)
+  3. If debts[0] is now paid:
+     a. Mark debts[0] as PAID
+     b. Roll debts[0].monthlyPayment + debts[0].extraBudget → extraBudget
+     c. Remove debts[0] from queue
+     d. Repeat from step 1 (snowball effect)
+  4. Advance month counter
+  5. Repeat until debts[] is empty
+
+Output: { payoffSchedule[], totalMonths, totalInterestPaid, payoffDate }</div>
+  </section>
+
+  <!-- §8 SMART PLANNER -->
+  <section id="s8">
+    <h2><span class="s-num">08</span> Smart Repayment Planner</h2>
+    <p>The Smart Planner is an interactive simulation tool that lets users explore "what if" scenarios. Every change recalculates projections in real time (&lt;100ms).</p>
+
+    <h3>Simulation Types</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Simulation</th><th>Input</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Extra Monthly Payment</strong></td><td>User enters X MAD extra per month</td><td>New payoff date, months saved, interest saved, new monthly total</td></tr>
+          <tr><td><strong>One-Time Lump Sum</strong></td><td>User enters X MAD applied to a specific debt today</td><td>New balance, new payoff date, interest saved, which debt it targets</td></tr>
+          <tr><td><strong>Strategy Switch</strong></td><td>User selects a different strategy</td><td>Side-by-side comparison: current vs. proposed payoff date, total interest</td></tr>
+          <tr><td><strong>Interest Rate Change</strong></td><td>User enters a new rate (e.g. after refinancing)</td><td>New amortization, new payment, new payoff date</td></tr>
+          <tr><td><strong>Debt Consolidation</strong></td><td>User merges selected debts into one with new rate + term</td><td>Monthly payment change, total interest comparison, break-even month</td></tr>
+          <tr><td><strong>Payoff Date Target</strong></td><td>User sets a target payoff date</td><td>Required extra monthly payment to hit that date</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Scenario Comparison View</h3>
+    <p>The planner shows up to 3 scenarios side by side:</p>
+    <div class="scenario-row">
+      <div class="scenario-card">
+        <div class="sc-title">Current Plan</div>
+        <div class="sc-val">Aug 2029</div><div class="sc-sub">Payoff date</div>
+        <div class="sc-val" style="margin-top:10px">28,200 MAD</div><div class="sc-sub">Total interest</div>
+        <div class="sc-val" style="margin-top:10px">3,850 MAD</div><div class="sc-sub">Monthly payment</div>
+      </div>
+      <div class="scenario-card highlight">
+        <div class="sc-title">+500 MAD/month</div>
+        <div class="sc-val">Feb 2028</div><div class="sc-sub">Payoff date — 18 months saved</div>
+        <div class="sc-val" style="margin-top:10px;color:var(--success)">19,800 MAD</div><div class="sc-sub">Total interest — saves 8,400 MAD</div>
+        <div class="sc-val" style="margin-top:10px">4,350 MAD</div><div class="sc-sub">Monthly payment</div>
+      </div>
+      <div class="scenario-card">
+        <div class="sc-title">Switch to Avalanche</div>
+        <div class="sc-val">May 2029</div><div class="sc-sub">Payoff date — 3 months saved</div>
+        <div class="sc-val" style="margin-top:10px;color:var(--success)">25,100 MAD</div><div class="sc-sub">Total interest — saves 3,100 MAD</div>
+        <div class="sc-val" style="margin-top:10px">3,850 MAD</div><div class="sc-sub">Monthly payment (unchanged)</div>
+      </div>
+    </div>
+
+    <h3>Repayment Timeline Chart</h3>
+    <p>A stacked area or line chart showing the projected balance of each active debt over time. Features:</p>
+    <ul>
+      <li>Each debt rendered as a separate colored area.</li>
+      <li>X-axis: months from today to final payoff date.</li>
+      <li>Y-axis: total remaining balance (MAD).</li>
+      <li>Payoff milestones marked with vertical lines and labels: "Car Loan paid off — Mar 2027."</li>
+      <li>Scenario overlay: tap a scenario to overlay the projected curve on the current plan.</li>
+      <li>Pinch to zoom on the timeline for detail.</li>
+    </ul>
+  </section>
+
+  <!-- §9 PAYMENT TRACKING -->
+  <section id="s9">
+    <h2><span class="s-num">09</span> Payment Tracking</h2>
+    <p>Every payment event — scheduled or actual — is recorded in the Payment ledger. This provides a complete, auditable history of each debt's repayment.</p>
+
+    <h3>Payment Types</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Definition</th><th>Effect on Balance</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td><strong>SCHEDULED</strong></td><td>Auto-generated entry for each upcoming due date</td><td>None until confirmed</td><td>PENDING</td></tr>
+          <tr><td><strong>REGULAR</strong></td><td>Standard monthly payment confirmed by user</td><td>Reduces by (payment - interest)</td><td>PAID</td></tr>
+          <tr><td><strong>EXTRA</strong></td><td>Payment above the scheduled amount</td><td>Applied 100% to principal</td><td>PAID</td></tr>
+          <tr><td><strong>PARTIAL</strong></td><td>User paid less than scheduled amount</td><td>Partial principal reduction; remaining interest accrues</td><td>PARTIAL</td></tr>
+          <tr><td><strong>EARLY</strong></td><td>Payment made before due date</td><td>Same as REGULAR; may save interest (daily accrual)</td><td>PAID</td></tr>
+          <tr><td><strong>LUMP_SUM</strong></td><td>One-time large extra payment (e.g. bonus, windfall)</td><td>Applied 100% to principal; recalculates amortization</td><td>PAID</td></tr>
+          <tr><td><strong>MISSED</strong></td><td>Payment due date passed without any payment</td><td>Balance unchanged; interest continues to accrue</td><td>MISSED</td></tr>
+          <tr><td><strong>REVERSED</strong></td><td>A previously recorded payment is cancelled</td><td>Balance restored to pre-payment value</td><td>REVERSED</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Recording a Payment</h3>
+    <ol>
+      <li>User opens a debt and taps "Record Payment."</li>
+      <li>App pre-fills: scheduled amount, due date, standard split (interest/principal).</li>
+      <li>User confirms amount (or edits for partial/extra payment).</li>
+      <li>App computes: principalPortion = paidAmount - interestPortion; new remainingBalance.</li>
+      <li>Payment entry created; <code>currentBalance</code> updated on the Credit record.</li>
+      <li>If LUMP_SUM: amortization schedule is recalculated (new monthly payment or new term, user chooses).</li>
+      <li>Budget module notified: the DEBT_PAYMENT category marks this month's payment as "spent."</li>
+    </ol>
+
+    <h3>Payment History View</h3>
+    <ul>
+      <li>Chronological list, newest first.</li>
+      <li>Each entry shows: date, amount, principal portion, interest portion, remaining balance.</li>
+      <li>Color-coded status: green (PAID), orange (PARTIAL), red (MISSED), gray (REVERSED).</li>
+      <li>Running balance column (shows balance after each payment).</li>
+      <li>Cumulative interest paid to date shown at top of history.</li>
+      <li>Export to CSV (v1.0), PDF (v2.0).</li>
+    </ul>
+  </section>
+
+  <!-- §10 NOTIFICATIONS -->
+  <section id="s10">
+    <h2><span class="s-num">10</span> Notifications & Reminders</h2>
+    <p>Notifications are proactive, timely, and non-intrusive. Every notification has a clear action attached — the user is never left wondering what to do.</p>
+
+    <div class="notif-list">
+      <div class="notif-item">
+        <div class="notif-dot" style="background:var(--warning)"></div>
+        <div class="notif-body">
+          <div class="n-title">Upcoming Payment Reminder</div>
+          <div class="n-desc">"Your BNP Personal Loan payment of 2,200 MAD is due in 3 days (15 July). Tap to record payment."</div>
+          <div class="n-timing">Fires: 7 days before due + 3 days before due</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="notif-dot" style="background:var(--warning)"></div>
+        <div class="notif-body">
+          <div class="n-title">Due Today Reminder</div>
+          <div class="n-desc">"Today is the due date for your Car Loan (1,500 MAD). Have you made your payment?"</div>
+          <div class="n-timing">Fires: 9:00 AM on payment due date</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="notif-dot" style="background:var(--danger)"></div>
+        <div class="notif-body">
+          <div class="n-title">Missed Payment Alert</div>
+          <div class="n-desc">"Your Car Loan payment of 1,500 MAD is now 1 day overdue. Recording it now avoids late charges."</div>
+          <div class="n-timing">Fires: 1 day after due date (if no payment recorded). Repeats at +3, +7 days</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="notif-dot" style="background:var(--success)"></div>
+        <div class="notif-body">
+          <div class="n-title">Debt Paid Off! 🎉</div>
+          <div class="n-desc">"Congratulations! You've paid off your BMCE Credit Card. You saved 3,200 MAD in interest compared to minimum payments."</div>
+          <div class="n-timing">Fires: immediately when currentBalance reaches 0</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="notif-dot" style="background:var(--indigo)"></div>
+        <div class="notif-body">
+          <div class="n-title">Repayment Milestone</div>
+          <div class="n-desc">"You've paid off 50% of your Personal Loan! Only 63,700 MAD remaining."</div>
+          <div class="n-timing">Fires at: 25%, 50%, 75%, 90%, 100% of each debt paid off</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="notif-dot" style="background:var(--info)"></div>
+        <div class="notif-body">
+          <div class="n-title">Monthly Debt Summary</div>
+          <div class="n-desc">"This month you paid 3,850 MAD across 4 debts, reducing your total debt by 2,900 MAD. You're on track to be debt-free in Aug 2029."</div>
+          <div class="n-timing">Fires: last day of each salary period</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="notif-dot" style="background:var(--warning)"></div>
+        <div class="notif-body">
+          <div class="n-title">Extra Payment Opportunity</div>
+          <div class="n-desc">"You have 800 MAD unassigned in your budget this month. Applying it to your Credit Card would save 4 months of payments."</div>
+          <div class="n-timing">Fires: mid-month if budget shows unassigned balance + active debts</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Notification Settings</h3>
+    <p>All notification types are individually toggle-able in Settings. The user can also configure lead times (e.g., reminder 5 days before instead of 7) and quiet hours (no push notifications between 10 PM – 8 AM).</p>
+  </section>
+
+  <!-- §11 PROGRESS VISUALIZATION -->
+  <section id="s11">
+    <h2><span class="s-num">11</span> Progress Visualization</h2>
+
+    <h3>Per-Debt Progress</h3>
+    <p>Each active debt in the list shows:</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-label"><span>🏠 Mortgage</span><span>18% paid — 209,200 MAD remaining</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:18%;background:#6366F1"></div></div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-label"><span>💳 Credit Card</span><span>61% paid — 8,100 MAD remaining</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:61%;background:#EF4444"></div></div>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-label"><span>🚗 Car Loan</span><span>74% paid — 15,900 MAD remaining</span></div>
+      <div class="progress-bar"><div class="progress-fill" style="width:74%;background:#F59E0B"></div></div>
+    </div>
+
+    <h3>Visual Elements</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Visual</th><th>What It Shows</th><th>Location</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Balance Progress Bar</strong></td><td>% of original balance paid off</td><td>Debt list row</td></tr>
+          <tr><td><strong>Payoff Countdown</strong></td><td>"X months to payoff" with circular ring</td><td>Debt detail screen</td></tr>
+          <tr><td><strong>Total Debt Trend</strong></td><td>Line chart of total outstanding debt over time</td><td>Dashboard</td></tr>
+          <tr><td><strong>Amortization Chart</strong></td><td>Stacked bar: principal vs. interest per month</td><td>Debt detail → Planning tab</td></tr>
+          <tr><td><strong>Milestone Markers</strong></td><td>Checkpoints at 25/50/75/90/100% paid</td><td>Debt detail progress bar</td></tr>
+          <tr><td><strong>Interest Saved Counter</strong></td><td>Running total of interest saved by extra payments</td><td>Dashboard KPI</td></tr>
+          <tr><td><strong>Debt-Free Ring</strong></td><td>Circular progress of overall % paid off across all debts</td><td>Dashboard hero</td></tr>
+          <tr><td><strong>Calendar Heat Map</strong></td><td>Payment history — green = paid, red = missed</td><td>Payment History tab</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-success">
+      <div class="callout-icon">🎯</div>
+      <div class="callout-body">
+        <strong>Debt-Free Date Card</strong>
+        A dedicated card shows "Debt-Free in X months — [month/year]" prominently on the dashboard. If the user adds an extra payment in the planner, this card animates to the new (earlier) date, giving immediate emotional reward.
+      </div>
+    </div>
+  </section>
+
+  <!-- §12 ANALYTICS -->
+  <section id="s12">
+    <h2><span class="s-num">12</span> Analytics</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Report</th><th>Description</th><th>Time Range</th><th>Visualization</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Debt Distribution</strong></td><td>Breakdown of outstanding balance by debt type</td><td>Current</td><td>Donut chart</td></tr>
+          <tr><td><strong>Interest Distribution</strong></td><td>How much total interest each debt will generate</td><td>Projection</td><td>Stacked bar</td></tr>
+          <tr><td><strong>Monthly Payment Trend</strong></td><td>Total monthly payments over time as debts are paid off</td><td>12 months</td><td>Line chart</td></tr>
+          <tr><td><strong>Debt Balance Evolution</strong></td><td>Historical total debt balance per month</td><td>All history</td><td>Area chart</td></tr>
+          <tr><td><strong>Repayment Performance</strong></td><td>Scheduled vs. actual payments per month</td><td>6–12 months</td><td>Grouped bar</td></tr>
+          <tr><td><strong>Interest Saved Over Time</strong></td><td>Cumulative interest saved through extra payments</td><td>All history</td><td>Area chart</td></tr>
+          <tr><td><strong>Debt Reduction Rate</strong></td><td>Average monthly principal reduction (MAD/month)</td><td>3, 6, 12 months</td><td>Trend line + stat</td></tr>
+          <tr><td><strong>DTI Trend</strong></td><td>Debt-to-income ratio over time (shows improving trajectory)</td><td>12 months</td><td>Line chart</td></tr>
+          <tr><td><strong>Cost of Debt</strong></td><td>Total interest paid lifetime vs. total principal paid</td><td>All history</td><td>Pie chart</td></tr>
+          <tr><td><strong>Payoff Leaderboard</strong></td><td>Which debts are on track, ahead, or behind schedule</td><td>Current</td><td>Ranked list with status chips</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- §13 SEARCH & FILTERS -->
+  <section id="s13">
+    <h2><span class="s-num">13</span> Search & Filters</h2>
+
+    <h3>Search Dimensions</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dimension</th><th>Field</th><th>Match Type</th></tr></thead>
+        <tbody>
+          <tr><td>Name</td><td>name</td><td>Fuzzy substring, accent-insensitive</td></tr>
+          <tr><td>Lender</td><td>lenderName</td><td>Fuzzy substring</td></tr>
+          <tr><td>Type</td><td>type</td><td>Exact filter (multi-select dropdown)</td></tr>
+          <tr><td>Status</td><td>status</td><td>Exact filter</td></tr>
+          <tr><td>Due date</td><td>paymentDueDay</td><td>Range filter (this week / this month)</td></tr>
+          <tr><td>Interest rate</td><td>interestRate</td><td>Range filter (e.g. "rate &gt; 10%")</td></tr>
+          <tr><td>Remaining balance</td><td>currentBalance</td><td>Range filter (e.g. "under 10,000 MAD")</td></tr>
+          <tr><td>Payment frequency</td><td>paymentFrequency</td><td>Exact filter</td></tr>
+          <tr><td>Notes</td><td>notes</td><td>Full-text substring</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Sort Options</h3>
+    <ul>
+      <li><strong>Strategy Order</strong> (default) — repayment priority order per active strategy</li>
+      <li><strong>Remaining Balance</strong> — ascending or descending</li>
+      <li><strong>Interest Rate</strong> — highest first or lowest first</li>
+      <li><strong>Monthly Payment</strong> — largest first</li>
+      <li><strong>Next Due Date</strong> — soonest first</li>
+      <li><strong>Date Added</strong> — newest or oldest</li>
+      <li><strong>% Paid Off</strong> — most progress first</li>
+    </ul>
+  </section>
+
+  <!-- §14 EDGE CASES -->
+  <section id="s14">
+    <h2><span class="s-num">14</span> Edge Cases</h2>
+
+    <div class="edge-list">
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-red">EC-01</span> Missed Payment</div>
+        <div class="e-body">Payment due date passes without a recorded payment. System marks the Payment record as MISSED after midnight on the due date. Sends missed payment notification. Balance unchanged; interest continues to accrue daily. User is prompted to record the missed payment when they open the app. Recovery: user records late payment; history preserved including the MISSED entry.</div>
+      </div>
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-green">EC-02</span> Early Payoff</div>
+        <div class="e-body">User records a payment that reduces currentBalance to exactly 0 (or makes a lump sum ≥ remaining balance). System marks status = PAID, sets paidAt, triggers celebration notification, removes from budget. If paidAmount &gt; currentBalance, the excess is refunded as a note: "You overpaid by X MAD — contact your lender for refund."</div>
+      </div>
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-yellow">EC-03</span> Loan Refinancing</div>
+        <div class="e-body">User refinances an existing loan: new interest rate, new term, possibly new lender. Flow: user opens the debt → "Refinance" action → enters new rate, new term, new lender. System closes the old debt (marks it ARCHIVED with a "Refinanced" note), creates a new debt with originalAmount = current balance of the old one and links them via a refinanceOf field. History of the old debt is preserved.</div>
+      </div>
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-yellow">EC-04</span> Interest Rate Change (Variable Rate)</div>
+        <div class="e-body">For variable-rate debts (interestRateType = 'variable'), the user can update the interest rate at any time. System recalculates: new monthly payment required to maintain the same end date; OR maintains the same payment and shows the new payoff date. User chooses which to recalculate. All future amortization projections use the new rate; past payments are unaffected.</div>
+      </div>
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-yellow">EC-05</span> Partial Payoff</div>
+        <div class="e-body">User applies a lump sum that doesn't pay off the debt but significantly reduces the balance. Two modes offered: (A) Keep same monthly payment → end date moves earlier. (B) Recalculate lower monthly payment → same end date, less per month. User selects preferred mode. Amortization schedule regenerated from current balance and chosen parameters.</div>
+      </div>
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-red">EC-06</span> Payment Reversal</div>
+        <div class="e-body">User recorded a payment in error (wrong amount, wrong debt). Reversal action available within 30 days of payment. Creates a REVERSED payment entry. Restores currentBalance to pre-payment value. Restores principalPortion to remaining balance. Budget category marks the reversal. Note: if the reversal crosses a salary period boundary, a warning is shown that it will affect a closed period's snapshot.</div>
+      </div>
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-yellow">EC-07</span> Duplicate Debt</div>
+        <div class="e-body">User adds a debt with the same name and lender as an existing active debt. System warns: "A debt named '[name]' from '[lender]' already exists. Is this a duplicate?" User can confirm it is a different debt (proceeds), merge with existing, or cancel. No auto-deduplication — user intent is required.</div>
+      </div>
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-yellow">EC-08</span> Payment Exceeds Monthly Interest (Interest-Only Risk)</div>
+        <div class="e-body">For variable-rate debts where the balance has grown, if monthlyPayment ≤ balance × monthlyRate, no principal is ever reduced (negative amortization). System detects this immediately on rate change or balance update and shows a critical warning: "Your current payment of X MAD only covers interest. Increase to Y MAD to make progress on principal." The debt is flagged with a ⚠️ icon in all lists.</div>
+      </div>
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-gray">EC-09</span> Archived / Deleted Debt</div>
+        <div class="e-body">Archiving: debt is hidden from dashboard; payments can no longer be recorded; budget category is removed. Historical data and payment history are preserved. Soft-delete: same as archive but marks deletedAt; not recoverable via UI (admin recovery only). Neither operation removes historical payment records — they remain for analytics and lifetime interest calculations.</div>
+      </div>
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-blue">EC-10</span> Currency Change</div>
+        <div class="e-body">User changes the app's primary currency (e.g. MAD → EUR). All debt amounts are displayed in the new currency using the stored exchange rate at the time of change. Historical amounts are frozen in their original currency and displayed with a footnote: "Original: 127,400 MAD." New payments recorded after the currency change use the new currency. Exchange rate stored on conversion event.</div>
+      </div>
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-blue">EC-11</span> Zero-Interest Debt</div>
+        <div class="e-body">Family loans or BNPL at 0% APR. Amortization formula uses the r=0 branch: monthly payment = balance / remaining months. No interest portion on any payment. Total cost = original amount. All projections and reports remain accurate. Interest savings simulations are not available (always show 0 interest saved by extra payments, but months saved is still computed).</div>
+      </div>
+      <div class="edge-item">
+        <div class="e-title"><span class="pill pill-gray">EC-12</span> No End Date (Credit Card / Open-Ended)</div>
+        <div class="e-body">Credit cards have no fixed end date. endDate field is optional for CREDIT_CARD type. Payoff projection is computed dynamically based on currentBalance, monthlyPayment, and rate: payoffDate = today + monthsToPayoff(currentBalance, monthlyPayment, rate). The "end date" field in the UI is relabeled "Estimated Payoff Date" for credit cards and updates automatically as balance changes.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §15 AUTOMATION -->
+  <section id="s15">
+    <h2><span class="s-num">15</span> Automation</h2>
+
+    <h3>Automatic Repayment Projections</h3>
+    <p>Every time a payment is recorded, the full amortization schedule for that debt is recalculated and stored as a projection cache. The cache is invalidated and rebuilt when: any payment is recorded, the interest rate changes, extraPayment is updated, or the strategy changes.</p>
+
+    <h3>Monthly Payment Auto-Generation</h3>
+    <p>On each salary day (from SPEC-SAL-001), the system auto-generates pending Payment records for all active debts due in the upcoming period. These appear in the payment calendar as "Scheduled" and transition to PAID, PARTIAL, or MISSED based on user action.</p>
+
+    <h3>Automatic Status Updates</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Trigger</th><th>Auto-Action</th></tr></thead>
+        <tbody>
+          <tr><td>currentBalance = 0</td><td>status → PAID; paidAt = today; celebration notification</td></tr>
+          <tr><td>Due date passed, no payment recorded</td><td>Payment status → MISSED; missed payment notification sent</td></tr>
+          <tr><td>30 days in PAID status</td><td>Prompt to archive the debt</td></tr>
+          <tr><td>endDate passed, balance &gt; 0</td><td>Debt flagged as "Overdue Term" — user prompted to update end date or contact lender</td></tr>
+          <tr><td>interestRate change detected (variable)</td><td>Amortization recalculated; user notified of impact on payoff date</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Smart Repayment Recommendations</h3>
+    <ul>
+      <li><strong>Strategy Switch Suggestion:</strong> If Avalanche would save &gt;5,000 MAD vs. current strategy, the app shows a one-time banner: "Switching to Avalanche could save you 5,200 MAD in interest."</li>
+      <li><strong>Extra Payment Prompt:</strong> If the budget module shows unassigned balance ≥ 100 MAD and the user has active debts, a suggestion card appears in the dashboard.</li>
+      <li><strong>Refinancing Alert:</strong> If the market interest rate (user-entered) drops &gt;2% below the rate of the highest-interest debt, the app suggests: "You may save X MAD by refinancing [debt name] at [lower rate]."</li>
+      <li><strong>Debt Consolidation Check:</strong> If the user has 3+ debts with rates above 10%, the planner surfaces a "Consolidation Scenario" showing the break-even analysis.</li>
+    </ul>
+
+    <h3>Future: AI Repayment Advisor (v2.0)</h3>
+    <p>A conversational interface will answer questions like "How much will I save if I put this month's bonus toward my credit card?" or "Which debt should I focus on if I only have 500 extra MAD?" The AI calls the Planning Engine API (§7) directly and formats the result as a natural-language explanation with the underlying numbers.</p>
+  </section>
+
+  <!-- §16 SCALABILITY & BUSINESS RULES -->
+  <section id="s16">
+    <h2><span class="s-num">16</span> Scalability & Business Rules</h2>
+
+    <h3>Future Architecture Extensions</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Feature</th><th>Required Model Change</th><th>Engine Impact</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Bank Sync</strong></td><td>Add externalId + bankCode + syncedAt to Credit; add bankTransactionId to Payment</td><td>Auto-match imported bank transactions to scheduled payments; no engine change</td></tr>
+          <tr><td><strong>OCR for Loan Statements</strong></td><td>Add statementId + ocrConfidence to Payment</td><td>OCR result populates payment form pre-fill; user confirms before saving</td></tr>
+          <tr><td><strong>AI Repayment Advisor</strong></td><td>Expose Planning Engine as internal query API</td><td>No engine change — AI is a new consumer of existing formulas</td></tr>
+          <tr><td><strong>Shared / Family Debts</strong></td><td>Add ownerId, sharedWith[], userShare% to Credit</td><td>User's portion = currentBalance × userShare%; engine unchanged</td></tr>
+          <tr><td><strong>Multiple Currencies</strong></td><td>Add currency + exchangeRate + baseAmount to every monetary field</td><td>Engine normalizes to base currency before DTI and aggregates</td></tr>
+          <tr><td><strong>Automatic Payment Import</strong></td><td>Add importSource (BANK_SYNC | OCR | MANUAL) to Payment</td><td>Imported payments enter same validation pipeline; no bypass allowed</td></tr>
+          <tr><td><strong>PDF / Excel Export</strong></td><td>New export service consumes Payment history and amortization schedule</td><td>No engine change — export reads existing data structures</td></tr>
+          <tr><td><strong>Income-Based Repayment</strong></td><td>Add ibrMode + ibrPercentage to Credit (student loans)</td><td>Monthly payment = salary × ibrPercentage%; payoff = variable; plan engine adds IBR branch</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Business Rules</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rule ID</th><th>Statement</th></tr></thead>
+        <tbody>
+          <tr><td><strong>BR-DBT-01</strong></td><td>All monetary values are stored as integer centimes (×100). Display conversion to MAD (or other currency) occurs only at the presentation layer.</td></tr>
+          <tr><td><strong>BR-DBT-02</strong></td><td>A debt's currentBalance may never be set to a negative value. If a payment would cause balance &lt; 0, the excess is noted but balance is floored at 0 and the debt is marked PAID.</td></tr>
+          <tr><td><strong>BR-DBT-03</strong></td><td>Deleting a debt is a soft delete only (deletedAt is set). Payment history is preserved permanently for audit purposes.</td></tr>
+          <tr><td><strong>BR-DBT-04</strong></td><td>The monthly payment for a fixed-rate amortizing loan must always be ≥ the interest portion for that month. If the user enters a payment below this threshold, the system warns and suggests the minimum viable payment.</td></tr>
+          <tr><td><strong>BR-DBT-05</strong></td><td>Extra payments (LUMP_SUM, EXTRA) are applied 100% to principal — never to interest. This is standard amortization behavior and is non-configurable.</td></tr>
+          <tr><td><strong>BR-DBT-06</strong></td><td>The Planning Engine uses the current date's remaining balance as the starting point for all projections. It does not retroactively recompute past periods.</td></tr>
+          <tr><td><strong>BR-DBT-07</strong></td><td>A debt linked to a budget category (isLinkedToBudget = true) automatically updates the budget DEBT_PAYMENT category when monthlyPayment changes. The user is notified of the budget impact.</td></tr>
+          <tr><td><strong>BR-DBT-08</strong></td><td>Payment reversal is available for up to 30 days after the payment date. After 30 days, a reversal requires creating a manual adjustment note rather than undoing the original record.</td></tr>
+          <tr><td><strong>BR-DBT-09</strong></td><td>The Debt-to-Income ratio uses gross monthly income (before tax) from the salary module. If multiple income sources exist, all are included in the income figure.</td></tr>
+          <tr><td><strong>BR-DBT-10</strong></td><td>When a repayment strategy changes, all pending payment records are re-prioritized. Already-PAID records are never modified. The change takes effect from the next payment due date.</td></tr>
+          <tr><td><strong>BR-DBT-11</strong></td><td>Credit cards with no fixed end date use dynamic payoff projection. The projected payoff date is recalculated every time a payment is recorded or the balance changes.</td></tr>
+          <tr><td><strong>BR-DBT-12</strong></td><td>A payment due day is capped at 28 to ensure validity in all months (February alignment). If the user's actual due date is the 29th, 30th, or 31st, it is stored as 28 with a note.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Performance Targets</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="k-val" style="color:var(--indigo)">&lt;100ms</div><div class="k-label">Planner recalculation</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--indigo)">&lt;200ms</div><div class="k-label">Strategy comparison (6 strategies)</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--indigo)">&lt;50ms</div><div class="k-label">Amortization schedule (360 months)</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--indigo)">100%</div><div class="k-label">Offline operation</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--indigo)">9</div><div class="k-label">Debt types supported</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--indigo)">∞</div><div class="k-label">Payment history stored</div></div>
+    </div>
+  </section>
+</main>
+
+<script>
+  function toggleTheme() {
+    const root = document.documentElement;
+    root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  }
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav#sidebar a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting)
+        navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>

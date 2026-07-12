@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPEC-EVT-001 — Notification & Smart Event Engine</title>
+<style>
+  :root{--bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;--text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;--accent:#FB923C;--accent-dim:rgba(251,146,60,0.15);--accent-glow:rgba(251,146,60,0.07);--sidebar-w:260px;}
+  @media(prefers-color-scheme:light){:root{--bg:#F4F4F5;--surface:#FFFFFF;--surface2:#F1F5F9;--border:#E4E4E7;--text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;--accent-dim:rgba(251,146,60,0.10);--accent-glow:rgba(251,146,60,0.05);}}
+  :root[data-theme="dark"]{--bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;--text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;--accent-dim:rgba(251,146,60,0.15);--accent-glow:rgba(251,146,60,0.07);}
+  :root[data-theme="light"]{--bg:#F4F4F5;--surface:#FFFFFF;--surface2:#F1F5F9;--border:#E4E4E7;--text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;--accent-dim:rgba(251,146,60,0.10);--accent-glow:rgba(251,146,60,0.05);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:15px;line-height:1.6;}
+  .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;display:flex;flex-direction:column;z-index:100;}
+  .sb-head{padding:20px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;}
+  .mod-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid rgba(251,146,60,0.3);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+  .sb-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
+  .sb-sub{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .nav-list{list-style:none;padding:10px 8px;flex:1;}
+  .nav-item a{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:12.5px;color:var(--text-muted);text-decoration:none;transition:all .15s;}
+  .nav-item a:hover{background:var(--surface2);color:var(--text);}
+  .nav-item a.active{background:var(--accent-dim);color:var(--accent);font-weight:600;}
+  .nav-num{font-size:10px;font-weight:700;color:var(--accent);min-width:18px;font-variant-numeric:tabular-nums;}
+  .theme-area{padding:12px 16px;border-top:1px solid var(--border);}
+  .theme-btn{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text-muted);font-size:12px;cursor:pointer;}
+  .theme-btn:hover{color:var(--text);}
+  .main{margin-left:var(--sidebar-w);flex:1;max-width:900px;padding:48px 48px 100px;}
+  .doc-header{border-bottom:2px solid var(--border);padding-bottom:32px;margin-bottom:52px;}
+  .doc-eyebrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .spec-id{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
+  .spec-ver{font-size:11px;color:var(--text-dim);background:var(--surface2);border-radius:4px;padding:2px 8px;}
+  .status-pill{font-size:11px;font-weight:600;border-radius:20px;padding:3px 10px;background:rgba(245,158,11,.15);color:#F59E0B;border:1px solid rgba(245,158,11,.3);}
+  .doc-title{font-size:31px;font-weight:800;letter-spacing:-.02em;line-height:1.15;color:var(--text);text-wrap:balance;margin-bottom:10px;}
+  .doc-sub{font-size:16px;color:var(--text-muted);text-wrap:balance;max-width:620px;margin-bottom:20px;}
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .meta-item{background:var(--surface2);border-radius:8px;padding:10px 14px;}
+  .meta-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;}
+  .meta-val{font-size:13px;font-weight:600;color:var(--text);}
+  section{margin-bottom:60px;scroll-margin-top:28px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+  .sec-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:var(--accent);color:#fff;font-size:12px;font-weight:800;border-radius:6px;flex-shrink:0;}
+  .sec-title{font-size:20px;font-weight:700;letter-spacing:-.01em;color:var(--text);}
+  h3{font-size:15px;font-weight:700;color:var(--text);margin:24px 0 10px;letter-spacing:-.01em;}
+  h4{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 8px;}
+  p{color:var(--text-muted);margin-bottom:12px;}
+  strong{color:var(--text);font-weight:600;}
+  .tw{overflow-x:auto;margin:14px 0;border-radius:8px;border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead{background:var(--surface2);}
+  th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:10px 14px;color:var(--text-muted);border-bottom:1px solid var(--border);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--accent-glow);}
+  td strong{color:var(--text);}
+  td code,code{font-family:'JetBrains Mono','Fira Code',monospace;font-size:12px;color:var(--accent);background:var(--accent-dim);padding:1px 5px;border-radius:4px;}
+  .cb{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:16px 20px;margin:14px 0;font-family:'JetBrains Mono','Fira Code',monospace;font-size:12.5px;color:var(--text);overflow-x:auto;white-space:pre;line-height:1.75;}
+  .c{color:var(--text-dim);}.kw{color:var(--accent);}.fn{color:#A78BFA;}.num{color:#34D399;}.str{color:#FCD34D;}
+  .callout{border-radius:8px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;align-items:flex-start;}
+  .c-info{background:var(--accent-dim);border:1px solid rgba(251,146,60,.25);}
+  .c-warn{background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.25);}
+  .c-err{background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.25);}
+  .c-ok{background:rgba(34,197,94,.10);border:1px solid rgba(34,197,94,.25);}
+  .c-sky{background:rgba(14,165,233,.10);border:1px solid rgba(14,165,233,.25);}
+  .ci{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .cb2{font-size:13.5px;color:var(--text-muted);line-height:1.55;}
+  .chip{display:inline-flex;align-items:center;font-size:11px;font-weight:600;border-radius:20px;padding:2px 9px;border:1px solid;white-space:nowrap;margin:2px;}
+  .ch-org{background:rgba(251,146,60,.12);color:#FB923C;border-color:rgba(251,146,60,.3);}
+  .ch-grn{background:rgba(34,197,94,.12);color:#22C55E;border-color:rgba(34,197,94,.3);}
+  .ch-sky{background:rgba(14,165,233,.12);color:#0EA5E9;border-color:rgba(14,165,233,.3);}
+  .ch-amb{background:rgba(245,158,11,.12);color:#F59E0B;border-color:rgba(245,158,11,.3);}
+  .ch-red{background:rgba(239,68,68,.12);color:#EF4444;border-color:rgba(239,68,68,.3);}
+  .ch-pur{background:rgba(139,92,246,.12);color:#8B5CF6;border-color:rgba(139,92,246,.3);}
+  .ch-grey{background:var(--surface2);color:var(--text-muted);border-color:var(--border);}
+  .mr{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;}
+  .mr-sal{background:rgba(20,184,166,.15);color:#14B8A6;}
+  .mr-bud{background:rgba(99,102,241,.15);color:#6366F1;}
+  .mr-dbt{background:rgba(239,68,68,.15);color:#EF4444;}
+  .mr-emf{background:rgba(34,197,94,.15);color:#22C55E;}
+  .mr-gol{background:rgba(245,158,11,.15);color:#F59E0B;}
+  .mr-rmp{background:rgba(139,92,246,.15);color:#8B5CF6;}
+  .mr-dsh{background:rgba(14,165,233,.15);color:#0EA5E9;}
+  .mr-rpt{background:rgba(16,185,129,.15);color:#10B981;}
+  .mr-evt{background:rgba(251,146,60,.15);color:#FB923C;}
+  .xref{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:20px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .xref-label{font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.07em;margin-right:4px;}
+  ul.sl{list-style:none;padding:0;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+  ul.sl li{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;color:var(--text-muted);}
+  ul.sl li::before{content:'—';color:var(--accent);font-weight:700;flex-shrink:0;margin-top:1px;}
+  ol.sl{padding:0 0 0 20px;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+  ol.sl li{font-size:13.5px;color:var(--text-muted);padding-left:4px;}
+  .rc{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;}
+  .rc-id{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;}
+  .rc-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px;}
+  .rc-body{font-size:13px;color:var(--text-muted);line-height:1.55;}
+  .dl{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+  .di{display:grid;grid-template-columns:180px 1fr;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;}
+  .dk{font-weight:700;color:var(--text);font-size:12px;align-self:start;padding-top:1px;}
+  .dv{color:var(--text-muted);}
+  /* PIPELINE DIAGRAM */
+  .pipeline{display:flex;align-items:center;gap:0;margin:20px 0;flex-wrap:wrap;}
+  .pipe-step{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 16px;text-align:center;min-width:120px;}
+  .pipe-step-id{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;}
+  .pipe-step-name{font-size:13px;font-weight:700;color:var(--text);}
+  .pipe-step-desc{font-size:11px;color:var(--text-muted);margin-top:3px;}
+  .pipe-arrow{color:var(--accent);font-size:18px;margin:0 8px;flex-shrink:0;}
+  .evt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+  .ecard{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 14px;}
+  .ecard-mod{font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px;}
+  .ecard-events{display:flex;flex-direction:column;gap:4px;}
+  .ecard-ev{font-size:12px;color:var(--text-muted);display:flex;gap:6px;align-items:flex-start;}
+  .ecard-ev::before{content:'▸';color:var(--accent);flex-shrink:0;}
+  @media(max-width:700px){.sidebar{display:none;}.main{margin-left:0;padding:24px 18px 60px;}.evt-grid,.meta-grid{grid-template-columns:1fr;}.di{grid-template-columns:1fr;}.pipeline{flex-direction:column;align-items:flex-start;}.pipe-arrow{transform:rotate(90deg);}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="mod-badge">🔔 SPEC-EVT-001</div>
+    <div class="sb-title">Notification &amp; Smart Event Engine</div>
+    <div class="sb-sub">Finance Bag · v1.0.0</div>
+  </div>
+  <ul class="nav-list" id="nav-list">
+    <li class="nav-item"><a href="#s1"><span class="nav-num">01</span>Overview</a></li>
+    <li class="nav-item"><a href="#s2"><span class="nav-num">02</span>Data Architecture</a></li>
+    <li class="nav-item"><a href="#s3"><span class="nav-num">03</span>Event Classification</a></li>
+    <li class="nav-item"><a href="#s4"><span class="nav-num">04</span>Publishing Protocol</a></li>
+    <li class="nav-item"><a href="#s5"><span class="nav-num">05</span>Processing Pipeline</a></li>
+    <li class="nav-item"><a href="#s6"><span class="nav-num">06</span>Notification Engine</a></li>
+    <li class="nav-item"><a href="#s7"><span class="nav-num">07</span>Reminder System</a></li>
+    <li class="nav-item"><a href="#s8"><span class="nav-num">08</span>Automation Engine</a></li>
+    <li class="nav-item"><a href="#s9"><span class="nav-num">09</span>Module Event Catalogue</a></li>
+    <li class="nav-item"><a href="#s10"><span class="nav-num">10</span>Delivery Rules</a></li>
+    <li class="nav-item"><a href="#s11"><span class="nav-num">11</span>User Preferences</a></li>
+    <li class="nav-item"><a href="#s12"><span class="nav-num">12</span>Quiet Hours &amp; DND</a></li>
+    <li class="nav-item"><a href="#s13"><span class="nav-num">13</span>Performance</a></li>
+    <li class="nav-item"><a href="#s14"><span class="nav-num">14</span>Edge Cases</a></li>
+    <li class="nav-item"><a href="#s15"><span class="nav-num">15</span>Business Rules</a></li>
+    <li class="nav-item"><a href="#s16"><span class="nav-num">16</span>Future AI Scalability</a></li>
+  </ul>
+  <div class="theme-area"><button class="theme-btn" id="theme-btn">Toggle Light / Dark</button></div>
+</nav>
+
+<main class="main">
+
+  <div class="doc-header">
+    <div class="doc-eyebrow">
+      <span class="spec-id">SPEC-EVT-001</span>
+      <span class="spec-ver">Version 1.0.0</span>
+      <span class="status-pill">Draft</span>
+    </div>
+    <h1 class="doc-title">Notification &amp; Smart Event Engine</h1>
+    <p class="doc-sub">Defines the centralized event-driven architecture that unifies notification, reminder, and automation logic across all Finance Bag modules — replacing per-module notification systems with a single, consistent, intelligent engine.</p>
+    <div class="meta-grid">
+      <div class="meta-item"><div class="meta-label">Module ID</div><div class="meta-val">EVT</div></div>
+      <div class="meta-item"><div class="meta-label">Part</div><div class="meta-val">14 of 14</div></div>
+      <div class="meta-item"><div class="meta-label">Accent</div><div class="meta-val" style="color:#FB923C">#FB923C Orange</div></div>
+      <div class="meta-item"><div class="meta-label">Pattern</div><div class="meta-val">Event-Driven</div></div>
+      <div class="meta-item"><div class="meta-label">Stack</div><div class="meta-val">RN 0.76 / Expo 52</div></div>
+      <div class="meta-item"><div class="meta-label">Delivery</div><div class="meta-val">Expo Notifications</div></div>
+    </div>
+  </div>
+
+  <!-- S1 -->
+  <section id="s1">
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-title">Overview &amp; Architecture Mandate</h2></div>
+
+    <div class="xref">
+      <span class="xref-label">Serves all modules</span>
+      <span class="mr mr-sal">SAL</span>
+      <span class="mr mr-bud">BUD</span>
+      <span class="mr mr-dbt">DBT</span>
+      <span class="mr mr-emf">EMF</span>
+      <span class="mr mr-gol">GOL</span>
+      <span class="mr mr-rmp">RMP</span>
+      <span class="mr mr-dsh">DSH</span>
+      <span class="mr mr-rpt">RPT</span>
+    </div>
+
+    <p>Every module specification written to date defines notifications, reminders, and automation triggers independently. This creates eight separate notification systems that duplicate logic, produce inconsistent behaviour, compete for the user's attention without coordination, and cannot be governed by a single preference model. This specification eliminates that fragmentation.</p>
+
+    <p>The <strong>Smart Event Engine (EVT)</strong> is the single notification, reminder, and automation layer for the entire application. Every user-facing alert, reminder, and background workflow is owned and executed by this engine. No other module delivers notifications directly.</p>
+
+    <div class="callout c-info"><span class="ci">🔔</span><div class="cb2"><strong>Architecture mandate:</strong> After this specification is adopted, all notification-related sections in SPEC-BUD-001, SPEC-DBT-001, SPEC-EMF-001, SPEC-GOL-001, SPEC-RMP-001, SPEC-DSH-001, and SPEC-RPT-001 are superseded by SPEC-EVT-001. Those sections define <em>what events exist</em>; this spec defines <em>how they are processed and delivered</em>.</div></div>
+
+    <h3>Three Core Concerns</h3>
+    <div class="dl">
+      <div class="di"><span class="dk">Events</span><span class="dv">Facts that happened — immutable, timestamped records published by modules to the EventBus (e.g. BUDGET_THRESHOLD_REACHED, DEBT_PAYMENT_OVERDUE)</span></div>
+      <div class="di"><span class="dk">Notifications</span><span class="dv">Messages delivered to the user in response to events — push, in-app banner, in-app toast, badge update, or silent</span></div>
+      <div class="di"><span class="dk">Automations</span><span class="dv">Background workflows triggered by events or time conditions — snapshot rebuild, carry-over computation, dashboard refresh, analytics update</span></div>
+    </div>
+
+    <h3>What the Engine Provides to Every Module</h3>
+    <ul class="sl">
+      <li>A single <code>EventBus.publish(event)</code> call — the module's entire notification responsibility</li>
+      <li>Global frequency caps, quiet hours, and DND enforcement — no module implements these independently</li>
+      <li>Deduplication — the same event published twice within 5 minutes is processed only once</li>
+      <li>User preference awareness — a user who disabled goal notifications never receives them, regardless of which module published the event</li>
+      <li>Delivery channel selection — the engine decides push vs. in-app vs. silent based on app state and user preferences</li>
+      <li>Audit trail — every event, notification delivery, and automation execution is logged</li>
+    </ul>
+
+    <h3>System Overview</h3>
+    <div class="pipeline">
+      <div class="pipe-step"><div class="pipe-step-id">Layer 1</div><div class="pipe-step-name">Module</div><div class="pipe-step-desc">publishes EventPayload</div></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><div class="pipe-step-id">Layer 2</div><div class="pipe-step-name">EventBus</div><div class="pipe-step-desc">validates &amp; routes</div></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><div class="pipe-step-id">Layer 3</div><div class="pipe-step-name">Processor</div><div class="pipe-step-desc">dedupe, throttle, filter</div></div>
+      <span class="pipe-arrow">→</span>
+      <div class="pipe-step"><div class="pipe-step-id">Layer 4A</div><div class="pipe-step-name">Notifier</div><div class="pipe-step-desc">push / in-app / badge</div></div>
+      <span class="pipe-arrow" style="display:none"></span>
+      <div class="pipe-step"><div class="pipe-step-id">Layer 4B</div><div class="pipe-step-name">Automator</div><div class="pipe-step-desc">workflows &amp; triggers</div></div>
+      <span class="pipe-arrow" style="display:none"></span>
+      <div class="pipe-step"><div class="pipe-step-id">Layer 5</div><div class="pipe-step-name">Audit Log</div><div class="pipe-step-desc">event_log table</div></div>
+    </div>
+  </section>
+
+  <!-- S2: DATA ARCHITECTURE -->
+  <section id="s2">
+    <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">Data Architecture &amp; Schema</h2></div>
+
+    <h3>2.1 EVT-Owned Tables</h3>
+    <div class="cb"><span class="kw">table</span> event_log {
+  id:             TEXT PRIMARY KEY          <span class="c">// UUID v4</span>
+  event_type:     TEXT NOT NULL             <span class="c">// EventType enum value</span>
+  source_module:  TEXT NOT NULL             <span class="c">// 'SAL' | 'BUD' | 'DBT' | 'EMF' | 'GOL' | 'RMP' | 'DSH' | 'RPT'</span>
+  source_entity_id: TEXT                   <span class="c">// ID of the triggering entity (goalId, debtId, etc.)</span>
+  event_key:      TEXT NOT NULL             <span class="c">// deduplication key (Section 5.2)</span>
+  priority:       INTEGER NOT NULL          <span class="c">// 1=CRITICAL, 2=HIGH, 3=MEDIUM, 4=LOW, 5=INFO</span>
+  payload_json:   TEXT NOT NULL             <span class="c">// JSON-serialized EventPayload</span>
+  processed_at:   INTEGER                   <span class="c">// null = pending | Unix ms = done</span>
+  notifications_sent: INTEGER DEFAULT 0
+  automations_run:    INTEGER DEFAULT 0
+  skipped_reason: TEXT                      <span class="c">// null | 'DUPLICATE' | 'THROTTLED' | 'USER_PREF' | 'QUIET_HOURS'</span>
+  created_at:     INTEGER NOT NULL
+}
+<span class="c">// Retention: 90 days. Rows older than 90 days are deleted in background cleanup.
+// Index: (event_type, created_at), (event_key, created_at), (source_module, created_at)</span>
+
+<span class="kw">table</span> scheduled_reminders {
+  id:             TEXT PRIMARY KEY
+  reminder_type:  TEXT NOT NULL             <span class="c">// ReminderType enum value</span>
+  source_module:  TEXT NOT NULL
+  source_entity_id: TEXT                   <span class="c">// null for global reminders</span>
+  title:          TEXT NOT NULL
+  body:           TEXT NOT NULL
+  scheduled_for:  INTEGER NOT NULL          <span class="c">// Unix ms — when to fire</span>
+  recurrence:     TEXT                      <span class="c">// null | JSON RecurrenceRule</span>
+  next_fire_at:   INTEGER                   <span class="c">// Unix ms — for recurring reminders</span>
+  snoozed_until:  INTEGER                   <span class="c">// null | Unix ms</span>
+  dismissed_at:   INTEGER                   <span class="c">// null | Unix ms — permanent dismissal</span>
+  created_at:     INTEGER NOT NULL
+  deleted_at:     INTEGER                   <span class="c">// soft delete</span>
+}
+<span class="c">// Index: (scheduled_for, dismissed_at) — for efficient upcoming query</span>
+
+<span class="kw">table</span> notification_preferences {
+  id:             TEXT PRIMARY KEY          <span class="c">// singleton: id = 'user-prefs'</span>
+  prefs_json:     TEXT NOT NULL             <span class="c">// JSON-serialized NotificationPreferences (Section 11)</span>
+  updated_at:     INTEGER NOT NULL
+}
+
+<span class="kw">table</span> automation_log {
+  id:             TEXT PRIMARY KEY
+  event_log_id:   TEXT NOT NULL             <span class="c">// FK → event_log.id</span>
+  automation_type: TEXT NOT NULL            <span class="c">// AutomationType enum</span>
+  status:         TEXT NOT NULL             <span class="c">// 'PENDING' | 'SUCCESS' | 'FAILED' | 'SKIPPED'</span>
+  result_summary: TEXT                      <span class="c">// human-readable outcome, max 200 chars</span>
+  error_message:  TEXT                      <span class="c">// null | error detail on failure</span>
+  executed_at:    INTEGER                   <span class="c">// Unix ms</span>
+  created_at:     INTEGER NOT NULL
+}</div>
+
+    <h3>2.2 Core Types</h3>
+    <div class="cb"><span class="kw">type</span> EventPayload = {
+  type:           EventType
+  sourceModule:   SourceModule
+  sourceEntityId: <span class="fn">string</span> | <span class="kw">null</span>
+  priority:       EventPriority
+  data:           Record&lt;<span class="fn">string</span>, <span class="fn">unknown</span>&gt;  <span class="c">// module-specific context</span>
+  idempotencyKey: <span class="fn">string</span>                 <span class="c">// caller-provided; used for deduplication</span>
+  occurredAt:     <span class="fn">number</span>                 <span class="c">// Unix ms — when the fact occurred</span>
+}
+
+<span class="kw">type</span> EventPriority = <span class="num">1</span> | <span class="num">2</span> | <span class="num">3</span> | <span class="num">4</span> | <span class="num">5</span>
+<span class="c">// 1=CRITICAL | 2=HIGH | 3=MEDIUM | 4=LOW | 5=INFO</span>
+
+<span class="kw">type</span> SourceModule = <span class="str">'SAL'</span> | <span class="str">'BUD'</span> | <span class="str">'DBT'</span> | <span class="str">'EMF'</span> | <span class="str">'GOL'</span> | <span class="str">'RMP'</span> | <span class="str">'DSH'</span> | <span class="str">'RPT'</span>
+
+<span class="kw">type</span> NotificationDelivery = {
+  channel:   DeliveryChannel
+  title:     <span class="fn">string</span>         <span class="c">// max 60 chars</span>
+  body:      <span class="fn">string</span>         <span class="c">// max 140 chars</span>
+  data:      Record&lt;<span class="fn">string</span>, <span class="fn">string</span>&gt;  <span class="c">// deep link route + context</span>
+  badgeDelta: <span class="fn">number</span>        <span class="c">// +1 for new, 0 for no badge change, -1 to clear</span>
+}
+
+<span class="kw">type</span> DeliveryChannel = <span class="str">'PUSH'</span> | <span class="str">'IN_APP_BANNER'</span> | <span class="str">'IN_APP_TOAST'</span> | <span class="str">'BADGE_ONLY'</span> | <span class="str">'SILENT'</span>
+
+<span class="kw">type</span> RecurrenceRule = {
+  frequency: <span class="str">'DAILY'</span> | <span class="str">'WEEKLY'</span> | <span class="str">'MONTHLY'</span> | <span class="str">'PERIOD_BASED'</span>
+  interval:  <span class="fn">number</span>          <span class="c">// e.g. interval=2, frequency=WEEKLY → every 2 weeks</span>
+  dayOfMonth: <span class="fn">number</span> | <span class="kw">null</span> <span class="c">// for MONTHLY; capped at 28 (BR-EVT-07)</span>
+  endDate:   <span class="fn">string</span> | <span class="kw">null</span>  <span class="c">// ISO date — null = recur indefinitely</span>
+  maxFires:  <span class="fn">number</span> | <span class="kw">null</span>  <span class="c">// null = unlimited</span>
+}</div>
+  </section>
+
+  <!-- S3: EVENT CLASSIFICATION -->
+  <section id="s3">
+    <div class="sec-head"><span class="sec-num">03</span><h2 class="sec-title">Event Classification System</h2></div>
+
+    <h3>3.1 Priority Levels</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Level</th><th>Name</th><th>Meaning</th><th>Bypass Caps</th><th>Bypass Quiet Hours</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1</strong></td><td><span class="chip ch-red">CRITICAL</span></td><td>Requires immediate user action; financial harm if ignored</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td><strong>2</strong></td><td><span class="chip ch-org">HIGH</span></td><td>Time-sensitive; significant financial impact</td><td>No</td><td>No</td></tr>
+        <tr><td><strong>3</strong></td><td><span class="chip ch-amb">MEDIUM</span></td><td>Important but not urgent; user should act this period</td><td>No</td><td>No</td></tr>
+        <tr><td><strong>4</strong></td><td><span class="chip ch-sky">LOW</span></td><td>Informational nudge; positive reinforcement or routine reminder</td><td>No</td><td>No</td></tr>
+        <tr><td><strong>5</strong></td><td><span class="chip ch-grey">INFO</span></td><td>Silent event for automation only — no user-facing notification</td><td>N/A</td><td>N/A</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>3.2 Event Categories</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Category</th><th>Code</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Threshold Alert</strong></td><td><code>THRESHOLD</code></td><td>A monitored value crossed a configured boundary (e.g. budget 90%)</td></tr>
+        <tr><td><strong>Due Date</strong></td><td><code>DUE_DATE</code></td><td>A payment, contribution, or deadline is approaching or overdue</td></tr>
+        <tr><td><strong>Milestone</strong></td><td><code>MILESTONE</code></td><td>A progress milestone was reached (e.g. goal 50% complete)</td></tr>
+        <tr><td><strong>State Change</strong></td><td><code>STATE_CHANGE</code></td><td>An entity changed status (e.g. goal → COMPLETED, debt → paid off)</td></tr>
+        <tr><td><strong>Period Event</strong></td><td><code>PERIOD</code></td><td>A time period started, ended, or is about to end</td></tr>
+        <tr><td><strong>User Action</strong></td><td><code>USER_ACTION</code></td><td>User performed a significant action (salary recorded, debt payment made)</td></tr>
+        <tr><td><strong>System</strong></td><td><code>SYSTEM</code></td><td>Internal engine events: snapshot rebuild needed, automation triggered</td></tr>
+        <tr><td><strong>Anomaly</strong></td><td><code>ANOMALY</code></td><td>Unusual pattern detected (spending spike, missed contribution streak)</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>3.3 EventType Master List</h3>
+    <p>Complete enumeration of all event types recognized by the engine. Each maps to exactly one category and one default priority:</p>
+    <div class="tw"><table>
+      <thead><tr><th>EventType</th><th>Category</th><th>Default Priority</th><th>Source Module</th></tr></thead>
+      <tbody>
+        <tr><td><code>SALARY_RECORDED</code></td><td>USER_ACTION</td><td>5 INFO</td><td><span class="mr mr-sal">SAL</span></td></tr>
+        <tr><td><code>SALARY_DUE_REMINDER</code></td><td>DUE_DATE</td><td>3 MEDIUM</td><td><span class="mr mr-sal">SAL</span></td></tr>
+        <tr><td><code>SALARY_OVERDUE</code></td><td>THRESHOLD</td><td>2 HIGH</td><td><span class="mr mr-sal">SAL</span></td></tr>
+        <tr><td><code>BUDGET_PERIOD_STARTED</code></td><td>PERIOD</td><td>4 LOW</td><td><span class="mr mr-bud">BUD</span></td></tr>
+        <tr><td><code>BUDGET_PERIOD_ENDING</code></td><td>PERIOD</td><td>3 MEDIUM</td><td><span class="mr mr-bud">BUD</span></td></tr>
+        <tr><td><code>BUDGET_PERIOD_ENDED</code></td><td>PERIOD</td><td>5 INFO</td><td><span class="mr mr-bud">BUD</span></td></tr>
+        <tr><td><code>BUDGET_THRESHOLD_80</code></td><td>THRESHOLD</td><td>3 MEDIUM</td><td><span class="mr mr-bud">BUD</span></td></tr>
+        <tr><td><code>BUDGET_THRESHOLD_100</code></td><td>THRESHOLD</td><td>2 HIGH</td><td><span class="mr mr-bud">BUD</span></td></tr>
+        <tr><td><code>BUDGET_THRESHOLD_110</code></td><td>THRESHOLD</td><td>1 CRITICAL</td><td><span class="mr mr-bud">BUD</span></td></tr>
+        <tr><td><code>BUDGET_CATEGORY_OVERSPENT</code></td><td>THRESHOLD</td><td>2 HIGH</td><td><span class="mr mr-bud">BUD</span></td></tr>
+        <tr><td><code>EXPENSE_ADDED</code></td><td>USER_ACTION</td><td>5 INFO</td><td><span class="mr mr-bud">BUD</span></td></tr>
+        <tr><td><code>AVAILABLE_MONEY_NEGATIVE</code></td><td>ANOMALY</td><td>1 CRITICAL</td><td><span class="mr mr-dsh">DSH</span></td></tr>
+        <tr><td><code>AVAILABLE_MONEY_LOW</code></td><td>THRESHOLD</td><td>2 HIGH</td><td><span class="mr mr-dsh">DSH</span></td></tr>
+        <tr><td><code>DEBT_PAYMENT_DUE_7D</code></td><td>DUE_DATE</td><td>3 MEDIUM</td><td><span class="mr mr-dbt">DBT</span></td></tr>
+        <tr><td><code>DEBT_PAYMENT_DUE_3D</code></td><td>DUE_DATE</td><td>2 HIGH</td><td><span class="mr mr-dbt">DBT</span></td></tr>
+        <tr><td><code>DEBT_PAYMENT_DUE_1D</code></td><td>DUE_DATE</td><td>2 HIGH</td><td><span class="mr mr-dbt">DBT</span></td></tr>
+        <tr><td><code>DEBT_PAYMENT_OVERDUE</code></td><td>DUE_DATE</td><td>1 CRITICAL</td><td><span class="mr mr-dbt">DBT</span></td></tr>
+        <tr><td><code>DEBT_PAYMENT_RECORDED</code></td><td>USER_ACTION</td><td>5 INFO</td><td><span class="mr mr-dbt">DBT</span></td></tr>
+        <tr><td><code>DEBT_FULLY_PAID</code></td><td>MILESTONE</td><td>4 LOW</td><td><span class="mr mr-dbt">DBT</span></td></tr>
+        <tr><td><code>DEBT_MILESTONE_50</code></td><td>MILESTONE</td><td>4 LOW</td><td><span class="mr mr-dbt">DBT</span></td></tr>
+        <tr><td><code>DEBT_DTI_THRESHOLD</code></td><td>THRESHOLD</td><td>2 HIGH</td><td><span class="mr mr-dbt">DBT</span></td></tr>
+        <tr><td><code>EMF_CONTRIBUTION_MADE</code></td><td>USER_ACTION</td><td>5 INFO</td><td><span class="mr mr-emf">EMF</span></td></tr>
+        <tr><td><code>EMF_MILESTONE_REACHED</code></td><td>MILESTONE</td><td>3 MEDIUM</td><td><span class="mr mr-emf">EMF</span></td></tr>
+        <tr><td><code>EMF_WITHDRAWAL_MADE</code></td><td>USER_ACTION</td><td>3 MEDIUM</td><td><span class="mr mr-emf">EMF</span></td></tr>
+        <tr><td><code>EMF_CONTRIBUTION_REMINDER</code></td><td>DUE_DATE</td><td>3 MEDIUM</td><td><span class="mr mr-emf">EMF</span></td></tr>
+        <tr><td><code>EMF_FULLY_FUNDED</code></td><td>MILESTONE</td><td>3 MEDIUM</td><td><span class="mr mr-emf">EMF</span></td></tr>
+        <tr><td><code>GOAL_CONTRIBUTION_MADE</code></td><td>USER_ACTION</td><td>5 INFO</td><td><span class="mr mr-gol">GOL</span></td></tr>
+        <tr><td><code>GOAL_CONTRIBUTION_REMINDER</code></td><td>DUE_DATE</td><td>3 MEDIUM</td><td><span class="mr mr-gol">GOL</span></td></tr>
+        <tr><td><code>GOAL_MILESTONE_PCT</code></td><td>MILESTONE</td><td>4 LOW</td><td><span class="mr mr-gol">GOL</span></td></tr>
+        <tr><td><code>GOAL_COMPLETED</code></td><td>MILESTONE</td><td>3 MEDIUM</td><td><span class="mr mr-gol">GOL</span></td></tr>
+        <tr><td><code>GOAL_DEADLINE_30D</code></td><td>DUE_DATE</td><td>3 MEDIUM</td><td><span class="mr mr-gol">GOL</span></td></tr>
+        <tr><td><code>GOAL_DEADLINE_7D</code></td><td>DUE_DATE</td><td>2 HIGH</td><td><span class="mr mr-gol">GOL</span></td></tr>
+        <tr><td><code>GOAL_DEADLINE_MISSED</code></td><td>THRESHOLD</td><td>2 HIGH</td><td><span class="mr mr-gol">GOL</span></td></tr>
+        <tr><td><code>GOAL_OFF_TRACK</code></td><td>ANOMALY</td><td>3 MEDIUM</td><td><span class="mr mr-gol">GOL</span></td></tr>
+        <tr><td><code>ROADMAP_GOAL_UNBLOCKED</code></td><td>STATE_CHANGE</td><td>3 MEDIUM</td><td><span class="mr mr-rmp">RMP</span></td></tr>
+        <tr><td><code>ROADMAP_BLOCKED</code></td><td>STATE_CHANGE</td><td>3 MEDIUM</td><td><span class="mr mr-rmp">RMP</span></td></tr>
+        <tr><td><code>ROADMAP_LIFE_EVENT</code></td><td>STATE_CHANGE</td><td>2 HIGH</td><td><span class="mr mr-rmp">RMP</span></td></tr>
+        <tr><td><code>FHS_SIGNIFICANT_CHANGE</code></td><td>ANOMALY</td><td>3 MEDIUM</td><td><span class="mr mr-dsh">DSH</span></td></tr>
+        <tr><td><code>FHS_CRITICAL_LOW</code></td><td>THRESHOLD</td><td>2 HIGH</td><td><span class="mr mr-dsh">DSH</span></td></tr>
+        <tr><td><code>FHS_EXCELLENT_ACHIEVED</code></td><td>MILESTONE</td><td>4 LOW</td><td><span class="mr mr-dsh">DSH</span></td></tr>
+        <tr><td><code>SNAPSHOT_REBUILD_NEEDED</code></td><td>SYSTEM</td><td>5 INFO</td><td><span class="mr mr-dsh">DSH</span></td></tr>
+        <tr><td><code>REPORT_READY</code></td><td>SYSTEM</td><td>5 INFO</td><td><span class="mr mr-rpt">RPT</span></td></tr>
+        <tr><td><code>BEHAVIORAL_STREAK_BROKEN</code></td><td>ANOMALY</td><td>3 MEDIUM</td><td><span class="mr mr-rpt">RPT</span></td></tr>
+        <tr><td><code>BEHAVIORAL_STREAK_MILESTONE</code></td><td>MILESTONE</td><td>4 LOW</td><td><span class="mr mr-rpt">RPT</span></td></tr>
+        <tr><td><code>SAVINGS_RATE_MILESTONE</code></td><td>MILESTONE</td><td>4 LOW</td><td><span class="mr mr-rpt">RPT</span></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- S4: PUBLISHING PROTOCOL -->
+  <section id="s4">
+    <div class="sec-head"><span class="sec-num">04</span><h2 class="sec-title">Publishing Protocol</h2></div>
+
+    <p>Every module publishes events by calling <code>EventBus.publish(payload)</code>. This is the <strong>only</strong> interface between a module and the notification system. The module is responsible for constructing the payload with correct fields; the engine is responsible for everything that happens after.</p>
+
+    <h3>4.1 EventBus Interface</h3>
+    <div class="cb"><span class="kw">interface</span> EventBus {
+  <span class="c">// Primary publish method — fire-and-forget from the module's perspective</span>
+  <span class="fn">publish</span>(payload: EventPayload): <span class="kw">void</span>
+
+  <span class="c">// Subscribe to event types (used internally by the engine's handlers)</span>
+  <span class="fn">subscribe</span>(types: EventType[], handler: EventHandler): Unsubscribe
+
+  <span class="c">// Query the event log (for audit and deduplication lookups)</span>
+  <span class="fn">getRecentEvents</span>(type: EventType, entityId: <span class="fn">string</span>, withinMs: <span class="fn">number</span>): EventLogRow[]
+}
+
+<span class="kw">type</span> EventHandler = (event: EventPayload, logRow: EventLogRow) =&gt; Promise&lt;<span class="kw">void</span>&gt;</div>
+
+    <h3>4.2 idempotencyKey Convention</h3>
+    <p>The <code>idempotencyKey</code> field in <code>EventPayload</code> is the deduplication anchor. It must be deterministic — the same logical event always produces the same key. The engine uses this to detect and discard duplicates within a 5-minute window.</p>
+    <div class="cb"><span class="c">// Convention: 'MODULE-EVENTTYPE-ENTITYID-DATE'</span>
+
+Examples:
+  BUDGET_THRESHOLD_80  → <span class="str">'BUD-BUDGET_THRESHOLD_80-period-2026-07-01'</span>
+  DEBT_PAYMENT_DUE_3D  → <span class="str">'DBT-DEBT_PAYMENT_DUE_3D-creditId123-2026-07-11'</span>
+  EMF_MILESTONE_REACHED → <span class="str">'EMF-EMF_MILESTONE_REACHED-emf-1-LEVEL_2'</span>
+  GOAL_COMPLETED       → <span class="str">'GOL-GOAL_COMPLETED-goalId456-2026-07-11'</span>
+  FHS_SIGNIFICANT_CHANGE → <span class="str">'DSH-FHS_SIGNIFICANT_CHANGE-2026-07-11'</span>
+
+<span class="c">// Milestones that should only notify once ever use a permanent key (no date suffix):
+// GOAL_MILESTONE_PCT 100% → 'GOL-GOAL_COMPLETED-goalId456' (no date — fires once)</span></div>
+
+    <h3>4.3 Module Publishing Examples</h3>
+    <div class="cb"><span class="c">// Budget module — threshold reached</span>
+EventBus.<span class="fn">publish</span>({
+  type:           <span class="str">'BUDGET_THRESHOLD_80'</span>,
+  sourceModule:   <span class="str">'BUD'</span>,
+  sourceEntityId: periodId,
+  priority:       <span class="num">3</span>,
+  data: { categoryName: <span class="str">'Food'</span>, utilizedPct: <span class="num">83</span>, allocatedAmount: <span class="num">150000</span> },
+  idempotencyKey: <span class="str">`BUD-BUDGET_THRESHOLD_80-${periodId}`</span>,
+  occurredAt:     Date.<span class="fn">now</span>()
+})
+
+<span class="c">// Debt module — payment overdue</span>
+EventBus.<span class="fn">publish</span>({
+  type:           <span class="str">'DEBT_PAYMENT_OVERDUE'</span>,
+  sourceModule:   <span class="str">'DBT'</span>,
+  sourceEntityId: creditId,
+  priority:       <span class="num">1</span>,
+  data: { creditName: <span class="str">'Visa'</span>, overdueAmount: <span class="num">80000</span>, daysOverdue: <span class="num">2</span> },
+  idempotencyKey: <span class="str">`DBT-DEBT_PAYMENT_OVERDUE-${creditId}-${today}`</span>,
+  occurredAt:     Date.<span class="fn">now</span>()
+})
+
+<span class="c">// Goal module — contribution reminder (no entity action, just a due date)</span>
+EventBus.<span class="fn">publish</span>({
+  type:           <span class="str">'GOAL_CONTRIBUTION_REMINDER'</span>,
+  sourceModule:   <span class="str">'GOL'</span>,
+  sourceEntityId: goalId,
+  priority:       <span class="num">3</span>,
+  data: { goalName: <span class="str">'House Down Payment'</span>, requiredAmount: <span class="num">285000</span>, daysUntilContributionDay: <span class="num">2</span> },
+  idempotencyKey: <span class="str">`GOL-GOAL_CONTRIBUTION_REMINDER-${goalId}-${today}`</span>,
+  occurredAt:     Date.<span class="fn">now</span>()
+})</div>
+  </section>
+
+  <!-- S5: PROCESSING PIPELINE -->
+  <section id="s5">
+    <div class="sec-head"><span class="sec-num">05</span><h2 class="sec-title">Processing Pipeline</h2></div>
+
+    <p>Every event published to the EventBus passes through a 6-step synchronous pipeline before reaching the delivery layer. If any step rejects the event, processing stops and the reason is recorded in <code>event_log.skipped_reason</code>.</p>
+
+    <h3>5.1 Pipeline Steps</h3>
+    <ol class="sl">
+      <li><strong>Validation:</strong> Verify all required fields are present and <code>type</code> is a recognized EventType. Malformed payloads are discarded with an error log entry — they never reach the database.</li>
+      <li><strong>Persistence:</strong> Write the event to <code>event_log</code> with <code>processed_at = null</code>. This is the source of truth; all subsequent steps read from this row.</li>
+      <li><strong>Deduplication:</strong> Query <code>event_log</code> for any row with the same <code>event_key</code> within the last 5 minutes (or "ever" for lifetime-milestone keys). If found: set <code>skipped_reason = 'DUPLICATE'</code>, mark as processed, stop.</li>
+      <li><strong>User Preference Filter:</strong> Load <code>NotificationPreferences</code>. If the user has disabled notifications for this module or event category: set <code>skipped_reason = 'USER_PREF'</code>, allow automation handlers to still run, stop notification delivery.</li>
+      <li><strong>Frequency Cap Check:</strong> Count notifications sent in the last 24 hours (Section 10). If over the cap and event priority &gt; 1: set <code>skipped_reason = 'THROTTLED'</code>, stop notification delivery only — automations still run.</li>
+      <li><strong>Route:</strong> Send to Notification Engine (Section 6) and Automation Engine (Section 8) in parallel. Update <code>processed_at = now</code>.</li>
+    </ol>
+
+    <h3>5.2 Deduplication Window</h3>
+    <div class="cb"><span class="c">// Standard events: deduplicate within 5 minutes</span>
+isDuplicate = event_log.exists WHERE
+  event_key = payload.idempotencyKey
+  AND created_at >= now - <span class="num">5</span>_MINUTES_IN_MS
+
+<span class="c">// Lifetime milestone events (GOAL_COMPLETED, DEBT_FULLY_PAID, EMF_FULLY_FUNDED,
+// FHS_EXCELLENT_ACHIEVED): deduplicate forever</span>
+isDuplicate = event_log.exists WHERE
+  event_key = payload.idempotencyKey  <span class="c">// no time window</span>
+
+<span class="c">// Due-date events (DUE_DATE category): deduplicate within 24 hours
+// Prevents re-alerting after a quiet-hours deferral fires on the same day</span>
+isDuplicate = event_log.exists WHERE
+  event_key = payload.idempotencyKey
+  AND created_at >= now - <span class="num">24</span>_HOURS_IN_MS
+  AND skipped_reason IS NULL          <span class="c">// prior delivery must have succeeded</span></div>
+
+    <h3>5.3 Pipeline Execution Context</h3>
+    <p>The pipeline runs synchronously on the calling thread for events published while the app is in the foreground. For background events (Expo BackgroundTask, scheduled checks), the pipeline runs on a background thread. The <code>event_log</code> write in Step 2 uses a WAL-mode SQLite transaction to prevent data loss if the app is killed mid-pipeline.</p>
+  </section>
+
+  <!-- S6: NOTIFICATION ENGINE -->
+  <section id="s6">
+    <div class="sec-head"><span class="sec-num">06</span><h2 class="sec-title">Notification Engine</h2></div>
+
+    <p>The Notification Engine is responsible for constructing the <code>NotificationDelivery</code> record, selecting the appropriate delivery channel, and executing the delivery. It is invoked by the pipeline after all filters have passed.</p>
+
+    <h3>6.1 Channel Selection Logic</h3>
+    <div class="cb">selectChannel(event: EventPayload, appState: AppState): DeliveryChannel
+
+IF appState == <span class="str">'FOREGROUND'</span>:
+  priority == <span class="num">1</span> CRITICAL → IN_APP_BANNER     <span class="c">// interrupts the user</span>
+  priority == <span class="num">2</span> HIGH     → IN_APP_BANNER
+  priority == <span class="num">3</span> MEDIUM   → IN_APP_TOAST      <span class="c">// non-interrupting</span>
+  priority == <span class="num">4</span> LOW      → IN_APP_TOAST
+  priority == <span class="num">5</span> INFO     → SILENT
+
+IF appState == <span class="str">'BACKGROUND'</span> OR <span class="str">'KILLED'</span>:
+  priority == <span class="num">1</span> CRITICAL → PUSH               <span class="c">// always push</span>
+  priority == <span class="num">2</span> HIGH     → PUSH               <span class="c">// if push permission granted</span>
+  priority == <span class="num">3</span> MEDIUM   → PUSH               <span class="c">// subject to quiet hours</span>
+  priority == <span class="num">4</span> LOW      → BADGE_ONLY         <span class="c">// increment badge, no banner</span>
+  priority == <span class="num">5</span> INFO     → SILENT             <span class="c">// no user-visible delivery</span>
+
+<span class="c">// If push permission NOT granted: downgrade PUSH → BADGE_ONLY for priority 2–3
+// CRITICAL push is attempted regardless — system may show it as critical alert</span></div>
+
+    <h3>6.2 Notification Copy Templates</h3>
+    <p>The engine constructs notification copy from structured templates. Copy is never hardcoded at the module level — it is resolved by the engine using event <code>data</code> fields as interpolation values.</p>
+    <div class="tw"><table>
+      <thead><tr><th>EventType</th><th>Title Template</th><th>Body Template</th></tr></thead>
+      <tbody>
+        <tr><td><code>BUDGET_THRESHOLD_80</code></td><td>"Budget Alert: {{categoryName}}"</td><td>"You've used {{utilizedPct}}% of your {{categoryName}} budget this period."</td></tr>
+        <tr><td><code>BUDGET_THRESHOLD_110</code></td><td>"Budget Overrun: {{categoryName}}"</td><td>"{{categoryName}} is {{overPct}}% over budget. Consider adjusting your plan."</td></tr>
+        <tr><td><code>DEBT_PAYMENT_DUE_3D</code></td><td>"Payment Due in 3 Days"</td><td>"{{creditName}} payment of {{amount}} is due on {{dueDate}}."</td></tr>
+        <tr><td><code>DEBT_PAYMENT_OVERDUE</code></td><td>"Payment Overdue: {{creditName}}"</td><td>"Your {{creditName}} payment of {{amount}} is {{daysOverdue}} day(s) overdue."</td></tr>
+        <tr><td><code>DEBT_FULLY_PAID</code></td><td>"Debt-Free: {{creditName}} 🎉"</td><td>"You've paid off {{creditName}} completely. Outstanding achievement!"</td></tr>
+        <tr><td><code>EMF_MILESTONE_REACHED</code></td><td>"Emergency Fund Milestone 🛡️"</td><td>"You've reached {{milestoneName}} — {{coverageMonths}} months of expenses secured."</td></tr>
+        <tr><td><code>EMF_WITHDRAWAL_MADE</code></td><td>"Emergency Fund: Withdrawal Recorded"</td><td>"{{amount}} withdrawn from your emergency fund. Focus on rebuilding when ready."</td></tr>
+        <tr><td><code>GOAL_CONTRIBUTION_REMINDER</code></td><td>"Goal Reminder: {{goalName}}"</td><td>"Your {{goalName}} contribution of {{amount}} is due in {{days}} day(s)."</td></tr>
+        <tr><td><code>GOAL_MILESTONE_PCT</code></td><td>"Goal Milestone: {{percent}}% 🏆"</td><td>"{{goalName}} is {{percent}}% funded — you're making real progress!"</td></tr>
+        <tr><td><code>GOAL_COMPLETED</code></td><td>"Goal Achieved: {{goalName}} ✅"</td><td>"Congratulations! {{goalName}} is fully funded and ready."</td></tr>
+        <tr><td><code>GOAL_DEADLINE_7D</code></td><td>"Goal Deadline: 7 Days Left"</td><td>"{{goalName}} has {{remainingPct}}% left to fund with {{days}} days remaining."</td></tr>
+        <tr><td><code>ROADMAP_GOAL_UNBLOCKED</code></td><td>"Goal Unlocked: {{goalName}}"</td><td>"{{goalName}} is now available to start — your roadmap has progressed!"</td></tr>
+        <tr><td><code>FHS_SIGNIFICANT_CHANGE</code></td><td>"Financial Health {{direction}}"</td><td>"Your score {{verb}} by {{delta}} points to {{newScore}}. {{action}}"</td></tr>
+        <tr><td><code>AVAILABLE_MONEY_NEGATIVE</code></td><td>"Income Over-Committed"</td><td>"Your committed expenses exceed income by {{amount}}. Review your budget plan."</td></tr>
+        <tr><td><code>SALARY_DUE_REMINDER</code></td><td>"Record This Month's Income"</td><td>"A new budget period has started. Record your salary to activate your plan."</td></tr>
+        <tr><td><code>BUDGET_PERIOD_ENDING</code></td><td>"Period Ends in {{days}} Days"</td><td>"You have {{days}} days left in this budget period. {{budgetStatus}}"</td></tr>
+        <tr><td><code>BEHAVIORAL_STREAK_MILESTONE</code></td><td>"Consistency Streak: {{streakPeriods}} Months 🔥"</td><td>"You've saved consistently for {{streakPeriods}} months in a row. Keep it up!"</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>6.3 Deep Link Routes</h3>
+    <p>Every notification includes a <code>data.route</code> field pointing to the relevant app screen. Tapping the notification navigates directly to the context that triggered it.</p>
+    <div class="tw"><table>
+      <thead><tr><th>EventType Family</th><th>Route</th></tr></thead>
+      <tbody>
+        <tr><td>BUD events</td><td><code>/budget/period/[periodId]</code></td></tr>
+        <tr><td>DBT events</td><td><code>/debts/[creditId]</code></td></tr>
+        <tr><td>EMF events</td><td><code>/emergency-fund</code></td></tr>
+        <tr><td>GOL events</td><td><code>/goals/[goalId]</code></td></tr>
+        <tr><td>RMP events</td><td><code>/roadmap</code></td></tr>
+        <tr><td>DSH events</td><td><code>/dashboard</code></td></tr>
+        <tr><td>RPT events</td><td><code>/reports</code></td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- S7: REMINDER SYSTEM -->
+  <section id="s7">
+    <div class="sec-head"><span class="sec-num">07</span><h2 class="sec-title">Reminder System</h2></div>
+
+    <p>Reminders are time-scheduled notifications that are not triggered by a real-time event but by a configured time condition. They are stored in <code>scheduled_reminders</code> and checked by a background task that runs when the app opens and every 15 minutes while foregrounded.</p>
+
+    <h3>7.1 Reminder Types</h3>
+    <div class="tw"><table>
+      <thead><tr><th>ReminderType</th><th>Source Module</th><th>Default Schedule</th><th>Recurrence</th></tr></thead>
+      <tbody>
+        <tr><td><strong>SALARY_RECORD_REMINDER</strong></td><td><span class="mr mr-sal">SAL</span></td><td>Day 1 of each salary period, 09:00</td><td>PERIOD_BASED</td></tr>
+        <tr><td><strong>BUDGET_SETUP_REMINDER</strong></td><td><span class="mr mr-bud">BUD</span></td><td>Day 1 of period if no allocations exist, 10:00</td><td>PERIOD_BASED</td></tr>
+        <tr><td><strong>EXPENSE_LOG_REMINDER</strong></td><td><span class="mr mr-bud">BUD</span></td><td>Daily at user-configured time (default 20:00)</td><td>DAILY</td></tr>
+        <tr><td><strong>DEBT_PAYMENT_REMINDER</strong></td><td><span class="mr mr-dbt">DBT</span></td><td>7d, 3d, 1d before each debt's paymentDueDay</td><td>MONTHLY per debt</td></tr>
+        <tr><td><strong>EMF_CONTRIBUTION_REMINDER</strong></td><td><span class="mr mr-emf">EMF</span></td><td>contributionDay − 2 days, monthly</td><td>MONTHLY</td></tr>
+        <tr><td><strong>GOAL_CONTRIBUTION_REMINDER</strong></td><td><span class="mr mr-gol">GOL</span></td><td>contributionDay − 2 days, monthly per active goal</td><td>MONTHLY per goal</td></tr>
+        <tr><td><strong>PERIOD_END_REMINDER</strong></td><td><span class="mr mr-bud">BUD</span></td><td>3 days before period end</td><td>PERIOD_BASED</td></tr>
+        <tr><td><strong>WEEKLY_REVIEW_REMINDER</strong></td><td><span class="mr mr-rpt">RPT</span></td><td>Sunday 18:00 (user-configurable)</td><td>WEEKLY</td></tr>
+        <tr><td><strong>MONTHLY_REPORT_REMINDER</strong></td><td><span class="mr mr-rpt">RPT</span></td><td>Last day of each period, 19:00</td><td>PERIOD_BASED</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>7.2 Reminder Lifecycle</h3>
+    <ol class="sl">
+      <li><strong>Creation:</strong> Reminders are created by module operations (e.g., adding a new debt creates DEBT_PAYMENT_REMINDER rows for that debt). Creation is idempotent — creating a reminder for an entity+type that already exists updates the existing row rather than inserting a duplicate.</li>
+      <li><strong>Scheduling:</strong> <code>scheduled_for</code> is set to the next fire time. <code>next_fire_at</code> mirrors this for recurring reminders.</li>
+      <li><strong>Firing:</strong> On fire: the engine publishes the corresponding EventType into the EventBus (e.g. GOAL_CONTRIBUTION_REMINDER event), then advances <code>next_fire_at</code> to the next recurrence. The reminder itself is not a notification — it becomes an event that flows through the pipeline.</li>
+      <li><strong>Snoozing:</strong> User snoozes → <code>snoozed_until = now + snoozeDuration</code>. Next check: if <code>now &lt; snoozed_until</code>, skip. Snooze duration options: 1 hour, 3 hours, 24 hours, 3 days.</li>
+      <li><strong>Dismissal:</strong> User permanently dismisses → <code>dismissed_at = now</code>. Recurring reminders with <code>dismissed_at</code> set are never fired again (soft-disabled). The row is never hard-deleted.</li>
+      <li><strong>Cleanup:</strong> When a source entity is soft-deleted (goal cancelled, debt archived): all its associated reminders are dismissed automatically (<code>dismissed_at = now</code>).</li>
+    </ol>
+
+    <h3>7.3 Reminder Check Algorithm</h3>
+    <div class="cb">ON app_foreground OR timer_tick:
+  now = Date.<span class="fn">now</span>()
+  dueReminders = SELECT * FROM scheduled_reminders
+    WHERE scheduled_for &lt;= now
+      AND dismissed_at IS NULL
+      AND (snoozed_until IS NULL OR snoozed_until &lt; now)
+      AND deleted_at IS NULL
+    ORDER BY scheduled_for ASC
+
+  FOR each reminder IN dueReminders:
+    EventBus.<span class="fn">publish</span>({ type: reminder.reminder_type_as_event, ... })
+    IF reminder.recurrence IS NOT NULL:
+      reminder.next_fire_at = <span class="fn">computeNextFire</span>(reminder)
+      reminder.scheduled_for = reminder.next_fire_at
+      reminder.snoozed_until = null
+    ELSE:
+      reminder.dismissed_at = now   <span class="c">// one-shot: auto-dismiss after firing</span></div>
+  </section>
+
+  <!-- S8: AUTOMATION ENGINE -->
+  <section id="s8">
+    <div class="sec-head"><span class="sec-num">08</span><h2 class="sec-title">Automation Engine</h2></div>
+
+    <p>Automations are background workflows that execute in response to events. They have no user-visible output — they update module state or trigger downstream events. Automations run in parallel with notification delivery and are not blocked by notification failures.</p>
+
+    <h3>8.1 Automation Catalogue</h3>
+    <div class="tw"><table>
+      <thead><tr><th>AutomationType</th><th>Trigger Event</th><th>What It Does</th></tr></thead>
+      <tbody>
+        <tr><td><strong>REBUILD_DASHBOARD_SNAPSHOT</strong></td><td>Any module write event (INFO priority)</td><td>Marks the affected module's Zustand slice as stale; triggers partial or full DashboardSnapshot rebuild per SPEC-DSH-001 §2.4</td></tr>
+        <tr><td><strong>RECORD_FHS_HISTORY</strong></td><td>SNAPSHOT_REBUILD_NEEDED (first of the day)</td><td>Computes today's FHS and writes one row to <code>fhs_history</code> table per SPEC-RPT-001 §10.1. Uses ON CONFLICT IGNORE guard.</td></tr>
+        <tr><td><strong>ADVANCE_PERIOD</strong></td><td>BUDGET_PERIOD_ENDED</td><td>Creates the next salary period record, copies carry-over allocations per SPEC-BUD-001 BR-BUD-09, and publishes BUDGET_PERIOD_STARTED</td></tr>
+        <tr><td><strong>DISMISS_GOAL_REMINDERS</strong></td><td>GOAL_COMPLETED or goal soft-deleted</td><td>Sets <code>dismissed_at</code> on all scheduled_reminders where source_entity_id = goalId</td></tr>
+        <tr><td><strong>DISMISS_DEBT_REMINDERS</strong></td><td>DEBT_FULLY_PAID or debt archived</td><td>Sets <code>dismissed_at</code> on all scheduled_reminders where source_entity_id = creditId; publishes ROADMAP_GOAL_UNBLOCKED if applicable</td></tr>
+        <tr><td><strong>CREATE_DEBT_REMINDERS</strong></td><td>New Credit created (USER_ACTION)</td><td>Creates DEBT_PAYMENT_REMINDER rows for 7d, 3d, and 1d before each monthly paymentDueDay</td></tr>
+        <tr><td><strong>CREATE_GOAL_REMINDER</strong></td><td>New Goal activated (STATE_CHANGE)</td><td>Creates GOAL_CONTRIBUTION_REMINDER recurring monthly at contributionDay − 2</td></tr>
+        <tr><td><strong>CREATE_EMF_REMINDER</strong></td><td>EMF created or contributionDay changed</td><td>Upserts EMF_CONTRIBUTION_REMINDER with new schedule</td></tr>
+        <tr><td><strong>PROPAGATE_ROADMAP_IMPACT</strong></td><td>GOAL_COMPLETED, DEBT_FULLY_PAID, EMF_MILESTONE_REACHED</td><td>Invokes the BFS impact propagation from SPEC-RMP-001 §6; publishes ROADMAP_GOAL_UNBLOCKED for any newly unblocked goals</td></tr>
+        <tr><td><strong>GENERATE_WEEKLY_REPORT</strong></td><td>WEEKLY_REVIEW_REMINDER fires</td><td>Triggers RPT-WEEKLY report pre-computation and caches result in Zustand; publishes REPORT_READY</td></tr>
+        <tr><td><strong>CLEANUP_OLD_EVENTS</strong></td><td>App open (at most once per day)</td><td>Deletes event_log rows older than 90 days, fhs_history rows older than 365 days, dismissed reminders older than 30 days</td></tr>
+        <tr><td><strong>CHECK_FHS_CHANGE</strong></td><td>RECORD_FHS_HISTORY completes</td><td>Compares today's FHS to yesterday's. If |delta| ≥ 10: publishes FHS_SIGNIFICANT_CHANGE. If total ≤ 24: publishes FHS_CRITICAL_LOW.</td></tr>
+        <tr><td><strong>CHECK_SAVINGS_RATE_MILESTONE</strong></td><td>SALARY_RECORDED or GOAL_CONTRIBUTION_MADE</td><td>Recomputes savingsRatePct; if it crossed 5%, 10%, 15%, or 20% threshold compared to last period: publishes SAVINGS_RATE_MILESTONE</td></tr>
+        <tr><td><strong>CHECK_BEHAVIORAL_STREAK</strong></td><td>BUDGET_PERIOD_ENDED</td><td>Evaluates the behavioralBlock.savingsConsistency streak; publishes BEHAVIORAL_STREAK_MILESTONE at 3/6/12 period milestones, or BEHAVIORAL_STREAK_BROKEN if streak resets to 0</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>8.2 Automation Failure Handling</h3>
+    <ul class="sl">
+      <li>Automation failures are logged to <code>automation_log</code> with <code>status = 'FAILED'</code> and the error message</li>
+      <li>Failed automations are retried once, 30 seconds later, before being marked permanent failures</li>
+      <li>A failed automation never prevents notification delivery or other automations — they are independent</li>
+      <li>Critical automations (ADVANCE_PERIOD, PROPAGATE_ROADMAP_IMPACT) surface a silent in-app warning in the developer debug panel if they fail twice</li>
+    </ul>
+  </section>
+
+  <!-- S9: MODULE EVENT CATALOGUE -->
+  <section id="s9">
+    <div class="sec-head"><span class="sec-num">09</span><h2 class="sec-title">Module Event Catalogue</h2></div>
+
+    <p>This section defines exactly which events each module publishes, in which context, and what data fields they must include. This is the contract between each module and the Event Engine.</p>
+
+    <div class="evt-grid">
+      <div class="ecard">
+        <div class="ecard-mod" style="color:#14B8A6">SAL — Salary Management</div>
+        <div class="ecard-events">
+          <div class="ecard-ev"><strong>SALARY_RECORDED</strong> — on salaryPeriod.income write; data: {periodId, amount, periodStart}</div>
+          <div class="ecard-ev"><strong>SALARY_DUE_REMINDER</strong> — published by SALARY_RECORD_REMINDER automation; data: {periodId, daysSinceStart}</div>
+          <div class="ecard-ev"><strong>SALARY_OVERDUE</strong> — when app opens and currentPeriod has no income after 5+ days; data: {periodId, daysSinceStart}</div>
+        </div>
+      </div>
+      <div class="ecard">
+        <div class="ecard-mod" style="color:#6366F1">BUD — Budget Management</div>
+        <div class="ecard-events">
+          <div class="ecard-ev"><strong>BUDGET_PERIOD_STARTED</strong> — on new period creation; data: {periodId, periodStart, periodEnd}</div>
+          <div class="ecard-ev"><strong>BUDGET_PERIOD_ENDING</strong> — 3 days before end; data: {periodId, daysRemaining, utilizationPct}</div>
+          <div class="ecard-ev"><strong>BUDGET_PERIOD_ENDED</strong> — on period close; data: {periodId, finalUtilizationPct, carryOver}</div>
+          <div class="ecard-ev"><strong>BUDGET_THRESHOLD_80/100/110</strong> — on expense record; data: {periodId, categoryId, categoryName, utilizedPct}</div>
+          <div class="ecard-ev"><strong>BUDGET_CATEGORY_OVERSPENT</strong> — on expense when spent > allocated; data: {categoryId, categoryName, overAmount}</div>
+          <div class="ecard-ev"><strong>EXPENSE_ADDED</strong> — on expense create (INFO, automation only); data: {expenseId, amount, categoryId}</div>
+        </div>
+      </div>
+      <div class="ecard">
+        <div class="ecard-mod" style="color:#EF4444">DBT — Debt Management</div>
+        <div class="ecard-events">
+          <div class="ecard-ev"><strong>DEBT_PAYMENT_DUE_7D/3D/1D</strong> — from scheduled reminders; data: {creditId, creditName, amount, dueDate}</div>
+          <div class="ecard-ev"><strong>DEBT_PAYMENT_OVERDUE</strong> — on app open when payment date has passed; data: {creditId, daysOverdue, amount}</div>
+          <div class="ecard-ev"><strong>DEBT_PAYMENT_RECORDED</strong> — on payment record (INFO); data: {creditId, paymentId, amount, newBalance}</div>
+          <div class="ecard-ev"><strong>DEBT_MILESTONE_50</strong> — when balance reaches 50% of original; data: {creditId, creditName, originalBalance, currentBalance}</div>
+          <div class="ecard-ev"><strong>DEBT_FULLY_PAID</strong> — when currentBalance == 0; data: {creditId, creditName, totalPaid, periodsToPayoff}</div>
+          <div class="ecard-ev"><strong>DEBT_DTI_THRESHOLD</strong> — when dtiPct crosses 36% or 44%; data: {dtiPct, threshold, monthlyPayments, grossIncome}</div>
+        </div>
+      </div>
+      <div class="ecard">
+        <div class="ecard-mod" style="color:#22C55E">EMF — Emergency Fund</div>
+        <div class="ecard-events">
+          <div class="ecard-ev"><strong>EMF_CONTRIBUTION_MADE</strong> — on contribution record (INFO); data: {contributionId, amount, newTotal}</div>
+          <div class="ecard-ev"><strong>EMF_CONTRIBUTION_REMINDER</strong> — from scheduled reminder; data: {currentAmount, targetAmount, daysUntilDay}</div>
+          <div class="ecard-ev"><strong>EMF_MILESTONE_REACHED</strong> — when milestoneLevel changes; data: {newLevel, coverageMonths, currentAmount}</div>
+          <div class="ecard-ev"><strong>EMF_FULLY_FUNDED</strong> — when completionPct ≥ 100% of target; data: {targetAmount, currentAmount, level}</div>
+          <div class="ecard-ev"><strong>EMF_WITHDRAWAL_MADE</strong> — on withdrawal record; data: {amount, newTotal, completionPct, recoveryMonths}</div>
+        </div>
+      </div>
+      <div class="ecard">
+        <div class="ecard-mod" style="color:#F59E0B">GOL — Financial Goals</div>
+        <div class="ecard-events">
+          <div class="ecard-ev"><strong>GOAL_CONTRIBUTION_MADE</strong> — on contribution record (INFO); data: {goalId, amount, newTotal, completionPct}</div>
+          <div class="ecard-ev"><strong>GOAL_CONTRIBUTION_REMINDER</strong> — from scheduled reminder; data: {goalId, goalName, amount, daysUntilDay}</div>
+          <div class="ecard-ev"><strong>GOAL_MILESTONE_PCT</strong> — when completionPct crosses 10/25/50/75/90%; data: {goalId, goalName, pct, badgeAwarded}</div>
+          <div class="ecard-ev"><strong>GOAL_COMPLETED</strong> — when completionPct ≥ 100; data: {goalId, goalName, totalSaved, periodsActive}</div>
+          <div class="ecard-ev"><strong>GOAL_DEADLINE_30D/7D</strong> — from scheduled reminders; data: {goalId, goalName, remainingPct, remainingAmount}</div>
+          <div class="ecard-ev"><strong>GOAL_DEADLINE_MISSED</strong> — on app open when deadline passed with completionPct &lt; 100; data: {goalId, goalName, completionPct}</div>
+          <div class="ecard-ev"><strong>GOAL_OFF_TRACK</strong> — when feasibilityRatio drops below 0.7 for 2+ periods; data: {goalId, goalName, feasibilityRatio, requiredMonthly}</div>
+        </div>
+      </div>
+      <div class="ecard">
+        <div class="ecard-mod" style="color:#8B5CF6">RMP — Roadmap Engine</div>
+        <div class="ecard-events">
+          <div class="ecard-ev"><strong>ROADMAP_GOAL_UNBLOCKED</strong> — when a goal's roadmapStatus changes to RECOMMENDED_NEXT; data: {goalId, goalName, previousBlocker}</div>
+          <div class="ecard-ev"><strong>ROADMAP_BLOCKED</strong> — when a goal's roadmapStatus changes to BLOCKED; data: {goalId, goalName, blockingEntityId, blockingReason}</div>
+          <div class="ecard-ev"><strong>ROADMAP_LIFE_EVENT</strong> — on LifeEvent creation; data: {eventType, eventName, impactedGoalCount}</div>
+        </div>
+      </div>
+      <div class="ecard">
+        <div class="ecard-mod" style="color:#0EA5E9">DSH — Dashboard</div>
+        <div class="ecard-events">
+          <div class="ecard-ev"><strong>AVAILABLE_MONEY_NEGATIVE</strong> — on snapshot build when result &lt; 0; data: {deficit, grossIncome, totalCommitted}</div>
+          <div class="ecard-ev"><strong>AVAILABLE_MONEY_LOW</strong> — when availableMoney &lt; grossIncome × 5%; data: {amount, threshold}</div>
+          <div class="ecard-ev"><strong>FHS_SIGNIFICANT_CHANGE</strong> — published by CHECK_FHS_CHANGE automation; data: {oldScore, newScore, delta, direction}</div>
+          <div class="ecard-ev"><strong>FHS_CRITICAL_LOW</strong> — published by CHECK_FHS_CHANGE when total ≤ 24; data: {score, weakestComponent}</div>
+          <div class="ecard-ev"><strong>FHS_EXCELLENT_ACHIEVED</strong> — first time fhsTotal ≥ 85; data: {score, previousBest}</div>
+          <div class="ecard-ev"><strong>SNAPSHOT_REBUILD_NEEDED</strong> — on any module write (INFO, automation only)</div>
+        </div>
+      </div>
+      <div class="ecard">
+        <div class="ecard-mod" style="color:#10B981">RPT — Reports &amp; Analytics</div>
+        <div class="ecard-events">
+          <div class="ecard-ev"><strong>REPORT_READY</strong> — when a pre-computed report is cached (INFO); data: {reportType, reportId}</div>
+          <div class="ecard-ev"><strong>BEHAVIORAL_STREAK_MILESTONE</strong> — published by CHECK_BEHAVIORAL_STREAK; data: {metric, streakPeriods}</div>
+          <div class="ecard-ev"><strong>BEHAVIORAL_STREAK_BROKEN</strong> — when streak resets; data: {metric, previousStreak}</div>
+          <div class="ecard-ev"><strong>SAVINGS_RATE_MILESTONE</strong> — published by CHECK_SAVINGS_RATE_MILESTONE; data: {newRate, threshold, direction}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S10: DELIVERY RULES -->
+  <section id="s10">
+    <div class="sec-head"><span class="sec-num">10</span><h2 class="sec-title">Delivery Rules &amp; Frequency Caps</h2></div>
+
+    <h3>10.1 Global Frequency Caps</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Cap</th><th>Limit</th><th>Priority Exception</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Push per day (total)</strong></td><td>5 push notifications per 24-hour window</td><td>Priority 1 (CRITICAL) bypasses this cap</td></tr>
+        <tr><td><strong>Push per module per day</strong></td><td>2 push notifications per source module per day</td><td>Priority 1 bypasses</td></tr>
+        <tr><td><strong>In-app banner per session</strong></td><td>3 in-app banners per app session (foreground open to close)</td><td>Priority 1 bypasses</td></tr>
+        <tr><td><strong>In-app toast per session</strong></td><td>5 toasts per session</td><td>Priority 1 and 2 bypass</td></tr>
+        <tr><td><strong>Goal reminders per day</strong></td><td>2 per day across all goals combined</td><td>No exception</td></tr>
+        <tr><td><strong>Same event repeat</strong></td><td>Same EventType for same entity: max once per 24 hours</td><td>Priority 1: max once per 4 hours</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>10.2 Cap Check Algorithm</h3>
+    <div class="cb">checkFrequencyCap(event: EventPayload): <span class="str">'ALLOW'</span> | <span class="str">'THROTTLE'</span>
+
+  window24h = now - <span class="num">24</span>_HOURS_IN_MS
+  sent24h   = COUNT(event_log WHERE processed_at >= window24h
+                    AND notifications_sent > <span class="num">0</span>
+                    AND skipped_reason IS NULL)
+
+  IF event.priority == <span class="num">1</span>: RETURN <span class="str">'ALLOW'</span>   <span class="c">// CRITICAL: never throttle</span>
+
+  IF sent24h >= <span class="num">5</span>: RETURN <span class="str">'THROTTLE'</span>             <span class="c">// Global daily cap</span>
+
+  sentByModule24h = COUNT(... AND source_module = event.sourceModule)
+  IF sentByModule24h >= <span class="num">2</span>: RETURN <span class="str">'THROTTLE'</span>    <span class="c">// Per-module cap</span>
+
+  RETURN <span class="str">'ALLOW'</span></div>
+
+    <div class="callout c-warn"><span class="ci">⚠️</span><div class="cb2"><strong>Throttling ≠ silent drop.</strong> A throttled notification is not lost. It is queued in the <code>event_log</code> with <code>skipped_reason = 'THROTTLED'</code>. The engine re-evaluates throttled events on the next app open; if the cap window has reset, the event is re-processed. This ensures no DEBT_PAYMENT_DUE notification is permanently missed due to an earlier notification burst.</div></div>
+
+    <h3>10.3 Notification Batching</h3>
+    <p>When multiple events fire in quick succession (e.g., period rollover triggering both BUDGET_PERIOD_ENDED and BUDGET_PERIOD_STARTED), the engine batches deliveries within a 500 ms window into a single notification where appropriate:</p>
+    <ul class="sl">
+      <li>Multiple goal milestone events for different goals → batch into "3 goals reached new milestones"</li>
+      <li>Multiple budget threshold events for different categories → batch into "3 categories near budget limit"</li>
+      <li>BUDGET_PERIOD_ENDED and BUDGET_PERIOD_STARTED → single "New period started" notification with prior period summary</li>
+      <li>CRITICAL events are never batched — each must be individually actionable</li>
+    </ul>
+  </section>
+
+  <!-- S11: USER PREFERENCES -->
+  <section id="s11">
+    <div class="sec-head"><span class="sec-num">11</span><h2 class="sec-title">User Preferences &amp; Controls</h2></div>
+
+    <h3>11.1 NotificationPreferences Type</h3>
+    <div class="cb"><span class="kw">type</span> NotificationPreferences = {
+  <span class="c">// Global</span>
+  pushEnabled:        <span class="fn">boolean</span>            <span class="c">// master push on/off</span>
+  inAppEnabled:       <span class="fn">boolean</span>            <span class="c">// master in-app on/off</span>
+
+  <span class="c">// Per-module toggles</span>
+  modules: {
+    SAL:  ModulePrefs
+    BUD:  ModulePrefs
+    DBT:  ModulePrefs
+    EMF:  ModulePrefs
+    GOL:  ModulePrefs
+    RMP:  ModulePrefs
+    DSH:  ModulePrefs
+    RPT:  ModulePrefs
+  }
+
+  <span class="c">// Per-category toggles</span>
+  categories: {
+    THRESHOLD:   <span class="fn">boolean</span>
+    DUE_DATE:    <span class="fn">boolean</span>
+    MILESTONE:   <span class="fn">boolean</span>
+    STATE_CHANGE: <span class="fn">boolean</span>
+    PERIOD:      <span class="fn">boolean</span>
+    USER_ACTION: <span class="fn">boolean</span>
+    ANOMALY:     <span class="fn">boolean</span>
+  }
+
+  <span class="c">// Quiet hours</span>
+  quietHoursEnabled:  <span class="fn">boolean</span>
+  quietHoursStart:    <span class="fn">string</span>             <span class="c">// 'HH:MM' 24-hour format, default '22:00'</span>
+  quietHoursEnd:      <span class="fn">string</span>             <span class="c">// 'HH:MM', default '08:00'</span>
+
+  <span class="c">// Reminders</span>
+  expenseLogReminderTime: <span class="fn">string</span>         <span class="c">// 'HH:MM', default '20:00'</span>
+  weeklyReviewDay:    <span class="fn">number</span>             <span class="c">// 0=Sun … 6=Sat, default 0</span>
+  weeklyReviewTime:   <span class="fn">string</span>             <span class="c">// 'HH:MM', default '18:00'</span>
+}
+
+<span class="kw">type</span> ModulePrefs = {
+  enabled:     <span class="fn">boolean</span>
+  pushEnabled: <span class="fn">boolean</span>         <span class="c">// can disable push but keep in-app</span>
+  minPriority: EventPriority   <span class="c">// e.g. 2 = only HIGH and CRITICAL</span>
+}</div>
+
+    <h3>11.2 Preference Defaults</h3>
+    <p>On first app launch, all preferences are set to their default values. Users are shown a single permission request for push notifications. Declining push never disables in-app notifications — they are independent channels.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Preference</th><th>Default</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>pushEnabled</td><td>true (if permission granted)</td><td>Set to false if OS push permission denied</td></tr>
+        <tr><td>inAppEnabled</td><td>true</td><td>Cannot be fully disabled — CRITICAL alerts always shown</td></tr>
+        <tr><td>All modules.enabled</td><td>true</td><td>User can disable individual modules</td></tr>
+        <tr><td>minPriority (all modules)</td><td>3 (MEDIUM)</td><td>INFO events never generate user-facing notifications</td></tr>
+        <tr><td>quietHoursEnabled</td><td>true</td><td>On by default to prevent late-night alerts</td></tr>
+        <tr><td>CRITICAL bypass quiet hours</td><td>Always true</td><td>Not user-configurable — required for overdue payments</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>11.3 Preference Change Side-Effects</h3>
+    <ul class="sl">
+      <li>Disabling a module's notifications immediately cancels all pending scheduled reminders for that module (sets <code>snoozed_until = far future</code>) — does not dismiss them permanently</li>
+      <li>Re-enabling a module un-snoozes its reminders and reschedules the next fire time from now</li>
+      <li>Changing <code>expenseLogReminderTime</code> immediately updates the EXPENSE_LOG_REMINDER next_fire_at</li>
+      <li>Changing <code>quietHoursStart/End</code> takes effect on the next event processed — does not retroactively affect already-delivered notifications</li>
+    </ul>
+  </section>
+
+  <!-- S12: QUIET HOURS -->
+  <section id="s12">
+    <div class="sec-head"><span class="sec-num">12</span><h2 class="sec-title">Quiet Hours &amp; Do Not Disturb</h2></div>
+
+    <h3>12.1 Quiet Hours Logic</h3>
+    <div class="cb">isQuietHours(): <span class="fn">boolean</span>
+
+  IF !prefs.quietHoursEnabled: RETURN <span class="kw">false</span>
+
+  now = currentTimeOfDay  <span class="c">// HH:MM in device local time</span>
+  start = prefs.quietHoursStart  <span class="c">// e.g. '22:00'</span>
+  end   = prefs.quietHoursEnd    <span class="c">// e.g. '08:00'</span>
+
+  IF start > end:  <span class="c">// overnight window (e.g. 22:00 → 08:00)</span>
+    RETURN now >= start OR now &lt; end
+  ELSE:            <span class="c">// same-day window (e.g. 14:00 → 18:00)</span>
+    RETURN now >= start AND now &lt; end</div>
+
+    <h3>12.2 Quiet Hours Behavior per Priority</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Priority</th><th>During Quiet Hours</th><th>After Quiet Hours Ends</th></tr></thead>
+      <tbody>
+        <tr><td><span class="chip ch-red">CRITICAL</span></td><td>Deliver immediately — no deferral</td><td>N/A</td></tr>
+        <tr><td><span class="chip ch-org">HIGH</span></td><td>Queue; deliver at quietHoursEnd</td><td>Deliver queued HIGH events in chronological order</td></tr>
+        <tr><td><span class="chip ch-amb">MEDIUM</span></td><td>Queue; deliver at quietHoursEnd</td><td>Deliver queued MEDIUM events; apply frequency caps</td></tr>
+        <tr><td><span class="chip ch-sky">LOW</span></td><td>Discard — no deferral (non-urgent)</td><td>N/A — LOW events during quiet hours are not delivered</td></tr>
+        <tr><td><span class="chip ch-grey">INFO</span></td><td>Process normally (silent — no user delivery)</td><td>N/A</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>12.3 Quiet Hours Queue</h3>
+    <div class="cb"><span class="c">// Deferred events are stored in event_log with skipped_reason = 'QUIET_HOURS'
+// and processed_at = null. A special flag deferred_until is set:</span>
+
+deferredUntil = todayAt(prefs.quietHoursEnd)  <span class="c">// or tomorrowAt() if end has already passed today</span>
+
+<span class="c">// On app open or quiet hours end timer: re-process all deferred events
+// where deferredUntil &lt;= now, ordered by priority ASC, then occurredAt ASC.
+// Subject to fresh frequency cap check — deferred events that would exceed
+// caps are discarded at this point (they are already old news).</span>
+
+<span class="c">// Exception: DEBT_PAYMENT_OVERDUE with deferral &gt; 1 hour is re-delivered
+// regardless of frequency caps — the financial risk of missing it outweighs cap logic.</span></div>
+  </section>
+
+  <!-- S13: PERFORMANCE -->
+  <section id="s13">
+    <div class="sec-head"><span class="sec-num">13</span><h2 class="sec-title">Performance &amp; Reliability</h2></div>
+
+    <h3>13.1 Performance Targets</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Operation</th><th>Target</th><th>Measurement</th></tr></thead>
+      <tbody>
+        <tr><td>EventBus.publish() call (module perspective)</td><td>&lt; 5 ms</td><td>Call return to calling thread — fire-and-forget</td></tr>
+        <tr><td>Pipeline processing (validation → route)</td><td>&lt; 50 ms</td><td>Event entry to delivery dispatch</td></tr>
+        <tr><td>In-app banner display</td><td>&lt; 100 ms after pipeline</td><td>Event dispatch → banner visible</td></tr>
+        <tr><td>Push notification scheduling</td><td>&lt; 200 ms</td><td>Expo Notifications.scheduleNotificationAsync call</td></tr>
+        <tr><td>Reminder check on app open</td><td>&lt; 100 ms</td><td>Query + publish all due reminders</td></tr>
+        <tr><td>Event log cleanup</td><td>&lt; 200 ms</td><td>DELETE WHERE created_at &lt; 90 days ago</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>13.2 Background Task Architecture</h3>
+    <ul class="sl">
+      <li>The reminder check runs as an <strong>Expo TaskManager</strong> background task, registered at app start, scheduled to run every 15 minutes when the app is backgrounded</li>
+      <li>The background task is allowed a maximum 30-second execution window by iOS — all operations must complete within this budget</li>
+      <li>Android: Expo BackgroundFetch API, minimum 15-minute interval</li>
+      <li>Background task operations: reminder check + publish due events + automation execution (REBUILD_DASHBOARD_SNAPSHOT is skipped in background — deferred to next foreground open)</li>
+      <li>If the background task is killed mid-execution: the WAL-mode SQLite transaction ensures no partial writes. On next execution, due reminders are re-evaluated from scratch.</li>
+    </ul>
+
+    <h3>13.3 Event Log Size Management</h3>
+    <div class="cb"><span class="c">// Projected growth rate: ~10 events/day average user</span>
+<span class="c">// 90-day retention: 900 rows maximum</span>
+<span class="c">// automation_log: ~5 rows/event → 4500 rows maximum</span>
+<span class="c">// scheduled_reminders: bounded by entity count (~50 rows maximum)</span>
+<span class="c">// Total EVT module DB footprint: &lt; 1 MB</span>
+
+<span class="c">// Cleanup runs at most once per calendar day, on app open.
+// Uses: DELETE FROM event_log WHERE created_at &lt; (now - 90_DAYS_MS)
+// All deletes are hard deletes — EVT module has no soft-delete on event_log.
+// automation_log cleanup: delete rows where event_log_id no longer exists.</span></div>
+  </section>
+
+  <!-- S14: EDGE CASES -->
+  <section id="s14">
+    <div class="sec-head"><span class="sec-num">14</span><h2 class="sec-title">Edge Cases</h2></div>
+
+    <div class="rc"><div class="rc-id">EC-EVT-01</div><div class="rc-title">Push Permission Denied</div><div class="rc-body">If the user denies OS push notification permission: pushEnabled is set to false automatically. All push notifications downgrade to BADGE_ONLY (priority 2–3) or SILENT (priority 4–5). CRITICAL events are still attempted as push — iOS Critical Alert permission (separate from standard push) can be requested for overdue debt payments. The preferences screen shows a "Enable push notifications" prompt linking to OS settings.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-EVT-02</div><div class="rc-title">App Never Opened on a Due Date</div><div class="rc-body">If a DEBT_PAYMENT_DUE_1D reminder was scheduled but the app is never opened that day: iOS/Android push delivers the notification directly (if push permission granted and OS has the scheduled notification queued). If the reminder was engine-managed and not yet scheduled to the OS: on next app open, the engine finds it overdue and immediately publishes DEBT_PAYMENT_OVERDUE. No reminder is silently missed.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-EVT-03</div><div class="rc-title">Notification Burst from Period Rollover</div><div class="rc-body">At the start of a new budget period, multiple events may fire in rapid succession: BUDGET_PERIOD_ENDED, ADVANCE_PERIOD automation, BUDGET_PERIOD_STARTED, SALARY_RECORD_REMINDER, GOAL_CONTRIBUTION_REMINDER (if contributionDay = period start). The batching logic (Section 10.3) collapses these into at most 2 notifications: one for the period transition and one aggregated reminder. Frequency caps apply after batching.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-EVT-04</div><div class="rc-title">Duplicate Events from Concurrent Module Writes</div><div class="rc-body">If two rapid writes to the same entity (e.g., two goal contributions within 30 seconds) both publish GOAL_CONTRIBUTION_MADE: the deduplication check in Step 3 catches the second event within the 5-minute window. The first succeeds; the second is marked DUPLICATE. If the two events have different idempotencyKeys (different contribution IDs), both are processed — this is intentional, as they are genuinely distinct user actions.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-EVT-05</div><div class="rc-title">Entity Deleted After Reminder Scheduled</div><div class="rc-body">If a goal is cancelled after its GOAL_CONTRIBUTION_REMINDER rows exist: the DISMISS_GOAL_REMINDERS automation fires immediately on goal cancellation and sets dismissed_at on all associated reminders. If the reminder fires between cancellation and automation execution (race condition): the engine checks the source entity's status before delivery — if the entity is soft-deleted, the notification is suppressed and the reminder is dismissed.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-EVT-06</div><div class="rc-title">Quiet Hours Span Midnight</div><div class="rc-body">The standard default (22:00–08:00) spans midnight. The isQuietHours() function correctly handles this as an overnight window (Section 12.1 — the start > end branch). Deferred events are delivered at 08:00 the following morning, not at 22:00 on the same day. The deferredUntil timestamp is computed in device local time, not UTC.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-EVT-07</div><div class="rc-title">Automation Failure Cascade</div><div class="rc-body">If ADVANCE_PERIOD automation fails: the new period is not created. The engine retries once after 30 seconds. On second failure: logs FAILED status and publishes a SYSTEM-level anomaly event that surfaces as a "Finance Bag needs attention" in-app banner. The user is prompted to manually trigger the period advance from the budget screen. No downstream automations (GOAL_CONTRIBUTION_REMINDER creation, etc.) run until ADVANCE_PERIOD succeeds.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-EVT-08</div><div class="rc-title">All Notifications Disabled</div><div class="rc-body">If the user disables both pushEnabled and inAppEnabled: SILENT becomes the channel for all events. Automations continue to run — snapshot rebuilds, roadmap propagation, FHS history writes, and reminder checks all execute normally. The event_log still records all events for audit purposes. CRITICAL events (overdue payments) will surface the next time the user opens the app via the Dashboard Alert Center, which reads from event_log directly.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-EVT-09</div><div class="rc-title">contributionDay = 29, 30, or 31</div><div class="rc-body">Any reminder scheduled for a day-of-month that doesn't exist in the current month (e.g., contributionDay = 31 in February) is rescheduled to the last valid day of that month. The engine uses <code>MIN(contributionDay, lastDayOfMonth)</code> for all monthly reminder scheduling — consistent with BR-EVT-07 and the contributionDay cap-at-28 rule established in prior module specs.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-EVT-10</div><div class="rc-title">Throttled High-Priority Event Queue Grows Large</div><div class="rc-body">If a user receives 5 notifications in hour 1, and then 10 HIGH-priority events are throttled, and then the cap window resets: the engine processes the throttled queue in priority order, applying a fresh cap check. It will deliver up to 5 more notifications in the new 24-hour window. Events older than 24 hours in the throttled queue are discarded (they are stale) except for DEBT_PAYMENT_OVERDUE which is re-evaluated regardless of age.</div></div>
+  </section>
+
+  <!-- S15: BUSINESS RULES -->
+  <section id="s15">
+    <div class="sec-head"><span class="sec-num">15</span><h2 class="sec-title">Business Rules</h2></div>
+
+    <div class="rc"><div class="rc-id">BR-EVT-01</div><div class="rc-title">Modules Never Deliver Notifications Directly</div><div class="rc-body">No module other than EVT may call Expo Notifications APIs, schedule OS-level reminders, or show in-app banners. All notification-adjacent UX from other modules is limited to: (a) publishing events to EventBus, and (b) displaying module-screen-level inline status messages (e.g., "Payment overdue" label on a debt card). The centralized architecture is a hard constraint, not a recommendation.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-EVT-02</div><div class="rc-title">Events Are Immutable Facts</div><div class="rc-body">Once written to event_log, an event row may not be updated (except for processed_at, notifications_sent, automations_run, and skipped_reason which are set by the engine). Event rows are never hard-deleted within their 90-day retention window. This ensures a complete audit trail for debugging notification issues.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-EVT-03</div><div class="rc-title">CRITICAL Events Cannot Be Silenced by User Preferences</div><div class="rc-body">Priority 1 (CRITICAL) events always result in user-visible delivery, regardless of module preferences, category preferences, or in-app notification settings. The only mechanism that affects CRITICAL delivery is push permission (OS-level). CRITICAL events bypass quiet hours, frequency caps, and all throttling. This rule exists because DEBT_PAYMENT_OVERDUE and AVAILABLE_MONEY_NEGATIVE represent situations where user awareness has direct financial consequences.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-EVT-04</div><div class="rc-title">Idempotency Key Must Be Deterministic</div><div class="rc-body">The idempotencyKey in EventPayload must produce the same value for the same logical event, regardless of how many times the publishing code runs. Using UUID v4 or random values as idempotency keys is prohibited — they defeat deduplication. Keys must be built from stable identifiers: entityId, eventType, and a time boundary (date for daily events, periodId for period events, "forever" for lifetime milestones).</div></div>
+
+    <div class="rc"><div class="rc-id">BR-EVT-05</div><div class="rc-title">Automation Runs Regardless of Notification Suppression</div><div class="rc-body">When an event's notification is skipped (THROTTLED, USER_PREF, QUIET_HOURS), automations registered for that event type still execute. A user who turns off budget notifications still gets their dashboard snapshot rebuilt when a budget event fires. Notification suppression only affects user-visible delivery — the underlying system state is always kept consistent.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-EVT-06</div><div class="rc-title">Notification Copy Is Engine-Owned</div><div class="rc-body">Notification titles and bodies are defined in the engine's copy template table (Section 6.2), not in module code. Modules provide structured data fields in EventPayload.data; the engine interpolates them. This ensures consistent tone, correct frequency of emoji usage, and centralised copywriting without module-level divergence.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-EVT-07</div><div class="rc-title">contributionDay and paymentDueDay Cap at 28</div><div class="rc-body">Any reminder scheduled on a day-of-month derived from a contributionDay or paymentDueDay uses MIN(day, 28) as the scheduling anchor, consistent with BR-GOL-08, BR-DBT-12, and BR-EMF rules established in prior module specs. This prevents reminders from being silently skipped in months shorter than the scheduled day.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-EVT-08</div><div class="rc-title">Reminder-to-Event Mapping</div><div class="rc-body">Every ReminderType maps to exactly one EventType when it fires. The reminder system is a scheduling mechanism; it does not define delivery logic. When a reminder fires, it publishes its mapped EventType into the EventBus — from that point, all standard pipeline logic (deduplication, preferences, caps, quiet hours) applies. A reminder firing is not a direct notification delivery.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-EVT-09</div><div class="rc-title">No Circular Automation Chains</div><div class="rc-body">An automation execution may publish new events to the EventBus (e.g., ADVANCE_PERIOD publishes BUDGET_PERIOD_STARTED). However, no event type may ultimately trigger an automation that publishes the same event type — this would create an infinite loop. The engine detects circular chains by checking if the event being published is already in the current execution call stack. Circular events are discarded and logged as ANOMALY.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-EVT-10</div><div class="rc-title">90-Day Event Log Is the Source of Truth for Audit</div><div class="rc-body">The event_log table is the authoritative record of all significant financial events that occurred in the application. If a user reports "I didn't receive a notification about my payment," the event_log is the first diagnostic source: was the event published? Was it deduplicated, throttled, or suppressed by quiet hours? The skipped_reason field answers each of these questions without requiring code instrumentation.</div></div>
+  </section>
+
+  <!-- S16: FUTURE AI SCALABILITY -->
+  <section id="s16">
+    <div class="sec-head"><span class="sec-num">16</span><h2 class="sec-title">Future AI Scalability &amp; Extensibility</h2></div>
+
+    <h3>16.1 AI Event Handler</h3>
+    <p>The EventBus's <code>subscribe()</code> interface is designed for extensibility. An AI module can register a handler that receives every event and produces additional actions without modifying existing handlers:</p>
+    <ul class="sl">
+      <li>An AI handler receives all events (or a filtered subset by type/priority) and can publish new events, schedule reminders, or trigger automations based on pattern recognition across the event history</li>
+      <li>AI-generated events use <code>sourceModule: 'AI'</code> (a new module added to the SourceModule enum) and are subject to the same pipeline processing as any other event</li>
+      <li>The event_log's 90-day history provides the training signal for on-device behavioral models</li>
+    </ul>
+
+    <h3>16.2 Intelligent Notification Timing</h3>
+    <p>The engine is designed to accept a <code>bestTimeToDeliver</code> field on notifications in a future version. Current pipeline delivers at the moment the cap check passes; a future AI timing model would optimize delivery time based on historical engagement patterns (when the user typically opens the app, when they have historically taken action on similar notifications).</p>
+
+    <h3>16.3 Adaptive Frequency Caps</h3>
+    <p>Current frequency caps are static (Section 10.1). A future version replaces static caps with user-adaptive caps: if a user consistently dismisses GOAL_CONTRIBUTION_REMINDER notifications without acting, the engine automatically increases the suppression window for that reminder type. If a user acts immediately on BUDGET_THRESHOLD_80, the engine increases urgency for that type.</p>
+
+    <h3>16.4 Cross-Module Event Correlation</h3>
+    <p>The event_log stores all events with their sourceEntityId. A future correlation engine can detect patterns like "every month when the EXPENSE_LOG_REMINDER fires, a BUDGET_THRESHOLD_100 follows 3 days later" — and proactively notify the user earlier. The data structure already supports this; only the pattern-matching logic needs to be added.</p>
+
+    <h3>16.5 Webhooks &amp; External Integrations</h3>
+    <p>The EventBus can be extended with an external delivery adapter layer. CRITICAL events could be routed to SMS or WhatsApp for users who prefer those channels. The EventPayload type is already channel-agnostic — the routing layer decides delivery, not the event itself. This separation ensures external integrations can be added without modifying any module's publishing logic.</p>
+
+    <h3>16.6 Event Sourcing Upgrade Path</h3>
+    <p>The current architecture stores events as audit logs (append-only, cleaned after 90 days). A future upgrade path leads toward full event sourcing: if event retention is extended to lifetime and all module state is rebuilt from events rather than stored directly, the application gains complete financial history replay, time-travel debugging, and crash recovery. The event schema (Section 2.1) is intentionally compatible with this future direction — no breaking changes are needed to move toward full event sourcing.</p>
+  </section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const l = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (l) l.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
+}

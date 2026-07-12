@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPEC-RPT-001 — Reports, Analytics & Financial Intelligence</title>
+<style>
+  :root{--bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;--text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;--accent:#10B981;--accent-dim:rgba(16,185,129,0.15);--accent-glow:rgba(16,185,129,0.07);--sidebar-w:260px;}
+  @media(prefers-color-scheme:light){:root{--bg:#F4F4F5;--surface:#FFFFFF;--surface2:#F1F5F9;--border:#E4E4E7;--text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;--accent-dim:rgba(16,185,129,0.10);--accent-glow:rgba(16,185,129,0.05);}}
+  :root[data-theme="dark"]{--bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;--text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;--accent-dim:rgba(16,185,129,0.15);--accent-glow:rgba(16,185,129,0.07);}
+  :root[data-theme="light"]{--bg:#F4F4F5;--surface:#FFFFFF;--surface2:#F1F5F9;--border:#E4E4E7;--text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;--accent-dim:rgba(16,185,129,0.10);--accent-glow:rgba(16,185,129,0.05);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:15px;line-height:1.6;}
+  .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;display:flex;flex-direction:column;z-index:100;}
+  .sb-head{padding:20px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;}
+  .mod-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid rgba(16,185,129,0.3);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+  .sb-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
+  .sb-sub{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .nav-list{list-style:none;padding:10px 8px;flex:1;}
+  .nav-item a{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:12.5px;color:var(--text-muted);text-decoration:none;transition:all .15s;}
+  .nav-item a:hover{background:var(--surface2);color:var(--text);}
+  .nav-item a.active{background:var(--accent-dim);color:var(--accent);font-weight:600;}
+  .nav-num{font-size:10px;font-weight:700;color:var(--accent);min-width:18px;font-variant-numeric:tabular-nums;}
+  .theme-area{padding:12px 16px;border-top:1px solid var(--border);}
+  .theme-btn{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text-muted);font-size:12px;cursor:pointer;}
+  .theme-btn:hover{color:var(--text);}
+  .main{margin-left:var(--sidebar-w);flex:1;max-width:900px;padding:48px 48px 100px;}
+  .doc-header{border-bottom:2px solid var(--border);padding-bottom:32px;margin-bottom:52px;}
+  .doc-eyebrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .spec-id{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
+  .spec-ver{font-size:11px;color:var(--text-dim);background:var(--surface2);border-radius:4px;padding:2px 8px;}
+  .status-pill{font-size:11px;font-weight:600;border-radius:20px;padding:3px 10px;background:rgba(245,158,11,.15);color:#F59E0B;border:1px solid rgba(245,158,11,.3);}
+  .doc-title{font-size:31px;font-weight:800;letter-spacing:-.02em;line-height:1.15;color:var(--text);text-wrap:balance;margin-bottom:10px;}
+  .doc-sub{font-size:16px;color:var(--text-muted);text-wrap:balance;max-width:600px;margin-bottom:20px;}
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .meta-item{background:var(--surface2);border-radius:8px;padding:10px 14px;}
+  .meta-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;}
+  .meta-val{font-size:13px;font-weight:600;color:var(--text);}
+  section{margin-bottom:60px;scroll-margin-top:28px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+  .sec-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:var(--accent);color:#fff;font-size:12px;font-weight:800;border-radius:6px;flex-shrink:0;}
+  .sec-title{font-size:20px;font-weight:700;letter-spacing:-.01em;color:var(--text);}
+  h3{font-size:15px;font-weight:700;color:var(--text);margin:24px 0 10px;letter-spacing:-.01em;}
+  h4{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 8px;}
+  p{color:var(--text-muted);margin-bottom:12px;}
+  strong{color:var(--text);font-weight:600;}
+  .tw{overflow-x:auto;margin:14px 0;border-radius:8px;border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead{background:var(--surface2);}
+  th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:10px 14px;color:var(--text-muted);border-bottom:1px solid var(--border);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--accent-glow);}
+  td strong{color:var(--text);}
+  td code,code{font-family:'JetBrains Mono','Fira Code',monospace;font-size:12px;color:var(--accent);background:var(--accent-dim);padding:1px 5px;border-radius:4px;}
+  .cb{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:16px 20px;margin:14px 0;font-family:'JetBrains Mono','Fira Code',monospace;font-size:12.5px;color:var(--text);overflow-x:auto;white-space:pre;line-height:1.75;}
+  .c{color:var(--text-dim);}.kw{color:var(--accent);}.fn{color:#A78BFA;}.num{color:#34D399;}.str{color:#FCD34D;}
+  .callout{border-radius:8px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;align-items:flex-start;}
+  .c-info{background:var(--accent-dim);border:1px solid rgba(16,185,129,.25);}
+  .c-warn{background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.25);}
+  .c-err{background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.25);}
+  .c-sky{background:rgba(14,165,233,.10);border:1px solid rgba(14,165,233,.25);}
+  .ci{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .cb2{font-size:13.5px;color:var(--text-muted);line-height:1.55;}
+  .chip{display:inline-flex;align-items:center;font-size:11px;font-weight:600;border-radius:20px;padding:2px 9px;border:1px solid;white-space:nowrap;margin:2px;}
+  .ch-grn{background:rgba(16,185,129,.12);color:#10B981;border-color:rgba(16,185,129,.3);}
+  .ch-sky{background:rgba(14,165,233,.12);color:#0EA5E9;border-color:rgba(14,165,233,.3);}
+  .ch-amb{background:rgba(245,158,11,.12);color:#F59E0B;border-color:rgba(245,158,11,.3);}
+  .ch-red{background:rgba(239,68,68,.12);color:#EF4444;border-color:rgba(239,68,68,.3);}
+  .ch-pur{background:rgba(139,92,246,.12);color:#8B5CF6;border-color:rgba(139,92,246,.3);}
+  .ch-grey{background:var(--surface2);color:var(--text-muted);border-color:var(--border);}
+  .mr{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;}
+  .mr-bud{background:rgba(99,102,241,.15);color:#6366F1;}
+  .mr-dbt{background:rgba(239,68,68,.15);color:#EF4444;}
+  .mr-emf{background:rgba(34,197,94,.15);color:#22C55E;}
+  .mr-gol{background:rgba(245,158,11,.15);color:#F59E0B;}
+  .mr-rmp{background:rgba(139,92,246,.15);color:#8B5CF6;}
+  .mr-dsh{background:rgba(14,165,233,.15);color:#0EA5E9;}
+  .mr-rpt{background:rgba(16,185,129,.15);color:#10B981;}
+  .xref{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:20px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .xref-label{font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.07em;margin-right:4px;}
+  ul.sl{list-style:none;padding:0;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+  ul.sl li{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;color:var(--text-muted);}
+  ul.sl li::before{content:'—';color:var(--accent);font-weight:700;flex-shrink:0;margin-top:1px;}
+  ol.sl{padding:0 0 0 20px;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+  ol.sl li{font-size:13.5px;color:var(--text-muted);padding-left:4px;}
+  .rc{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;}
+  .rc-id{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;}
+  .rc-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px;}
+  .rc-body{font-size:13px;color:var(--text-muted);line-height:1.55;}
+  .dl{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+  .di{display:grid;grid-template-columns:180px 1fr;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;}
+  .dk{font-weight:700;color:var(--text);font-size:12px;align-self:start;padding-top:1px;}
+  .dv{color:var(--text-muted);}
+  .report-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+  .rcard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;}
+  .rcard-id{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+  .rcard-name{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .rcard-desc{font-size:12px;color:var(--text-muted);line-height:1.45;}
+  .insight-template{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;margin:12px 0;}
+  .it-label{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+  .it-field{display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;font-size:13px;}
+  .it-key{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;min-width:90px;}
+  .it-val{color:var(--text-muted);}
+  @media(max-width:700px){.sidebar{display:none;}.main{margin-left:0;padding:24px 18px 60px;}.report-grid,.meta-grid{grid-template-columns:1fr;}.di{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="mod-badge">📈 SPEC-RPT-001</div>
+    <div class="sb-title">Reports, Analytics &amp; Financial Intelligence</div>
+    <div class="sb-sub">Finance Bag · v1.0.0</div>
+  </div>
+  <ul class="nav-list" id="nav-list">
+    <li class="nav-item"><a href="#s1"><span class="nav-num">01</span>Overview</a></li>
+    <li class="nav-item"><a href="#s2"><span class="nav-num">02</span>Data Architecture</a></li>
+    <li class="nav-item"><a href="#s3"><span class="nav-num">03</span>Report Types</a></li>
+    <li class="nav-item"><a href="#s4"><span class="nav-num">04</span>Financial Summary</a></li>
+    <li class="nav-item"><a href="#s5"><span class="nav-num">05</span>Advanced Analytics</a></li>
+    <li class="nav-item"><a href="#s6"><span class="nav-num">06</span>Comparison Engine</a></li>
+    <li class="nav-item"><a href="#s7"><span class="nav-num">07</span>Cash Flow Analysis</a></li>
+    <li class="nav-item"><a href="#s8"><span class="nav-num">08</span>Behavioral Analytics</a></li>
+    <li class="nav-item"><a href="#s9"><span class="nav-num">09</span>Financial Insights Engine</a></li>
+    <li class="nav-item"><a href="#s10"><span class="nav-num">10</span>FHS History</a></li>
+    <li class="nav-item"><a href="#s11"><span class="nav-num">11</span>Visualization Strategy</a></li>
+    <li class="nav-item"><a href="#s12"><span class="nav-num">12</span>Export System</a></li>
+    <li class="nav-item"><a href="#s13"><span class="nav-num">13</span>Search &amp; Filters</a></li>
+    <li class="nav-item"><a href="#s14"><span class="nav-num">14</span>Predictive Analytics</a></li>
+    <li class="nav-item"><a href="#s15"><span class="nav-num">15</span>Edge Cases</a></li>
+    <li class="nav-item"><a href="#s16"><span class="nav-num">16</span>Business Rules &amp; Performance</a></li>
+  </ul>
+  <div class="theme-area"><button class="theme-btn" id="theme-btn">Toggle Light / Dark</button></div>
+</nav>
+
+<main class="main">
+
+  <div class="doc-header">
+    <div class="doc-eyebrow">
+      <span class="spec-id">SPEC-RPT-001</span>
+      <span class="spec-ver">Version 1.0.0</span>
+      <span class="status-pill">Draft</span>
+    </div>
+    <h1 class="doc-title">Reports, Analytics &amp; Financial Intelligence</h1>
+    <p class="doc-sub">Defines the architecture for transforming Finance Bag's raw financial data into actionable intelligence — covering 7 report types, advanced analytics, comparison engine, behavioral analysis, AI-ready insights, export system, and predictive analytics readiness.</p>
+    <div class="meta-grid">
+      <div class="meta-item"><div class="meta-label">Module ID</div><div class="meta-val">RPT</div></div>
+      <div class="meta-item"><div class="meta-label">Part</div><div class="meta-val">13 of 13</div></div>
+      <div class="meta-item"><div class="meta-label">Accent</div><div class="meta-val" style="color:#10B981">#10B981 Emerald</div></div>
+      <div class="meta-item"><div class="meta-label">Stack</div><div class="meta-val">RN 0.76 / Expo 52</div></div>
+      <div class="meta-item"><div class="meta-label">State</div><div class="meta-val">Zustand 5</div></div>
+      <div class="meta-item"><div class="meta-label">DB</div><div class="meta-val">expo-sqlite</div></div>
+    </div>
+  </div>
+
+  <!-- S1: OVERVIEW -->
+  <section id="s1">
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-title">Overview &amp; Module Identity</h2></div>
+
+    <div class="xref">
+      <span class="xref-label">Reads from</span>
+      <span class="mr mr-bud">SPEC-BUD-001</span>
+      <span class="mr mr-dbt">SPEC-DBT-001</span>
+      <span class="mr mr-emf">SPEC-EMF-001</span>
+      <span class="mr mr-gol">SPEC-GOL-001</span>
+      <span class="mr mr-rmp">SPEC-RMP-001</span>
+      <span class="mr mr-dsh">SPEC-DSH-001</span>
+    </div>
+
+    <p>The Reports &amp; Analytics module is a <strong>read-only intelligence layer</strong> that answers the questions every financial app must ultimately answer: where is my money going, am I improving, and what should I do next? It operates over the complete historical record written by all other modules and produces structured report objects, analytical metrics, and personalized insights.</p>
+
+    <p>Unlike the Dashboard (which shows the current moment), Analytics shows <strong>trends across time</strong>. Unlike individual module screens (which show a single domain), Reports provide a <strong>cross-module picture</strong> — income, budget, debt, EMF, and goals in a single view.</p>
+
+    <h3>Core Questions Answered</h3>
+    <div class="dl">
+      <div class="di"><span class="dk">Where is money going?</span><span class="dv">Category-level spending breakdown with period-over-period change rates</span></div>
+      <div class="di"><span class="dk">Are habits improving?</span><span class="dv">Behavioral metrics: savings consistency, budget discipline score, debt repayment reliability</span></div>
+      <div class="di"><span class="dk">Am I financially healthier?</span><span class="dv">FHS trend over time; component-level drill-down showing which dimension changed</span></div>
+      <div class="di"><span class="dk">What should I improve?</span><span class="dv">Ranked improvement recommendations derived from the behavioral analytics engine</span></div>
+      <div class="di"><span class="dk">What trends to watch?</span><span class="dv">Trend indicators with directional arrows and projected trajectories</span></div>
+    </div>
+
+    <h3>Module Scope</h3>
+    <ul class="sl">
+      <li>7 report types spanning daily through lifetime financial history</li>
+      <li>Standardized Financial Summary block included in every report</li>
+      <li>10 advanced analytics metrics with formulas and interpretations</li>
+      <li>Comparison engine for period-over-period, year-over-year, and custom-range analysis</li>
+      <li>Cash flow analysis with liquidity and forecast readiness</li>
+      <li>Behavioral analytics: 10 habit scores with trend direction</li>
+      <li>AI-ready insights engine with structured Observation / Explanation / Recommendation / Impact format</li>
+      <li>FHS historical record — 12-month rolling store</li>
+      <li>10 visualization types mapped to specific analytics</li>
+      <li>Export system: PDF, CSV, Excel (future), print-friendly</li>
+      <li>Search &amp; filter system with saved filters</li>
+      <li>Predictive analytics architecture for AI integration</li>
+    </ul>
+
+    <div class="callout c-info"><span class="ci">ℹ️</span><div class="cb2"><strong>Read-only module.</strong> The analytics engine never writes to module tables. All computations are derived from stored primitives at query time. Computed report fields are never persisted. Exception: the FHS historical record (Section 10) is written daily by a background task and stored in a dedicated <code>fhs_history</code> table — this is the only persistent output owned by the RPT module.</div></div>
+  </section>
+
+  <!-- S2: DATA ARCHITECTURE -->
+  <section id="s2">
+    <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">Data Architecture</h2></div>
+
+    <h3>2.1 RPT-Owned Tables</h3>
+    <p>The RPT module owns exactly two persistent tables:</p>
+
+    <div class="cb"><span class="kw">table</span> fhs_history {
+  id:          TEXT PRIMARY KEY          <span class="c">// UUID v4</span>
+  date:        TEXT NOT NULL UNIQUE      <span class="c">// ISO date 'YYYY-MM-DD'</span>
+  fhs_total:   INTEGER NOT NULL          <span class="c">// 0–100</span>
+  savings_pts: INTEGER NOT NULL
+  debt_pts:    INTEGER NOT NULL
+  emf_pts:     INTEGER NOT NULL
+  budget_pts:  INTEGER NOT NULL
+  goal_pts:    INTEGER NOT NULL
+  stability_pts: INTEGER NOT NULL
+  created_at:  INTEGER NOT NULL          <span class="c">// Unix ms</span>
+}
+<span class="c">// Retention: 365 days. Rows older than 365 days are deleted in background cleanup.</span>
+<span class="c">// Written once per calendar day by the analytics background task on first app open.</span>
+
+<span class="kw">table</span> saved_filters {
+  id:          TEXT PRIMARY KEY
+  name:        TEXT NOT NULL             <span class="c">// User-defined label, max 40 chars</span>
+  filter_json: TEXT NOT NULL             <span class="c">// JSON-serialized ReportFilter object</span>
+  created_at:  INTEGER NOT NULL
+  deleted_at:  INTEGER                   <span class="c">// Soft delete</span>
+}</div>
+
+    <h3>2.2 Report Object (In-Memory)</h3>
+    <div class="cb"><span class="kw">type</span> Report = {
+  id:            <span class="fn">string</span>          <span class="c">// deterministic: 'RPT-MONTHLY-2026-07'</span>
+  type:          ReportType
+  generatedAt:   <span class="fn">number</span>          <span class="c">// Unix ms</span>
+  periodStart:   <span class="fn">string</span>          <span class="c">// ISO date</span>
+  periodEnd:     <span class="fn">string</span>          <span class="c">// ISO date</span>
+  summary:       FinancialSummary <span class="c">// Section 4</span>
+  analytics:     AnalyticsBlock   <span class="c">// Section 5</span>
+  cashFlow:      CashFlowBlock    <span class="c">// Section 7</span>
+  behavioral:    BehavioralBlock  <span class="c">// Section 8</span>
+  insights:      ReportInsight[]  <span class="c">// Section 9</span>
+  comparisons:   ComparisonBlock | <span class="kw">null</span>  <span class="c">// Section 6 — only when prior period exists</span>
+  charts:        ChartDataBlock   <span class="c">// Section 11</span>
+}
+
+<span class="kw">type</span> ReportType =
+  <span class="str">'DAILY'</span> | <span class="str">'WEEKLY'</span> | <span class="str">'MONTHLY'</span> | <span class="str">'QUARTERLY'</span> | <span class="str">'YEARLY'</span> | <span class="str">'CUSTOM'</span> | <span class="str">'LIFETIME'</span>
+
+<span class="kw">type</span> ReportFilter = {
+  dateRangeStart: <span class="fn">string</span> | <span class="kw">null</span>
+  dateRangeEnd:   <span class="fn">string</span> | <span class="kw">null</span>
+  categoryIds:    <span class="fn">string</span>[]
+  goalIds:        <span class="fn">string</span>[]
+  debtIds:        <span class="fn">string</span>[]
+  minFhsScore:    <span class="fn">number</span> | <span class="kw">null</span>
+  maxFhsScore:    <span class="fn">number</span> | <span class="kw">null</span>
+  tags:           <span class="fn">string</span>[]
+  includeArchived: <span class="fn">boolean</span>
+}</div>
+
+    <h3>2.3 Analytics Query Strategy</h3>
+    <ul class="sl">
+      <li>All aggregate queries run against expo-sqlite using <code>SUM()</code>, <code>AVG()</code>, <code>COUNT()</code>, <code>MIN()</code>, <code>MAX()</code> at the database level — no in-JS row iteration</li>
+      <li>Reports spanning multiple periods use a period table join — not a calendar month grouping — to respect salary-period alignment from SPEC-BUD-001 BR-01</li>
+      <li>Soft-deleted records (<code>deleted_at IS NOT NULL</code>) are excluded from all analytics except the LIFETIME report's "archived items" section</li>
+      <li>Report generation runs on a background worker thread; the UI shows a loading skeleton while the query executes</li>
+      <li>Generated reports for standard types (DAILY, WEEKLY, MONTHLY) are cached in Zustand for the current session; cache is invalidated on any module write</li>
+    </ul>
+  </section>
+
+  <!-- S3: REPORT TYPES -->
+  <section id="s3">
+    <div class="sec-head"><span class="sec-num">03</span><h2 class="sec-title">Report Types</h2></div>
+
+    <div class="report-grid">
+      <div class="rcard">
+        <div class="rcard-id">RPT-DAILY</div>
+        <div class="rcard-name">Daily Report</div>
+        <div class="rcard-desc">Covers a single calendar day. Purpose: track what was spent today vs. the daily budget rate. Shows today's expenses by category, running period total, and a simple "on track / off track" indicator based on period pacing. Useful for users who log expenses daily. Comparison: today vs. same weekday last week.</div>
+      </div>
+      <div class="rcard">
+        <div class="rcard-id">RPT-WEEKLY</div>
+        <div class="rcard-name">Weekly Report</div>
+        <div class="rcard-desc">Covers Mon–Sun (or a 7-day rolling window). Purpose: weekly spending rhythm — which categories spiked, what portion of the period budget has been used in the first N days. Week-over-week trend bar for top 5 categories. Reminder to record missing expenses if any day has zero activity.</div>
+      </div>
+      <div class="rcard">
+        <div class="rcard-id">RPT-MONTHLY</div>
+        <div class="rcard-name">Monthly Report</div>
+        <div class="rcard-desc">Covers one calendar month OR one salary period (user chooses; default: salary period). The primary report type. Full Financial Summary, all analytics sections, behavioral scores, and comparison to prior month. Includes FHS component breakdown and goal contribution summary.</div>
+      </div>
+      <div class="rcard">
+        <div class="rcard-id">RPT-QUARTERLY</div>
+        <div class="rcard-name">Quarterly Report</div>
+        <div class="rcard-desc">Covers 3 consecutive months/periods. Purpose: medium-term trend detection. Aggregates monthly data to reveal seasonal patterns. Shows which quarter goals were hit, EMF milestone progression over the quarter, and debt reduction rate. Comparison: current Q vs. prior Q.</div>
+      </div>
+      <div class="rcard">
+        <div class="rcard-id">RPT-YEARLY</div>
+        <div class="rcard-name">Yearly Report</div>
+        <div class="rcard-desc">Covers 12 months. Purpose: annual financial review — savings rate evolution, total debt paid this year, total goal contributions, EMF growth, FHS evolution from Jan to Dec. Full 12-month bar chart for income/spending. Highlights: largest single expense, best savings month, worst budget month.</div>
+      </div>
+      <div class="rcard">
+        <div class="rcard-id">RPT-CUSTOM</div>
+        <div class="rcard-name">Custom Range Report</div>
+        <div class="rcard-desc">User-defined start and end date. Any duration from 1 day to lifetime. All available analytics sections are included if data exists for the range. Required when comparing two specific non-standard periods. Filter presets can save custom ranges.</div>
+      </div>
+      <div class="rcard">
+        <div class="rcard-id">RPT-LIFETIME</div>
+        <div class="rcard-name">Lifetime Financial Report</div>
+        <div class="rcard-desc">Covers all recorded history from the first salary period to today. Purpose: long-term financial biography. Total income ever recorded, total debt ever paid, total saved, net position change, all achieved milestones, all completed goals, FHS high and low points. Export-focused — designed as a shareable PDF summary.</div>
+      </div>
+    </div>
+
+    <h3>3.1 Report Period Resolution</h3>
+    <div class="cb"><span class="c">// For each ReportType, resolve the period boundaries:</span>
+
+DAILY:     periodStart = today; periodEnd = today
+WEEKLY:    periodStart = startOfCurrentWeek; periodEnd = endOfCurrentWeek
+MONTHLY:   periodStart = currentSalaryPeriod.start; periodEnd = currentSalaryPeriod.end
+           <span class="c">// OR: periodStart = firstDayOfMonth; periodEnd = lastDayOfMonth</span>
+QUARTERLY: periodStart = firstDayOf(currentQuarter); periodEnd = lastDayOf(currentQuarter)
+YEARLY:    periodStart = Jan 1 of current year; periodEnd = Dec 31 of current year
+CUSTOM:    periodStart = filter.dateRangeStart; periodEnd = filter.dateRangeEnd
+LIFETIME:  periodStart = MIN(salary_period.start_date); periodEnd = today</div>
+
+    <h3>3.2 Data Availability Guards</h3>
+    <ul class="sl">
+      <li>If the requested period has no recorded income: summary fields that depend on grossIncome are shown as "—" (not 0)</li>
+      <li>If a period spans fewer than 3 salary periods, quarterly trend analytics show available data with a "Limited data" badge</li>
+      <li>LIFETIME report requires at least 1 completed salary period; otherwise a "Not enough data" state is shown</li>
+      <li>DAILY report only shows "today vs. same weekday last week" comparison if same-weekday data exists</li>
+    </ul>
+  </section>
+
+  <!-- S4: FINANCIAL SUMMARY -->
+  <section id="s4">
+    <div class="sec-head"><span class="sec-num">04</span><h2 class="sec-title">Financial Summary Block</h2></div>
+
+    <p>Every report includes a standardized Financial Summary block as its first section. This is the "at a glance" table that answers the six core questions from SPEC-DSH-001 §1, applied to the report's period rather than the current moment.</p>
+
+    <h3>4.1 FinancialSummary Type</h3>
+    <div class="cb"><span class="kw">type</span> FinancialSummary = {
+  <span class="c">// Income</span>
+  totalIncome:              <span class="fn">number</span>   <span class="c">// centimes — sum of all income in period</span>
+  salaryPeriodCount:        <span class="fn">number</span>   <span class="c">// how many salary periods this report spans</span>
+  avgIncomePerPeriod:       <span class="fn">number</span>   <span class="c">// totalIncome / salaryPeriodCount</span>
+
+  <span class="c">// Spending</span>
+  totalAllocated:           <span class="fn">number</span>   <span class="c">// sum of all allocations in period</span>
+  totalSpent:               <span class="fn">number</span>   <span class="c">// sum of all expenses in period</span>
+  budgetUtilizationPct:     <span class="fn">number</span>   <span class="c">// totalSpent / totalAllocated × 100</span>
+
+  <span class="c">// Debt</span>
+  totalDebtPayments:        <span class="fn">number</span>   <span class="c">// centimes — payments made in period</span>
+  totalDebtReduced:         <span class="fn">number</span>   <span class="c">// balance start of period − balance end of period</span>
+
+  <span class="c">// Savings</span>
+  totalGoalContribs:        <span class="fn">number</span>   <span class="c">// centimes — contributions to goals</span>
+  totalEMFContribs:         <span class="fn">number</span>   <span class="c">// centimes — contributions to EMF</span>
+  totalSaved:               <span class="fn">number</span>   <span class="c">// totalGoalContribs + totalEMFContribs</span>
+  savingsRatePct:           <span class="fn">number</span>   <span class="c">// totalSaved / totalIncome × 100</span>
+
+  <span class="c">// Balance</span>
+  remainingBalance:         <span class="fn">number</span>   <span class="c">// totalIncome − totalAllocated − totalDebtPayments − totalSaved</span>
+
+  <span class="c">// Health</span>
+  fhsAtPeriodStart:         <span class="fn">number</span> | <span class="kw">null</span>
+  fhsAtPeriodEnd:           <span class="fn">number</span> | <span class="kw">null</span>
+  fhsDelta:                 <span class="fn">number</span> | <span class="kw">null</span>   <span class="c">// fhsAtPeriodEnd − fhsAtPeriodStart</span>
+
+  <span class="c">// Highlights</span>
+  keyAchievements:          Achievement[]
+  areasNeedingAttention:    AttentionArea[]
+}
+
+<span class="kw">type</span> Achievement = { title: <span class="fn">string</span>; detail: <span class="fn">string</span>; icon: <span class="fn">string</span> }
+<span class="kw">type</span> AttentionArea = { title: <span class="fn">string</span>; detail: <span class="fn">string</span>; severity: <span class="str">'HIGH'</span> | <span class="str">'MEDIUM'</span> }</div>
+
+    <h3>4.2 Key Achievements (auto-generated)</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Trigger Condition</th><th>Achievement Text</th></tr></thead>
+      <tbody>
+        <tr><td>savingsRatePct ≥ 20%</td><td>"Saved 20%+ of income this period — excellent financial discipline"</td></tr>
+        <tr><td>budgetUtilizationPct in [80, 100]</td><td>"Budget plan followed: spending within 80–100% of allocation"</td></tr>
+        <tr><td>Any debt fully paid off in period</td><td>"[Debt name] fully paid off — one fewer financial obligation"</td></tr>
+        <tr><td>Any goal completed in period</td><td>"Goal achieved: [Goal name]"</td></tr>
+        <tr><td>EMF milestone reached</td><td>"Emergency fund reached [level] — [X] months of coverage"</td></tr>
+        <tr><td>fhsDelta ≥ 10</td><td>"Financial Health Score improved by [N] points this period"</td></tr>
+        <tr><td>debtCount decreased</td><td>"Debt count reduced from [N] to [M]"</td></tr>
+        <tr><td>totalSaved &gt; same period last year</td><td>"Saved [X]% more than the same period last year"</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>4.3 Areas Needing Attention (auto-generated)</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Trigger Condition</th><th>Severity</th><th>Area Text</th></tr></thead>
+      <tbody>
+        <tr><td>savingsRatePct &lt; 5%</td><td><span class="chip ch-red">HIGH</span></td><td>"Savings rate below 5% — consider reducing non-essential spending"</td></tr>
+        <tr><td>budgetUtilizationPct &gt; 110%</td><td><span class="chip ch-red">HIGH</span></td><td>"Budget overrun by [X]% — review overspent categories"</td></tr>
+        <tr><td>dtiPct ≥ 36%</td><td><span class="chip ch-red">HIGH</span></td><td>"Debt-to-income ratio at [X]% — above recommended 36% ceiling"</td></tr>
+        <tr><td>totalSaved == 0</td><td><span class="chip ch-amb">MEDIUM</span></td><td>"No savings contributions recorded this period"</td></tr>
+        <tr><td>fhsDelta ≤ −10</td><td><span class="chip ch-amb">MEDIUM</span></td><td>"Financial Health Score dropped [N] points — review contributing factors"</td></tr>
+        <tr><td>urgentGoalCount &gt; 0</td><td><span class="chip ch-amb">MEDIUM</span></td><td>"[N] goal(s) with deadline within 30 days are not on track"</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- S5: ADVANCED ANALYTICS -->
+  <section id="s5">
+    <div class="sec-head"><span class="sec-num">05</span><h2 class="sec-title">Advanced Analytics Engine</h2></div>
+
+    <p>The analytics block computes 10 cross-period metrics that reveal financial trajectory, not just point-in-time state. Each metric includes a value, a trend direction, and a plain-language interpretation.</p>
+
+    <h3>5.1 AnalyticsBlock Type</h3>
+    <div class="cb"><span class="kw">type</span> AnalyticsBlock = {
+  incomeGrowthRate:      AnalyticMetric
+  spendingGrowthRate:    AnalyticMetric
+  debtReductionRate:     AnalyticMetric
+  emfGrowthRate:         AnalyticMetric
+  goalFundingRate:       AnalyticMetric
+  savingsRateTrend:      AnalyticMetric
+  cashFlowTrend:         AnalyticMetric
+  financialStability:    AnalyticMetric
+  budgetDisciplineScore: AnalyticMetric
+  behaviorEvolution:     AnalyticMetric
+}
+
+<span class="kw">type</span> AnalyticMetric = {
+  value:       <span class="fn">number</span>
+  unit:        <span class="fn">string</span>         <span class="c">// '%', 'centimes', 'pts', etc.</span>
+  trend:       Trend          <span class="c">// 'UP' | 'DOWN' | 'STABLE' | 'INSUFFICIENT_DATA'</span>
+  trendPct:    <span class="fn">number</span> | <span class="kw">null</span>  <span class="c">// % change vs comparison period</span>
+  label:       <span class="fn">string</span>         <span class="c">// metric name</span>
+  interpretation: <span class="fn">string</span>     <span class="c">// max 120 chars — what this value means</span>
+}</div>
+
+    <h3>5.2 Metric Formulas &amp; Interpretations</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Metric</th><th>Formula</th><th>Positive Trend Means</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Income Growth Rate</strong></td><td><code>(avgIncome_current − avgIncome_prior) / avgIncome_prior × 100</code></td><td>Earning more per period — income is rising</td></tr>
+        <tr><td><strong>Spending Growth Rate</strong></td><td><code>(totalSpent_current − totalSpent_prior) / totalSpent_prior × 100</code></td><td>Spending more — investigate if income grew proportionally</td></tr>
+        <tr><td><strong>Debt Reduction Rate</strong></td><td><code>totalDebtReduced / totalDebtAtStart × 100</code> (per period)</td><td>Paying down debt faster — momentum building</td></tr>
+        <tr><td><strong>EMF Growth Rate</strong></td><td><code>(emfEnd − emfStart) / emfStart × 100</code></td><td>Emergency fund growing — safety net strengthening</td></tr>
+        <tr><td><strong>Goal Funding Rate</strong></td><td><code>totalGoalContribs / SUM(requiredMonthlyContribution) × 100</code></td><td>Contributing as planned or above — goals are funded</td></tr>
+        <tr><td><strong>Savings Rate Trend</strong></td><td><code>savingsRatePct_current − savingsRatePct_prior</code> (pp change)</td><td>Saving a larger fraction of income — trajectory improving</td></tr>
+        <tr><td><strong>Cash Flow Trend</strong></td><td><code>(totalIncome − totalSpent − totalDebtPayments) delta pp</code></td><td>More net cash remaining — financial breathing room increasing</td></tr>
+        <tr><td><strong>Financial Stability</strong></td><td><code>STDEV(monthlyFHS, last 6 months)</code> — lower = more stable</td><td>Lower standard deviation — consistent financial health</td></tr>
+        <tr><td><strong>Budget Discipline Score</strong></td><td><code>periodsWithinBudget / totalPeriods × 100</code> (rolling 6)</td><td>More periods where spending stayed within allocation</td></tr>
+        <tr><td><strong>Behavior Evolution</strong></td><td>Composite: weighted mean of behavioral sub-scores delta vs prior 3 periods</td><td>Overall financial behavior improving across multiple dimensions</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout c-warn"><span class="ci">⚠️</span><div class="cb2"><strong>Trend direction thresholds.</strong> STABLE is declared when <code>|trendPct| &lt; 2%</code>. INSUFFICIENT_DATA when fewer than 2 comparison periods exist. Do not display a trend arrow in INSUFFICIENT_DATA state — show "—" instead.</div></div>
+  </section>
+
+  <!-- S6: COMPARISON ENGINE -->
+  <section id="s6">
+    <div class="sec-head"><span class="sec-num">06</span><h2 class="sec-title">Comparison Engine</h2></div>
+
+    <p>The Comparison Engine produces a side-by-side analysis of two periods across all financial dimensions. It highlights improvements (green) and regressions (red) so users can immediately see what changed and in which direction.</p>
+
+    <h3>6.1 ComparisonBlock Type</h3>
+    <div class="cb"><span class="kw">type</span> ComparisonBlock = {
+  periodA:    PeriodLabel     <span class="c">// e.g. "July 2026" or "Q2 2026"</span>
+  periodB:    PeriodLabel     <span class="c">// comparison reference period</span>
+  rows:       ComparisonRow[]
+  summary:    ComparisonSummary
+}
+
+<span class="kw">type</span> ComparisonRow = {
+  label:      <span class="fn">string</span>          <span class="c">// e.g. "Savings Rate", "Debt Payments"</span>
+  valueA:     <span class="fn">number</span>
+  valueB:     <span class="fn">number</span>
+  delta:      <span class="fn">number</span>          <span class="c">// valueA − valueB</span>
+  deltaPct:   <span class="fn">number</span> | <span class="kw">null</span>   <span class="c">// (delta / valueB) × 100; null if valueB == 0</span>
+  direction:  <span class="str">'IMPROVED'</span> | <span class="str">'REGRESSED'</span> | <span class="str">'NEUTRAL'</span>
+  unit:       <span class="fn">string</span>
+}
+
+<span class="kw">type</span> ComparisonSummary = {
+  improvedCount: <span class="fn">number</span>
+  regressedCount: <span class="fn">number</span>
+  neutralCount:  <span class="fn">number</span>
+  overallDirection: <span class="str">'IMPROVING'</span> | <span class="str">'DECLINING'</span> | <span class="str">'STABLE'</span>
+  topImprovement: <span class="fn">string</span>   <span class="c">// label of the most-improved metric</span>
+  topRegression:  <span class="fn">string</span> | <span class="kw">null</span>
+}</div>
+
+    <h3>6.2 Comparison Modes</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Mode</th><th>Period A</th><th>Period B</th><th>Available For</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Month vs Prior Month</strong></td><td>Current salary period</td><td>Previous salary period</td><td>MONTHLY report</td></tr>
+        <tr><td><strong>Year vs Prior Year</strong></td><td>Current calendar year</td><td>Previous calendar year</td><td>YEARLY report</td></tr>
+        <tr><td><strong>Quarter vs Prior Quarter</strong></td><td>Current quarter</td><td>Previous quarter</td><td>QUARTERLY report</td></tr>
+        <tr><td><strong>Custom vs Custom</strong></td><td>User-defined range</td><td>User-defined range</td><td>CUSTOM report</td></tr>
+        <tr><td><strong>Goal Comparison</strong></td><td>Goal A progress metrics</td><td>Goal B progress metrics</td><td>Any report</td></tr>
+        <tr><td><strong>Debt Comparison</strong></td><td>Debt A paydown metrics</td><td>Debt B paydown metrics</td><td>Any report</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>6.3 Improvement / Regression Logic</h3>
+    <div class="cb"><span class="c">// Direction is computed per metric based on whether an increase is good or bad:</span>
+
+metrics where HIGHER is BETTER:
+  savingsRate, emfCompletionPct, goalFundingRate, fhsTotal, budgetDisciplineScore,
+  totalIncome, totalSaved, totalDebtReduced
+
+metrics where LOWER is BETTER:
+  totalSpent, dtiPct, debtBalance, spendingGrowthRate, budgetOverrunPct
+
+direction =
+  IF metric in HIGHER_IS_BETTER:
+    delta > <span class="num">0</span>  → IMPROVED
+    delta &lt; <span class="num">0</span>  → REGRESSED
+    ELSE      → NEUTRAL
+  IF metric in LOWER_IS_BETTER:
+    delta &lt; <span class="num">0</span>  → IMPROVED
+    delta > <span class="num">0</span>  → REGRESSED
+    ELSE      → NEUTRAL
+
+<span class="c">// NEUTRAL when |delta| / valueB &lt; 2% (noise threshold)</span></div>
+  </section>
+
+  <!-- S7: CASH FLOW -->
+  <section id="s7">
+    <div class="sec-head"><span class="sec-num">07</span><h2 class="sec-title">Cash Flow Analysis</h2></div>
+
+    <h3>7.1 CashFlowBlock Type</h3>
+    <div class="cb"><span class="kw">type</span> CashFlowBlock = {
+  totalReceived:     <span class="fn">number</span>   <span class="c">// centimes — all income sources in period</span>
+  totalAllocated:    <span class="fn">number</span>   <span class="c">// centimes — budget plan</span>
+  totalSaved:        <span class="fn">number</span>   <span class="c">// centimes — goal + EMF contributions</span>
+  totalOutflows:     <span class="fn">number</span>   <span class="c">// totalAllocated + totalDebtPayments + totalSaved</span>
+  cashFlowBalance:   <span class="fn">number</span>   <span class="c">// totalReceived − totalOutflows (may be negative)</span>
+  monthlyLiquidity:  <span class="fn">number</span>   <span class="c">// centimes — average free cash per period</span>
+  liquidityRatio:    <span class="fn">number</span>   <span class="c">// cashFlowBalance / totalReceived × 100</span>
+  liquidityLabel:    LiquidityLabel
+  byPeriod:          CashFlowPeriodRow[]   <span class="c">// one row per salary period in report range</span>
+}
+
+<span class="kw">type</span> LiquidityLabel = <span class="str">'SURPLUS'</span> | <span class="str">'TIGHT'</span> | <span class="str">'BREAK_EVEN'</span> | <span class="str">'DEFICIT'</span>
+
+<span class="c">// liquidityLabel assignment:
+// cashFlowBalance > totalReceived × 15%  → SURPLUS
+// cashFlowBalance > totalReceived × 2%   → TIGHT (positive but thin)
+// cashFlowBalance between -2% and +2%    → BREAK_EVEN
+// cashFlowBalance &lt; totalReceived × -2%  → DEFICIT</span>
+
+<span class="kw">type</span> CashFlowPeriodRow = {
+  periodId:     <span class="fn">string</span>
+  received:     <span class="fn">number</span>
+  outflows:     <span class="fn">number</span>
+  balance:      <span class="fn">number</span>
+  label:        LiquidityLabel
+}</div>
+
+    <h3>7.2 Cash Flow Forecast (Readiness)</h3>
+    <p>The forecast field is computed but marked as <strong>indicative only</strong> with a "Forecast" badge. It extrapolates the last 3 periods' average cash flow balance as a simple linear projection.</p>
+    <div class="cb">avgBalance3 = MEAN(last 3 periods' cashFlowBalance)
+forecastNextPeriod = avgBalance3          <span class="c">// naive constant projection</span>
+forecastConfidence = <span class="str">'LOW'</span>               <span class="c">// always LOW until AI model is integrated</span>
+
+<span class="c">// Displayed with disclaimer: "This forecast uses simple averaging. Accuracy
+// improves with more historical data. AI-powered forecasting is planned."</span></div>
+  </section>
+
+  <!-- S8: BEHAVIORAL ANALYTICS -->
+  <section id="s8">
+    <div class="sec-head"><span class="sec-num">08</span><h2 class="sec-title">Behavioral Analytics</h2></div>
+
+    <p>Behavioral analytics scores measure <em>financial habits</em> — not the outcome (like FHS) but the consistency of actions that drive outcomes. Ten behavioral metrics produce individual scores (0–100) and a composite Behavior Score.</p>
+
+    <h3>8.1 BehavioralBlock Type</h3>
+    <div class="cb"><span class="kw">type</span> BehavioralBlock = {
+  compositeScore:        <span class="fn">number</span>   <span class="c">// 0–100 weighted average of all 10 sub-scores</span>
+  compositeLabel:        BehaviorLabel
+  compositeChange:       <span class="fn">number</span>   <span class="c">// delta vs prior period</span>
+  savingsConsistency:    BehaviorScore
+  budgetDiscipline:      BehaviorScore
+  debtRepayment:         BehaviorScore
+  emfDiscipline:         BehaviorScore
+  goalCommitment:        BehaviorScore
+  monthlyPlanning:       BehaviorScore
+  latePayments:          BehaviorScore   <span class="c">// lower rawScore = fewer late payments = better</span>
+  expenseLogging:        BehaviorScore
+  incomeTimeliness:      BehaviorScore
+  positiveStreak:        BehaviorScore   <span class="c">// consecutive "good" periods</span>
+  topPositive:           <span class="fn">string</span>   <span class="c">// the best behavioral dimension this period</span>
+  topNegative:           <span class="fn">string</span> | <span class="kw">null</span>
+  recommendations:       BehaviorRecommendation[]
+}
+
+<span class="kw">type</span> BehaviorScore = {
+  score:       <span class="fn">number</span>       <span class="c">// 0–100</span>
+  trend:       Trend
+  streakDays:  <span class="fn">number</span>       <span class="c">// consecutive periods with score &gt;= 70</span>
+  interpretation: <span class="fn">string</span>   <span class="c">// "You've saved every month for 4 months in a row"</span>
+}
+
+<span class="kw">type</span> BehaviorLabel = <span class="str">'EXCELLENT'</span> | <span class="str">'CONSISTENT'</span> | <span class="str">'DEVELOPING'</span> | <span class="str">'INCONSISTENT'</span> | <span class="str">'NEEDS_FOCUS'</span></div>
+
+    <h3>8.2 Behavioral Score Formulas</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Metric</th><th>Formula (rolling N periods)</th><th>Weight</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Savings Consistency</strong></td><td><code>periodsWithSavings / totalPeriods × 100</code> (last 6)</td><td>20%</td></tr>
+        <tr><td><strong>Budget Discipline</strong></td><td><code>periodsWithinBudget / totalPeriods × 100</code> (last 6)</td><td>20%</td></tr>
+        <tr><td><strong>Debt Repayment</strong></td><td><code>periodsWithOnTimePayment / periodsWithDebt × 100</code> (last 6)</td><td>15%</td></tr>
+        <tr><td><strong>EMF Discipline</strong></td><td><code>periodsWithEMFContrib / totalPeriods × 100</code> (last 6)</td><td>10%</td></tr>
+        <tr><td><strong>Goal Commitment</strong></td><td><code>periodsWithGoalContrib / totalPeriodsWithActiveGoals × 100</code> (last 6)</td><td>10%</td></tr>
+        <tr><td><strong>Monthly Planning</strong></td><td><code>periodsWithBudgetSetUp / totalPeriods × 100</code> (last 6)</td><td>10%</td></tr>
+        <tr><td><strong>Late Payments</strong></td><td><code>100 − (latePaymentCount / totalPaymentsDue × 100)</code> (last 6)</td><td>5%</td></tr>
+        <tr><td><strong>Expense Logging</strong></td><td><code>daysWithAtLeastOneExpense / daysInPeriod × 100</code></td><td>5%</td></tr>
+        <tr><td><strong>Income Timeliness</strong></td><td><code>periodsWithSalaryRecordedWithin2Days / totalPeriods × 100</code></td><td>3%</td></tr>
+        <tr><td><strong>Positive Streak</strong></td><td><code>consecutivePeriodsWithBehaviorScore≥70 / 6 × 100</code>, capped 100</td><td>2%</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>8.3 Composite Label Assignment</h3>
+    <div class="cb">compositeLabel =
+  compositeScore >= <span class="num">85</span> → EXCELLENT
+  compositeScore >= <span class="num">70</span> → CONSISTENT
+  compositeScore >= <span class="num">55</span> → DEVELOPING
+  compositeScore >= <span class="num">40</span> → INCONSISTENT
+  compositeScore &lt;  <span class="num">40</span> → NEEDS_FOCUS</div>
+
+    <h3>8.4 Behavioral Recommendations</h3>
+    <p>Up to 3 recommendations are generated by selecting the 3 lowest-scoring behavioral dimensions and generating a constructive action for each:</p>
+    <div class="tw"><table>
+      <thead><tr><th>Lowest Dimension</th><th>Recommendation</th></tr></thead>
+      <tbody>
+        <tr><td>Savings Consistency &lt; 60</td><td>"Set up an automatic goal contribution on pay day to build a consistent savings habit"</td></tr>
+        <tr><td>Budget Discipline &lt; 60</td><td>"Review your top 3 overspent categories and adjust allocations to match real spending"</td></tr>
+        <tr><td>EMF Discipline &lt; 60</td><td>"Even a small monthly EMF contribution builds the habit — try setting a minimum contribution of [X]"</td></tr>
+        <tr><td>Goal Commitment &lt; 60</td><td>"Your goals need funding every period to stay on track — missing one contribution shifts the timeline by [N] months"</td></tr>
+        <tr><td>Monthly Planning &lt; 60</td><td>"Setting up your budget before the period starts is the single most impactful planning habit — it takes under 5 minutes"</td></tr>
+        <tr><td>Expense Logging &lt; 60</td><td>"Logging expenses daily rather than in batches reduces errors and gives you real-time budget visibility"</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- S9: INSIGHTS ENGINE -->
+  <section id="s9">
+    <div class="sec-head"><span class="sec-num">09</span><h2 class="sec-title">Financial Insights Engine</h2></div>
+
+    <p>Report Insights are structured observations generated from the report's data. Every insight must answer four questions: what was observed, why it happened, what to do about it, and what the expected impact is.</p>
+
+    <h3>9.1 ReportInsight Type</h3>
+    <div class="cb"><span class="kw">type</span> ReportInsight = {
+  id:              <span class="fn">string</span>
+  code:            InsightCode
+  priority:        <span class="fn">number</span>        <span class="c">// 1 = highest; determines display order</span>
+  category:        InsightCategory <span class="c">// 'SPENDING' | 'SAVINGS' | 'DEBT' | 'GOALS' | 'BEHAVIOR' | 'FORECAST'</span>
+  observation:     <span class="fn">string</span>        <span class="c">// max 100 chars: what the data shows</span>
+  explanation:     <span class="fn">string</span>        <span class="c">// max 140 chars: why this is significant</span>
+  recommendation:  <span class="fn">string</span>        <span class="c">// max 140 chars: what action to take</span>
+  expectedImpact:  <span class="fn">string</span>        <span class="c">// max 100 chars: what happens if recommendation is followed</span>
+  sentiment:       <span class="str">'POSITIVE'</span> | <span class="str">'NEGATIVE'</span> | <span class="str">'NEUTRAL'</span>
+  dataPoints:      InsightDataPoint[]   <span class="c">// supporting numbers</span>
+}</div>
+
+    <h3>9.2 Insight Template Examples</h3>
+
+    <div class="insight-template">
+      <div class="it-label">RINS-001 — Savings Rate Rising</div>
+      <div class="it-field"><span class="it-key">Observation</span><span class="it-val">"Your savings rate increased from [X]% to [Y]% compared to last period."</span></div>
+      <div class="it-field"><span class="it-key">Explanation</span><span class="it-val">"You saved [N] more this period. This trend compounds — every extra [Z] saved now reduces the time to your next goal by [M] months."</span></div>
+      <div class="it-field"><span class="it-key">Recommendation</span><span class="it-val">"Maintain or increase your current contribution level to lock in this momentum."</span></div>
+      <div class="it-field"><span class="it-key">Expected Impact</span><span class="it-val">"If maintained, your [goal name] target is now reachable [N] months earlier."</span></div>
+    </div>
+
+    <div class="insight-template">
+      <div class="it-label">RINS-002 — Debt Burden Decreasing</div>
+      <div class="it-field"><span class="it-key">Observation</span><span class="it-val">"Your DTI ratio fell from [X]% to [Y]% this period."</span></div>
+      <div class="it-field"><span class="it-key">Explanation</span><span class="it-val">"You reduced total debt by [N], lowering the share of income committed to repayments."</span></div>
+      <div class="it-field"><span class="it-key">Recommendation</span><span class="it-val">"Redirect the freed-up capacity to your emergency fund or the highest-priority goal."</span></div>
+      <div class="it-field"><span class="it-key">Expected Impact</span><span class="it-val">"Redirecting [N]/period would add [M] months of EMF coverage in [K] periods."</span></div>
+    </div>
+
+    <div class="insight-template">
+      <div class="it-label">RINS-003 — Category Spending Rising</div>
+      <div class="it-field"><span class="it-key">Observation</span><span class="it-val">"[Category] spending increased [X]% compared to last period."</span></div>
+      <div class="it-field"><span class="it-key">Explanation</span><span class="it-val">"This category now accounts for [Y]% of total spending, up from [Z]%."</span></div>
+      <div class="it-field"><span class="it-key">Recommendation</span><span class="it-val">"Review your [category] budget allocation — it may need to be increased or the spending reduced."</span></div>
+      <div class="it-field"><span class="it-key">Expected Impact</span><span class="it-val">"Bringing spending back within allocation frees [N] for savings or debt repayment."</span></div>
+    </div>
+
+    <h3>9.3 Insight Selection Rules</h3>
+    <ul class="sl">
+      <li>Maximum 5 insights per report</li>
+      <li>At most 2 insights per category (SPENDING, SAVINGS, DEBT, GOALS, BEHAVIOR, FORECAST)</li>
+      <li>POSITIVE-sentiment insights are included alongside NEGATIVE ones — celebrate wins</li>
+      <li>Insights are sorted: NEGATIVE priority 1–2 first, then POSITIVE, then NEUTRAL</li>
+      <li>Insight body language is always empathetic and action-oriented — never accusatory</li>
+      <li>Data points cited in insights must match the report's period exactly</li>
+    </ul>
+  </section>
+
+  <!-- S10: FHS HISTORY -->
+  <section id="s10">
+    <div class="sec-head"><span class="sec-num">10</span><h2 class="sec-title">Financial Health History</h2></div>
+
+    <p>The FHS historical record enables trend charts, period comparisons, and year-over-year health evolution. It is the only persistent output produced by the RPT module.</p>
+
+    <h3>10.1 Write Policy</h3>
+    <ul class="sl">
+      <li>One <code>fhs_history</code> row is written per calendar day, on the <strong>first snapshot build</strong> of that day</li>
+      <li>If a row already exists for today's date, no write occurs — the day's first snapshot is the canonical reading</li>
+      <li>Rows are retained for 365 days; a background cleanup task (runs on app open, at most once per day) deletes rows older than 365 days</li>
+      <li>If the app is not opened on a given day, no row is written for that day — gaps are tolerated and handled in charts by interpolation or explicit "no data" markers</li>
+    </ul>
+
+    <h3>10.2 Historical Metrics Tracked</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Metric</th><th>Stored In</th><th>Source Computation</th></tr></thead>
+      <tbody>
+        <tr><td>FHS Total</td><td><code>fhs_total</code></td><td>SPEC-DSH-001 §4 formula</td></tr>
+        <tr><td>Savings Rate Pts</td><td><code>savings_pts</code></td><td>Component 1 from SPEC-DSH-001 §4.1</td></tr>
+        <tr><td>Debt Burden Pts</td><td><code>debt_pts</code></td><td>Component 2 from SPEC-DSH-001 §4.2</td></tr>
+        <tr><td>EMF Readiness Pts</td><td><code>emf_pts</code></td><td>Component 3 from SPEC-DSH-001 §4.3</td></tr>
+        <tr><td>Budget Balance Pts</td><td><code>budget_pts</code></td><td>Component 4 from SPEC-DSH-001 §4.4</td></tr>
+        <tr><td>Goal Progress Pts</td><td><code>goal_pts</code></td><td>Component 5 from SPEC-DSH-001 §4.5</td></tr>
+        <tr><td>Monthly Stability Pts</td><td><code>stability_pts</code></td><td>Component 6 from SPEC-DSH-001 §4.6</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>10.3 History Derived Metrics</h3>
+    <div class="cb"><span class="c">// These are computed from fhs_history rows at report generation time — never stored:</span>
+
+fhsPeak365    = MAX(fhs_total) over last 365 days
+fhsFloor365   = MIN(fhs_total) over last 365 days
+fhsAvg90      = AVG(fhs_total) over last 90 days
+fhsVolatility = STDEV(fhs_total) over last 90 days   <span class="c">// low = stable, high = erratic</span>
+longestGoodStreak = MAX consecutive days where fhs_total >= <span class="num">70</span>
+currentStreak     = consecutive days from today backward where fhs_total >= <span class="num">70</span></div>
+  </section>
+
+  <!-- S11: VISUALIZATION -->
+  <section id="s11">
+    <div class="sec-head"><span class="sec-num">11</span><h2 class="sec-title">Visualization Strategy</h2></div>
+
+    <p>Each chart type is matched to the data shape it best represents. Charts are defined by data contract only — rendering library is not mandated by this spec.</p>
+
+    <div class="tw"><table>
+      <thead><tr><th>ID</th><th>Chart Type</th><th>Used For</th><th>Data Shape</th><th>Color Encoding</th></tr></thead>
+      <tbody>
+        <tr><td><strong>VIZ-001</strong></td><td>Line chart</td><td>FHS history, savings rate trend, DTI trend</td><td>Date (x) × score/% (y)</td><td>Score above 70: #10B981; below: #F59E0B; critical: #EF4444</td></tr>
+        <tr><td><strong>VIZ-002</strong></td><td>Stacked bar</td><td>Income vs outflows by period</td><td>Period (x) × amount (y), stacked segments</td><td>Income: #10B981; spending: #6366F1; debt: #EF4444; savings: #0EA5E9</td></tr>
+        <tr><td><strong>VIZ-003</strong></td><td>Grouped bar</td><td>Category spending: budget vs actual</td><td>Category (x) × amount (y), 2 bars per category</td><td>Budget: surface2; actual within budget: accent; actual over: #EF4444</td></tr>
+        <tr><td><strong>VIZ-004</strong></td><td>Donut / Pie</td><td>Spending composition by category</td><td>Category proportions</td><td>Up to 8 categories with distinct hues; remainder grouped as "Other"</td></tr>
+        <tr><td><strong>VIZ-005</strong></td><td>Area chart</td><td>Debt reduction over time, EMF growth</td><td>Date (x) × amount (y), filled below line</td><td>Debt reduction: #EF4444 fill; EMF growth: #10B981 fill</td></tr>
+        <tr><td><strong>VIZ-006</strong></td><td>Horizontal bar</td><td>Goal progress comparison, behavioral scores</td><td>Entity name (y) × completion % (x)</td><td>&#60;50%: #EF4444; 50–79%: #F59E0B; ≥80%: #10B981</td></tr>
+        <tr><td><strong>VIZ-007</strong></td><td>Heat map</td><td>Expense logging frequency (days × months)</td><td>Day of month (x) × month (y) × intensity</td><td>No activity: surface2; low: accent@30%; high: accent@100%</td></tr>
+        <tr><td><strong>VIZ-008</strong></td><td>Progress ring</td><td>Goals, EMF, budget utilization</td><td>Single percentage value</td><td>Same as VIZ-006 color logic</td></tr>
+        <tr><td><strong>VIZ-009</strong></td><td>Timeline / Milestone</td><td>Goal roadmap history, debt payoff timeline</td><td>Events on time axis</td><td>Completed: #10B981; active: #0EA5E9; future: text-dim</td></tr>
+        <tr><td><strong>VIZ-010</strong></td><td>Trend indicator</td><td>Inline metric deltas (▲▼ with %)</td><td>Single delta value</td><td>Positive improvement: #10B981; regression: #EF4444; neutral: text-dim</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>11.1 Chart Data Minimum Requirements</h3>
+    <ul class="sl">
+      <li>Line and area charts: minimum 2 data points — otherwise display empty state with "Collect more data" message</li>
+      <li>Donut/pie: minimum 2 non-zero categories — otherwise display a single-segment ring with "Add more categories" prompt</li>
+      <li>Heat map: renders with gaps for days with no data — explicitly marked as missing, not interpolated</li>
+      <li>All charts respect the <code>compactNumbers</code> display setting for axis labels</li>
+      <li>All charts include accessible alt-text describing the most important data point</li>
+    </ul>
+  </section>
+
+  <!-- S12: EXPORT -->
+  <section id="s12">
+    <div class="sec-head"><span class="sec-num">12</span><h2 class="sec-title">Export System</h2></div>
+
+    <h3>12.1 Supported Formats</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Format</th><th>Content</th><th>Use Case</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td><strong>PDF</strong></td><td>Full report with charts, summaries, and insights formatted as a readable document</td><td>Sharing, archival, advisors</td><td>V1</td></tr>
+        <tr><td><strong>CSV</strong></td><td>Raw tabular data: one row per expense/period/payment, with filter applied</td><td>Spreadsheet analysis, import to other tools</td><td>V1</td></tr>
+        <tr><td><strong>Print-friendly</strong></td><td>HTML snapshot with high-contrast black/white styling, no interactive elements</td><td>Physical printing</td><td>V1</td></tr>
+        <tr><td><strong>Excel (.xlsx)</strong></td><td>Multi-sheet workbook: Summary, Expenses, Debts, Goals, FHS History</td><td>Power users, accountants</td><td>Future</td></tr>
+        <tr><td><strong>Cloud share</strong></td><td>Secure link to a read-only hosted report snapshot</td><td>Sharing with advisors, spouse, partner</td><td>Future</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>12.2 PDF Report Structure</h3>
+    <ol class="sl">
+      <li>Cover page: Finance Bag branding, user name, report type, period, generation date</li>
+      <li>Financial Summary table (Section 4)</li>
+      <li>Key Achievements and Areas Needing Attention</li>
+      <li>Cash Flow Analysis</li>
+      <li>Budget breakdown: category-level table with allocated vs. spent</li>
+      <li>Debt status: balance table, payment history</li>
+      <li>Goals status: each goal with progress bar and projected completion</li>
+      <li>Emergency Fund status: level, milestone history</li>
+      <li>Financial Health Score: total + component breakdown + 30-day trend chart</li>
+      <li>Behavioral Scores: table with all 10 dimensions</li>
+      <li>Top 5 Insights (full text)</li>
+      <li>Comparison table (if available)</li>
+    </ol>
+
+    <h3>12.3 CSV Schema</h3>
+    <div class="cb"><span class="c">// Expenses CSV columns:</span>
+date, category, subcategory, description, amount_centimes, amount_display,
+period_id, period_start, period_end, notes
+
+<span class="c">// Periods CSV columns:</span>
+period_id, start_date, end_date, gross_income, total_allocated, total_spent,
+total_debt_payments, total_goal_contribs, total_emf_contribs, fhs_score,
+savings_rate_pct, dti_pct, budget_utilization_pct</div>
+
+    <div class="callout c-warn"><span class="ci">⚠️</span><div class="cb2"><strong>No sensitive data in exports.</strong> Exported files include amounts and dates but never passwords, sync tokens, or API keys. If the user exports to a cloud service in the future, the export is encrypted before transmission and the server holds only the ciphertext.</div></div>
+  </section>
+
+  <!-- S13: SEARCH & FILTERS -->
+  <section id="s13">
+    <div class="sec-head"><span class="sec-num">13</span><h2 class="sec-title">Search &amp; Filters</h2></div>
+
+    <h3>13.1 Filter Dimensions</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Dimension</th><th>Type</th><th>Behavior</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Date Range</strong></td><td>Date pair (start, end)</td><td>Filters all module queries to the specified range; overrides report type defaults</td></tr>
+        <tr><td><strong>Category</strong></td><td>Multi-select from category tree</td><td>Budget and expense data filtered to selected categories only</td></tr>
+        <tr><td><strong>Goal</strong></td><td>Multi-select from goal list</td><td>Goal analytics filtered to selected goals; other sections unaffected</td></tr>
+        <tr><td><strong>Debt</strong></td><td>Multi-select from credit list</td><td>Debt analytics filtered to selected credits only</td></tr>
+        <tr><td><strong>FHS Score Range</strong></td><td>Min–Max slider (0–100)</td><td>FHS history chart and comparison filtered to days within score range</td></tr>
+        <tr><td><strong>Income Range</strong></td><td>Min–Max amount</td><td>Periods with income outside range excluded from analytics</td></tr>
+        <tr><td><strong>Tags</strong></td><td>Multi-select</td><td>Tags are user-defined labels on expenses; filter shows only tagged expenses</td></tr>
+        <tr><td><strong>Include Archived</strong></td><td>Boolean toggle</td><td>When true: archived goals, soft-deleted categories included in analytics</td></tr>
+        <tr><td><strong>Custom Range Label</strong></td><td>Free text</td><td>Optional user label for the filter combination, used in export file name</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>13.2 Saved Filters</h3>
+    <ul class="sl">
+      <li>Users can save any ReportFilter combination with a name (max 40 chars)</li>
+      <li>Saved filters are stored in the <code>saved_filters</code> table (Section 2.1)</li>
+      <li>Maximum 10 saved filters; when limit is reached, saving a new one requires deleting an existing one</li>
+      <li>Saved filters are listed in a dropdown on the report screen; selecting one applies all filter dimensions simultaneously</li>
+      <li>Built-in preset filters: "Last 3 Months", "This Year", "All Goals Only", "Debt Overview" — these are not editable</li>
+    </ul>
+  </section>
+
+  <!-- S14: PREDICTIVE -->
+  <section id="s14">
+    <div class="sec-head"><span class="sec-num">14</span><h2 class="sec-title">Predictive Analytics Architecture</h2></div>
+
+    <p>The predictive analytics layer is designed for future AI integration. The current implementation provides deterministic projections using simple extrapolation; the architecture supports replacement with ML models without changing the data contract.</p>
+
+    <h3>14.1 PredictiveBlock Type</h3>
+    <div class="cb"><span class="kw">type</span> PredictiveBlock = {
+  expectedSavingsNextPeriod:   Projection
+  debtPayoffDate:              ProjectedDate
+  emfCompletionDate:           ProjectedDate
+  cashFlowNextPeriod:          Projection
+  budgetUtilizationForecast:   Projection
+  goalCompletionProbability:   GoalProbability[]
+  modelVersion:                <span class="fn">string</span>    <span class="c">// 'RULE_BASED_V1' | future: 'ML_V1'</span>
+  confidenceLevel:             <span class="str">'LOW'</span> | <span class="str">'MEDIUM'</span> | <span class="str">'HIGH'</span>
+}
+
+<span class="kw">type</span> Projection = {
+  value:       <span class="fn">number</span>           <span class="c">// projected value (centimes or %)</span>
+  lowerBound:  <span class="fn">number</span>
+  upperBound:  <span class="fn">number</span>
+  basisPeriods: <span class="fn">number</span>          <span class="c">// how many historical periods the projection is based on</span>
+}
+
+<span class="kw">type</span> ProjectedDate = {
+  date:        <span class="fn">string</span> | <span class="kw">null</span>   <span class="c">// null if insufficient data</span>
+  confidence:  <span class="str">'LOW'</span> | <span class="str">'MEDIUM'</span> | <span class="str">'HIGH'</span>
+  assumption:  <span class="fn">string</span>           <span class="c">// "Based on last 3 months average contribution"</span>
+}
+
+<span class="kw">type</span> GoalProbability = {
+  goalId:      <span class="fn">string</span>
+  goalName:    <span class="fn">string</span>
+  probability: <span class="fn">number</span>           <span class="c">// 0–100</span>
+  onTimeLabel: <span class="str">'ON_TRACK'</span> | <span class="str">'AT_RISK'</span> | <span class="str">'LIKELY_LATE'</span>
+}</div>
+
+    <h3>14.2 Rule-Based Projection Formulas (V1)</h3>
+    <div class="cb"><span class="c">// Expected Savings Next Period</span>
+avgSavings3 = MEAN(totalSaved, last 3 periods)
+growthRate   = linear regression slope over last 3 periods
+expectedSavingsNextPeriod.value = avgSavings3 + growthRate
+bounds = ± <span class="fn">STDEV</span>(totalSaved, last 3 periods)
+
+<span class="c">// Debt Payoff Date</span>
+avgMonthlyReduction = MEAN(totalDebtReduced, last 3 periods)
+IF avgMonthlyReduction > <span class="num">0</span>:
+  periodsToPayoff = CEIL(totalDebtBalance / avgMonthlyReduction)
+  debtPayoffDate  = today + periodsToPayoff × avgPeriodLength
+
+<span class="c">// Goal Completion Probability</span>
+FOR each ACTIVE goal:
+  requiredMonthly = goal.requiredMonthlyContribution
+  avgContrib3     = MEAN(goal contributions, last 3 periods)
+  fundingRatio    = avgContrib3 / requiredMonthly
+  probability     =
+    fundingRatio >= <span class="num">1.0</span>  → <span class="num">90</span>
+    fundingRatio >= <span class="num">0.8</span>  → <span class="num">75</span>
+    fundingRatio >= <span class="num">0.5</span>  → <span class="num">50</span>
+    fundingRatio >= <span class="num">0.2</span>  → <span class="num">25</span>
+    ELSE              → <span class="num">10</span>
+
+<span class="c">// Confidence = LOW when basisPeriods &lt; 3
+// Confidence = MEDIUM when basisPeriods 3–5
+// Confidence = HIGH when basisPeriods >= 6 (future: ML model)</span></div>
+
+    <h3>14.3 AI Integration Readiness</h3>
+    <ul class="sl">
+      <li>The <code>PredictiveBlock</code> type is the stable contract between the RPT module and any future AI model — the AI replaces internal projection functions but the output shape is unchanged</li>
+      <li>The <code>fhs_history</code> table (365 rows) plus all module tables provide sufficient training features for a time-series model when AI integration is built</li>
+      <li>The analytics module can optionally serialize the last 12 months of <code>AnalyticsBlock</code> and <code>BehavioralBlock</code> snapshots as a feature vector for an on-device ML model</li>
+      <li>All projections are clearly labeled as estimates; no UX element implies that predictions are guarantees</li>
+    </ul>
+  </section>
+
+  <!-- S15: EDGE CASES -->
+  <section id="s15">
+    <div class="sec-head"><span class="sec-num">15</span><h2 class="sec-title">Edge Cases</h2></div>
+
+    <div class="rc"><div class="rc-id">EC-RPT-01</div><div class="rc-title">Incomplete Month / Period</div><div class="rc-body">When the current period is not yet complete: analytics metrics are computed on partial data. All figures show a "Period in progress" badge. Averages and percentages are computed on actuals to date, not projected to end-of-period. Behavioral scores that count "periods" use only completed periods — the current in-progress period is excluded from denominators.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-RPT-02</div><div class="rc-title">Missing Salary in Period</div><div class="rc-body">grossIncome = 0 for a period. That period is excluded from income-growth-rate calculations (to avoid divide-by-zero and misleading -100% figures). The period is included in behavioral scoring as a missed "income timeliness" period. A "Missing income" note appears in the report's Financial Summary for that period.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-RPT-03</div><div class="rc-title">Negative Balance or Over-Committed Period</div><div class="rc-body">cashFlowBalance &lt; 0 is displayed in red with a "Deficit" badge. The comparison engine counts this as a regression for the cashFlow metric. Behavioral analytics penalises the budget discipline score. The predictive engine treats this as a warning: if 2+ consecutive periods show deficit, the confidence level on all projections is downgraded.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-RPT-04</div><div class="rc-title">Archived Goals and Debts</div><div class="rc-body">By default, archived goals and soft-deleted debts are excluded from analytics. When the "Include Archived" filter is enabled: archived goals are shown in the goals section with an "Archived" label; their contributions are included in totalSaved; their behavioural scores are included in historical computations for periods when they were active.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-RPT-05</div><div class="rc-title">FHS History Gaps</div><div class="rc-body">Days where no fhs_history row exists (app not opened) are displayed as gaps in line charts, not as 0. Gap interpolation is never performed — the chart shows a dashed line between the last known value and the next known value. The gap is explicitly labeled "No data" on tap. Streak calculations exclude gapped days.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-RPT-06</div><div class="rc-title">Duplicate Records</div><div class="rc-body">If duplicate expense records are detected (same amount, same date, same category, within 1 minute of each other): they are flagged with a "Possible duplicate" warning in the report's expense table. They are still included in all totals — the spec does not auto-delete duplicates. The user must manually resolve them in the budget module.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-RPT-07</div><div class="rc-title">Currency Symbol Change</div><div class="rc-body">If the user changes the currencySymbol setting mid-history: historical amounts remain in centimes (currency-agnostic). The new symbol is applied to all displays including historical periods. A note in the LIFETIME report warns: "Currency symbol changed on [date] — all amounts are displayed in the current symbol but were recorded under a different symbol."</div></div>
+
+    <div class="rc"><div class="rc-id">EC-RPT-08</div><div class="rc-title">Report Generation Timeout</div><div class="rc-body">If the analytics query takes longer than 3 seconds: show a partial report with populated sections and a "Loading..." placeholder for slow sections. Log the slow query for diagnostics. At 10 seconds: cancel the query, show an error state with a "Generate simpler report" option that omits behavioral analytics and predictive blocks.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-RPT-09</div><div class="rc-title">Fewer Than 3 Historical Periods</div><div class="rc-body">When fewer than 3 completed salary periods exist: behavioral scores that require "last 6 periods" compute over available periods with a "Based on [N] periods" badge. Comparison blocks that require a prior period show "No comparison available yet — keep recording to unlock". Predictive blocks show with confidenceLevel = LOW and basisPeriods = actual count.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-RPT-10</div><div class="rc-title">Partial CSV Export</div><div class="rc-body">If the CSV export fails mid-write (e.g. device storage full): the partial file is deleted immediately — no corrupted file is left on disk. The user sees "Export failed: device storage full" with a link to storage settings. The export operation is atomic: write to a temp file first, then rename on success.</div></div>
+  </section>
+
+  <!-- S16: BUSINESS RULES & PERFORMANCE -->
+  <section id="s16">
+    <div class="sec-head"><span class="sec-num">16</span><h2 class="sec-title">Business Rules &amp; Performance</h2></div>
+
+    <div class="rc"><div class="rc-id">BR-RPT-01</div><div class="rc-title">Analytics Module Owns No Source Data</div><div class="rc-body">The RPT module reads from all other module tables but writes only to <code>fhs_history</code> and <code>saved_filters</code>. Any report computed value that appears to require a new column in a source module's table is a design error — add a computed field to the Report type instead.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-RPT-02</div><div class="rc-title">Centimes Throughout Analytics</div><div class="rc-body">All monetary values in analytics computations are integer centimes. Division to compute percentages or rates produces a floating-point result; this is the only context where floating-point arithmetic is permitted in the RPT module. The result is stored as a float in the Report object but never persisted as a centimes value with fractional cents.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-RPT-03</div><div class="rc-title">Period Alignment</div><div class="rc-body">All period-based analytics use salary-period boundaries from SPEC-BUD-001 BR-01, not calendar months. When a report type requires calendar alignment (e.g. YEARLY uses calendar year Jan–Dec), the data is grouped by salary periods that overlap with the calendar range — a period that straddles Jan 1 is included in the year where its start date falls.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-RPT-04</div><div class="rc-title">Insight Cap Per Report</div><div class="rc-body">Maximum 5 ReportInsights per report, max 2 per category. This prevents insight fatigue. The selection algorithm always prefers insights with lower priority numbers (more critical). If fewer than 5 insights qualify, show fewer — do not pad with lower-quality insights to reach the cap.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-RPT-05</div><div class="rc-title">No Predictive Values Presented as Certainties</div><div class="rc-body">All projected dates and amounts must display a confidence label (LOW / MEDIUM / HIGH) and an assumption sentence. UX copy must never use language implying certainty ("you will save...", "your debt will be paid off on..."). Required framing: "Based on your recent history, you are on track to..." or "At your current pace..."</div></div>
+
+    <div class="rc"><div class="rc-id">BR-RPT-06</div><div class="rc-title">Saved Filter Limit</div><div class="rc-body">Maximum 10 saved filters (excluding built-in presets). Saving a filter when 10 exist returns a validation error: "Filter limit reached — delete an existing saved filter to save a new one." Built-in preset filters do not count toward the limit and cannot be deleted.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-RPT-07</div><div class="rc-title">FHS History Write Guard</div><div class="rc-body">The fhs_history write is guarded by a unique constraint on the <code>date</code> column. If the background task attempts to write for a date that already has a row, the INSERT is silently ignored (ON CONFLICT IGNORE). This prevents duplicate writes on multi-app-open days.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-RPT-08</div><div class="rc-title">Performance Targets</div><div class="rc-body">MONTHLY report generation: &lt; 500 ms. YEARLY report generation: &lt; 1500 ms. LIFETIME report generation: &lt; 3000 ms. Custom range up to 1 year: &lt; 1000 ms. These are measured from query start to Report object fully populated, on a device with 2 years of financial history. Targets assume SQLite indexes on: expenses(date, category_id), salary_periods(start_date), fhs_history(date).</div></div>
+
+    <div class="rc"><div class="rc-id">BR-RPT-09</div><div class="rc-title">Offline-First Architecture</div><div class="rc-body">All analytics computations run locally against the on-device SQLite database. No network request is required to generate any report, export any file, or display any chart. This is a hard requirement — analytics must be available without internet connectivity at all times.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-RPT-10</div><div class="rc-title">Future Scalability: Large Data Sets</div><div class="rc-body">For users with &gt; 3 years of history (&gt; 36 salary periods, &gt; 10,000 expense records): aggregate queries must use indexed GROUP BY operations. Row-by-row JS computation is prohibited for any aggregate that could instead be done in SQL. The <code>fhs_history</code> table's 365-day retention cap ensures this table stays bounded. Category-level expense aggregates are pre-computable as period-end snapshots stored in a future <code>period_summary</code> table (optional optimisation, not required in V1).</div></div>
+  </section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const l = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (l) l.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

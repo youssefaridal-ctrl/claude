@@ -1,0 +1,1658 @@
+
+<title>SPEC-BUD-001 — Budget Engine & Expense Categories</title>
+<style>
+  :root {
+    --indigo: #6366F1;
+    --indigo-dim: #4F46E5;
+    --indigo-glow: rgba(99,102,241,0.15);
+    --bg: #18181B;
+    --surface: #27272A;
+    --surface-2: #3F3F46;
+    --text: #F4F4F5;
+    --muted: #A1A1AA;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --danger: #EF4444;
+    --info: #38BDF8;
+    --sidebar-w: 268px;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #F4F4F5;
+      --surface: #FFFFFF;
+      --surface-2: #E4E4E7;
+      --text: #18181B;
+      --muted: #71717A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #18181B; --surface: #27272A; --surface-2: #3F3F46;
+    --text: #F4F4F5; --muted: #A1A1AA;
+  }
+  :root[data-theme="light"] {
+    --bg: #F4F4F5; --surface: #FFFFFF; --surface-2: #E4E4E7;
+    --text: #18181B; --muted: #71717A;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    display: flex;
+    min-height: 100vh;
+    line-height: 1.65;
+  }
+
+  /* SIDEBAR */
+  nav#sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--surface-2);
+    overflow-y: auto;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+  .nav-brand {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--surface-2);
+  }
+  .nav-brand .badge {
+    display: inline-block;
+    background: var(--indigo-glow);
+    color: var(--indigo);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .nav-brand h1 { font-size: 13px; font-weight: 700; color: var(--text); line-height: 1.3; }
+  .nav-brand p { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  nav#sidebar ul { list-style: none; padding: 10px 0 20px; }
+  nav#sidebar ul li a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 20px;
+    font-size: 12px;
+    color: var(--muted);
+    text-decoration: none;
+    transition: color .15s, background .15s;
+    border-left: 2px solid transparent;
+  }
+  nav#sidebar ul li a:hover { color: var(--text); background: var(--indigo-glow); }
+  nav#sidebar ul li a.active {
+    color: var(--indigo);
+    border-left-color: var(--indigo);
+    background: var(--indigo-glow);
+    font-weight: 600;
+  }
+  nav#sidebar ul li a .num {
+    font-size: 10px;
+    color: var(--surface-2);
+    font-variant-numeric: tabular-nums;
+    min-width: 18px;
+    font-weight: 600;
+  }
+  nav#sidebar ul li a.active .num { color: var(--indigo); opacity: .7; }
+  .theme-toggle {
+    margin: auto 16px 16px;
+    padding: 8px 12px;
+    background: var(--surface-2);
+    border: none;
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 12px;
+    cursor: pointer;
+    text-align: center;
+    width: calc(100% - 32px);
+    transition: color .15s;
+  }
+  .theme-toggle:hover { color: var(--text); }
+
+  /* MAIN */
+  main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 48px 52px 80px;
+    max-width: 960px;
+  }
+
+  /* HEADER */
+  .doc-header {
+    margin-bottom: 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--surface-2);
+  }
+  .doc-header .spec-id {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--indigo);
+    margin-bottom: 16px;
+  }
+  .doc-header .spec-id::before {
+    content: '';
+    display: inline-block;
+    width: 8px; height: 8px;
+    background: var(--indigo);
+    border-radius: 50%;
+  }
+  .doc-header h2 {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.15;
+    text-wrap: balance;
+    margin-bottom: 12px;
+  }
+  .doc-header p {
+    font-size: 15px;
+    color: var(--muted);
+    max-width: 640px;
+    line-height: 1.7;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 24px;
+    margin-top: 24px;
+  }
+  .meta-item { display: flex; flex-direction: column; gap: 3px; }
+  .meta-item .label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+  .meta-item .val { font-size: 13px; font-weight: 600; color: var(--text); }
+
+  /* SECTIONS */
+  section { margin-bottom: 56px; scroll-margin-top: 32px; }
+  section h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--surface-2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  section h2 .s-num {
+    font-size: 11px;
+    color: var(--indigo);
+    font-weight: 700;
+    letter-spacing: .05em;
+    background: var(--indigo-glow);
+    padding: 2px 8px;
+    border-radius: 20px;
+  }
+  h3 { font-size: 15px; font-weight: 700; color: var(--text); margin: 24px 0 10px; }
+  h4 { font-size: 13px; font-weight: 700; color: var(--muted); margin: 18px 0 8px; text-transform: uppercase; letter-spacing: .05em; }
+  p { color: var(--muted); margin-bottom: 10px; font-size: 14px; }
+  p strong { color: var(--text); }
+  ul, ol { padding-left: 20px; margin-bottom: 12px; }
+  li { color: var(--muted); font-size: 14px; margin-bottom: 4px; line-height: 1.6; }
+  li strong { color: var(--text); }
+
+  /* TABLES */
+  .table-wrap { overflow-x: auto; margin: 16px 0; border-radius: 10px; border: 1px solid var(--surface-2); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    background: var(--surface);
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid var(--surface-2);
+  }
+  tbody tr { border-bottom: 1px solid var(--surface-2); transition: background .1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--indigo-glow); }
+  tbody td { padding: 10px 14px; color: var(--muted); vertical-align: top; }
+  tbody td strong { color: var(--text); }
+  tbody td .pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin: 1px 2px;
+  }
+  .pill-indigo { background: var(--indigo-glow); color: var(--indigo); }
+  .pill-green { background: rgba(34,197,94,.12); color: var(--success); }
+  .pill-yellow { background: rgba(245,158,11,.12); color: var(--warning); }
+  .pill-red { background: rgba(239,68,68,.12); color: var(--danger); }
+  .pill-blue { background: rgba(56,189,248,.12); color: var(--info); }
+  .pill-gray { background: var(--surface-2); color: var(--muted); }
+
+  /* CODE / FORMULA */
+  .formula {
+    background: var(--surface);
+    border: 1px solid var(--surface-2);
+    border-radius: 8px;
+    padding: 16px 18px;
+    margin: 14px 0;
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 13px;
+    color: var(--info);
+    line-height: 1.8;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* CALLOUT BOXES */
+  .callout {
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin: 16px 0;
+    font-size: 13px;
+    line-height: 1.65;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { color: var(--muted); }
+  .callout-body strong { color: var(--text); display: block; margin-bottom: 4px; font-size: 13px; }
+  .callout-info { background: rgba(56,189,248,.08); border: 1px solid rgba(56,189,248,.2); }
+  .callout-warn { background: rgba(245,158,11,.08); border: 1px solid rgba(245,158,11,.2); }
+  .callout-success { background: rgba(34,197,94,.08); border: 1px solid rgba(34,197,94,.2); }
+  .callout-danger { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); }
+
+  /* CATEGORY GRID */
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 14px 0;
+  }
+  .cat-card {
+    background: var(--surface);
+    border: 1px solid var(--surface-2);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cat-card .icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .cat-card .info { min-width: 0; }
+  .cat-card .info .name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .cat-card .info .pct { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* LIFECYCLE */
+  .lifecycle {
+    display: flex;
+    gap: 0;
+    margin: 16px 0;
+    position: relative;
+  }
+  .lifecycle::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    height: 2px;
+    background: var(--surface-2);
+    z-index: 0;
+  }
+  .lc-step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+    z-index: 1;
+    text-align: center;
+  }
+  .lc-dot {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--surface);
+    border: 2px solid var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+  .lc-step.active .lc-dot {
+    border-color: var(--indigo);
+    background: var(--indigo-glow);
+  }
+  .lc-label { font-size: 11px; color: var(--muted); font-weight: 600; }
+  .lc-step.active .lc-label { color: var(--indigo); }
+
+  /* TEMPLATE CARDS */
+  .template-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+  .template-card {
+    background: var(--surface);
+    border: 1px solid var(--surface-2);
+    border-radius: 12px;
+    padding: 16px;
+    transition: border-color .2s;
+  }
+  .template-card:hover { border-color: var(--indigo); }
+  .template-card .t-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .template-card .t-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--indigo-glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+  .template-card .t-name { font-size: 14px; font-weight: 700; color: var(--text); }
+  .template-card .t-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .template-card .t-alloc {
+    margin-top: 10px;
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .t-bar {
+    height: 6px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* VALIDATION */
+  .validation-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 14px 0;
+  }
+  .v-item {
+    background: var(--surface);
+    border: 1px solid var(--surface-2);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .v-sev {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+  }
+  .v-sev-error { background: var(--danger); }
+  .v-sev-warn { background: var(--warning); }
+  .v-sev-info { background: var(--info); }
+  .v-body .v-code { font-size: 11px; font-family: monospace; color: var(--indigo); font-weight: 600; }
+  .v-body .v-text { font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .v-body .v-text strong { color: var(--text); }
+
+  /* ALLOCATION VISUAL */
+  .alloc-bar-wrap { margin: 16px 0; }
+  .alloc-bar {
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  .alloc-bar .seg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    color: #fff;
+    transition: flex .3s;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .alloc-legend { display: flex; flex-wrap: wrap; gap: 10px; }
+  .alloc-legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .alloc-legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+  /* PERF METRICS */
+  .perf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 16px 0;
+  }
+  .perf-card {
+    background: var(--surface);
+    border: 1px solid var(--surface-2);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .perf-card .p-val {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--indigo);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .perf-card .p-label { font-size: 12px; color: var(--muted); }
+
+  /* HIERARCHY TREE */
+  .tree {
+    font-family: 'SF Mono', monospace;
+    font-size: 13px;
+    background: var(--surface);
+    border: 1px solid var(--surface-2);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin: 14px 0;
+    color: var(--muted);
+    line-height: 2;
+  }
+  .tree .parent { color: var(--text); font-weight: 600; }
+  .tree .child { color: var(--muted); padding-left: 24px; }
+  .tree .t-con { color: var(--surface-2); }
+
+  @media (max-width: 768px) {
+    nav#sidebar { display: none; }
+    main { margin-left: 0; padding: 24px 20px 60px; }
+    .lifecycle { flex-wrap: wrap; gap: 16px; }
+    .lifecycle::before { display: none; }
+  }
+</style>
+
+<nav id="sidebar">
+  <div class="nav-brand">
+    <div class="badge">Finance Bag</div>
+    <h1>SPEC-BUD-001</h1>
+    <p>Budget Engine & Categories</p>
+  </div>
+  <ul>
+    <li><a href="#s1"><span class="num">01</span> Core Philosophy</a></li>
+    <li><a href="#s2"><span class="num">02</span> Category Data Model</a></li>
+    <li><a href="#s3"><span class="num">03</span> Category Hierarchy</a></li>
+    <li><a href="#s4"><span class="num">04</span> Default Categories</a></li>
+    <li><a href="#s5"><span class="num">05</span> Category Types</a></li>
+    <li><a href="#s6"><span class="num">06</span> Category Lifecycle</a></li>
+    <li><a href="#s7"><span class="num">07</span> Category Management</a></li>
+    <li><a href="#s8"><span class="num">08</span> Budget Rules</a></li>
+    <li><a href="#s9"><span class="num">09</span> Budget Templates</a></li>
+    <li><a href="#s10"><span class="num">10</span> Allocation Engine</a></li>
+    <li><a href="#s11"><span class="num">11</span> Validation Engine</a></li>
+    <li><a href="#s12"><span class="num">12</span> Automation</a></li>
+    <li><a href="#s13"><span class="num">13</span> Monthly Snapshots</a></li>
+    <li><a href="#s14"><span class="num">14</span> Search System</a></li>
+    <li><a href="#s15"><span class="num">15</span> Reporting</a></li>
+    <li><a href="#s16"><span class="num">16</span> Performance & Scalability</a></li>
+  </ul>
+  <button class="theme-toggle" onclick="toggleTheme()">Toggle Light / Dark</button>
+</nav>
+
+<main>
+  <div class="doc-header">
+    <div class="spec-id">SPEC-BUD-001 &mdash; Budget Engine</div>
+    <h2>Budget Engine &amp; Expense Categories</h2>
+    <p>Complete functional specification for the Budget Engine powering Finance Bag. Covers category architecture, allocation logic, validation, templates, automation, snapshots, and future scalability — with no implementation code.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="label">Document</span><span class="val">SPEC-BUD-001</span></div>
+      <div class="meta-item"><span class="label">Version</span><span class="val">1.0.0</span></div>
+      <div class="meta-item"><span class="label">Status</span><span class="val">Draft — Internal</span></div>
+      <div class="meta-item"><span class="label">Date</span><span class="val">July 2026</span></div>
+      <div class="meta-item"><span class="label">Depends on</span><span class="val">SPEC-SAL-001</span></div>
+    </div>
+  </div>
+
+  <!-- §1 PHILOSOPHY -->
+  <section id="s1">
+    <h2><span class="s-num">01</span> Core Philosophy</h2>
+    <p>The Budget Engine is the financial brain of Finance Bag. It is the layer that transforms raw income into a purposeful, structured financial plan — turning a salary figure into a living budget that guides every spending decision throughout the month.</p>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">💡</div>
+      <div class="callout-body">
+        <strong>Founding Principle</strong>
+        Every amount of money entering the application must have a purpose. No income should remain unexplained. Every budget category must contribute to one of the user's financial objectives.
+      </div>
+    </div>
+
+    <h3>Five Design Tenets</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Tenet</th><th>Meaning</th><th>Consequence</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Purposeful Allocation</strong></td><td>Every dirham is assigned before the month begins</td><td>The engine warns when income is unassigned</td></tr>
+          <tr><td><strong>Simplicity First</strong></td><td>A first-time user can build a budget in under 3 minutes</td><td>Defaults, templates, and auto-suggestions do the heavy lifting</td></tr>
+          <tr><td><strong>Absolute Flexibility</strong></td><td>Power users can define any structure they need</td><td>Custom types, subcategories, custom rules, custom templates</td></tr>
+          <tr><td><strong>Historical Integrity</strong></td><td>Past months are immutable records of what was planned</td><td>Snapshot system; edits to past months require explicit intent</td></tr>
+          <tr><td><strong>Forward Compatibility</strong></td><td>The engine must absorb future features without redesign</td><td>Extensible data model; behavior flags not hard-coded types</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Relationship to SPEC-SAL-001</h3>
+    <p>The Salary module (SPEC-SAL-001) defines <strong>when</strong> income arrives and <strong>how much</strong> is available. This Budget Engine spec defines <strong>where that income goes</strong>. The two are tightly coupled: the allocation engine reads the total income figure from the salary module and distributes it across categories.</p>
+    <p>Budget periods are salary-day-aligned (not calendar-month aligned) as defined in BR-01 of SPEC-SAL-001. This spec inherits that constraint.</p>
+  </section>
+
+  <!-- §2 CATEGORY DATA MODEL -->
+  <section id="s2">
+    <h2><span class="s-num">02</span> Category Data Model</h2>
+    <p>Each budget category is a rich entity with identity, visual, behavioral, and rule attributes.</p>
+
+    <h3>Full Schema</h3>
+    <div class="formula">BudgetCategory {
+  -- Identity
+  id              UUID (primary key)
+  name            string (1–60 chars, required)
+  description     string (0–200 chars, optional)
+  parentId        UUID | null         (null = top-level category)
+
+  -- Visual
+  icon            string (single emoji, required)
+  color           HexColor (#RRGGBB, required)
+
+  -- Classification
+  type            CategoryType        (enum, required)
+  tags            string[]            (max 10 tags, each 1–30 chars)
+
+  -- Allocation
+  allocationMethod  'percentage' | 'fixed' | 'hybrid'
+  percentage        number 0–100      (used when method ≠ 'fixed')
+  fixedAmount       number ≥ 0        (centimes; used when method ≠ 'percentage')
+
+  -- Behavior flags
+  isDefault       boolean             (shipped with the app; cannot be deleted)
+  isLocked        boolean             (locked by user; cannot be deleted/hidden)
+  isHidden        boolean             (excluded from dashboard view)
+  isArchived      boolean             (inactive; not shown in active budget)
+  isFavorite      boolean             (pinned at top of category picker)
+  isTemplate      boolean             (saved as reusable template)
+  isReusable      boolean             (can be duplicated across periods)
+
+  -- Ordering
+  sortOrder       integer             (0-indexed, ascending)
+
+  -- Budget rules (optional)
+  rules           BudgetRule[]        (see §8)
+
+  -- Audit
+  createdAt       ISO-8601 datetime
+  updatedAt       ISO-8601 datetime
+  archivedAt      ISO-8601 datetime | null
+  deletedAt       ISO-8601 datetime | null  (soft delete)
+}</div>
+
+    <h3>Monthly Budget Allocation (period-specific)</h3>
+    <p>The above schema defines a <em>category template</em> — the reusable definition. Each budget period stores its own snapshot of allocation values:</p>
+    <div class="formula">PeriodCategoryAllocation {
+  id              UUID
+  periodId        string (YYYY-MM format, aligns to salary day)
+  categoryId      UUID (references BudgetCategory)
+
+  -- Computed from category template at period start, then overrideable:
+  allocatedAmount number (centimes; computed = income × percentage OR fixedAmount)
+  spentAmount     number (centimes; sum of transactions in this category + period)
+
+  -- Override flags (user manually edited this period's allocation)
+  isOverridden    boolean
+  overrideNote    string | null
+}</div>
+
+    <div class="callout callout-warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>Amounts vs. Percentages</strong>
+        Percentages and fixed amounts live on the category template and define the <em>default behavior</em>. Actual money amounts for a specific period are always stored in <code>PeriodCategoryAllocation</code>, computed at period creation and then optionally overridden by the user.
+      </div>
+    </div>
+  </section>
+
+  <!-- §3 HIERARCHY -->
+  <section id="s3">
+    <h2><span class="s-num">03</span> Category Hierarchy</h2>
+    <p>Categories support a <strong>two-level hierarchy</strong>: top-level parent categories and subcategories. This is intentionally shallow — deeper nesting produces complexity that defeats the purpose of a personal budgeting app.</p>
+
+    <h3>Hierarchy Rules</h3>
+    <ul>
+      <li><strong>Maximum depth: 2 levels.</strong> A parent can have subcategories. A subcategory cannot have its own subcategories.</li>
+      <li><strong>A category can be one of three things:</strong> standalone (no parent, no children), parent (has at least one child), or child/subcategory (belongs to exactly one parent).</li>
+      <li><strong>A parent cannot have a parentId</strong> — promoting/demoting categories adjusts this relationship.</li>
+      <li><strong>Deleting a parent</strong> requires the user to choose: delete all children, promote children to top-level, or cancel.</li>
+      <li><strong>Budget rollup:</strong> A parent category's allocated and spent amounts equal the sum of its children (when it has children). The parent row itself holds no direct transactions.</li>
+    </ul>
+
+    <h3>Example Hierarchies</h3>
+    <div class="tree">
+<span class="parent">🏠 Housing</span>          <span style="color:var(--indigo);font-size:11px">Essential • 30%</span>
+<span class="child"><span class="t-con">├──</span> 🔑 Rent/Mortgage</span>    <span style="color:var(--indigo);font-size:11px">25%</span>
+<span class="child"><span class="t-con">├──</span> 💡 Electricity</span>        <span style="color:var(--indigo);font-size:11px">2%</span>
+<span class="child"><span class="t-con">├──</span> 💧 Water/Gas</span>           <span style="color:var(--indigo);font-size:11px">1%</span>
+<span class="child"><span class="t-con">└──</span> 📡 Internet</span>            <span style="color:var(--indigo);font-size:11px">2%</span>
+
+<span class="parent">🛒 Food</span>               <span style="color:var(--indigo);font-size:11px">Variable • 15%</span>
+<span class="child"><span class="t-con">├──</span> 🥑 Groceries</span>           <span style="color:var(--indigo);font-size:11px">10%</span>
+<span class="child"><span class="t-con">└──</span> 🍽️ Restaurants</span>         <span style="color:var(--indigo);font-size:11px">5%</span>
+
+<span class="parent">💰 Savings</span>            <span style="color:var(--success);font-size:11px">Savings • 20%</span>
+<span class="child"><span class="t-con">├──</span> 🛡️ Emergency Fund</span>      <span style="color:var(--success);font-size:11px">10%</span>
+<span class="child"><span class="t-con">└──</span> 🎯 Financial Goals</span>     <span style="color:var(--success);font-size:11px">10%</span>
+
+<span class="parent">✈️ Vacation</span>           <span style="color:var(--indigo);font-size:11px">Standalone • 5%</span></div>
+
+    <h3>Visual Representation in UI</h3>
+    <ul>
+      <li>Parent categories are displayed with a collapse/expand toggle.</li>
+      <li>Subcategories are indented under their parent with a connector line.</li>
+      <li>Progress bars on parent categories show aggregate spent vs. allocated.</li>
+      <li>Tapping a parent shows the breakdown of children.</li>
+      <li>A parent with no children is displayed as a standalone category.</li>
+    </ul>
+  </section>
+
+  <!-- §4 DEFAULT CATEGORIES -->
+  <section id="s4">
+    <h2><span class="s-num">04</span> Default Categories</h2>
+    <p>The app ships with a curated set of default categories, seeded on first launch. Default categories cannot be deleted but can be renamed, recolored, and reconfigured.</p>
+
+    <h4>Essential Expenses — Pre-allocated 50%</h4>
+    <div class="cat-grid">
+      <div class="cat-card"><div class="icon" style="background:rgba(99,102,241,.15)">🏠</div><div class="info"><div class="name">Housing</div><div class="pct">30% · Parent</div></div></div>
+      <div class="cat-card"><div class="icon" style="background:rgba(99,102,241,.15)">🛒</div><div class="info"><div class="name">Groceries</div><div class="pct">10%</div></div></div>
+      <div class="cat-card"><div class="icon" style="background:rgba(99,102,241,.15)">🚗</div><div class="info"><div class="name">Transport</div><div class="pct">7%</div></div></div>
+      <div class="cat-card"><div class="icon" style="background:rgba(99,102,241,.15)">🏥</div><div class="info"><div class="name">Health</div><div class="pct">3%</div></div></div>
+    </div>
+
+    <h4>Variable Expenses — Pre-allocated 20%</h4>
+    <div class="cat-grid">
+      <div class="cat-card"><div class="icon" style="background:rgba(245,158,11,.15)">🍽️</div><div class="info"><div class="name">Restaurants</div><div class="pct">5%</div></div></div>
+      <div class="cat-card"><div class="icon" style="background:rgba(245,158,11,.15)">👗</div><div class="info"><div class="name">Clothing</div><div class="pct">5%</div></div></div>
+      <div class="cat-card"><div class="icon" style="background:rgba(245,158,11,.15)">🎬</div><div class="info"><div class="name">Entertainment</div><div class="pct">5%</div></div></div>
+      <div class="cat-card"><div class="icon" style="background:rgba(245,158,11,.15)">🎓</div><div class="info"><div class="name">Education</div><div class="pct">5%</div></div></div>
+    </div>
+
+    <h4>Savings — Pre-allocated 20%</h4>
+    <div class="cat-grid">
+      <div class="cat-card"><div class="icon" style="background:rgba(34,197,94,.15)">🛡️</div><div class="info"><div class="name">Emergency Fund</div><div class="pct">10%</div></div></div>
+      <div class="cat-card"><div class="icon" style="background:rgba(34,197,94,.15)">🎯</div><div class="info"><div class="name">Financial Goals</div><div class="pct">10%</div></div></div>
+    </div>
+
+    <h4>Debt — Pre-allocated 10%</h4>
+    <div class="cat-grid">
+      <div class="cat-card"><div class="icon" style="background:rgba(239,68,68,.15)">💳</div><div class="info"><div class="name">Credit Payments</div><div class="pct">10%</div></div></div>
+    </div>
+
+    <div class="callout callout-success">
+      <div class="callout-icon">✅</div>
+      <div class="callout-body">
+        <strong>Default Total: 100%</strong>
+        The default set allocates exactly 100% of income using the 50/20/20/10 split. Users may adjust immediately after onboarding.
+      </div>
+    </div>
+
+    <h3>Default Category Properties</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Property</th><th>Value for Default Categories</th><th>Editable?</th></tr></thead>
+        <tbody>
+          <tr><td><strong>isDefault</strong></td><td>true</td><td>No</td></tr>
+          <tr><td><strong>isLocked</strong></td><td>false (editable by user)</td><td>Yes</td></tr>
+          <tr><td><strong>isArchived</strong></td><td>false</td><td>Yes (user may archive)</td></tr>
+          <tr><td><strong>deletable</strong></td><td>Never — defaults are permanent</td><td>No</td></tr>
+          <tr><td><strong>name</strong></td><td>Pre-set (localized)</td><td>Yes</td></tr>
+          <tr><td><strong>icon / color / %</strong></td><td>Pre-set</td><td>Yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- §5 CATEGORY TYPES -->
+  <section id="s5">
+    <h2><span class="s-num">05</span> Category Types</h2>
+    <p>Category types define the <em>behavioral role</em> of a category in the budget engine. Each type carries default rules, reporting groupings, and color conventions.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Icon</th><th>Meaning</th><th>Default Color</th><th>Launch?</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>ESSENTIAL_EXPENSE</strong></td><td>🏠</td>
+            <td>Non-negotiable fixed costs: rent, utilities, groceries, insurance</td>
+            <td><span class="pill pill-indigo">#6366F1</span></td>
+            <td><span class="pill pill-green">v1.0</span></td>
+          </tr>
+          <tr>
+            <td><strong>VARIABLE_EXPENSE</strong></td><td>🎬</td>
+            <td>Discretionary spending that fluctuates month to month</td>
+            <td><span class="pill pill-yellow">#F59E0B</span></td>
+            <td><span class="pill pill-green">v1.0</span></td>
+          </tr>
+          <tr>
+            <td><strong>SAVINGS</strong></td><td>💰</td>
+            <td>Money set aside for future use — no specific goal</td>
+            <td><span class="pill pill-green">#22C55E</span></td>
+            <td><span class="pill pill-green">v1.0</span></td>
+          </tr>
+          <tr>
+            <td><strong>DEBT_PAYMENT</strong></td><td>💳</td>
+            <td>Scheduled credit and loan repayments</td>
+            <td><span class="pill pill-red">#EF4444</span></td>
+            <td><span class="pill pill-green">v1.0</span></td>
+          </tr>
+          <tr>
+            <td><strong>EMERGENCY_FUND</strong></td><td>🛡️</td>
+            <td>Monthly contribution to the emergency reserve — links to the Emergency Fund module</td>
+            <td><span class="pill pill-blue">#38BDF8</span></td>
+            <td><span class="pill pill-green">v1.0</span></td>
+          </tr>
+          <tr>
+            <td><strong>FINANCIAL_GOAL</strong></td><td>🎯</td>
+            <td>Monthly contribution toward a named goal — links to the Goals module</td>
+            <td><span class="pill pill-indigo">#818CF8</span></td>
+            <td><span class="pill pill-green">v1.0</span></td>
+          </tr>
+          <tr>
+            <td><strong>INVESTMENT</strong></td><td>📈</td>
+            <td>Wealth-building — stocks, mutual funds, crypto</td>
+            <td><span class="pill pill-green">#10B981</span></td>
+            <td><span class="pill pill-gray">v2.0</span></td>
+          </tr>
+          <tr>
+            <td><strong>TAX</strong></td><td>🧾</td>
+            <td>Tax provisions and advance payments</td>
+            <td><span class="pill pill-red">#F87171</span></td>
+            <td><span class="pill pill-green">v1.0</span></td>
+          </tr>
+          <tr>
+            <td><strong>BUSINESS_EXPENSE</strong></td><td>💼</td>
+            <td>Professional and business-related costs</td>
+            <td><span class="pill pill-gray">#71717A</span></td>
+            <td><span class="pill pill-gray">v2.0</span></td>
+          </tr>
+          <tr>
+            <td><strong>CUSTOM</strong></td><td>⭐</td>
+            <td>User-defined behavior — no predefined rules apply</td>
+            <td>User-chosen</td>
+            <td><span class="pill pill-green">v1.0</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Type-Specific Behaviors</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Auto-Link</th><th>Overspend Action</th><th>Health Score Impact</th></tr></thead>
+        <tbody>
+          <tr><td>ESSENTIAL_EXPENSE</td><td>—</td><td>Warn only (cannot reject)</td><td>Negative if &gt;50% of income</td></tr>
+          <tr><td>VARIABLE_EXPENSE</td><td>—</td><td>Warn → block (configurable)</td><td>Neutral</td></tr>
+          <tr><td>SAVINGS</td><td>—</td><td>N/A (can't overspend savings)</td><td>Positive</td></tr>
+          <tr><td>DEBT_PAYMENT</td><td>Credits module</td><td>Critical alert</td><td>Negative if payment missed</td></tr>
+          <tr><td>EMERGENCY_FUND</td><td>Emergency Fund module</td><td>N/A</td><td>Positive when contributed</td></tr>
+          <tr><td>FINANCIAL_GOAL</td><td>Goals module</td><td>N/A</td><td>Positive per goal on track</td></tr>
+          <tr><td>TAX</td><td>—</td><td>Critical alert</td><td>Neutral (mandatory)</td></tr>
+          <tr><td>CUSTOM</td><td>—</td><td>User-configured</td><td>Neutral</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- §6 LIFECYCLE -->
+  <section id="s6">
+    <h2><span class="s-num">06</span> Category Lifecycle</h2>
+
+    <h3>States</h3>
+    <div class="lifecycle">
+      <div class="lc-step active"><div class="lc-dot">✨</div><div class="lc-label">Created</div></div>
+      <div class="lc-step active"><div class="lc-dot">✅</div><div class="lc-label">Active</div></div>
+      <div class="lc-step"><div class="lc-dot">🔒</div><div class="lc-label">Locked</div></div>
+      <div class="lc-step"><div class="lc-dot">👁️</div><div class="lc-label">Hidden</div></div>
+      <div class="lc-step"><div class="lc-dot">📦</div><div class="lc-label">Archived</div></div>
+      <div class="lc-step"><div class="lc-dot">🗑️</div><div class="lc-label">Deleted</div></div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>State</th><th>Visible in Budget?</th><th>Receives Transactions?</th><th>Editable?</th><th>Transition</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Created</strong></td><td>Immediately after save</td><td>Yes</td><td>Yes</td><td>→ Active automatically</td></tr>
+          <tr><td><strong>Active</strong></td><td>Yes</td><td>Yes</td><td>Yes</td><td>→ Locked, Hidden, Archived, Deleted</td></tr>
+          <tr><td><strong>Locked</strong></td><td>Yes</td><td>Yes</td><td>No (unlock first)</td><td>→ Active (unlock), → Archived</td></tr>
+          <tr><td><strong>Hidden</strong></td><td>No (dashboard)</td><td>Yes (via search)</td><td>Yes</td><td>→ Active (unhide), → Archived</td></tr>
+          <tr><td><strong>Archived</strong></td><td>No</td><td>No</td><td>No</td><td>→ Active (restore)</td></tr>
+          <tr><td><strong>Deleted</strong></td><td>No</td><td>No</td><td>No</td><td>Terminal state (soft delete only)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>State Rules</h3>
+    <ul>
+      <li><strong>Default categories</strong> (isDefault = true) cannot be permanently deleted — only archived.</li>
+      <li><strong>Locked categories</strong> cannot be renamed, recolored, reordered, or archived without unlocking first.</li>
+      <li><strong>Hidden categories</strong> still participate in the budget calculation but do not appear on the main dashboard.</li>
+      <li><strong>Archived categories</strong> are excluded from new budget periods. Historical snapshots retain their data.</li>
+      <li><strong>Deleted categories</strong> are soft-deleted (deletedAt is set). Historical snapshot data is preserved via foreign key to the snapshot record, not the live category.</li>
+    </ul>
+  </section>
+
+  <!-- §7 CATEGORY MANAGEMENT -->
+  <section id="s7">
+    <h2><span class="s-num">07</span> Category Management Operations</h2>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Operation</th><th>Available to</th><th>Constraints</th><th>Side Effects</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Create</strong></td><td>All categories</td><td>Unique name within parent scope; max 200 active</td><td>Added to active period with default allocation</td></tr>
+          <tr><td><strong>Rename</strong></td><td>All except Locked</td><td>Name collision check within same parent</td><td>Updated in all future periods; history keeps old name</td></tr>
+          <tr><td><strong>Duplicate</strong></td><td>All active</td><td>New name = "{name} (copy)"; does not copy transactions</td><td>Creates sibling with same rules + allocations</td></tr>
+          <tr><td><strong>Delete</strong></td><td>Non-default, non-locked</td><td>Prompts if has transactions; soft-delete only</td><td>Transactions reassigned to UNCATEGORIZED or chosen category</td></tr>
+          <tr><td><strong>Archive</strong></td><td>All non-locked</td><td>Cannot archive if parent has only this child</td><td>Removed from future periods; past data preserved</td></tr>
+          <tr><td><strong>Restore</strong></td><td>Archived categories</td><td>Name collision check (may auto-suffix)</td><td>Re-appears in next budget period</td></tr>
+          <tr><td><strong>Reorder</strong></td><td>All active (except locked sort)</td><td>Drag-and-drop within same level only</td><td>Updates sortOrder; persisted immediately</td></tr>
+          <tr><td><strong>Merge</strong></td><td>Two or more active, same type</td><td>Must confirm; one becomes the target, other deleted</td><td>All transactions of source reassigned to target</td></tr>
+          <tr><td><strong>Split</strong></td><td>Any category with transactions</td><td>Must define % or amounts for each new category</td><td>Transactions redistributed by AI suggestion or manual rule</td></tr>
+          <tr><td><strong>Lock/Unlock</strong></td><td>Any active</td><td>—</td><td>Toggles edit protection</td></tr>
+          <tr><td><strong>Hide/Show</strong></td><td>Any active, non-locked</td><td>—</td><td>Toggles dashboard visibility</td></tr>
+          <tr><td><strong>Favorite</strong></td><td>Any active</td><td>Max 10 favorites</td><td>Pinned at top of pickers; shown in Quick Add</td></tr>
+          <tr><td><strong>Save as Template</strong></td><td>Any active</td><td>Template name required</td><td>Creates reusable template; original untouched</td></tr>
+          <tr><td><strong>Colorize</strong></td><td>All except locked</td><td>Must be valid hex color</td><td>Updated everywhere immediately</td></tr>
+          <tr><td><strong>Assign Icon</strong></td><td>All except locked</td><td>Single emoji only</td><td>Updated everywhere immediately</td></tr>
+          <tr><td><strong>Promote to Parent</strong></td><td>Standalone categories</td><td>Cannot be a child already</td><td>Can now accept subcategories</td></tr>
+          <tr><td><strong>Move to Parent</strong></td><td>Standalone or orphaned</td><td>Target must be a parent category</td><td>Sets parentId; adjusts sort order</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Merge Operation Detail</h3>
+    <p>Merging is a destructive but reversible operation (within 7 days, via Undo). The flow:</p>
+    <ol>
+      <li>User selects 2+ categories of the same type.</li>
+      <li>User selects the <em>target</em> category (the surviving one).</li>
+      <li>App shows a summary: X transactions from A + B → target name.</li>
+      <li>User confirms → source categories are soft-deleted; all their transactions get the target categoryId.</li>
+      <li>Historical snapshot data is repointed to target for reporting continuity.</li>
+    </ol>
+
+    <h3>Split Operation Detail</h3>
+    <p>Splitting creates new subcategories from an existing category:</p>
+    <ol>
+      <li>User selects a category to split.</li>
+      <li>User defines 2–5 new subcategories (name, icon, color, % share of original).</li>
+      <li>App proposes auto-categorization of existing transactions by keyword matching.</li>
+      <li>User reviews and confirms. Original becomes the parent.</li>
+    </ol>
+  </section>
+
+  <!-- §8 BUDGET RULES -->
+  <section id="s8">
+    <h2><span class="s-num">08</span> Budget Rules Engine</h2>
+    <p>Each category may have zero or more budget rules that govern its behavior. Rules are enforced by the Validation Engine (§11) and drive alert generation.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rule Type</th><th>Definition</th><th>Behavior</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>MAX_AMOUNT</strong></td>
+            <td>Cannot spend more than X MAD in this category per period</td>
+            <td>Enforced at transaction entry; shows remaining budget; triggers CRITICAL alert at 90% consumed</td>
+          </tr>
+          <tr>
+            <td><strong>MIN_ALLOCATION</strong></td>
+            <td>Must allocate at least X% of income to this category</td>
+            <td>Budget editor warns when allocation drops below threshold; cannot close period if below minimum</td>
+          </tr>
+          <tr>
+            <td><strong>TARGET_PERCENTAGE</strong></td>
+            <td>Ideal percentage of income (non-enforced guide)</td>
+            <td>Shown as a target line on allocation editor; health score bonus when within ±5% of target</td>
+          </tr>
+          <tr>
+            <td><strong>FIXED_AMOUNT</strong></td>
+            <td>Always allocate exactly X MAD to this category</td>
+            <td>Allocation engine treats this as a fixed commitment; subtracted from distributable income before percentage categories</td>
+          </tr>
+          <tr>
+            <td><strong>WARNING_THRESHOLD</strong></td>
+            <td>Alert when X% of allocated budget is spent</td>
+            <td>Default 75%; push notification sent; category turns yellow in UI</td>
+          </tr>
+          <tr>
+            <td><strong>CRITICAL_THRESHOLD</strong></td>
+            <td>Alert when X% of allocated budget is spent</td>
+            <td>Default 90%; push notification; category turns red; transaction entry shows warning banner</td>
+          </tr>
+          <tr>
+            <td><strong>OVERFLOW_BEHAVIOR</strong></td>
+            <td>What happens when spending exceeds allocated amount</td>
+            <td>Three modes: WARN (allow + warn), BLOCK (reject transaction), SILENT (allow silently for fixed costs)</td>
+          </tr>
+          <tr>
+            <td><strong>UNUSED_BALANCE</strong></td>
+            <td>What happens to unspent budget at period close</td>
+            <td>ZERO (disappears), CARRY_OVER (added to next period's allocation), REDISTRIBUTE (split to other categories)</td>
+          </tr>
+          <tr>
+            <td><strong>CARRY_OVER_LIMIT</strong></td>
+            <td>Maximum carry-over amount (used with CARRY_OVER unused balance)</td>
+            <td>Caps carry-over; excess goes to REDISTRIBUTE bucket</td>
+          </tr>
+          <tr>
+            <td><strong>RECOMMEND_ALLOCATION</strong></td>
+            <td>Suggested allocation shown in the editor</td>
+            <td>Shown as hint text; auto-fills on template application</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Carry-Over Calculation</h3>
+    <div class="formula">-- At period close for each category with CARRY_OVER:
+unspent = allocatedAmount - spentAmount
+carry   = MIN(unspent, carryOverLimit ?? unspent)
+
+-- Next period:
+nextAllocation = baseAllocation + carry</div>
+
+    <h3>Overflow Behavior Modes</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Mode</th><th>At Transaction Entry</th><th>Category Type Default</th></tr></thead>
+        <tbody>
+          <tr><td><strong>WARN</strong></td><td>Allow; show banner "You're over budget"</td><td>VARIABLE_EXPENSE, CUSTOM</td></tr>
+          <tr><td><strong>BLOCK</strong></td><td>Reject; user must increase allocation or split</td><td>SAVINGS, FINANCIAL_GOAL</td></tr>
+          <tr><td><strong>SILENT</strong></td><td>Allow; no UI feedback (for auto-debited costs)</td><td>ESSENTIAL_EXPENSE (auto-debits)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- §9 TEMPLATES -->
+  <section id="s9">
+    <h2><span class="s-num">09</span> Budget Templates</h2>
+    <p>Templates are pre-defined allocation blueprints that users can apply at the start of a new budget period. Applying a template overwrites the current period's allocations (with confirmation).</p>
+
+    <div class="template-grid">
+      <div class="template-card">
+        <div class="t-header"><div class="t-icon">⚖️</div><div><div class="t-name">50/30/20 Rule</div></div></div>
+        <div class="t-desc">The classic personal finance rule. 50% needs, 30% wants, 20% savings + debt. Ideal for beginners.</div>
+        <div class="t-alloc">
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--indigo)">■ 50% Needs</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--warning)">■ 30% Wants</span>
+          <span style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--success)">■ 20% Savings</span>
+        </div>
+      </div>
+      <div class="template-card">
+        <div class="t-header"><div class="t-icon">🎯</div><div><div class="t-name">Zero-Based Budget</div></div></div>
+        <div class="t-desc">Assign every single dirham a purpose. Income minus all allocations must equal zero. Maximum control.</div>
+        <div class="t-alloc">
+          <span style="font-size:11px;color:var(--indigo)">Income − Σ(all categories) = 0</span>
+        </div>
+      </div>
+      <div class="template-card">
+        <div class="t-header"><div class="t-icon">✉️</div><div><div class="t-name">Envelope Budget</div></div></div>
+        <div class="t-desc">Fixed cash amounts per category. Once the envelope is empty, spending stops. Hard enforcement.</div>
+        <div class="t-alloc">
+          <span style="font-size:11px;color:var(--muted)">All categories: FIXED_AMOUNT + BLOCK overflow</span>
+        </div>
+      </div>
+      <div class="template-card">
+        <div class="t-header"><div class="t-icon">🪶</div><div><div class="t-name">Minimalist</div></div></div>
+        <div class="t-desc">Just 3–5 high-level categories. For users who want simplicity over granularity.</div>
+        <div class="t-alloc">
+          <span style="font-size:11px;color:var(--muted)">Essentials · Fun · Savings · Debt</span>
+        </div>
+      </div>
+      <div class="template-card">
+        <div class="t-header"><div class="t-icon">💳</div><div><div class="t-name">Debt Reduction</div></div></div>
+        <div class="t-desc">Aggressive debt payoff. Minimizes discretionary spending. Maximizes debt payment category.</div>
+        <div class="t-alloc">
+          <span style="font-size:11px;color:var(--danger)">■ 40% Debt</span>
+          <span style="font-size:11px;color:var(--indigo)"> ■ 45% Essentials</span>
+          <span style="font-size:11px;color:var(--success)"> ■ 15% Savings</span>
+        </div>
+      </div>
+      <div class="template-card">
+        <div class="t-header"><div class="t-icon">💎</div><div><div class="t-name">Aggressive Savings</div></div></div>
+        <div class="t-desc">FIRE-inspired. 30–40% savings rate. Bare-minimum essentials, near-zero discretionary.</div>
+        <div class="t-alloc">
+          <span style="font-size:11px;color:var(--success)">■ 40% Savings</span>
+          <span style="font-size:11px;color:var(--indigo)"> ■ 55% Essentials</span>
+          <span style="font-size:11px;color:var(--warning)"> ■ 5% Fun</span>
+        </div>
+      </div>
+      <div class="template-card">
+        <div class="t-header"><div class="t-icon">🆘</div><div><div class="t-name">Emergency Recovery</div></div></div>
+        <div class="t-desc">Survival mode. Essentials only. Every surplus goes to emergency fund. No discretionary spending.</div>
+        <div class="t-alloc">
+          <span style="font-size:11px;color:var(--indigo)">■ 80% Essentials</span>
+          <span style="font-size:11px;color:var(--info)"> ■ 20% Emergency</span>
+        </div>
+      </div>
+      <div class="template-card">
+        <div class="t-header"><div class="t-icon">✏️</div><div><div class="t-name">Custom Template</div></div></div>
+        <div class="t-desc">User-created from scratch — or saved from a prior month's allocation. Fully configurable.</div>
+        <div class="t-alloc">
+          <span style="font-size:11px;color:var(--muted)">Define any allocation structure</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>Template Schema</h3>
+    <div class="formula">BudgetTemplate {
+  id            UUID
+  name          string (required)
+  description   string
+  icon          string (emoji)
+  isSystem      boolean   (system templates cannot be deleted)
+  isPublic      boolean   (future: shared templates)
+  categories    TemplateCategoryEntry[]
+  createdAt     ISO-8601
+}
+
+TemplateCategoryEntry {
+  categoryType   CategoryType
+  name           string
+  icon           string
+  color          HexColor
+  allocationMethod  'percentage' | 'fixed'
+  percentage     number
+  fixedAmount    number
+  rules          BudgetRule[]
+}</div>
+
+    <h3>Applying a Template</h3>
+    <ol>
+      <li>User opens the budget editor and selects "Use Template."</li>
+      <li>App shows a preview of the template's category structure and allocations.</li>
+      <li>User confirms: "Apply template — this will replace current allocations."</li>
+      <li>Engine maps template entries to existing categories by name/type, creates new categories where no match exists.</li>
+      <li>All allocations are recalculated against current income.</li>
+      <li>Validation engine runs immediately; any errors shown inline.</li>
+    </ol>
+  </section>
+
+  <!-- §10 ALLOCATION ENGINE -->
+  <section id="s10">
+    <h2><span class="s-num">10</span> Allocation Engine</h2>
+    <p>The Allocation Engine is the computational core of the Budget Engine. It transforms income + category rules into concrete per-category amounts for a budget period. It recalculates <strong>instantly</strong> on every change.</p>
+
+    <h3>Allocation Methods</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Description</th><th>Formula</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>PERCENTAGE</strong></td>
+            <td>Allocated amount = percentage of total income</td>
+            <td><code>amount = totalIncome × (pct / 100)</code></td>
+          </tr>
+          <tr>
+            <td><strong>FIXED</strong></td>
+            <td>Allocated amount = constant value regardless of income</td>
+            <td><code>amount = fixedAmount</code></td>
+          </tr>
+          <tr>
+            <td><strong>HYBRID</strong></td>
+            <td>Percentage applied to <em>remainder</em> after all fixed commitments are deducted</td>
+            <td><code>amount = distributable × (pct / 100)</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Complete Calculation Sequence</h3>
+    <div class="formula">Step 1: Compute Total Income
+────────────────────────────────────────────
+totalIncome = salary + Σ(otherIncomeSources.amount)
+
+Step 2: Compute Fixed Commitments
+────────────────────────────────────────────
+fixedCommitment = Σ(categories where allocationMethod = 'fixed', fixedAmount)
+
+Step 3: Compute Distributable Income
+────────────────────────────────────────────
+distributable = totalIncome - fixedCommitment
+
+Constraint: distributable ≥ 0
+  → If distributable < 0: VALIDATION_ERROR "Fixed commitments exceed income"
+
+Step 4: Compute PERCENTAGE Category Amounts
+────────────────────────────────────────────
+For each category c where method = 'percentage':
+  c.allocatedAmount = totalIncome × (c.percentage / 100)
+
+Step 5: Compute HYBRID Category Amounts
+────────────────────────────────────────────
+For each category c where method = 'hybrid':
+  c.allocatedAmount = distributable × (c.percentage / 100)
+
+Step 6: Compute Carry-Over Additions
+────────────────────────────────────────────
+For each category c with CARRY_OVER rule from prior period:
+  c.allocatedAmount += priorPeriod.carryOverAmount(c)
+
+Step 7: Compute Remainder
+────────────────────────────────────────────
+remainder = totalIncome - Σ(allCategories.allocatedAmount)
+
+Step 8: Handle Remainder
+────────────────────────────────────────────
+If remainder > 0  → Show "Unassigned: X MAD" warning
+If remainder = 0  → Budget is complete ✅
+If remainder < 0  → VALIDATION_ERROR "Over-allocated by X MAD"
+
+Step 9: Rounding Correction
+────────────────────────────────────────────
+roundingDiff = totalIncome - Σ(round(allocatedAmount))
+Add roundingDiff to the highest-priority PERCENTAGE category</div>
+
+    <h3>Priority Order</h3>
+    <p>When the allocation engine processes categories for rounding adjustments or distribution of a remainder, it follows this priority order:</p>
+    <ol>
+      <li>ESSENTIAL_EXPENSE (locked categories first)</li>
+      <li>DEBT_PAYMENT</li>
+      <li>TAX</li>
+      <li>EMERGENCY_FUND</li>
+      <li>FINANCIAL_GOAL</li>
+      <li>SAVINGS</li>
+      <li>VARIABLE_EXPENSE</li>
+      <li>CUSTOM (sorted by user sort order)</li>
+    </ol>
+
+    <h3>Allocation Bar (Visual)</h3>
+    <div class="alloc-bar-wrap">
+      <div class="alloc-bar">
+        <div class="seg" style="background:#6366F1;flex:50">Essentials 50%</div>
+        <div class="seg" style="background:#F59E0B;flex:20">Variable 20%</div>
+        <div class="seg" style="background:#22C55E;flex:20">Savings 20%</div>
+        <div class="seg" style="background:#EF4444;flex:10">Debt 10%</div>
+      </div>
+      <div class="alloc-legend">
+        <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:#6366F1"></div>Essential</div>
+        <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:#F59E0B"></div>Variable</div>
+        <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:#22C55E"></div>Savings</div>
+        <div class="alloc-legend-item"><div class="alloc-legend-dot" style="background:#EF4444"></div>Debt</div>
+      </div>
+    </div>
+    <p>The allocation bar is the primary visual feedback mechanism in the budget editor. It updates in real time as the user adjusts sliders, and turns red if the total exceeds 100%.</p>
+  </section>
+
+  <!-- §11 VALIDATION -->
+  <section id="s11">
+    <h2><span class="s-num">11</span> Validation Engine</h2>
+    <p>The Validation Engine runs on every allocation change, template application, category creation/edit, and period close. Errors block saving; warnings allow saving with confirmation.</p>
+
+    <div class="validation-list">
+      <div class="v-item">
+        <div class="v-sev v-sev-error"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-001 · OVER_ALLOCATION</div>
+          <div class="v-text"><strong>Trigger:</strong> Σ(percentage allocations) > 100%<br><strong>Message:</strong> "Budget over-allocated by X%. Remove X MAD from your categories."<br><strong>Action:</strong> Block save; highlight offending categories in red</div>
+        </div>
+      </div>
+      <div class="v-item">
+        <div class="v-sev v-sev-error"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-002 · FIXED_EXCEEDS_INCOME</div>
+          <div class="v-text"><strong>Trigger:</strong> Σ(fixed allocations) > totalIncome<br><strong>Message:</strong> "Your fixed expenses (X MAD) exceed your income (Y MAD)."<br><strong>Action:</strong> Block save; highlight fixed categories</div>
+        </div>
+      </div>
+      <div class="v-item">
+        <div class="v-sev v-sev-error"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-003 · NEGATIVE_VALUE</div>
+          <div class="v-text"><strong>Trigger:</strong> Any allocation, percentage, or fixedAmount < 0<br><strong>Message:</strong> "Allocation cannot be negative."<br><strong>Action:</strong> Block save; auto-reset to 0</div>
+        </div>
+      </div>
+      <div class="v-item">
+        <div class="v-sev v-sev-error"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-004 · DUPLICATE_NAME</div>
+          <div class="v-text"><strong>Trigger:</strong> Two active categories with the same name under the same parent<br><strong>Message:</strong> "A category named '{name}' already exists."<br><strong>Action:</strong> Block save; suggest auto-suffix "(2)"</div>
+        </div>
+      </div>
+      <div class="v-item">
+        <div class="v-sev v-sev-error"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-005 · CIRCULAR_REFERENCE</div>
+          <div class="v-text"><strong>Trigger:</strong> Category's parentId chain contains its own id<br><strong>Message:</strong> "This would create a circular category hierarchy."<br><strong>Action:</strong> Block; prevented at the data layer</div>
+        </div>
+      </div>
+      <div class="v-item">
+        <div class="v-sev v-sev-error"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-006 · DELETE_MANDATORY</div>
+          <div class="v-text"><strong>Trigger:</strong> User attempts to delete a default or locked category<br><strong>Message:</strong> "This category cannot be deleted. You can archive it instead."<br><strong>Action:</strong> Block delete; offer archive</div>
+        </div>
+      </div>
+      <div class="v-item">
+        <div class="v-sev v-sev-error"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-007 · INVALID_PERCENTAGE</div>
+          <div class="v-text"><strong>Trigger:</strong> Percentage value is NaN, Infinity, or outside [0, 100]<br><strong>Message:</strong> "Percentage must be between 0 and 100."<br><strong>Action:</strong> Block; clamp to valid range with warning</div>
+        </div>
+      </div>
+      <div class="v-item">
+        <div class="v-sev v-sev-warn"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-008 · UNDER_ALLOCATION</div>
+          <div class="v-text"><strong>Trigger:</strong> Σ(all allocations) < totalIncome — some income unassigned<br><strong>Message:</strong> "X MAD is unassigned. Consider adding it to Savings."<br><strong>Action:</strong> Warn; allow save; show remainder in editor</div>
+        </div>
+      </div>
+      <div class="v-item">
+        <div class="v-sev v-sev-warn"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-009 · MIN_ALLOCATION_BREACH</div>
+          <div class="v-text"><strong>Trigger:</strong> Category with MIN_ALLOCATION rule is allocated below its minimum<br><strong>Message:</strong> "'{name}' requires at least X% allocation."<br><strong>Action:</strong> Warn; block period close (not save)</div>
+        </div>
+      </div>
+      <div class="v-item">
+        <div class="v-sev v-sev-warn"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-010 · EMPTY_REQUIRED_FIELD</div>
+          <div class="v-text"><strong>Trigger:</strong> Category name is blank or whitespace only<br><strong>Message:</strong> "Category name is required."<br><strong>Action:</strong> Block save; focus name input</div>
+        </div>
+      </div>
+      <div class="v-item">
+        <div class="v-sev v-sev-info"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-011 · DEEP_HIERARCHY</div>
+          <div class="v-text"><strong>Trigger:</strong> Attempt to nest a subcategory under another subcategory<br><strong>Message:</strong> "Subcategories cannot be nested. Maximum depth is 2 levels."<br><strong>Action:</strong> Block; show hierarchy rule</div>
+        </div>
+      </div>
+      <div class="v-item">
+        <div class="v-sev v-sev-info"></div>
+        <div class="v-body">
+          <div class="v-code">VAL-012 · MAX_CATEGORIES</div>
+          <div class="v-text"><strong>Trigger:</strong> User has 200 active categories and attempts to create another<br><strong>Message:</strong> "Maximum 200 active categories reached. Archive unused categories."<br><strong>Action:</strong> Block create; guide to archive</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §12 AUTOMATION -->
+  <section id="s12">
+    <h2><span class="s-num">12</span> Automation</h2>
+    <p>The budget engine supports smart automation to reduce friction and help users build sustainable financial habits with minimal manual work each month.</p>
+
+    <h3>Copy Previous Month</h3>
+    <p>When a new budget period starts, the app offers a one-tap "Use Last Month's Budget" action that:</p>
+    <ul>
+      <li>Copies all categories and their allocations (percentage or fixed) from the most recent period.</li>
+      <li>Recalculates fixed amounts against the new income (if income changed).</li>
+      <li>Preserves carry-over amounts from the previous period per the CARRY_OVER rule.</li>
+      <li>Excludes archived categories.</li>
+      <li>User reviews and confirms before the plan is activated.</li>
+    </ul>
+
+    <h3>Auto-Suggestion Engine</h3>
+    <p>After 3 completed budget periods, the engine generates personalized allocation suggestions:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Signal</th><th>Algorithm</th><th>Output</th></tr></thead>
+        <tbody>
+          <tr><td>Historical spending</td><td>3-month rolling average per category</td><td>Suggested allocation ≈ average spend + 5% buffer</td></tr>
+          <tr><td>Consistent overspend</td><td>Category exceeded budget ≥ 2 of last 3 months</td><td>"Consider increasing {name} by X MAD"</td></tr>
+          <tr><td>Consistent underspend</td><td>Category unused ≥ 50% for 3 months</td><td>"Consider reducing {name} — you've used only X% on average"</td></tr>
+          <tr><td>Income change</td><td>Salary changed &gt;5% vs last period</td><td>Proportional reallocation of all PERCENTAGE categories</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Auto-Create Monthly Plan</h3>
+    <p>If enabled in settings, the app automatically creates a draft budget plan on salary day using the previous month's structure and auto-suggestions. The user receives a notification: "Your budget draft for this month is ready — review it." The plan remains a draft until the user confirms it.</p>
+
+    <h3>Smart Round</h3>
+    <p>The editor shows a "Balance to 100%" button that automatically distributes the remaining unassigned percentage across categories proportionally, or assigns it all to the highest-priority SAVINGS category.</p>
+
+    <h3>Auto-Fill Recurring Fixed Costs</h3>
+    <p>Categories with FIXED_AMOUNT rules and a history of identical monthly amounts are auto-filled each period without user input. The user sees them pre-populated and can override.</p>
+
+    <h3>Category Prediction (Transaction Entry)</h3>
+    <p>When the user adds a transaction, the engine predicts the most likely category based on:</p>
+    <ul>
+      <li>Description keyword matching against historical transactions.</li>
+      <li>Merchant name pattern matching (e.g., "Marjane" → Groceries).</li>
+      <li>Recency weighting: categories used in the last 7 days rank higher.</li>
+      <li>Time of day / day of week patterns (e.g., Friday evening → Restaurants).</li>
+    </ul>
+    <p>Prediction confidence threshold: show suggestion only if confidence ≥ 60%. Never auto-assign without user confirmation.</p>
+
+    <h3>Future: AI Budgeting Assistant (v2.0)</h3>
+    <p>A conversational assistant will accept natural-language budget instructions: "Move 5% from Entertainment to Savings" or "What's my highest spending category this month?" The allocation engine exposes a programmatic API that the AI assistant calls; the engine handles all calculation and validation.</p>
+  </section>
+
+  <!-- §13 SNAPSHOTS -->
+  <section id="s13">
+    <h2><span class="s-num">13</span> Monthly Budget Snapshots</h2>
+    <p>Every completed budget period produces an immutable snapshot — a frozen record of what was planned and what actually happened.</p>
+
+    <div class="callout callout-danger">
+      <div class="callout-icon">🔒</div>
+      <div class="callout-body">
+        <strong>Immutability Guarantee</strong>
+        Editing a previous month's budget must never modify another month. Every snapshot stands alone. This is a non-negotiable product invariant.
+      </div>
+    </div>
+
+    <h3>Snapshot Schema</h3>
+    <div class="formula">BudgetSnapshot {
+  id            UUID
+  periodId      string (YYYY-MM, salary-day-aligned)
+  version       integer (increments on explicit edit)
+
+  -- Period metadata
+  startDate     ISO-8601 date
+  endDate       ISO-8601 date
+  totalIncome   number (centimes)
+
+  -- Frozen allocation state (JSON blob)
+  categories    SnapshotCategory[]
+
+  -- Aggregate outcomes
+  totalAllocated number (centimes)
+  totalSpent     number (centimes)
+  totalSaved     number (centimes)
+  totalCarryOver number (centimes)
+
+  -- Audit trail
+  createdAt     ISO-8601
+  archivedAt    ISO-8601 | null
+  editedAt      ISO-8601 | null   (set if user edits after archive)
+  editNote      string | null
+
+  -- Health score at period close
+  healthScore   HealthScoreSnapshot
+}
+
+SnapshotCategory {
+  categoryId    UUID (reference; denormalized for history)
+  name          string (captured at archive time)
+  icon          string
+  color         HexColor
+  type          CategoryType
+  allocationMethod  string
+  allocatedAmount   number
+  spentAmount       number
+  carryOverAmount   number
+}</div>
+
+    <h3>Snapshot Lifecycle</h3>
+    <ol>
+      <li><strong>Period Created:</strong> Draft snapshot created when salary day arrives; allocation plan loaded.</li>
+      <li><strong>Period Active:</strong> Snapshot is mutable (draft). Transactions accumulate. Allocations can be adjusted.</li>
+      <li><strong>Period Closed:</strong> On the next salary day (or manual close), the snapshot is sealed. <code>archivedAt</code> is set. The snapshot becomes immutable.</li>
+      <li><strong>Explicit Edit:</strong> If the user explicitly opens and edits an archived period, a new snapshot version is created. <code>editedAt</code> and <code>editNote</code> are set. The prior version is preserved for audit purposes.</li>
+    </ol>
+
+    <h3>Editing an Archived Month</h3>
+    <p>The only valid reason to edit a past month is to correct a data entry error. The flow:</p>
+    <ol>
+      <li>User navigates to the archived month.</li>
+      <li>User taps "Edit this month" — a prominent warning appears: "You are editing a closed period. This will not affect your current budget."</li>
+      <li>User makes corrections and saves with a mandatory edit note.</li>
+      <li>Snapshot version increments. Health score is recalculated. All derived reports are invalidated and recalculated.</li>
+    </ol>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">📐</div>
+      <div class="callout-body">
+        <strong>Storage Efficiency</strong>
+        Each snapshot's <code>categories</code> array is stored as a compressed JSON blob (not normalized rows). This avoids table bloat for users with 60+ months of history while keeping reads fast (single-row fetch per period).
+      </div>
+    </div>
+  </section>
+
+  <!-- §14 SEARCH -->
+  <section id="s14">
+    <h2><span class="s-num">14</span> Search System</h2>
+    <p>The search system operates in two modes: <strong>Category Search</strong> (find a category to manage it) and <strong>Transaction Search</strong> (find spending within a category). This section covers category search.</p>
+
+    <h3>Search Inputs</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dimension</th><th>Field(s) Searched</th><th>Match Type</th></tr></thead>
+        <tbody>
+          <tr><td>Name</td><td>name</td><td>Fuzzy substring (accent-insensitive, case-insensitive)</td></tr>
+          <tr><td>Description</td><td>description</td><td>Full-text substring</td></tr>
+          <tr><td>Tags</td><td>tags[]</td><td>Exact tag match (partial supported)</td></tr>
+          <tr><td>Type</td><td>type</td><td>Exact filter (dropdown, multi-select)</td></tr>
+          <tr><td>Color</td><td>color</td><td>Color family match (grouped by hue)</td></tr>
+          <tr><td>Icon</td><td>icon</td><td>Exact emoji match or emoji name keyword</td></tr>
+          <tr><td>Status</td><td>isArchived, isHidden, isFavorite, isLocked</td><td>Boolean filter</td></tr>
+          <tr><td>Frequency</td><td>usage count (transactions referencing category)</td><td>Sort dimension (most used first)</td></tr>
+          <tr><td>Created date</td><td>createdAt</td><td>Date range filter</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Sort Options</h3>
+    <ul>
+      <li><strong>Custom order</strong> (default) — user-defined sortOrder</li>
+      <li><strong>A → Z / Z → A</strong> — alphabetical by name</li>
+      <li><strong>Most used</strong> — by transaction count, current period</li>
+      <li><strong>Highest allocation</strong> — by allocatedAmount, current period</li>
+      <li><strong>Recently created</strong> — by createdAt descending</li>
+    </ul>
+
+    <h3>Search UX Rules</h3>
+    <ul>
+      <li>Search input debounced at 300ms — no server call on every keystroke.</li>
+      <li>Results grouped by status: Active categories first, then archived.</li>
+      <li>Matching text highlighted in results (bold).</li>
+      <li>Empty state: "No categories match '{query}'" + CTA to create.</li>
+      <li>Search history: last 5 searches stored locally for quick recall.</li>
+      <li>Filter chips visible below the search bar for active filters.</li>
+    </ul>
+  </section>
+
+  <!-- §15 REPORTING -->
+  <section id="s15">
+    <h2><span class="s-num">15</span> Reporting System</h2>
+    <p>Budget reports give users insight into their allocation behavior and spending patterns over time. All reports are generated from snapshot data and are read-only.</p>
+
+    <h3>Report Types</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Report</th><th>Description</th><th>Time Range</th><th>Chart Type</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Allocation Distribution</strong></td><td>How income is split across categories for the current period</td><td>Current period</td><td>Donut / pie</td></tr>
+          <tr><td><strong>Budget vs. Actual</strong></td><td>Allocated amount vs. spent per category</td><td>Current + past periods</td><td>Grouped horizontal bar</td></tr>
+          <tr><td><strong>Allocation Trends</strong></td><td>How a category's % allocation evolved over time</td><td>Up to 12 months</td><td>Line chart</td></tr>
+          <tr><td><strong>Spending Evolution</strong></td><td>Month-over-month spending per category</td><td>Up to 12 months</td><td>Stacked bar</td></tr>
+          <tr><td><strong>Over-Budget Frequency</strong></td><td>How often each category exceeds its budget</td><td>Last 6 months</td><td>Heat map (category × month)</td></tr>
+          <tr><td><strong>Unused Budget</strong></td><td>Categories with consistently low utilization</td><td>Last 3 months</td><td>Bar chart</td></tr>
+          <tr><td><strong>Category Growth</strong></td><td>Year-over-year spending growth per category</td><td>Annual</td><td>Waterfall or bar</td></tr>
+          <tr><td><strong>Top & Bottom</strong></td><td>Highest and lowest allocated/spent categories</td><td>Configurable</td><td>Ranked list</td></tr>
+          <tr><td><strong>Average Allocation</strong></td><td>Average % allocation across all periods</td><td>All history</td><td>Summary card</td></tr>
+          <tr><td><strong>Category Lifetime Summary</strong></td><td>Total spent in a category since creation</td><td>All history</td><td>Summary card</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Report Generation Rules</h3>
+    <ul>
+      <li>All amounts displayed in the user's configured currency (MAD default).</li>
+      <li>Reports derive data exclusively from snapshot records — never from live transaction queries (except current period).</li>
+      <li>Archived categories appear in historical reports; excluded from forward-looking views.</li>
+      <li>Reports are computed client-side from cached snapshot JSON — no server round-trip after initial load.</li>
+      <li>Export: all reports exportable as CSV or shareable image (PDF v2.0).</li>
+    </ul>
+
+    <h3>Key Metrics Definitions</h3>
+    <div class="formula">utilization_rate(c, period) = spentAmount / allocatedAmount × 100
+
+budget_accuracy(c) = 1 - |spentAmount - allocatedAmount| / allocatedAmount
+
+over_budget_frequency(c, n_periods) =
+  COUNT(periods where spentAmount > allocatedAmount) / n_periods
+
+average_allocation(c, n_periods) =
+  Σ(allocatedAmount) / Σ(totalIncome) × 100   -- as % of income
+
+savings_rate(period) =
+  (totalIncome - totalSpent) / totalIncome × 100</div>
+  </section>
+
+  <!-- §16 PERFORMANCE & SCALABILITY -->
+  <section id="s16">
+    <h2><span class="s-num">16</span> Performance &amp; Future Scalability</h2>
+
+    <h3>Performance Targets</h3>
+    <div class="perf-grid">
+      <div class="perf-card"><div class="p-val">&lt;16ms</div><div class="p-label">Allocation recalculation</div></div>
+      <div class="perf-card"><div class="p-val">&lt;50ms</div><div class="p-label">Category search (200 cats)</div></div>
+      <div class="perf-card"><div class="p-val">&lt;200ms</div><div class="p-label">Report generation (12 months)</div></div>
+      <div class="perf-card"><div class="p-val">200</div><div class="p-label">Max active categories</div></div>
+      <div class="perf-card"><div class="p-val">∞</div><div class="p-label">Archived months</div></div>
+      <div class="perf-card"><div class="p-val">100%</div><div class="p-label">Offline operation</div></div>
+    </div>
+
+    <h3>In-Memory Data Structures</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Structure</th><th>Purpose</th><th>Complexity</th></tr></thead>
+        <tbody>
+          <tr><td><code>Map&lt;id, Category&gt;</code></td><td>O(1) lookup by ID</td><td>Built at app start</td></tr>
+          <tr><td><code>Map&lt;parentId, Category[]&gt;</code></td><td>O(1) children lookup</td><td>Derived from flat list</td></tr>
+          <tr><td><code>Category[]</code> (sorted)</td><td>Ordered display list</td><td>Pre-sorted; update on reorder</td></tr>
+          <tr><td>Search index</td><td>In-memory full-text index on name + tags</td><td>Rebuilt on category change</td></tr>
+          <tr><td>Snapshot cache</td><td>Last 3 months pre-loaded; older loaded on demand</td><td>LRU eviction</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Lazy Loading Strategy</h3>
+    <ul>
+      <li><strong>Active period:</strong> loaded into memory at app start.</li>
+      <li><strong>Last 3 periods:</strong> pre-fetched for fast report rendering.</li>
+      <li><strong>Older periods:</strong> fetched on demand when user scrolls history.</li>
+      <li><strong>Archived categories:</strong> excluded from initial load; fetched only when user opens archive view.</li>
+    </ul>
+
+    <h3>Future Architecture Extensions</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Future Feature</th><th>Required Change</th><th>Engine Impact</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Shared / Family Budgets</strong></td>
+            <td>Add ownerId + sharedWith[] to BudgetTemplate; add role (owner/editor/viewer)</td>
+            <td>Allocation engine unchanged; add permission check layer</td>
+          </tr>
+          <tr>
+            <td><strong>Multiple Currencies</strong></td>
+            <td>Add currency + exchangeRate to every monetary amount field</td>
+            <td>Allocation engine normalizes to base currency before calculation</td>
+          </tr>
+          <tr>
+            <td><strong>Multiple Incomes</strong></td>
+            <td>Already supported via income_sources table; engine reads totalIncome</td>
+            <td>No change needed — totalIncome is already a sum</td>
+          </tr>
+          <tr>
+            <td><strong>Recurring Expenses</strong></td>
+            <td>Add recurring flag + interval + nextDueDate to categories/transactions</td>
+            <td>Auto-commit transactions on schedule; allocations unchanged</td>
+          </tr>
+          <tr>
+            <td><strong>Business Expenses</strong></td>
+            <td>Add isTaxDeductible, businessId to category; BUSINESS_EXPENSE type already reserved</td>
+            <td>Reporting gains tax summary; engine unchanged</td>
+          </tr>
+          <tr>
+            <td><strong>AI Budgeting Assistant</strong></td>
+            <td>Expose allocation engine via internal API</td>
+            <td>AI calls engine methods; does not bypass validation</td>
+          </tr>
+          <tr>
+            <td><strong>Bank Synchronization</strong></td>
+            <td>Add externalId + bankCode + reconciled to transactions</td>
+            <td>Imported transactions enter same category prediction pipeline</td>
+          </tr>
+          <tr>
+            <td><strong>Budget Collaboration</strong></td>
+            <td>Add CRDT-based sync for concurrent edits</td>
+            <td>Conflict resolution at allocation level; last-write-wins with audit</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-success">
+      <div class="callout-icon">🏗️</div>
+      <div class="callout-body">
+        <strong>Architecture Promise</strong>
+        The Budget Engine's core calculation sequence (§10) and data model (§2) remain unchanged through all listed future features. New features extend the model with additive fields and new modules — they do not require redesigning the engine.
+      </div>
+    </div>
+
+    <h3>Business Rules Summary</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rule ID</th><th>Statement</th></tr></thead>
+        <tbody>
+          <tr><td><strong>BR-BUD-01</strong></td><td>Total allocation across all active categories must not exceed 100% of total income. This is enforced by the validation engine at save time.</td></tr>
+          <tr><td><strong>BR-BUD-02</strong></td><td>Default categories cannot be permanently deleted. They may be archived or hidden.</td></tr>
+          <tr><td><strong>BR-BUD-03</strong></td><td>Every budget period is salary-day-aligned (inherits BR-01 from SPEC-SAL-001). Calendar months are never used as period boundaries.</td></tr>
+          <tr><td><strong>BR-BUD-04</strong></td><td>A closed budget period's snapshot is immutable. Explicit edits create a new snapshot version; the original is preserved.</td></tr>
+          <tr><td><strong>BR-BUD-05</strong></td><td>All monetary amounts are stored as integer centimes (×100). Display conversion happens at the presentation layer only.</td></tr>
+          <tr><td><strong>BR-BUD-06</strong></td><td>Category hierarchy is limited to 2 levels. Subcategories of subcategories are not permitted.</td></tr>
+          <tr><td><strong>BR-BUD-07</strong></td><td>Fixed allocations are subtracted from total income first. Percentage allocations apply to the remainder (hybrid mode) or to total income (percentage mode).</td></tr>
+          <tr><td><strong>BR-BUD-08</strong></td><td>Unspent budget at period close follows the UNUSED_BALANCE rule of each category. Default is ZERO (no carry-over) unless explicitly configured.</td></tr>
+          <tr><td><strong>BR-BUD-09</strong></td><td>Category prediction at transaction entry is a suggestion only. The engine never auto-assigns a category without user confirmation.</td></tr>
+          <tr><td><strong>BR-BUD-10</strong></td><td>A parent category with subcategories holds no direct transactions. Transactions belong to leaf categories only.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script>
+  function toggleTheme() {
+    const root = document.documentElement;
+    const curr = root.getAttribute('data-theme');
+    root.setAttribute('data-theme', curr === 'dark' ? 'light' : 'dark');
+  }
+
+  // Scrollspy
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav#sidebar a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>

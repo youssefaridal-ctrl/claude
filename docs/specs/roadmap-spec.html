@@ -1,0 +1,1242 @@
+<title>SPEC-RMP-001 — Goal Dependency & Financial Roadmap Engine | Finance Bag</title>
+<style>
+  :root {
+    --bg: #18181B;
+    --surface: #27272A;
+    --surface2: #3F3F46;
+    --border: #3F3F46;
+    --text: #F4F4F5;
+    --muted: #A1A1AA;
+    --accent: #8B5CF6;
+    --accent-dim: rgba(139,92,246,0.12);
+    --accent-border: rgba(139,92,246,0.3);
+    --primary: #6366F1;
+    --primary-dim: rgba(99,102,241,0.12);
+    --green: #22C55E;
+    --red: #EF4444;
+    --yellow: #F59E0B;
+    --blue: #3B82F6;
+    --cyan: #06B6D4;
+    --font-mono: 'SF Mono', 'Fira Code', monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#FAFAFA; --surface:#FFFFFF; --surface2:#F4F4F5; --border:#E4E4E7; --text:#18181B; --muted:#71717A; }
+  }
+  :root[data-theme="dark"]  { --bg:#18181B; --surface:#27272A; --surface2:#3F3F46; --border:#3F3F46; --text:#F4F4F5; --muted:#A1A1AA; }
+  :root[data-theme="light"] { --bg:#FAFAFA; --surface:#FFFFFF; --surface2:#F4F4F5; --border:#E4E4E7; --text:#18181B; --muted:#71717A; }
+
+  *, *::before, *::after { box-sizing: border-box; margin:0; padding:0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); line-height:1.6; font-size:15px; display:flex; min-height:100vh; }
+
+  /* SIDEBAR */
+  .sidebar { width:240px; flex-shrink:0; position:fixed; top:0; left:0; bottom:0; background:var(--surface); border-right:1px solid var(--border); overflow-y:auto; padding:20px 0; z-index:100; }
+  .sidebar-brand { padding:0 16px 16px; border-bottom:1px solid var(--border); margin-bottom:12px; }
+  .sidebar-brand .app { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--primary); }
+  .sidebar-brand .spec-id { font-size:13px; font-weight:600; color:var(--text); margin-top:2px; }
+  .sidebar-brand .spec-title { font-size:11px; color:var(--muted); margin-top:1px; }
+  .nav-item { display:flex; align-items:center; gap:8px; padding:6px 16px; font-size:12px; color:var(--muted); text-decoration:none; border-left:2px solid transparent; transition:all .15s; cursor:pointer; }
+  .nav-item:hover { color:var(--text); background:var(--surface2); }
+  .nav-item.active { color:var(--accent); border-left-color:var(--accent); background:var(--accent-dim); }
+  .nav-num { width:18px; height:18px; border-radius:4px; background:var(--accent-dim); color:var(--accent); font-size:10px; font-weight:700; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .nav-item.active .nav-num { background:var(--accent); color:#fff; }
+
+  /* MAIN */
+  .main { margin-left:240px; flex:1; max-width:920px; padding:48px 40px; }
+
+  /* HEADER */
+  .page-header { margin-bottom:48px; padding-bottom:32px; border-bottom:1px solid var(--border); }
+  .meta-row { display:flex; align-items:center; gap:10px; margin-bottom:16px; flex-wrap:wrap; }
+  .badge { font-size:11px; font-weight:700; letter-spacing:.08em; padding:3px 10px; border-radius:20px; text-transform:uppercase; }
+  .badge-spec { background:var(--accent-dim); color:var(--accent); border:1px solid var(--accent-border); }
+  .badge-version { background:var(--primary-dim); color:var(--primary); border:1px solid rgba(99,102,241,.3); }
+  .badge-status { background:rgba(34,197,94,.12); color:var(--green); border:1px solid rgba(34,197,94,.3); }
+  .page-title { font-size:28px; font-weight:800; line-height:1.2; letter-spacing:-.02em; color:var(--text); }
+  .page-title span { color:var(--accent); }
+  .page-subtitle { font-size:15px; color:var(--muted); margin-top:8px; max-width:640px; }
+  .meta-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(180px,1fr)); gap:10px; margin-top:24px; }
+  .meta-card { background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+  .meta-card .label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); }
+  .meta-card .value { font-size:13px; font-weight:600; color:var(--text); margin-top:3px; }
+
+  /* SECTIONS */
+  .section { margin-bottom:56px; scroll-margin-top:24px; }
+  .section-header { display:flex; align-items:center; gap:12px; margin-bottom:24px; }
+  .section-num { width:32px; height:32px; border-radius:8px; background:var(--accent); color:#fff; font-size:13px; font-weight:800; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .section-title { font-size:20px; font-weight:700; color:var(--text); }
+
+  /* TABLES */
+  .table-wrap { overflow-x:auto; border-radius:8px; border:1px solid var(--border); margin-bottom:16px; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th { background:var(--surface2); color:var(--muted); font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; padding:10px 14px; text-align:left; white-space:nowrap; }
+  td { padding:10px 14px; border-top:1px solid var(--border); vertical-align:top; line-height:1.5; }
+  tr:hover td { background:var(--surface2); }
+  td code { font-family:var(--font-mono); font-size:12px; background:var(--surface2); padding:2px 6px; border-radius:4px; }
+
+  /* CARDS */
+  .card-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(220px,1fr)); gap:12px; margin-bottom:16px; }
+  .card-grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:16px; }
+  .card-title { font-size:13px; font-weight:700; color:var(--text); }
+  .card-body { font-size:12px; color:var(--muted); margin-top:6px; line-height:1.5; }
+  .card-accent { border-left:3px solid var(--accent); }
+  .card-green { border-left:3px solid var(--green); }
+  .card-red { border-left:3px solid var(--red); }
+  .card-blue { border-left:3px solid var(--blue); }
+  .card-yellow { border-left:3px solid var(--yellow); }
+  .card-cyan { border-left:3px solid var(--cyan); }
+
+  /* FORMULA */
+  .formula-box { background:var(--surface); border:1px solid var(--accent-border); border-radius:8px; padding:16px 20px; margin:12px 0; }
+  .formula-label { font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin-bottom:8px; }
+  .formula { font-family:var(--font-mono); font-size:12.5px; color:var(--text); line-height:1.8; white-space:pre; overflow-x:auto; }
+
+  /* CALLOUTS */
+  .callout { border-radius:8px; padding:14px 16px; margin:12px 0; font-size:13px; line-height:1.6; }
+  .callout-info { background:var(--primary-dim); border-left:3px solid var(--primary); }
+  .callout-warn { background:rgba(245,158,11,.1); border-left:3px solid var(--yellow); }
+  .callout-success { background:rgba(34,197,94,.1); border-left:3px solid var(--green); }
+  .callout-danger { background:rgba(239,68,68,.1); border-left:3px solid var(--red); }
+  .callout-accent { background:var(--accent-dim); border-left:3px solid var(--accent); }
+  .callout strong { font-weight:700; }
+
+  /* TIMELINE */
+  .timeline { position:relative; padding-left:28px; }
+  .timeline::before { content:''; position:absolute; left:8px; top:6px; bottom:6px; width:2px; background:var(--border); }
+  .tl-item { position:relative; margin-bottom:20px; }
+  .tl-dot { position:absolute; left:-24px; top:4px; width:12px; height:12px; border-radius:50%; background:var(--accent); border:2px solid var(--bg); flex-shrink:0; }
+  .tl-dot.green { background:var(--green); }
+  .tl-dot.red { background:var(--red); }
+  .tl-dot.muted { background:var(--muted); }
+  .tl-dot.yellow { background:var(--yellow); }
+  .tl-dot.cyan { background:var(--cyan); }
+  .tl-title { font-size:13px; font-weight:600; color:var(--text); }
+  .tl-body { font-size:12px; color:var(--muted); margin-top:3px; line-height:1.5; }
+
+  /* STATUS PILLS */
+  .state-pill { font-size:12px; font-weight:700; padding:4px 12px; border-radius:20px; letter-spacing:.03em; display:inline-block; }
+  .s-blocked  { background:rgba(239,68,68,.15);  color:var(--red);    border:1px solid rgba(239,68,68,.3); }
+  .s-active   { background:rgba(99,102,241,.15);  color:var(--primary); border:1px solid rgba(99,102,241,.3); }
+  .s-done     { background:rgba(34,197,94,.15);   color:var(--green);  border:1px solid rgba(34,197,94,.3); }
+  .s-upcoming { background:var(--surface2);        color:var(--muted);  border:1px solid var(--border); }
+  .s-next     { background:rgba(245,158,11,.15);  color:var(--yellow); border:1px solid rgba(245,158,11,.3); }
+  .s-paused   { background:rgba(139,92,246,.15);  color:var(--accent); border:1px solid var(--accent-border); }
+
+  /* DEP TYPE BADGES */
+  .dep-hard   { background:rgba(239,68,68,.12);  color:var(--red);    border:1px solid rgba(239,68,68,.3);  font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+  .dep-soft   { background:rgba(245,158,11,.12); color:var(--yellow); border:1px solid rgba(245,158,11,.3); font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+  .dep-info   { background:var(--accent-dim);    color:var(--accent); border:1px solid var(--accent-border); font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; white-space:nowrap; }
+
+  /* DAG VISUAL */
+  .dag-box { background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:20px; margin:16px 0; }
+  .dag-layer { display:flex; gap:12px; align-items:center; justify-content:center; margin-bottom:16px; flex-wrap:wrap; }
+  .dag-layer-label { font-size:10px; font-weight:700; color:var(--muted); letter-spacing:.1em; text-transform:uppercase; width:60px; flex-shrink:0; }
+  .dag-node { background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:8px 14px; font-size:12px; font-weight:600; color:var(--text); position:relative; text-align:center; }
+  .dag-node.done { border-color:var(--green); color:var(--green); background:rgba(34,197,94,.08); }
+  .dag-node.active { border-color:var(--primary); color:var(--primary); background:rgba(99,102,241,.08); }
+  .dag-node.blocked { border-color:var(--red); color:var(--red); background:rgba(239,68,68,.08); }
+  .dag-node.next { border-color:var(--yellow); color:var(--yellow); background:rgba(245,158,11,.08); }
+  .dag-arrow { color:var(--muted); font-size:18px; }
+  .dag-divider { border:none; border-top:1px dashed var(--border); margin:4px 0 16px; }
+
+  /* SCORE ROW */
+  .score-grid { display:grid; grid-template-columns:1fr; gap:8px; }
+  .score-row { display:flex; align-items:center; gap:12px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:12px 14px; }
+  .score-pts { font-size:18px; font-weight:800; color:var(--accent); width:44px; text-align:right; flex-shrink:0; font-variant-numeric:tabular-nums; }
+  .score-info { flex:1; }
+  .score-name { font-size:13px; font-weight:600; color:var(--text); }
+  .score-desc { font-size:12px; color:var(--muted); margin-top:2px; line-height:1.4; }
+
+  /* THEME TOGGLE */
+  .theme-toggle { position:fixed; top:16px; right:16px; z-index:200; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:6px 12px; font-size:12px; font-weight:600; color:var(--muted); cursor:pointer; transition:all .15s; }
+  .theme-toggle:hover { color:var(--text); border-color:var(--accent); }
+
+  /* TAGS */
+  .tag { display:inline-block; font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px; margin:2px; }
+  .tag-req { background:rgba(239,68,68,.12); color:var(--red); }
+  .tag-opt { background:var(--primary-dim); color:var(--primary); }
+  .tag-comp { background:rgba(34,197,94,.12); color:var(--green); }
+
+  h3 { font-size:15px; font-weight:700; color:var(--text); margin:20px 0 10px; }
+  h4 { font-size:13px; font-weight:700; color:var(--accent); margin:14px 0 6px; text-transform:uppercase; letter-spacing:.06em; }
+  p { margin-bottom:10px; color:var(--text); font-size:14px; }
+  ul, ol { padding-left:18px; margin-bottom:10px; }
+  li { font-size:13px; color:var(--muted); margin-bottom:4px; line-height:1.5; }
+  li strong { color:var(--text); }
+  hr { border:none; border-top:1px solid var(--border); margin:24px 0; }
+</style>
+
+<button class="theme-toggle" onclick="
+  const r=document.documentElement;
+  const cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+  r.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  this.textContent=cur==='dark'?'Dark Mode':'Light Mode';
+">Light Mode</button>
+
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="app">Finance Bag</div>
+    <div class="spec-id">SPEC-RMP-001</div>
+    <div class="spec-title">Goal Dependency &amp; Roadmap</div>
+  </div>
+  <a class="nav-item active" href="#s01"><span class="nav-num">01</span>Overview</a>
+  <a class="nav-item" href="#s02"><span class="nav-num">02</span>Data Model</a>
+  <a class="nav-item" href="#s03"><span class="nav-num">03</span>Dependency Types</a>
+  <a class="nav-item" href="#s04"><span class="nav-num">04</span>Roadmap Engine</a>
+  <a class="nav-item" href="#s05"><span class="nav-num">05</span>Roadmap Status</a>
+  <a class="nav-item" href="#s06"><span class="nav-num">06</span>Impact Analysis</a>
+  <a class="nav-item" href="#s07"><span class="nav-num">07</span>Prioritization Engine</a>
+  <a class="nav-item" href="#s08"><span class="nav-num">08</span>Conflict Detection</a>
+  <a class="nav-item" href="#s09"><span class="nav-num">09</span>What-If Simulations</a>
+  <a class="nav-item" href="#s10"><span class="nav-num">10</span>Life Events</a>
+  <a class="nav-item" href="#s11"><span class="nav-num">11</span>Smart Recommendations</a>
+  <a class="nav-item" href="#s12"><span class="nav-num">12</span>Visualization</a>
+  <a class="nav-item" href="#s13"><span class="nav-num">13</span>Roadmap Dashboard</a>
+  <a class="nav-item" href="#s14"><span class="nav-num">14</span>Edge Cases</a>
+  <a class="nav-item" href="#s15"><span class="nav-num">15</span>Business Rules</a>
+  <a class="nav-item" href="#s16"><span class="nav-num">16</span>AI Compatibility &amp; Scale</a>
+</nav>
+
+<main class="main">
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="meta-row">
+      <span class="badge badge-spec">SPEC-RMP-001</span>
+      <span class="badge badge-version">v1.0</span>
+      <span class="badge badge-status">Draft</span>
+    </div>
+    <div class="page-title">Goal Dependency &amp; <span>Financial Roadmap</span> Engine</div>
+    <div class="page-subtitle">Complete functional specification for the Roadmap module of Finance Bag — connects independent goals into an intelligent, dependency-aware financial plan that adapts to life changes.</div>
+    <div class="meta-grid">
+      <div class="meta-card"><div class="label">Module</div><div class="value">Roadmap (RMP)</div></div>
+      <div class="meta-card"><div class="label">Platform</div><div class="value">React Native / Expo 52</div></div>
+      <div class="meta-card"><div class="label">Depends On</div><div class="value">SPEC-GOL-001, SPEC-DBT-001, SPEC-EMF-001</div></div>
+      <div class="meta-card"><div class="label">Core Algorithm</div><div class="value">Directed Acyclic Graph (DAG) + Topological Sort</div></div>
+      <div class="meta-card"><div class="label">Storage</div><div class="value">expo-sqlite + drizzle-orm</div></div>
+      <div class="meta-card"><div class="label">Computation</div><div class="value">All roadmap state derived at read time</div></div>
+    </div>
+  </header>
+
+  <!-- S01 OVERVIEW -->
+  <section class="section" id="s01">
+    <div class="section-header"><div class="section-num">01</div><div class="section-title">Overview &amp; Architecture Philosophy</div></div>
+
+    <p>Most personal finance apps treat goals as a flat list of independent items. Finance Bag's Roadmap Engine elevates this into a <strong>connected financial plan</strong> — a directed graph where goals have relationships, where completing one unlocks others, and where changing any goal cascades intelligently through the entire plan.</p>
+
+    <div class="callout callout-accent">
+      <strong>Core insight:</strong> A person saving for a house, paying off debt, and building an emergency fund is not managing three separate goals — they are executing one coherent financial strategy. The Roadmap Engine makes that strategy explicit, visible, and adaptive.
+    </div>
+
+    <h3>Architectural Principles</h3>
+    <div class="card-grid">
+      <div class="card card-accent">
+        <div class="card-title">Graph-First Design</div>
+        <div class="card-body">Goals and their dependencies form a Directed Acyclic Graph (DAG). All roadmap computations are graph operations: topological sort, reachability, cycle detection, and impact propagation.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Derived State Only</div>
+        <div class="card-body">Roadmap status, ordering, feasibility, and impact are never stored — they are computed from the current goal/dependency graph and financial state on every read. This eliminates synchronization bugs.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Non-Destructive Simulation</div>
+        <div class="card-body">What-If scenarios run on an in-memory clone of the graph. Real data is never modified by simulations. Results are ephemeral — shown to the user, discarded unless explicitly applied.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Graceful Degradation</div>
+        <div class="card-body">The system functions with zero dependencies (flat goal list). Users discover dependency features progressively. No dependency is required to use Finance Bag.</div>
+      </div>
+    </div>
+
+    <h3>Scope Boundaries</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>In Scope (v1.0)</th><th>Out of Scope (v2.0+)</th></tr></thead>
+        <tbody>
+          <tr><td>Goal-to-goal dependencies</td><td>AI-generated dependency suggestions</td></tr>
+          <tr><td>Goal-to-debt dependencies (debt must be paid first)</td><td>Bank account-linked automatic triggers</td></tr>
+          <tr><td>Goal-to-EMF milestone dependencies</td><td>Multi-user / shared family roadmaps</td></tr>
+          <tr><td>Manual What-If simulations</td><td>Predictive ML-based scenario modeling</td></tr>
+          <tr><td>Life event creation and linking</td><td>Investment-linked goal dependencies</td></tr>
+          <tr><td>Conflict detection and resolution</td><td>Real-time market data integration</td></tr>
+          <tr><td>Prioritization scoring engine</td><td>Cross-currency roadmap optimization</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Module Integration Map</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Module</th><th>Data Consumed</th><th>Dependency Direction</th></tr></thead>
+        <tbody>
+          <tr><td>SPEC-GOL-001 (Goals)</td><td>All Goal entities, statuses, targetAmounts, targetDates, currentSavedAmount</td><td>Roadmap reads Goals; never writes back except status flags</td></tr>
+          <tr><td>SPEC-DBT-001 (Debt)</td><td>Credit status (PAID/ACTIVE), totalOutstandingDebt, DTI</td><td>Debts can be dependency targets (must be paid before goal starts)</td></tr>
+          <tr><td>SPEC-EMF-001 (Emergency Fund)</td><td>currentMilestoneLevel, completionPct, daysOfCoverage</td><td>EMF milestones can be dependency conditions (must reach LEVEL_2)</td></tr>
+          <tr><td>SPEC-SAL-001 (Salary)</td><td>disposableIncome, salaryPeriod</td><td>Prioritization engine and feasibility calculations</td></tr>
+          <tr><td>SPEC-BUD-001 (Budget)</td><td>Budget category allocations</td><td>Conflict detection: sum of goal allocations vs available budget</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- S02 DATA MODEL -->
+  <section class="section" id="s02">
+    <div class="section-header"><div class="section-num">02</div><div class="section-title">Data Model</div></div>
+
+    <h3>GoalDependency Entity</h3>
+    <p>The core stored primitive. Represents a directed relationship from a <em>source</em> goal (the one that depends) to a <em>target</em> (the prerequisite). Reading the edge as: "source depends on target".</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>uuid</td><td><span class="tag tag-req">Required</span></td><td>UUID v4</td></tr>
+          <tr><td><code>sourceGoalId</code></td><td>uuid FK → Goal</td><td><span class="tag tag-req">Required</span></td><td>The goal that has the dependency ("House Purchase")</td></tr>
+          <tr><td><code>targetEntityType</code></td><td>TargetEntityType enum</td><td><span class="tag tag-req">Required</span></td><td>GOAL / DEBT / EMF — what entity is the prerequisite</td></tr>
+          <tr><td><code>targetGoalId</code></td><td>uuid FK → Goal</td><td><span class="tag tag-opt">Conditional</span></td><td>Set when targetEntityType = GOAL</td></tr>
+          <tr><td><code>targetDebtId</code></td><td>uuid FK → Credit</td><td><span class="tag tag-opt">Conditional</span></td><td>Set when targetEntityType = DEBT</td></tr>
+          <tr><td><code>dependencyType</code></td><td>DependencyType enum</td><td><span class="tag tag-req">Required</span></td><td>One of 10 dependency types (Section 03)</td></tr>
+          <tr><td><code>conditionType</code></td><td>ConditionType enum</td><td><span class="tag tag-req">Required</span></td><td>FULLY_COMPLETED / PERCENTAGE_REACHED / EMF_MILESTONE / DEBT_PAID / CUSTOM</td></tr>
+          <tr><td><code>conditionValue</code></td><td>JSON</td><td><span class="tag tag-opt">Optional</span></td><td>e.g. <code>{"pct": 100}</code>, <code>{"emfLevel": "LEVEL_2"}</code>, <code>{"text": "must pay car loan"}</code></td></tr>
+          <tr><td><code>strength</code></td><td>enum</td><td><span class="tag tag-req">Required</span></td><td>HARD (enforced, source blocked) / SOFT (advisory only)</td></tr>
+          <tr><td><code>label</code></td><td>string(1–100)</td><td><span class="tag tag-opt">Optional</span></td><td>User-written description of why this dependency exists</td></tr>
+          <tr><td><code>createdBy</code></td><td>enum</td><td><span class="tag tag-req">Required</span></td><td>USER (manually created) / SYSTEM (auto-suggested and accepted)</td></tr>
+          <tr><td><code>createdAt</code></td><td>timestamp</td><td><span class="tag tag-req">Required</span></td><td>Immutable</td></tr>
+          <tr><td><code>updatedAt</code></td><td>timestamp</td><td><span class="tag tag-req">Required</span></td><td>Updated on strength/condition changes</td></tr>
+          <tr><td><code>deletedAt</code></td><td>timestamp</td><td><span class="tag tag-opt">Optional</span></td><td>Soft delete — removing a dependency does not affect goals</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>LifeEvent Entity</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>uuid</td><td>UUID v4</td></tr>
+          <tr><td><code>type</code></td><td>LifeEventType enum</td><td>MARRIAGE / HAVING_CHILDREN / HOME_PURCHASE / CAREER_CHANGE / BUSINESS_START / RETIREMENT / UNEXPECTED_EXPENSE / INHERITANCE / JOB_LOSS / RELOCATION / EDUCATION_START / MEDICAL_EXPENSE / CUSTOM</td></tr>
+          <tr><td><code>customLabel</code></td><td>string</td><td>Required when type = CUSTOM</td></tr>
+          <tr><td><code>plannedDate</code></td><td>date</td><td>When the event is expected to occur</td></tr>
+          <tr><td><code>description</code></td><td>string(max 500)</td><td>User notes about the event</td></tr>
+          <tr><td><code>incomeImpact</code></td><td>integer (centimes)</td><td>Monthly income change (positive = increase, negative = decrease)</td></tr>
+          <tr><td><code>expenseImpact</code></td><td>integer (centimes)</td><td>Monthly expense change (positive = new expense)</td></tr>
+          <tr><td><code>oneTimeAmount</code></td><td>integer (centimes)</td><td>One-time cost or income (e.g. inheritance)</td></tr>
+          <tr><td><code>linkedGoalIds</code></td><td>uuid[]</td><td>Goals this life event is associated with</td></tr>
+          <tr><td><code>suggestedGoalTypes</code></td><td>GoalCategory[]</td><td>Goal categories the system suggests creating for this event</td></tr>
+          <tr><td><code>status</code></td><td>enum</td><td>PLANNED / OCCURRED / CANCELLED</td></tr>
+          <tr><td><code>occurredAt</code></td><td>timestamp?</td><td>Set when status → OCCURRED</td></tr>
+          <tr><td><code>createdAt</code></td><td>timestamp</td><td>Immutable</td></tr>
+          <tr><td><code>deletedAt</code></td><td>timestamp?</td><td>Soft delete</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>WhatIfScenario Entity (Ephemeral — Not Persisted)</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>runtime uuid</td><td>In-memory only; discarded when session ends</td></tr>
+          <tr><td><code>scenarioType</code></td><td>ScenarioType enum</td><td>POSTPONE_GOAL / INCREASE_SAVINGS / EARLY_DEBT_PAYOFF / SALARY_INCREASE / UNEXPECTED_INCOME / PARALLEL_STRATEGY / CANCEL_GOAL / CHANGE_TARGET</td></tr>
+          <tr><td><code>parameters</code></td><td>JSON</td><td>Scenario-specific inputs (goalId, months, amount, etc.)</td></tr>
+          <tr><td><code>baselineSnapshot</code></td><td>RoadmapState</td><td>Deep clone of current roadmap state before changes applied</td></tr>
+          <tr><td><code>projectedState</code></td><td>RoadmapState</td><td>Computed roadmap state with scenario applied</td></tr>
+          <tr><td><code>delta</code></td><td>ImpactDelta[]</td><td>List of changes between baseline and projected</td></tr>
+          <tr><td><code>createdAt</code></td><td>timestamp</td><td>Session time of simulation</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>Stored vs. Derived:</strong> Only <code>GoalDependency</code> and <code>LifeEvent</code> records are persisted. The entire roadmap — node statuses, layer assignments, impact chains, recommendations, conflicts — is derived at read time from these records plus data from SPEC-GOL-001 / SPEC-DBT-001 / SPEC-EMF-001. <code>WhatIfScenario</code> is never written to disk.
+    </div>
+  </section>
+
+  <!-- S03 DEPENDENCY TYPES -->
+  <section class="section" id="s03">
+    <div class="section-header"><div class="section-num">03</div><div class="section-title">Dependency Types</div></div>
+    <p>Ten dependency types cover the full range of financial relationships between goals. Each type has defined enforcement behavior and visualization treatment.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Key</th><th>Strength</th><th>Definition</th><th>Example</th><th>Source Status If Condition Unmet</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Must Complete Before</strong></td>
+            <td><code>MUST_COMPLETE_BEFORE</code></td>
+            <td><span class="dep-hard">HARD</span></td>
+            <td>Target must reach 100% (COMPLETED) before source may begin contributing. Source is locked in BLOCKED status.</td>
+            <td>Emergency Fund must be complete before starting House Down Payment</td>
+            <td>BLOCKED</td>
+          </tr>
+          <tr>
+            <td><strong>Recommended Before</strong></td>
+            <td><code>RECOMMENDED_BEFORE</code></td>
+            <td><span class="dep-soft">SOFT</span></td>
+            <td>System recommends completing target first. Source is NOT blocked — user can proceed but sees advisory banner.</td>
+            <td>Finish personal loan before starting vacation savings</td>
+            <td>ACTIVE (with advisory)</td>
+          </tr>
+          <tr>
+            <td><strong>Blocked Until</strong></td>
+            <td><code>BLOCKED_UNTIL</code></td>
+            <td><span class="dep-hard">HARD</span></td>
+            <td>Source is blocked until a specific condition on target is met (not necessarily 100%). Condition defined by conditionType + conditionValue.</td>
+            <td>House goal blocked until EMF reaches LEVEL_2 (3 months)</td>
+            <td>BLOCKED</td>
+          </tr>
+          <tr>
+            <td><strong>Sequential Goal</strong></td>
+            <td><code>SEQUENTIAL</code></td>
+            <td><span class="dep-hard">HARD</span></td>
+            <td>Target and source form an explicit chain. When target reaches COMPLETED, system automatically activates source (status DRAFT → ACTIVE) and optionally redirects freed budget.</td>
+            <td>Pay off Car Loan → immediately begin Car Upgrade savings</td>
+            <td>BLOCKED (auto-activates on completion)</td>
+          </tr>
+          <tr>
+            <td><strong>Parallel Goal</strong></td>
+            <td><code>PARALLEL</code></td>
+            <td><span class="dep-info">INFO</span></td>
+            <td>Goals are explicitly marked as running simultaneously. System verifies combined required monthly contributions are feasible within disposable income. No blocking; this is budget-awareness metadata.</td>
+            <td>Vacation and Wedding savings run in parallel</td>
+            <td>ACTIVE (feasibility checked)</td>
+          </tr>
+          <tr>
+            <td><strong>Financial Requirement</strong></td>
+            <td><code>FINANCIAL_REQUIREMENT</code></td>
+            <td><span class="dep-hard">HARD</span></td>
+            <td>Source goal requires target to have accumulated a specific amount (not necessarily complete). Used when a goal partially funds another. conditionValue: <code>{"minAmount": 500000}</code> (centimes)</td>
+            <td>Business startup requires $5,000 capital goal to reach $2,000 first</td>
+            <td>BLOCKED until amount threshold met</td>
+          </tr>
+          <tr>
+            <td><strong>Milestone Requirement</strong></td>
+            <td><code>MILESTONE_REQUIREMENT</code></td>
+            <td><span class="dep-hard">HARD</span></td>
+            <td>Source is blocked until target reaches a named milestone. Works with both Goal milestones (PCT_50, PCT_75, etc.) and EMF milestones (LEVEL_1, LEVEL_2, LEVEL_3).</td>
+            <td>Travel goal blocked until EMF reaches LEVEL_1</td>
+            <td>BLOCKED</td>
+          </tr>
+          <tr>
+            <td><strong>Hard Dependency</strong></td>
+            <td><code>HARD_DEPENDENCY</code></td>
+            <td><span class="dep-hard">HARD</span></td>
+            <td>Generic hard constraint. Source is completely blocked until condition satisfied. Used for custom conditions not covered by other types. User writes a label explaining the dependency.</td>
+            <td>"Cannot start business goal until inheritance is received"</td>
+            <td>BLOCKED</td>
+          </tr>
+          <tr>
+            <td><strong>Soft Dependency</strong></td>
+            <td><code>SOFT_DEPENDENCY</code></td>
+            <td><span class="dep-soft">SOFT</span></td>
+            <td>Advisory link with no enforcement. Appears as a dashed connection in the roadmap visualization. Creates no blocking but influences prioritization score.</td>
+            <td>"I prefer to finish my education fund before the car upgrade"</td>
+            <td>ACTIVE (no effect on status)</td>
+          </tr>
+          <tr>
+            <td><strong>Optional Dependency</strong></td>
+            <td><code>OPTIONAL_DEPENDENCY</code></td>
+            <td><span class="dep-info">INFO</span></td>
+            <td>Weakest link — user-noted relationship with no enforcement and no prioritization weight. Pure documentation/visualization. Shown as dotted line in roadmap.</td>
+            <td>"Ideally I'd finish my retirement contribution increase before the vacation"</td>
+            <td>ACTIVE (no effect)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Condition Types</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Condition Type</th><th>Applies To</th><th>conditionValue Schema</th><th>Satisfied When</th></tr></thead>
+        <tbody>
+          <tr><td><code>FULLY_COMPLETED</code></td><td>GOAL / DEBT</td><td><code>{}</code></td><td>Goal status = COMPLETED OR Debt status = PAID</td></tr>
+          <tr><td><code>PERCENTAGE_REACHED</code></td><td>GOAL</td><td><code>{"pct": 75}</code></td><td>goal.completionPct ≥ conditionValue.pct</td></tr>
+          <tr><td><code>AMOUNT_REACHED</code></td><td>GOAL</td><td><code>{"minAmount": 500000}</code></td><td>goal.currentSavedAmount ≥ conditionValue.minAmount</td></tr>
+          <tr><td><code>EMF_MILESTONE</code></td><td>EMF</td><td><code>{"level": "LEVEL_2"}</code></td><td>emergencyFund.currentMilestoneLevel ≥ conditionValue.level</td></tr>
+          <tr><td><code>DEBT_PAID</code></td><td>DEBT</td><td><code>{}</code></td><td>credit.status = PAID</td></tr>
+          <tr><td><code>LIFE_EVENT_OCCURRED</code></td><td>LifeEvent</td><td><code>{"lifeEventId": "uuid"}</code></td><td>lifeEvent.status = OCCURRED</td></tr>
+          <tr><td><code>CUSTOM</code></td><td>Any</td><td><code>{"text": "description"}</code></td><td>Never auto-resolved — user manually marks satisfied</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- S04 ROADMAP ENGINE -->
+  <section class="section" id="s04">
+    <div class="section-header"><div class="section-num">04</div><div class="section-title">Roadmap Engine</div></div>
+    <p>The Roadmap Engine is a pure computation layer that transforms the stored set of Goals and GoalDependency records into a structured, ordered financial plan.</p>
+
+    <h3>Graph Construction</h3>
+    <div class="formula-box">
+      <div class="formula-label">Build Directed Graph G = (V, E)</div>
+      <div class="formula">V (nodes) = {
+  All Goals (status ≠ ARCHIVED),
+  All active Debts (referenced in dependencies),
+  EmergencyFund (if referenced in any dependency)
+}
+
+E (edges) = {
+  For each non-deleted GoalDependency:
+    directed edge: targetEntity → sourceGoal
+    (reads: "targetEntity must come before sourceGoal")
+  weight(edge) = dependency.strength (HARD=2, SOFT=1, INFO=0)
+}</div>
+    </div>
+
+    <h3>Topological Layer Assignment</h3>
+    <div class="formula-box">
+      <div class="formula-label">Kahn's Algorithm (BFS-based Topological Sort)</div>
+      <div class="formula">1. Compute in-degree for every node (count of HARD incoming edges)
+2. Initialize queue Q with all nodes having in-degree = 0 (no hard prerequisites)
+3. While Q is not empty:
+   a. Dequeue node N → assign to current Layer L
+   b. For each outgoing edge N → M (where M has dependency type HARD):
+      - Decrement in-degree of M
+      - If in-degree of M becomes 0: enqueue M
+4. Increment layer counter L after processing all nodes at current level
+5. If any nodes remain with in-degree > 0 after exhausting Q:
+   → CIRCULAR_DEPENDENCY conflict detected (Section 08)
+
+Output: each node has a LayerIndex (0 = available immediately, N = requires N levels of completion)</div>
+    </div>
+
+    <h3>Dependency Satisfaction Check</h3>
+    <div class="formula-box">
+      <div class="formula-label">Per-Dependency Condition Evaluation</div>
+      <div class="formula">function isSatisfied(dep: GoalDependency): boolean {
+  target = resolveTarget(dep)  // Goal, Credit, or EmergencyFund
+
+  switch dep.conditionType:
+    FULLY_COMPLETED:
+      return target.status === 'COMPLETED' || target.status === 'PAID'
+    PERCENTAGE_REACHED:
+      return target.completionPct >= dep.conditionValue.pct
+    AMOUNT_REACHED:
+      return target.currentSavedAmount >= dep.conditionValue.minAmount
+    EMF_MILESTONE:
+      emfOrder = { LEVEL_0:0, LEVEL_1:1, LEVEL_2:2, LEVEL_3:3, LEVEL_4:4 }
+      return emfOrder[emf.currentMilestoneLevel] >= emfOrder[dep.conditionValue.level]
+    DEBT_PAID:
+      return credit.status === 'PAID'
+    LIFE_EVENT_OCCURRED:
+      return lifeEvent.status === 'OCCURRED'
+    CUSTOM:
+      return dep.manuallyMarkedSatisfied === true
+}</div>
+    </div>
+
+    <h3>Conceptual Roadmap Example</h3>
+    <div class="dag-box">
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">Illustrative dependency graph for a typical user. Arrows = MUST_COMPLETE_BEFORE dependencies.</p>
+      <div class="dag-layer">
+        <div class="dag-layer-label">LAYER 0<br><span style="font-weight:400">No deps</span></div>
+        <div class="dag-node done">✓ Emergency Fund<br><span style="font-size:10px;font-weight:400">LEVEL_2 reached</span></div>
+        <div class="dag-node active">Personal Loan<br><span style="font-size:10px;font-weight:400">In progress</span></div>
+      </div>
+      <div class="dag-divider"></div>
+      <div class="dag-layer">
+        <div class="dag-layer-label">LAYER 1<br><span style="font-weight:400">Unblocked</span></div>
+        <div class="dag-node next">▶ Vacation<br><span style="font-size:10px;font-weight:400">Recommended next</span></div>
+        <div class="dag-node blocked">🔒 House Down Payment<br><span style="font-size:10px;font-weight:400">Blocked: Loan unpaid</span></div>
+      </div>
+      <div class="dag-divider"></div>
+      <div class="dag-layer">
+        <div class="dag-layer-label">LAYER 2<br><span style="font-weight:400">Future</span></div>
+        <div class="dag-node" style="border-color:var(--muted);color:var(--muted);">Renovation<br><span style="font-size:10px;font-weight:400">Awaits house</span></div>
+        <div class="dag-node" style="border-color:var(--muted);color:var(--muted);">Business Capital<br><span style="font-size:10px;font-weight:400">Awaits house</span></div>
+      </div>
+      <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px;">Node colors: ✓ Completed · Blue = Active · Amber = Recommended next · Red = Blocked · Grey = Upcoming</p>
+    </div>
+  </section>
+
+  <!-- S05 ROADMAP STATUS -->
+  <section class="section" id="s05">
+    <div class="section-header"><div class="section-num">05</div><div class="section-title">Roadmap Status (Per Goal, Computed)</div></div>
+    <p>Every goal has a <code>roadmapStatus</code> derived at read time. This is separate from <code>goal.status</code> (which tracks lifecycle state). A goal can be ACTIVE but BLOCKED in roadmap terms.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Roadmap Status</th><th>Conditions</th><th>Visual Treatment</th><th>Auto-Contribute?</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><span class="state-pill s-done">COMPLETED</span></td>
+            <td>goal.status = COMPLETED</td>
+            <td>Green checkmark; shown at top of roadmap history</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><span class="state-pill s-active">IN_PROGRESS</span></td>
+            <td>goal.status = ACTIVE AND all HARD dependencies satisfied</td>
+            <td>Indigo ring; progress bar shown; contribution CTA active</td>
+            <td>Yes</td>
+          </tr>
+          <tr>
+            <td><span class="state-pill s-next">RECOMMENDED_NEXT</span></td>
+            <td>goal.status = DRAFT AND all HARD dependencies satisfied AND highest priorityScore in layer</td>
+            <td>Amber highlight ring; "Start this goal" CTA prominent</td>
+            <td>No (not yet started)</td>
+          </tr>
+          <tr>
+            <td><span class="state-pill s-blocked">BLOCKED</span></td>
+            <td>goal has ≥1 unsatisfied HARD dependency (MUST_COMPLETE_BEFORE / BLOCKED_UNTIL / SEQUENTIAL / FINANCIAL_REQUIREMENT / MILESTONE_REQUIREMENT / HARD_DEPENDENCY)</td>
+            <td>Lock icon; dimmed; blocking dependency listed with progress</td>
+            <td>No (auto-blocked)</td>
+          </tr>
+          <tr>
+            <td><span class="state-pill s-upcoming">UPCOMING</span></td>
+            <td>goal.status = DRAFT AND all HARD deps satisfied AND NOT highest priorityScore</td>
+            <td>Outlined card; grey; "Available to start"</td>
+            <td>No</td>
+          </tr>
+          <tr>
+            <td><span class="state-pill s-paused">PAUSED</span></td>
+            <td>goal.status = PAUSED</td>
+            <td>Purple pause icon; timeline frozen</td>
+            <td>No</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>BLOCKED Status Detail View</h3>
+    <p>When a goal shows as BLOCKED, the UI must explain <em>specifically</em> what is blocking it:</p>
+    <div class="card-grid">
+      <div class="card card-red">
+        <div class="card-title">Blocking Item</div>
+        <div class="card-body">Name + type of the prerequisite (goal name, debt name, "Emergency Fund Level 2")</div>
+      </div>
+      <div class="card card-red">
+        <div class="card-title">Current Progress</div>
+        <div class="card-body">How far along the prerequisite is (e.g. "Personal Loan: 43% paid off")</div>
+      </div>
+      <div class="card card-red">
+        <div class="card-title">Estimated Unblock Date</div>
+        <div class="card-body">Based on current contribution rate of the prerequisite: "Unblocks ~March 2026"</div>
+      </div>
+      <div class="card card-red">
+        <div class="card-title">What You Can Do</div>
+        <div class="card-body">CTA: "Accelerate [Prerequisite] to unblock this goal sooner" → contributes to prerequisite</div>
+      </div>
+    </div>
+
+    <h3>Sequential Auto-Activation</h3>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-dot green"></div><div class="tl-title">Target goal reaches COMPLETED</div><div class="tl-body">System detects SEQUENTIAL dependency where this goal is the target.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">Source goal auto-activates</div><div class="tl-body">source.status → ACTIVE. source.roadmapStatus → IN_PROGRESS. Notification fires: "[Source Goal] is now unlocked and ready to start!"</div></div>
+      <div class="tl-item"><div class="tl-dot yellow"></div><div class="tl-title">Budget redirect prompt</div><div class="tl-body">If target had a monthlyContribution: "Your [amount]/mo is now free. Redirect to [Source Goal]?" — one tap to confirm.</div></div>
+      <div class="tl-item"><div class="tl-dot green"></div><div class="tl-title">Roadmap updates</div><div class="tl-body">Target moves to COMPLETED layer. Source moves from BLOCKED to IN_PROGRESS. All downstream goals re-evaluate their blocking status.</div></div>
+    </div>
+  </section>
+
+  <!-- S06 IMPACT ANALYSIS -->
+  <section class="section" id="s06">
+    <div class="section-header"><div class="section-num">06</div><div class="section-title">Impact Analysis Engine</div></div>
+    <p>Whenever any goal, debt, or EMF state changes, the engine propagates that change through the dependency graph and reports the downstream effects <em>before</em> the user confirms the change.</p>
+
+    <h3>Impact Analysis Algorithm</h3>
+    <div class="formula-box">
+      <div class="formula-label">Propagation via BFS from Changed Node</div>
+      <div class="formula">function analyzeImpact(changedNodeId, changeType, changePayload):
+  impactList = []
+  visited = Set()
+  queue = [changedNodeId]
+
+  while queue not empty:
+    current = queue.dequeue()
+    if current in visited: continue
+    visited.add(current)
+
+    for each dep where dep.target = current:
+      affected = dep.sourceGoal
+      impact = computeImpact(affected, changeType, changePayload)
+      if impact is not null:
+        impactList.append({ goal: affected, impact })
+        queue.enqueue(affected)  // propagate transitively
+
+  return sorted(impactList, by: impactSeverity DESC)</div>
+    </div>
+
+    <h3>Impact Types Per Change Event</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Change on Source</th><th>Impact Type</th><th>Affected Dependents</th><th>Displayed As</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>targetAmount increased</td>
+            <td>DATE_SHIFT</td>
+            <td>All goals BLOCKED by this goal (completion date shifts later)</td>
+            <td>"[Goal B] unblocks ~3 months later than planned"</td>
+          </tr>
+          <tr>
+            <td>targetDate shortened</td>
+            <td>FEASIBILITY_CHANGE + BUDGET_PRESSURE</td>
+            <td>Goals in PARALLEL dependency; goals competing for same budget</td>
+            <td>"Shortening this deadline increases required monthly by [Δ], reducing budget for [Goal C]"</td>
+          </tr>
+          <tr>
+            <td>targetDate extended</td>
+            <td>DATE_SHIFT (positive)</td>
+            <td>Blocked goals: unblock date shifts later</td>
+            <td>"[Goal B] won't be available until [new date], [N] months later"</td>
+          </tr>
+          <tr>
+            <td>Goal PAUSED</td>
+            <td>INDEFINITE_BLOCK</td>
+            <td>All goals with HARD dependency on this goal</td>
+            <td>"[Goal B] and [Goal C] are now indefinitely blocked. Pause duration affects their timelines."</td>
+          </tr>
+          <tr>
+            <td>Goal COMPLETED early</td>
+            <td>DATE_SHIFT (positive) + UNBLOCK</td>
+            <td>All goals BLOCKED by this goal</td>
+            <td>"[Goal B] is now unblocked — [N] months ahead of schedule!"</td>
+          </tr>
+          <tr>
+            <td>Goal CANCELLED</td>
+            <td>DEPENDENCY_ORPHANED + STATUS_CHANGE</td>
+            <td>Goals that depended on this goal</td>
+            <td>"[Goal B] was blocked by [cancelled goal]. It can now be started — or choose a new dependency."</td>
+          </tr>
+          <tr>
+            <td>Priority changed</td>
+            <td>REORDER</td>
+            <td>Goals competing for same budget allocation</td>
+            <td>"[Goal B] moves down in recommended order. Required monthly for [Goal B] may decrease."</td>
+          </tr>
+          <tr>
+            <td>Debt paid off earlier</td>
+            <td>UNBLOCK + BUDGET_FREED</td>
+            <td>Goals with DEBT_PAID condition</td>
+            <td>"[Goal] is now unblocked. [Amount]/mo freed from debt payments available for goals."</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Impact Display UX</h3>
+    <div class="callout callout-warn">
+      <strong>Pre-commit impact sheet:</strong> Before any change that has downstream impact is saved, the system shows a bottom sheet: "This change affects [N] other goals." List each affected goal with its impact in plain language. User sees impact, then taps "Confirm Change" or "Cancel." This is shown for HARD-dependency impacts only; SOFT-dependency impacts are shown as a dismissible info banner after saving.
+    </div>
+  </section>
+
+  <!-- S07 PRIORITIZATION ENGINE -->
+  <section class="section" id="s07">
+    <div class="section-header"><div class="section-num">07</div><div class="section-title">Goal Prioritization Engine</div></div>
+    <p>The engine produces a recommended execution order for all ACTIVE and DRAFT goals, accounting for financial health, dependencies, deadlines, and strategic value. It never overrides user-set priorities — it produces a <em>suggested</em> order alongside the user's chosen order.</p>
+
+    <h3>Prioritization Score Formula</h3>
+    <div class="formula-box">
+      <div class="formula-label">Score per Goal (0–100)</div>
+      <div class="formula">priorityScore(goal) =
+  (deadlineUrgency × 30)
++ (userPriorityWeight × 25)
++ (dependencyLeverage × 20)
++ (feasibilityBonus × 15)
++ (riskPenalty × 10)
+
+─────────────────────────────────────────────────────
+
+deadlineUrgency (0–1):
+  if no targetDate: 0.3 (neutral)
+  if targetDate < today: 1.0 (overdue)
+  daysLeft = targetDate - TODAY
+  urgency = MAX(0, 1 - (daysLeft / 730))  // 730 days = 2 years = zero urgency
+  clamp to [0, 1]
+
+userPriorityWeight (0–1):
+  CRITICAL=1.0, HIGH=0.75, MEDIUM=0.5, LOW=0.25, OPTIONAL=0.1
+
+dependencyLeverage (0–1):
+  unlockedGoalCount = count of goals directly or transitively unblocked by THIS goal completing
+  leverage = MIN(1, unlockedGoalCount / 5)  // 5+ unlocked = max leverage
+
+feasibilityBonus (0–1):
+  FULLY_FEASIBLE=1.0, ACHIEVABLE=0.75, CHALLENGING=0.4, UNREALISTIC=0.0
+
+riskPenalty (0–1, subtracted):
+  if EMF.currentMilestoneLevel = LEVEL_0 AND goal.category ≠ EMF: 0.5 penalty
+  if DTI ≥ 40% AND goal is not DEBT-related: 0.3 penalty
+  if goal.feasibilityScore = UNREALISTIC: 0.5 penalty
+  max cumulative penalty = 1.0</div>
+    </div>
+
+    <h3>Recommendation Output Format</h3>
+    <p>The engine outputs a ranked list with a natural-language explanation for each position:</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Rank</th><th>Goal</th><th>Score</th><th>Explanation</th></tr></thead>
+        <tbody>
+          <tr><td>#1</td><td>Emergency Fund Top-Up</td><td>88</td><td>"Completing this unlocks 3 other goals and reduces your financial risk score. Highest leverage move available."</td></tr>
+          <tr><td>#2</td><td>Personal Loan Payoff</td><td>74</td><td>"Deadline in 14 months. Completion frees [amount]/mo for other goals and unblocks your House Down Payment."</td></tr>
+          <tr><td>#3</td><td>Vacation Fund</td><td>61</td><td>"High priority, achievable within current income. Completing this while Loan is active is feasible."</td></tr>
+          <tr><td>#4</td><td>House Down Payment</td><td>47</td><td>"Currently blocked by Loan Payoff. Contributes will be available from March 2026."</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Explanation Reasoning Rules</h3>
+    <ul>
+      <li><strong>Leverage:</strong> Always mention how many goals completing this one would unblock.</li>
+      <li><strong>Deadline:</strong> If targetDate exists, express urgency in human terms ("in 14 months", "in 3 weeks").</li>
+      <li><strong>Budget freed:</strong> If completing this goal frees budget (monthly contribution), state the amount.</li>
+      <li><strong>Risk gate:</strong> If risk penalty was applied, explain why ("Your Emergency Fund is at Level 0").</li>
+      <li><strong>Feasibility:</strong> If goal is CHALLENGING or UNREALISTIC, note it and suggest the simplest fix.</li>
+    </ul>
+  </section>
+
+  <!-- S08 CONFLICT DETECTION -->
+  <section class="section" id="s08">
+    <div class="section-header"><div class="section-num">08</div><div class="section-title">Conflict Detection</div></div>
+    <p>The engine detects planning conflicts proactively — both when saving changes and on each roadmap load. Conflicts are classified by severity and presented with specific, actionable resolution options.</p>
+
+    <h3>Conflict Types</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Conflict</th><th>Severity</th><th>Detection Method</th><th>Resolution Options</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>CON-01</td>
+            <td><strong>Circular Dependency</strong></td>
+            <td><span class="dep-hard">CRITICAL</span></td>
+            <td>DFS traversal: when adding edge A→B, check if B has path back to A. O(V+E).</td>
+            <td>Block the dependency creation. Show: "This creates a loop: A → B → C → A." Suggest removing one link.</td>
+          </tr>
+          <tr>
+            <td>CON-02</td>
+            <td><strong>Impossible Contribution Plan</strong></td>
+            <td><span class="dep-hard">CRITICAL</span></td>
+            <td>SUM(requiredMonthly for all ACTIVE + RECOMMENDED_NEXT goals) &gt; disposableIncome × 1.5</td>
+            <td>Show which goals are causing overflow. Recommend pausing lowest-priority goals or extending deadlines.</td>
+          </tr>
+          <tr>
+            <td>CON-03</td>
+            <td><strong>Timeline Overlap Conflict</strong></td>
+            <td><span class="dep-soft">HIGH</span></td>
+            <td>Two goals with overlapping deadline windows both marked CRITICAL and requiring &gt;80% disposable income each.</td>
+            <td>"These two goals both need most of your income in the same period. Consider staggering them by [N] months."</td>
+          </tr>
+          <tr>
+            <td>CON-04</td>
+            <td><strong>Unrealistic Deadline</strong></td>
+            <td><span class="dep-soft">HIGH</span></td>
+            <td>requiredMonthlyContribution &gt; 2.5 × disposableIncome for a single goal.</td>
+            <td>Suggest extending targetDate until feasibilityScore ≥ ACHIEVABLE. Show the minimum viable date.</td>
+          </tr>
+          <tr>
+            <td>CON-05</td>
+            <td><strong>Conflicting Priority Order</strong></td>
+            <td><span class="dep-info">MEDIUM</span></td>
+            <td>A CRITICAL goal is BLOCKED by a LOW-priority goal, and the LOW goal has a later deadline than the CRITICAL goal.</td>
+            <td>"Your [LOW] goal is blocking your [CRITICAL] goal. Consider raising [LOW]'s priority or removing the dependency."</td>
+          </tr>
+          <tr>
+            <td>CON-06</td>
+            <td><strong>Orphaned Dependency</strong></td>
+            <td><span class="dep-info">LOW</span></td>
+            <td>A dependency references a goal that has been CANCELLED or ARCHIVED.</td>
+            <td>Auto-remove the dependency (with notification). Unblock the source goal.</td>
+          </tr>
+          <tr>
+            <td>CON-07</td>
+            <td><strong>Missing EMF Gate</strong></td>
+            <td><span class="dep-soft">HIGH</span></td>
+            <td>User has a CRITICAL goal (e.g. Home Purchase) with no dependency on EMF and EMF is at LEVEL_0.</td>
+            <td>Advisory: "Financial planning best practice suggests completing your Emergency Fund first. Add this as a dependency?"</td>
+          </tr>
+          <tr>
+            <td>CON-08</td>
+            <td><strong>Deadline Inversion</strong></td>
+            <td><span class="dep-soft">HIGH</span></td>
+            <td>Source goal's targetDate is earlier than its blocking dependency's estimated completion date.</td>
+            <td>"[Goal A] is due in March but its prerequisite [Goal B] won't complete until June. Extend [Goal A] or accelerate [Goal B]."</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Conflict Severity Display</h3>
+    <div class="card-grid">
+      <div class="card card-red">
+        <div class="card-title">CRITICAL — Blocked</div>
+        <div class="card-body">Red banner. Action required before saving. Cannot save conflicting dependency creation (CON-01 only). Other CRITICAL conflicts are displayed but not blocking.</div>
+      </div>
+      <div class="card card-yellow">
+        <div class="card-title">HIGH — Warning</div>
+        <div class="card-body">Amber inline callout. Change is saved but conflict is flagged persistently on the roadmap until resolved.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">MEDIUM — Notice</div>
+        <div class="card-body">Purple info chip. Shown once, dismissible per conflict instance. Re-evaluates on next relevant change.</div>
+      </div>
+      <div class="card card-blue">
+        <div class="card-title">LOW — Info</div>
+        <div class="card-body">Blue info line. Auto-resolves where possible (CON-06). Shown only in the Conflicts panel, not inline.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S09 WHAT-IF SIMULATIONS -->
+  <section class="section" id="s09">
+    <div class="section-header"><div class="section-num">09</div><div class="section-title">What-If Simulation Engine</div></div>
+    <p>Simulations create an in-memory clone of the current roadmap state, apply parameter changes, re-run all calculations, and display the delta. Real data is never modified.</p>
+
+    <h3>Simulation Types</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Scenario</th><th>Parameters</th><th>What It Shows</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>Postpone Goal</strong></td>
+            <td>goalId, monthsToDelay (1–36)</td>
+            <td>New estimatedCompletionDate for goal; new unblock dates for all dependent goals; change in monthly budget freed.</td>
+          </tr>
+          <tr>
+            <td><strong>Increase Monthly Savings</strong></td>
+            <td>goalId, additionalAmount OR percentage increase</td>
+            <td>New estimatedCompletionDate; months saved vs. baseline; new unblock dates for dependents.</td>
+          </tr>
+          <tr>
+            <td><strong>Early Debt Payoff</strong></td>
+            <td>debtId, lumpSumAmount OR targetPayoffDate</td>
+            <td>New payoff date; amount of budget freed monthly after payoff; goals unblocked by this debt payoff; total interest saved.</td>
+          </tr>
+          <tr>
+            <td><strong>Salary Increase</strong></td>
+            <td>newDisposableIncome (absolute) OR increasePercent</td>
+            <td>New feasibility scores for all goals; goals that change from CHALLENGING → ACHIEVABLE; additional monthly capacity.</td>
+          </tr>
+          <tr>
+            <td><strong>Unexpected Income</strong></td>
+            <td>lumpSumAmount, allocationStrategy (PRIORITY_ORDER / LARGEST_IMPACT / USER_DEFINED)</td>
+            <td>Optimal allocation across goals; new completion dates per goal; which milestones/completions are triggered.</td>
+          </tr>
+          <tr>
+            <td><strong>Parallel Strategy</strong></td>
+            <td>goalIds (2–4 goals to run simultaneously)</td>
+            <td>Combined required monthly; feasibility of running all in parallel; impact on each goal's timeline vs. sequential approach.</td>
+          </tr>
+          <tr>
+            <td><strong>Cancel a Goal</strong></td>
+            <td>goalId</td>
+            <td>Which goals become unblocked; budget freed per month; impact on overall achievement rate.</td>
+          </tr>
+          <tr>
+            <td><strong>Change Target Amount</strong></td>
+            <td>goalId, newTargetAmount</td>
+            <td>New required monthly; new estimatedCompletion; impact on blocking/unblocking dependents.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Simulation Comparison View</h3>
+    <p>For any simulation, the UI shows a 2-column comparison (Baseline vs. Scenario):</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Metric</th><th>Baseline (Current)</th><th>Scenario (Simulated)</th><th>Delta</th></tr></thead>
+        <tbody>
+          <tr><td>Personal Loan completion</td><td>Aug 2026</td><td>May 2026</td><td style="color:var(--green)">−3 months ✓</td></tr>
+          <tr><td>House Down Payment start</td><td>Sep 2026</td><td>Jun 2026</td><td style="color:var(--green)">−3 months ✓</td></tr>
+          <tr><td>House Down Payment completion</td><td>Mar 2029</td><td>Dec 2028</td><td style="color:var(--green)">−3 months ✓</td></tr>
+          <tr><td>Total interest saved</td><td>—</td><td>$1,240</td><td style="color:var(--green)">+$1,240 ✓</td></tr>
+          <tr><td>Monthly budget pressure</td><td>Normal</td><td>High (next 3 mo)</td><td style="color:var(--yellow)">Temporary ⚠</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-success">
+      <strong>Apply Scenario:</strong> User can tap "Apply This Plan" on any simulation to save the parameter changes to real data (e.g., update targetDate, increase monthlyContribution). This is the only path from simulation to real state — simulations never auto-apply.
+    </div>
+
+    <h3>Unexpected Income Allocation Algorithm</h3>
+    <div class="formula-box">
+      <div class="formula-label">PRIORITY_ORDER Strategy</div>
+      <div class="formula">remaining = lumpSumAmount
+for each goal sorted by priorityScore DESC:
+  needed = goal.remainingAmount
+  allocated = MIN(needed, remaining)
+  applyContribution(goal, allocated)
+  remaining -= allocated
+  if remaining ≤ 0: break
+
+// Remaining amount (if any) suggested for EMF or savings</div>
+    </div>
+    <div class="formula-box">
+      <div class="formula-label">LARGEST_IMPACT Strategy</div>
+      <div class="formula">for each goal, compute impactScore:
+  impactScore = (dependencyLeverage × 0.5)
+              + (deadlineUrgency × 0.3)
+              + (pctCompletionGain × 0.2)  // how much would this contribution move the needle
+
+allocate in descending impactScore order until lumpSum exhausted</div>
+    </div>
+  </section>
+
+  <!-- S10 LIFE EVENTS -->
+  <section class="section" id="s10">
+    <div class="section-header"><div class="section-num">10</div><div class="section-title">Life Events System</div></div>
+    <p>Life events are planned or unexpected occurrences that materially change the user's financial picture. The Roadmap Engine uses life events as first-class nodes in the dependency graph and as triggers for roadmap recalculation.</p>
+
+    <h3>Life Event Types &amp; Financial Impact</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Event Type</th><th>Typical Income Impact</th><th>Typical Expense Impact</th><th>Suggested New Goals</th><th>Roadmap Effect</th></tr></thead>
+        <tbody>
+          <tr><td>Marriage</td><td>+spouse income (optional)</td><td>+wedding costs (one-time)</td><td>Wedding, Joint Emergency Fund, Home Purchase</td><td>New shared goals; combine disposable income</td></tr>
+          <tr><td>Having Children</td><td>−maternity/paternity leave</td><td>+childcare, education fund</td><td>Education Fund, Family Emergency Buffer</td><td>Deprioritize luxury/optional goals; boost Family goals</td></tr>
+          <tr><td>Home Purchase</td><td>—</td><td>+mortgage, maintenance</td><td>Renovation, Home Improvement</td><td>House Down Payment → COMPLETED; new goals unlock</td></tr>
+          <tr><td>Career Change</td><td>+/− (role-dependent)</td><td>+transition costs</td><td>Business Capital, Education</td><td>Recalculate all feasibility scores with new income</td></tr>
+          <tr><td>Starting a Business</td><td>−salary → variable</td><td>+business expenses</td><td>Business Capital, Extended EMF</td><td>Risk score increases; EMF priority boosted</td></tr>
+          <tr><td>Retirement</td><td>−salary; +pension</td><td>+healthcare, leisure</td><td>Travel Fund, Healthcare Reserve</td><td>Income recalculation; debt elimination prioritized</td></tr>
+          <tr><td>Unexpected Expense</td><td>—</td><td>+one-time (variable)</td><td>Emergency Purchase goal</td><td>Triggers conflict detection if exceeds EMF balance</td></tr>
+          <tr><td>Inheritance</td><td>+one-time lump sum</td><td>—</td><td>Investment, Home Purchase</td><td>Runs UNEXPECTED_INCOME simulation automatically</td></tr>
+          <tr><td>Job Loss</td><td>−100% salary</td><td>—</td><td>—</td><td>All non-CRITICAL goals → PAUSED recommendation; EMF drawdown</td></tr>
+          <tr><td>Relocation</td><td>+/−</td><td>+moving costs (one-time)</td><td>Moving Fund</td><td>New income recalculates feasibility</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Life Event — Roadmap Recalculation Flow</h3>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">User logs a life event (PLANNED or OCCURRED)</div><div class="tl-body">LifeEvent record saved with incomeImpact, expenseImpact, oneTimeAmount, plannedDate.</div></div>
+      <div class="tl-item"><div class="tl-dot yellow"></div><div class="tl-title">System runs impact projection</div><div class="tl-body">For PLANNED events: runs as a timed What-If simulation (applies impact at plannedDate). For OCCURRED events: applies changes immediately to financial state.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">Roadmap recalculates</div><div class="tl-body">New disposableIncome → re-score all goals → detect new conflicts → generate updated recommendations.</div></div>
+      <div class="tl-item"><div class="tl-dot cyan"></div><div class="tl-title">Goal suggestions</div><div class="tl-body">System suggests creating goals from suggestedGoalTypes for this life event (e.g. "Getting married? Start a Wedding goal and a Joint Emergency Fund.").</div></div>
+      <div class="tl-item"><div class="tl-dot green"></div><div class="tl-title">Roadmap presented</div><div class="tl-body">Updated roadmap shown with "Your roadmap has been updated for [Life Event]" header. Changed goals highlighted in amber.</div></div>
+    </div>
+
+    <h3>Job Loss Emergency Mode</h3>
+    <div class="callout callout-danger">
+      <strong>Special case — JOB_LOSS:</strong> When a Job Loss event is logged as OCCURRED: (1) Set all ACTIVE goals to PAUSED (user can override individually). (2) Calculate how many months the Emergency Fund covers at current expense rate. (3) Show emergency mode dashboard: "Your EMF covers [N] months. Focus on essentials." (4) All recommendations pivot to income recovery and expense reduction. (5) Goals resume automatically when a new income is logged.
+    </div>
+  </section>
+
+  <!-- S11 SMART RECOMMENDATIONS -->
+  <section class="section" id="s11">
+    <div class="section-header"><div class="section-num">11</div><div class="section-title">Smart Recommendations</div></div>
+    <p>Roadmap-level recommendations operate across the full dependency graph — they see relationships that individual goal recommendations cannot. All recommendations include a stated financial reason.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Trigger</th><th>Recommendation</th><th>Reason Shown</th></tr></thead>
+        <tbody>
+          <tr><td>RREC-01</td><td>EMF at LEVEL_0 AND any CRITICAL goal is IN_PROGRESS</td><td>"Build your Emergency Fund to Level 1 before accelerating [Critical Goal]"</td><td>"Without an emergency fund, a single unexpected expense could derail all your goals."</td></tr>
+          <tr><td>RREC-02</td><td>DTI ≥ 40% AND user has non-debt CRITICAL goals</td><td>"Reduce your debt-to-income ratio below 40% before adding new financial commitments"</td><td>"At [DTI]% DTI, unexpected changes to income would be severely impactful."</td></tr>
+          <tr><td>RREC-03</td><td>A goal completing would unblock 2+ other goals</td><td>"Focusing on [Goal] would unlock [N] other goals simultaneously"</td><td>"High leverage: this goal is a prerequisite for [Goal B] and [Goal C]."</td></tr>
+          <tr><td>RREC-04</td><td>CON-08 detected: source deadline before prerequisite completion</td><td>"Extend [Goal A]'s deadline to [date] or accelerate [Prerequisite]"</td><td>"Your timeline for [Goal A] assumes [Prerequisite] completes in March, but at current rate it won't finish until June."</td></tr>
+          <tr><td>RREC-05</td><td>A SEQUENTIAL dependency exists and target is 90%+ complete</td><td>"[Goal B] is almost ready to auto-activate. Prepare [budget amount]/mo for it."</td><td>"[Target Goal] is [N]% complete. When it finishes, [Source Goal] will activate."</td></tr>
+          <tr><td>RREC-06</td><td>Two CRITICAL goals are in PARALLEL and combined required monthly &gt; 80% disposable</td><td>"Running [Goal A] and [Goal B] in parallel needs [amount]/mo. Consider sequencing them."</td><td>"At current income, both require [%]% of available funds, leaving little buffer."</td></tr>
+          <tr><td>RREC-07</td><td>Life event PLANNED within 12 months with income impact</td><td>"Prepare your roadmap for [Life Event] in [N] months"</td><td>"[Event] will change your disposable income by [±amount]/mo. Run a What-If simulation now."</td></tr>
+          <tr><td>RREC-08</td><td>Goal marked OPTIONAL has higher priorityScore than a MEDIUM goal</td><td>"Consider upgrading [Optional Goal]'s priority — it scores higher than some Medium goals"</td><td>"Its deadline urgency and dependencies make it more impactful than its current Optional priority suggests."</td></tr>
+          <tr><td>RREC-09</td><td>User has 5+ ACTIVE goals with no dependencies between them</td><td>"Connect your goals to build a financial roadmap"</td><td>"Right now your goals are independent. Adding a few dependencies would help you see the optimal sequence."</td></tr>
+          <tr><td>RREC-10</td><td>Completed goal freed budget ≥ 3 months ago and hasn't been reallocated</td><td>"You have [amount]/mo unallocated since [Goal] completed. Redirect it?"</td><td>"Unallocated income delays your other goals by [N] months per month of delay."</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- S12 VISUALIZATION -->
+  <section class="section" id="s12">
+    <div class="section-header"><div class="section-num">12</div><div class="section-title">Visualization Strategy</div></div>
+    <p>The roadmap has two primary views: a <strong>Timeline View</strong> (time-ordered, easy for non-technical users) and a <strong>Graph View</strong> (dependency-explicit, for power users). Both display the same underlying data.</p>
+
+    <h3>Timeline View</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Element</th><th>Design</th></tr></thead>
+        <tbody>
+          <tr><td>Vertical axis</td><td>Calendar time (months), scrollable. Today = anchor point with current-position indicator.</td></tr>
+          <tr><td>Goal cards</td><td>Positioned at their estimatedCompletionDate. Width represents duration (createdAt → completion).</td></tr>
+          <tr><td>Completed goals</td><td>Green filled card with checkmark. Stacked above the "Today" line.</td></tr>
+          <tr><td>Active goals</td><td>Indigo outlined card with animated progress fill.</td></tr>
+          <tr><td>Blocked goals</td><td>Dimmed card with lock icon. Positioned at their estimated-start date.</td></tr>
+          <tr><td>Dependency lines</td><td>Vertical connector between the completion of a prerequisite and the start of a dependent goal. HARD=solid line, SOFT=dashed, OPTIONAL=dotted.</td></tr>
+          <tr><td>Life events</td><td>Diamond ◆ markers on the timeline axis with event icon and label.</td></tr>
+          <tr><td>Milestone markers</td><td>Small dots on active goal cards at 25/50/75/90% positions along the time axis.</td></tr>
+          <tr><td>Conflict indicators</td><td>Red ⚡ icon on any card involved in a detected conflict.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Graph View</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Element</th><th>Design</th></tr></thead>
+        <tbody>
+          <tr><td>Layout algorithm</td><td>Hierarchical (Sugiyama-style): goals sorted by layer from topological sort. Layer 0 at top, highest layer at bottom. Left-to-right within each layer by priorityScore DESC.</td></tr>
+          <tr><td>Node shape</td><td>Rounded rectangle. Icon + name + small progress ring + completion %.</td></tr>
+          <tr><td>Node border color</td><td>Green=COMPLETED, Indigo=IN_PROGRESS, Amber=RECOMMENDED_NEXT, Red=BLOCKED, Grey=UPCOMING, Purple=PAUSED.</td></tr>
+          <tr><td>Edge lines</td><td>HARD: solid line with filled arrowhead. SOFT: dashed line with open arrowhead. OPTIONAL: dotted line, lighter opacity.</td></tr>
+          <tr><td>Edge color</td><td>Satisfied dependencies: green. Unsatisfied HARD: red. SOFT: amber. OPTIONAL: grey.</td></tr>
+          <tr><td>Debt nodes</td><td>Rectangular card with balance amount. Connected to goal nodes via red HARD edges when debt is a prerequisite.</td></tr>
+          <tr><td>EMF node</td><td>Shield icon card showing current milestone level. Connected to goals requiring EMF milestones.</td></tr>
+          <tr><td>Interaction</td><td>Tap node → goal detail. Long-press node → add/edit dependency. Pinch → zoom. Pan → scroll graph.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Accessibility &amp; Simplicity Requirements</h3>
+    <ul>
+      <li>Timeline View is the default — it is the simpler, non-technical view. Graph View is accessed via a toggle.</li>
+      <li>All status information must be conveyed via both color AND icon/shape (never color alone).</li>
+      <li>Blocked goals show the prerequisite name in text, not just a lock icon.</li>
+      <li>Dependency lines must remain legible at the default zoom level for up to 10 goals. Above 10, a minimap is shown.</li>
+      <li>Respects <code>prefers-reduced-motion</code>: all animations replaced by instant transitions.</li>
+    </ul>
+  </section>
+
+  <!-- S13 DASHBOARD -->
+  <section class="section" id="s13">
+    <div class="section-header"><div class="section-num">13</div><div class="section-title">Roadmap Dashboard</div></div>
+
+    <h3>Roadmap Summary KPIs</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>KPI</th><th>Formula</th><th>Display</th></tr></thead>
+        <tbody>
+          <tr><td>Goals In Progress</td><td>COUNT(roadmapStatus = IN_PROGRESS)</td><td>Integer tile</td></tr>
+          <tr><td>Goals Blocked</td><td>COUNT(roadmapStatus = BLOCKED)</td><td>Integer tile, red if &gt;0</td></tr>
+          <tr><td>Goals Unlockable</td><td>COUNT(BLOCKED goals where all deps within 90 days of completion)</td><td>Integer tile, amber</td></tr>
+          <tr><td>Active Conflicts</td><td>COUNT(unresolved conflicts from conflict detector)</td><td>Integer tile, red if &gt;0</td></tr>
+          <tr><td>Roadmap Horizon</td><td>MAX(estimatedCompletionDate) across all IN_PROGRESS + BLOCKED goals</td><td>"Your roadmap completes by [Month Year]"</td></tr>
+          <tr><td>Next Milestone</td><td>Nearest milestone (any goal) based on estimated date to reach</td><td>Goal name + milestone % + estimated date</td></tr>
+          <tr><td>Total Life Goals Value</td><td>SUM(targetAmount) across all non-CANCELLED goals</td><td>Currency formatted</td></tr>
+          <tr><td>Recommended Next Action</td><td>Top-1 recommendation from RREC-01 through RREC-10</td><td>Inline action card with CTA</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- S14 EDGE CASES -->
+  <section class="section" id="s14">
+    <div class="section-header"><div class="section-num">14</div><div class="section-title">Edge Cases</div></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Scenario</th><th>Expected Behavior</th></tr></thead>
+        <tbody>
+          <tr><td>EC-01</td><td>Circular dependency attempt</td><td>CON-01 detected before save. Dependency creation rejected with explanation of the cycle. No changes persisted.</td></tr>
+          <tr><td>EC-02</td><td>All goals are BLOCKED simultaneously</td><td>At least one node has no incoming HARD edges (or the graph has a cycle — detected as CON-01). If genuinely all blocked: show "Your roadmap is locked — review your dependencies." List all roots that need attention.</td></tr>
+          <tr><td>EC-03</td><td>A dependency target is deleted (CANCELLED/ARCHIVED)</td><td>CON-06 auto-resolves: dependency soft-deleted, source goal unblocked, notification sent. GoalTimelineEvent: DEPENDENCY_ORPHANED logged.</td></tr>
+          <tr><td>EC-04</td><td>A goal has a SEQUENTIAL dependency but the auto-activation budget redirect is declined</td><td>Source goal still activates (status → ACTIVE). Budget stays on old allocation. No retry of redirect prompt.</td></tr>
+          <tr><td>EC-05</td><td>Life event logged as OCCURRED but income impact is unknown</td><td>incomeImpact = 0 (neutral). User prompted to update once income is known. Roadmap shown with advisory: "Income impact for [Event] not yet configured."</td></tr>
+          <tr><td>EC-06</td><td>User removes a HARD dependency from a previously BLOCKED goal</td><td>Goal immediately re-evaluates all remaining deps. If now unblocked: roadmapStatus → UPCOMING / RECOMMENDED_NEXT. GoalTimelineEvent: DEPENDENCY_REMOVED logged. No contribution history affected.</td></tr>
+          <tr><td>EC-07</td><td>Two goals have a mutual SOFT_DEPENDENCY (A soft-depends on B AND B soft-depends on A)</td><td>Allowed (SOFT deps don't create hard cycles). Both shown as advisory-linked in roadmap. Prioritization engine computes scores independently.</td></tr>
+          <tr><td>EC-08</td><td>A FINANCIAL_REQUIREMENT condition is partially met then the prerequisite goal is deleted</td><td>Dependency becomes orphaned (CON-06). Source goal unblocked. User notified: "Your prerequisite for [Goal] was removed."</td></tr>
+          <tr><td>EC-09</td><td>What-If scenario is run but produces no meaningful delta</td><td>Show "No significant impact detected" with a brief explanation (e.g. "Adding $50/mo changes completion by less than 1 week"). Still show the comparison table for completeness.</td></tr>
+          <tr><td>EC-10</td><td>User has zero dependencies (flat goal list)</td><td>Roadmap degrades gracefully to standard goal list, sorted by priorityScore. No graph view available (disabled with "Add dependencies to unlock the roadmap view" prompt). All other features work normally.</td></tr>
+          <tr><td>EC-11</td><td>A goal targeted by a SEQUENTIAL dependency has its targetDate removed</td><td>Estimated unblock date for source goal becomes "Unknown". Source remains BLOCKED. Advisory: "Add a target date to [Goal] to estimate when [Source Goal] will activate."</td></tr>
+          <tr><td>EC-12</td><td>CUSTOM conditionType — user manually marks a dependency as satisfied</td><td>User taps "Mark as Satisfied" on the dependency. Sets <code>manuallyMarkedSatisfied = true</code>. Source goal re-evaluates. Cannot be undone (immutable). GoalTimelineEvent: DEPENDENCY_SATISFIED logged.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- S15 BUSINESS RULES -->
+  <section class="section" id="s15">
+    <div class="section-header"><div class="section-num">15</div><div class="section-title">Business Rules</div></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td>BR-RMP-01</td><td>A dependency between a sourceGoal and itself is prohibited (<code>sourceGoalId ≠ targetGoalId</code>). Enforced at DB constraint and UI validation levels.</td></tr>
+          <tr><td>BR-RMP-02</td><td>Circular dependencies are strictly prohibited for HARD dependency types. Circular SOFT dependencies are allowed (no blocking behavior). CON-01 check runs before every HARD dependency insert.</td></tr>
+          <tr><td>BR-RMP-03</td><td>A BLOCKED goal may still receive manual contributions. BLOCKED status only prevents auto-contributions (isAutoContribute). The user may contribute manually at any time.</td></tr>
+          <tr><td>BR-RMP-04</td><td>Roadmap state (layer assignments, roadmapStatus, priorityScore) is never stored in the database. It is always derived at read time. This is a hard architectural invariant.</td></tr>
+          <tr><td>BR-RMP-05</td><td>What-If scenarios are ephemeral. They may not be saved to the database. The only persistence path is "Apply Scenario" which saves the underlying goal/contribution changes, not the scenario itself.</td></tr>
+          <tr><td>BR-RMP-06</td><td>GoalDependency records are soft-deleted only. Hard deletion is prohibited. Deleted dependencies are excluded from graph construction but remain in the audit log.</td></tr>
+          <tr><td>BR-RMP-07</td><td>A maximum of 20 GoalDependency records per goal (as source or target) is enforced. This prevents pathological graph complexity. v2.0 may raise this limit.</td></tr>
+          <tr><td>BR-RMP-08</td><td>SEQUENTIAL auto-activation only fires once. If the source goal is later cancelled and a replacement goal is set up, the SEQUENTIAL dependency must be re-created manually.</td></tr>
+          <tr><td>BR-RMP-09</td><td>LifeEvent financial impacts (incomeImpact, expenseImpact) are stored as centimes and treated as monthly changes to disposableIncome. They are applied by the Salary module (SPEC-SAL-001), not by the Roadmap Engine directly.</td></tr>
+          <tr><td>BR-RMP-10</td><td>The prioritization engine's recommended order is advisory only. It never overrides the user's manually set <code>priorityOrder</code>. Both orderings are displayed side-by-side in the Roadmap Dashboard.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- S16 AI COMPATIBILITY & SCALABILITY -->
+  <section class="section" id="s16">
+    <div class="section-header"><div class="section-num">16</div><div class="section-title">Future AI Compatibility &amp; Scalability</div></div>
+
+    <h3>AI Architecture Readiness</h3>
+    <p>The Roadmap Engine's data model is designed as a feature store for future ML/AI capabilities. Every stored entity and computed metric can serve as an input feature without schema changes.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Future AI Feature</th><th>Version</th><th>Available Features (Now)</th><th>Required Schema Addition</th></tr></thead>
+        <tbody>
+          <tr><td>Automatic Dependency Suggestions</td><td>v2.0</td><td>Goal categories, amounts, lifecycle events, user's existing dependency patterns</td><td>None — uses existing GoalDependency + Goal tables</td></tr>
+          <tr><td>Personalized Financial Coaching</td><td>v2.0</td><td>Full timeline event history, contribution consistency, health scores, roadmap trajectory</td><td>Add <code>CoachingSession</code> table for conversation history</td></tr>
+          <tr><td>Predictive Roadmap Completion</td><td>v2.0</td><td>Historical completion rates, contribution velocity, life event patterns</td><td>Add <code>UserCohortProfile</code> for anonymized peer comparison</td></tr>
+          <tr><td>Risk Analysis</td><td>v2.0</td><td>DTI, EMF level, contribution consistency, dependency depth, goal count</td><td>Add <code>RiskProfile</code> with scored risk dimensions</td></tr>
+          <tr><td>Dynamic Roadmap Optimization</td><td>v3.0</td><td>Full graph structure, prioritization scores, all What-If scenario outputs</td><td>Add <code>OptimizationRun</code> table for AI-generated roadmap variants</td></tr>
+          <tr><td>Goal Recommendations</td><td>v2.0</td><td>Category distribution, life events, income level, age (if provided)</td><td>Add optional <code>UserDemographics</code> with consent</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Graph Scalability</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Scenario</th><th>v1.0 Target</th><th>Architecture Notes</th></tr></thead>
+        <tbody>
+          <tr><td>Goals per user</td><td>Up to 50 active</td><td>Graph construction: O(V+E) ≈ O(50+200) — sub-millisecond</td></tr>
+          <tr><td>Dependencies per user</td><td>Up to 200 (BR-RMP-07: 20 per goal)</td><td>Topological sort: O(V+E) — sub-millisecond on device</td></tr>
+          <tr><td>Impact propagation depth</td><td>Up to 8 levels</td><td>BFS cap at 8 hops prevents runaway propagation</td></tr>
+          <tr><td>Conflict detection</td><td>&lt;50ms for full scan</td><td>Run on background thread; results cached until next change</td></tr>
+          <tr><td>What-If simulation</td><td>&lt;200ms for any scenario</td><td>Deep clone is shallow-copy for primitive fields; recalculation is pure math</td></tr>
+          <tr><td>Graph render (mobile)</td><td>&lt;300ms for 30-node graph</td><td>Layout computed once, re-rendered on pinch/pan only</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Scalability Roadmap</h3>
+    <div class="card-grid">
+      <div class="card card-cyan">
+        <div class="card-title">v1.1 — Goal Templates</div>
+        <div class="card-body">Pre-built dependency bundles (e.g. "Home Purchase Bundle" = EMF LEVEL_2 + Personal Loan Payoff + Down Payment). One-tap roadmap bootstrap.</div>
+      </div>
+      <div class="card card-cyan">
+        <div class="card-title">v2.0 — Shared Family Roadmap</div>
+        <div class="card-body">Multi-user ownership of GoalDependency. Goals can be shared; dependencies can be co-created. Roadmap shows combined household financial plan.</div>
+      </div>
+      <div class="card card-cyan">
+        <div class="card-title">v2.0 — Bank Sync Triggers</div>
+        <div class="card-body">SEQUENTIAL auto-activation tied to real bank transactions. Goal unlocks automatically when bank account shows required balance.</div>
+      </div>
+      <div class="card card-cyan">
+        <div class="card-title">v2.0 — AI Dependency Engine</div>
+        <div class="card-body">ML model trained on aggregate (anonymized) dependency patterns suggests dependencies for new goals based on goal category, amount, and user profile.</div>
+      </div>
+      <div class="card card-cyan">
+        <div class="card-title">v3.0 — Investment Graph</div>
+        <div class="card-body">Investment accounts as roadmap nodes. Market-linked goals with return projections. Portfolio rebalancing as a dependency condition.</div>
+      </div>
+      <div class="card card-cyan">
+        <div class="card-title">v3.0 — Natural Language Interface</div>
+        <div class="card-body">User describes a goal in natural language; AI parses it, creates the Goal entity, infers likely dependencies, and asks for confirmation before saving.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-success" style="margin-top:28px;">
+      <strong>SPEC-RMP-001 v1.0 — Complete.</strong> This document is the authoritative specification for the Finance Bag Goal Dependency &amp; Financial Roadmap Engine. All roadmap state is derived at read time from GoalDependency + LifeEvent records plus cross-module data from SPEC-GOL-001, SPEC-DBT-001, and SPEC-EMF-001. No roadmap computation results are stored. Simulations are never persisted. BR-RMP-04 is the central architectural invariant.
+    </div>
+  </section>
+
+</main>
+
+<script>
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.nav-item');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>

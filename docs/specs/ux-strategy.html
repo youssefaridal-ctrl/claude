@@ -1,0 +1,1158 @@
+
+<title>Finance Bag — UX Strategy v1.0</title>
+<style>
+:root {
+  --bg: #07090F;
+  --bg-surface: #0C0F1A;
+  --bg-card: #111520;
+  --bg-elevated: #161B2B;
+  --border: rgba(99,102,241,0.15);
+  --border-subtle: rgba(255,255,255,0.06);
+  --accent: #6366F1;
+  --accent-dim: rgba(99,102,241,0.12);
+  --green: #10B981;
+  --green-dim: rgba(16,185,129,0.1);
+  --gold: #F59E0B;
+  --gold-dim: rgba(245,158,11,0.1);
+  --red: #EF4444;
+  --red-dim: rgba(239,68,68,0.1);
+  --cyan: #06B6D4;
+  --cyan-dim: rgba(6,182,212,0.1);
+  --pink: #EC4899;
+  --pink-dim: rgba(236,72,153,0.1);
+  --purple: #8B5CF6;
+  --purple-dim: rgba(139,92,246,0.1);
+  --text-primary: #E2E8F0;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --sidebar-w: 262px;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #F8FAFC; --bg-surface: #FFFFFF; --bg-card: #F1F5F9; --bg-elevated: #E8EDF5;
+    --border: rgba(99,102,241,0.18); --border-subtle: rgba(0,0,0,0.07);
+    --accent-dim: rgba(99,102,241,0.08); --green-dim: rgba(16,185,129,0.08);
+    --gold-dim: rgba(245,158,11,0.08); --red-dim: rgba(239,68,68,0.08);
+    --cyan-dim: rgba(6,182,212,0.08); --pink-dim: rgba(236,72,153,0.08);
+    --purple-dim: rgba(139,92,246,0.08);
+    --text-primary: #0F172A; --text-secondary: #475569; --text-muted: #94A3B8;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #07090F; --bg-surface: #0C0F1A; --bg-card: #111520; --bg-elevated: #161B2B;
+  --border: rgba(99,102,241,0.15); --border-subtle: rgba(255,255,255,0.06);
+  --accent-dim: rgba(99,102,241,0.12); --green-dim: rgba(16,185,129,0.1);
+  --gold-dim: rgba(245,158,11,0.1); --red-dim: rgba(239,68,68,0.1);
+  --cyan-dim: rgba(6,182,212,0.1); --pink-dim: rgba(236,72,153,0.1);
+  --purple-dim: rgba(139,92,246,0.1);
+  --text-primary: #E2E8F0; --text-secondary: #94A3B8; --text-muted: #64748B;
+}
+:root[data-theme="light"] {
+  --bg: #F8FAFC; --bg-surface: #FFFFFF; --bg-card: #F1F5F9; --bg-elevated: #E8EDF5;
+  --border: rgba(99,102,241,0.18); --border-subtle: rgba(0,0,0,0.07);
+  --accent-dim: rgba(99,102,241,0.08); --green-dim: rgba(16,185,129,0.08);
+  --gold-dim: rgba(245,158,11,0.08); --red-dim: rgba(239,68,68,0.08);
+  --cyan-dim: rgba(6,182,212,0.08); --pink-dim: rgba(236,72,153,0.08);
+  --purple-dim: rgba(139,92,246,0.08);
+  --text-primary: #0F172A; --text-secondary: #475569; --text-muted: #94A3B8;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.65;
+  display: flex;
+  min-height: 100vh;
+}
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 24px 0 40px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.sidebar-brand { padding: 0 20px 20px; border-bottom: 1px solid var(--border-subtle); margin-bottom: 16px; }
+.sidebar-brand .logo { font-size: 15px; font-weight: 700; color: var(--accent); }
+.sidebar-brand .sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.nav-group { margin-bottom: 4px; }
+.nav-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--text-muted); padding: 8px 20px 4px; }
+.nav-link { display: block; padding: 5.5px 20px; font-size: 12.5px; color: var(--text-secondary); text-decoration: none; border-left: 2px solid transparent; transition: all .15s; }
+.nav-link:hover { color: var(--text-primary); background: var(--accent-dim); border-left-color: var(--accent); }
+.nav-link.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+/* MAIN */
+.main { flex: 1; min-width: 0; padding: 48px 56px 80px; max-width: 960px; }
+/* HEADER */
+.doc-header { margin-bottom: 52px; padding-bottom: 28px; border-bottom: 1px solid var(--border-subtle); }
+.eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--pink); margin-bottom: 10px; }
+.doc-title { font-size: 34px; font-weight: 800; letter-spacing: -.8px; line-height: 1.15; margin-bottom: 12px; }
+.doc-sub { font-size: 15px; color: var(--text-secondary); max-width: 600px; line-height: 1.6; }
+.doc-meta { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+.mpill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 20px; font-size: 11px; color: var(--text-secondary); }
+/* SECTIONS */
+.section { margin-bottom: 60px; }
+.section-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 22px; }
+.snum { font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: .06em; background: var(--accent-dim); padding: 2px 8px; border-radius: 4px; }
+.section-title { font-size: 22px; font-weight: 700; letter-spacing: -.4px; }
+.section-desc { color: var(--text-secondary); margin-bottom: 22px; font-size: 13.5px; line-height: 1.7; }
+h3.sub { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin: 28px 0 12px; padding-bottom: 7px; border-bottom: 1px solid var(--border-subtle); }
+/* CARDS */
+.card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 18px 22px; margin-bottom: 14px; }
+.card-accent { border-left: 3px solid var(--accent); }
+.card-green { border-left: 3px solid var(--green); }
+.card-gold { border-left: 3px solid var(--gold); }
+.card-red { border-left: 3px solid var(--red); }
+.card-pink { border-left: 3px solid var(--pink); }
+.card-cyan { border-left: 3px solid var(--cyan); }
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+@media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+/* TABLE */
+.table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border-subtle); margin-bottom: 20px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead { background: var(--bg-card); }
+thead th { text-align: left; padding: 9px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); }
+tbody td { padding: 9px 14px; border-bottom: 1px solid var(--border-subtle); vertical-align: top; color: var(--text-secondary); line-height: 1.5; }
+tbody tr:last-child td { border-bottom: none; }
+/* PERSONA */
+.persona-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 24px; }
+.persona-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 20px; }
+.persona-avatar { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; margin-bottom: 12px; }
+.p-name { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.p-sub { font-size: 11.5px; color: var(--text-muted); margin-bottom: 12px; }
+.p-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 10.5px; font-weight: 600; margin: 2px 2px 0 0; }
+.p-row { margin-top: 12px; border-top: 1px solid var(--border-subtle); padding-top: 12px; }
+.p-label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+.p-text { font-size: 12px; color: var(--text-secondary); line-height: 1.55; }
+/* JOURNEY */
+.journey-steps { display: flex; flex-direction: column; gap: 0; margin-bottom: 20px; }
+.j-step { display: flex; gap: 16px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--border-subtle); }
+.j-step:last-child { border-bottom: none; }
+.j-num { flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+.j-content .j-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.j-content .j-desc { font-size: 12.5px; color: var(--text-secondary); line-height: 1.55; }
+.j-content .j-note { font-size: 11.5px; color: var(--text-muted); margin-top: 5px; font-style: italic; }
+/* ONBOARDING SCREENS */
+.ob-screens { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+.ob-screen { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px 12px; }
+.ob-screen .ob-num { font-size: 10px; font-weight: 800; letter-spacing: .08em; color: var(--text-muted); margin-bottom: 6px; }
+.ob-screen .ob-title { font-size: 12.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+.ob-screen .ob-items { font-size: 11px; color: var(--text-secondary); line-height: 1.8; }
+/* NAVIGATION MAP */
+.nav-map { background: var(--bg-elevated); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; }
+.nav-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.nav-item { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 600; }
+.nav-arrow { color: var(--text-muted); font-size: 14px; }
+.tab-bar { display: flex; gap: 0; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px; overflow: hidden; margin: 16px 0; }
+.tab-item { flex: 1; padding: 12px 8px; text-align: center; font-size: 11px; font-weight: 600; color: var(--text-muted); border-right: 1px solid var(--border-subtle); }
+.tab-item:last-child { border-right: none; }
+.tab-item.active { background: var(--accent-dim); color: var(--accent); }
+.tab-item .tab-icon { font-size: 18px; display: block; margin-bottom: 3px; }
+/* MICRO-INTERACTION */
+.micro-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin-bottom: 20px; }
+.micro-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px 16px; }
+.micro-card .mc-icon { font-size: 22px; margin-bottom: 8px; }
+.micro-card .mc-trigger { font-size: 11.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
+.micro-card .mc-anim { font-size: 11.5px; color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+.micro-card .mc-desc { font-size: 11px; color: var(--text-muted); line-height: 1.55; }
+/* ERROR SCENARIOS */
+.error-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.error-item { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 14px 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.error-scenario { font-size: 12.5px; font-weight: 700; color: var(--red); margin-bottom: 4px; }
+.error-desc { font-size: 12px; color: var(--text-secondary); }
+.error-solution-label { font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--green); text-transform: uppercase; margin-bottom: 4px; }
+.error-solution { font-size: 12px; color: var(--text-secondary); }
+/* PRINCIPLES */
+.principles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.principle { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 10px; padding: 16px 18px; }
+.principle .p-num { font-size: 28px; font-weight: 900; line-height: 1; margin-bottom: 6px; }
+.principle .p-title { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.principle .p-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.6; }
+/* ZONE THUMB */
+.thumb-zone { background: var(--bg-elevated); border: 1px solid var(--border)); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.zone-row { display: flex; gap: 14px; align-items: center; margin-bottom: 10px; }
+.zone-indicator { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.zone-desc { font-size: 12.5px; color: var(--text-secondary); }
+/* CALLOUT */
+.callout { border-radius: 8px; padding: 13px 17px; margin-bottom: 16px; font-size: 13px; line-height: 1.6; display: flex; gap: 12px; }
+.callout-accent { background: var(--accent-dim); border: 1px solid rgba(99,102,241,.25); }
+.callout-gold { background: var(--gold-dim); border: 1px solid rgba(245,158,11,.25); }
+.callout-green { background: var(--green-dim); border: 1px solid rgba(16,185,129,.25); }
+.callout-pink { background: var(--pink-dim); border: 1px solid rgba(236,72,153,.25); }
+.callout-red { background: var(--red-dim); border: 1px solid rgba(239,68,68,.25); }
+.ci { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+/* BADGE */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; }
+.bg { background: var(--green-dim); color: var(--green); }
+.ba { background: var(--accent-dim); color: var(--accent); }
+.bgo { background: var(--gold-dim); color: var(--gold); }
+.br { background: var(--red-dim); color: var(--red); }
+.bp { background: var(--pink-dim); color: var(--pink); }
+.bc { background: var(--cyan-dim); color: var(--cyan); }
+/* CHECKLIST */
+.checklist { list-style: none; margin-bottom: 16px; }
+.checklist li { padding: 7px 0; border-bottom: 1px solid var(--border-subtle); font-size: 13px; color: var(--text-secondary); display: flex; gap: 10px; align-items: flex-start; }
+.checklist li:last-child { border-bottom: none; }
+.checklist li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; }
+.antilist li::before { content: '✗'; color: var(--red); }
+/* THEME TOGGLE */
+.theme-toggle { position: fixed; bottom: 20px; right: 20px; width: 36px; height: 36px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; z-index: 100; transition: all .2s; }
+.theme-toggle:hover { border-color: var(--accent); }
+@media (max-width: 900px) { .sidebar { display: none; } .main { padding: 28px 18px 60px; } .persona-grid, .ob-screens { grid-template-columns: 1fr; } .error-item { grid-template-columns: 1fr; } }
+</style>
+
+<button class="theme-toggle" onclick="(function(){var r=document.documentElement,c=r.getAttribute('data-theme');r.setAttribute('data-theme',c==='light'?'dark':'light');})()">◐</button>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">Finance Bag</div>
+    <div class="sub">UX Strategy · v1.0</div>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Fondations</div>
+    <a href="#principles" class="nav-link active">§1 Principes UX</a>
+    <a href="#personas" class="nav-link">§2 Personas</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Expériences</div>
+    <a href="#onboarding" class="nav-link">§3 Onboarding</a>
+    <a href="#setup" class="nav-link">§4 Première Configuration</a>
+    <a href="#journeys" class="nav-link">§5 Parcours Utilisateurs</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Interface</div>
+    <a href="#navigation" class="nav-link">§6 Navigation</a>
+    <a href="#ergonomics" class="nav-link">§7 Ergonomie</a>
+    <a href="#accessibility" class="nav-link">§8 Accessibilité</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Détails</div>
+    <a href="#micro" class="nav-link">§9 Micro-interactions</a>
+    <a href="#errors" class="nav-link">§10 Gestion Erreurs</a>
+    <a href="#engagement" class="nav-link">§11 Notifications & Engagement</a>
+    <a href="#checklist" class="nav-link">§12 Checklist Premium</a>
+  </div>
+</nav>
+
+<main class="main">
+
+<header class="doc-header">
+  <div class="eyebrow">UX Strategy · Senior UX Design</div>
+  <h1 class="doc-title">Finance Bag<br>Expérience Utilisateur</h1>
+  <p class="doc-sub">Spécification complète de l'expérience utilisateur. Parcours, navigation, ergonomie, accessibilité et micro-interactions — avant tout développement d'interface.</p>
+  <div class="doc-meta">
+    <span class="mpill">v1.0 · Juillet 2026</span>
+    <span class="mpill">3 Personas</span>
+    <span class="mpill">10 Parcours utilisateurs</span>
+    <span class="mpill">7 Principes UX</span>
+    <span class="mpill">5 scénarios d'erreur</span>
+  </div>
+</header>
+
+<!-- §1 PRINCIPES UX -->
+<section class="section" id="principles">
+  <div class="section-header">
+    <span class="snum">§ 01</span>
+    <h2 class="section-title">Principes UX Fondamentaux</h2>
+  </div>
+  <p class="section-desc">Ces 7 principes gouvernent toutes les décisions de design. Quand un choix est ambigu, on revient à ces principes. Ils ne sont jamais sacrifiés pour des raisons de commodité technique.</p>
+
+  <div class="principles-grid">
+    <div class="principle">
+      <div class="p-num" style="color:var(--accent)">01</div>
+      <div class="p-title">Clarté avant richesse</div>
+      <div class="p-desc">Une information claire et lisible vaut mieux que dix métriques superposées. L'utilisateur doit comprendre sa situation financière en moins de 10 secondes.</div>
+    </div>
+    <div class="principle">
+      <div class="p-num" style="color:var(--green)">02</div>
+      <div class="p-title">2 taps maximum</div>
+      <div class="p-desc">Toute action courante (ajouter une dépense, voir le solde d'urgence, vérifier un objectif) s'effectue en 2 taps depuis n'importe quel écran.</div>
+    </div>
+    <div class="principle">
+      <div class="p-num" style="color:var(--gold)">03</div>
+      <div class="p-title">Feedback immédiat</div>
+      <div class="p-desc">Chaque action utilisateur reçoit une réponse visuelle dans les 100ms. Pas d'états silencieux, pas de doute sur si l'action a fonctionné.</div>
+    </div>
+    <div class="principle">
+      <div class="p-num" style="color:var(--pink)">04</div>
+      <div class="p-title">Zéro surprise</div>
+      <div class="p-desc">L'app fait exactement ce que l'utilisateur attend. Les actions destructives sont confirmées. Les changements automatiques sont annoncés.</div>
+    </div>
+    <div class="principle">
+      <div class="p-num" style="color:var(--cyan)">05</div>
+      <div class="p-title">L'erreur aide</div>
+      <div class="p-desc">Un message d'erreur n'est jamais une impasse. Il explique ce qui s'est passé, pourquoi, et comment avancer. Le ton est toujours calme et constructif.</div>
+    </div>
+    <div class="principle">
+      <div class="p-num" style="color:var(--purple)">06</div>
+      <div class="p-title">Confiance d'abord</div>
+      <div class="p-desc">Les données financières sont sensibles. L'app ne demande jamais de permissions inutiles. Elle chiffre, protège, et informe l'utilisateur de ce qu'elle fait avec ses données.</div>
+    </div>
+    <div class="principle">
+      <div class="p-num" style="color:var(--red)">07</div>
+      <div class="p-title">Offline sans excuse</div>
+      <div class="p-desc">L'app fonctionne identiquement avec ou sans réseau. La gestion financière personnelle ne doit jamais être bloquée par une connexion absente.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §2 PERSONAS -->
+<section class="section" id="personas">
+  <div class="section-header">
+    <span class="snum">§ 02</span>
+    <h2 class="section-title">Personas</h2>
+  </div>
+  <p class="section-desc">Trois profils représentatifs couvrant 90% de la base utilisateur cible. Chaque décision de design est validée contre ces personas.</p>
+
+  <div class="persona-grid">
+    <!-- Persona 1 -->
+    <div class="persona-card" style="border-top: 3px solid var(--accent)">
+      <div class="persona-avatar" style="background:var(--accent-dim)">👨‍💼</div>
+      <div class="p-name">Youssef, 27 ans</div>
+      <div class="p-sub">Ingénieur junior · Casablanca</div>
+      <div>
+        <span class="p-tag" style="background:var(--accent-dim);color:var(--accent)">Salarié</span>
+        <span class="p-tag" style="background:var(--cyan-dim);color:var(--cyan)">Tech-savvy</span>
+        <span class="p-tag" style="background:var(--gold-dim);color:var(--gold)">Ambitieux</span>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Situation</div>
+        <div class="p-text">Premier emploi, 8 000 DH/mois. Veut épargner mais ne sait pas par où commencer. Dépense sans tracker.</div>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Frustrations</div>
+        <div class="p-text">« J'arrive en fin de mois sans savoir où est parti mon argent. » Les apps bancaires ne donnent aucun conseil.</div>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Objectif dans l'app</div>
+        <div class="p-text">Comprendre sa répartition budgétaire, se constituer une épargne d'urgence et acheter une voiture dans 2 ans.</div>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Comportement</div>
+        <div class="p-text">Consulte l'app 3–4×/semaine, le soir. Utilise principalement le dashboard et les objectifs.</div>
+      </div>
+    </div>
+    <!-- Persona 2 -->
+    <div class="persona-card" style="border-top: 3px solid var(--pink)">
+      <div class="persona-avatar" style="background:var(--pink-dim)">👩‍👧</div>
+      <div class="p-name">Fatima, 41 ans</div>
+      <div class="p-sub">Enseignante · Marrakech</div>
+      <div>
+        <span class="p-tag" style="background:var(--pink-dim);color:var(--pink)">Famille</span>
+        <span class="p-tag" style="background:var(--green-dim);color:var(--green)">Prudente</span>
+        <span class="p-tag" style="background:var(--gold-dim);color:var(--gold)">Organisée</span>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Situation</div>
+        <div class="p-text">Salaire fixe + allocations familiales. Gère les finances du foyer. Mari a un revenu variable. 2 crédits en cours.</div>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Frustrations</div>
+        <div class="p-text">« J'utilise Excel mais c'est compliqué. » Les apps existantes sont en anglais ou trop complexes.</div>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Objectif dans l'app</div>
+        <div class="p-text">Suivre les crédits, anticiper les fins de mois difficiles, préparer les études des enfants.</div>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Comportement</div>
+        <div class="p-text">Consulte l'app quotidiennement, le matin. Focus sur crédits et fonds d'urgence. Préfère l'arabe.</div>
+      </div>
+    </div>
+    <!-- Persona 3 -->
+    <div class="persona-card" style="border-top: 3px solid var(--green)">
+      <div class="persona-avatar" style="background:var(--green-dim)">👨‍💻</div>
+      <div class="p-name">Karim, 35 ans</div>
+      <div class="p-sub">Entrepreneur / Freelance · Rabat</div>
+      <div>
+        <span class="p-tag" style="background:var(--green-dim);color:var(--green)">Multi-revenus</span>
+        <span class="p-tag" style="background:var(--purple-dim);color:var(--purple)">Investisseur</span>
+        <span class="p-tag" style="background:var(--red-dim);color:var(--red)">Irrégulier</span>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Situation</div>
+        <div class="p-text">Revenus variables (15K–40K DH/mois). Crédits immobiliers, crédits professionnels. Plusieurs objectifs simultanés.</div>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Frustrations</div>
+        <div class="p-text">« Les mois sans revenus me stressent. » Besoin d'une vue d'ensemble rapide et de statistiques avancées.</div>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Objectif dans l'app</div>
+        <div class="p-text">Gérer plusieurs sources de revenus, surveiller son taux d'endettement, maintenir 6 mois de fonds d'urgence.</div>
+      </div>
+      <div class="p-row">
+        <div class="p-label">Comportement</div>
+        <div class="p-text">Utilisation intensive en début de mois. Consulte surtout les stats et les crédits. Très sensible à la rapidité.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout callout-accent">
+    <span class="ci">◆</span>
+    <div><strong>Règle d'or des personas :</strong> Si une décision de design satisfait Fatima (peu tech, arabe, mobile basse gamme) sans frustrer Karim (exigeant, données complexes), elle est validée. Fatima est notre test de simplicité, Karim notre test de puissance.</div>
+  </div>
+</section>
+
+<!-- §3 ONBOARDING -->
+<section class="section" id="onboarding">
+  <div class="section-header">
+    <span class="snum">§ 03</span>
+    <h2 class="section-title">Onboarding</h2>
+  </div>
+  <p class="section-desc">Maximum 3 écrans de présentation + 1 écran de configuration. L'utilisateur doit être dans l'app en moins de 90 secondes. Chaque écran a une valeur unique et ne peut pas être supprimé sans perte.</p>
+
+  <div class="callout callout-gold">
+    <span class="ci">⚑</span>
+    <div><strong>Règle de l'onboarding :</strong> On ne demande <em>rien</em> avant d'avoir montré la valeur. Pas de compte, pas d'email, pas de permissions — d'abord convaincre, ensuite configurer.</div>
+  </div>
+
+  <div class="ob-screens">
+    <div class="ob-screen">
+      <div class="ob-num">ÉCRAN 1 / 3</div>
+      <div class="ob-title">La promesse</div>
+      <div class="ob-items">
+        Illustration : dashboard stylisé animé<br>
+        Titre fort : « Vos finances, enfin claires »<br>
+        Sous-titre : « Voyez où va votre argent. Épargnez sans y penser. »<br><br>
+        <strong>Animation :</strong> Cercle donut qui se remplit progressivement avec les 3 catégories 50/30/20 colorées<br><br>
+        CTA : « Commencer » (primaire)<br>
+        Lien : « J'ai déjà un compte » (secondaire, petit)
+      </div>
+    </div>
+    <div class="ob-screen">
+      <div class="ob-num">ÉCRAN 2 / 3</div>
+      <div class="ob-title">La méthode</div>
+      <div class="ob-items">
+        Illustration : 3 colonnes animées (Besoins / Envies / Épargne)<br>
+        Titre : « La règle 50/30/20 »<br>
+        Desc : « 50% besoins, 30% plaisirs, 20% futur — adapté à votre vie »<br><br>
+        <strong>Animation :</strong> Les colonnes montent une à une avec délai 200ms entre chacune<br><br>
+        CTA : « Suivant »<br>
+        Skip : petite pastille en haut à droite (toujours visible)
+      </div>
+    </div>
+    <div class="ob-screen">
+      <div class="ob-num">ÉCRAN 3 / 3</div>
+      <div class="ob-title">La sécurité</div>
+      <div class="ob-items">
+        Illustration : cadenas avec checkmarks<br>
+        Titre : « 100% privé, 100% hors ligne »<br>
+        Desc : « Vos données restent sur votre téléphone. Aucune publicité. Aucun partage. »<br><br>
+        <strong>Animation :</strong> Cadenas qui se ferme avec un petit effet bounce<br><br>
+        CTA : « Configurer mon profil » (primaire, gradient)<br>
+        — Pas de skip possible sur cet écran
+      </div>
+    </div>
+    <div class="ob-screen" style="border-color: var(--accent); border-width: 2px;">
+      <div class="ob-num" style="color:var(--accent)">CONFIG</div>
+      <div class="ob-title">Mon profil</div>
+      <div class="ob-items">
+        1. Prénom (clavier auto-ouvert)<br>
+        2. Langue (chips : 🇫🇷 FR / 🇸🇦 AR / 🇬🇧 EN)<br>
+        3. Devise (8 options, MA en premier)<br>
+        4. Salaire mensuel<br><br>
+        <strong>Animation :</strong> Chaque champ apparaît après validation du précédent (stagger 150ms)<br><br>
+        CTA : « C'est parti ! » → Dashboard<br>
+        Confetti léger à l'entrée dans l'app
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sub">Indicateurs de progression</h3>
+  <div class="grid-2">
+    <div class="card card-green">
+      <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">✓ À FAIRE</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+        <li>Dots de pagination (3 points) — position basse</li>
+        <li>Swipe horizontal entre les écrans</li>
+        <li>Bouton Skip toujours visible (sauf écran 3)</li>
+        <li>Barre de progression fine en haut</li>
+        <li>Retour possible (chevron gauche)</li>
+      </ul>
+    </div>
+    <div class="card card-red">
+      <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">✗ À ÉVITER</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+        <li>Plus de 3 écrans de présentation</li>
+        <li>Demander un email avant l'app</li>
+        <li>Animations longues et non skippables</li>
+        <li>Jargon financier en slide 1</li>
+        <li>Permissions (notifications) dès l'onboarding</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- §4 PREMIÈRE CONFIGURATION -->
+<section class="section" id="setup">
+  <div class="section-header">
+    <span class="snum">§ 04</span>
+    <h2 class="section-title">Première Configuration</h2>
+  </div>
+  <p class="section-desc">Progressive disclosure : on ne demande que ce qui est indispensable maintenant. Tout le reste est accessible dans les paramètres.</p>
+
+  <h3 class="sub">Phase 1 — Indispensable (obligatoire, &lt;60 secondes)</h3>
+  <div class="journey-steps">
+    <div class="j-step">
+      <div class="j-num" style="background:var(--accent-dim);color:var(--accent)">1</div>
+      <div class="j-content">
+        <div class="j-title">Prénom</div>
+        <div class="j-desc">Champ texte unique. Clavier auto-focus. Placeholder « Votre prénom ». Pas de nom de famille — trop formel pour une app personnelle.</div>
+        <div class="j-note">Personnalise le message d'accueil du dashboard : « Bonjour Youssef »</div>
+      </div>
+    </div>
+    <div class="j-step">
+      <div class="j-num" style="background:var(--cyan-dim);color:var(--cyan)">2</div>
+      <div class="j-content">
+        <div class="j-title">Langue</div>
+        <div class="j-desc">3 grandes chips cliquables : Français / العربية / English. Sélection immédiate, l'écran se retranslate en temps réel. RTL activé instantanément pour l'arabe.</div>
+        <div class="j-note">Par défaut : langue système du téléphone si FR/AR/EN, sinon FR</div>
+      </div>
+    </div>
+    <div class="j-step">
+      <div class="j-num" style="background:var(--gold-dim);color:var(--gold)">3</div>
+      <div class="j-content">
+        <div class="j-title">Devise</div>
+        <div class="j-desc">Grid de 8 devises avec drapeaux : DH · € · $ · £ · DT · DA · SR · AED. Sélection visuelle sans scroll. MAD présélectionné par défaut.</div>
+        <div class="j-note">Le symbole s'affiche immédiatement dans le champ salaire suivant</div>
+      </div>
+    </div>
+    <div class="j-step">
+      <div class="j-num" style="background:var(--green-dim);color:var(--green)">4</div>
+      <div class="j-content">
+        <div class="j-title">Salaire mensuel net</div>
+        <div class="j-desc">Grand pavé numérique natif. Affichage formaté en temps réel (8 000 DH). Le chiffre s'incrémente avec une petite animation chiffre-par-chiffre pendant la saisie.</div>
+        <div class="j-note">Peut être modifié à tout moment dans l'onglet Salaire</div>
+      </div>
+    </div>
+    <div class="j-step">
+      <div class="j-num" style="background:var(--pink-dim);color:var(--pink)">5</div>
+      <div class="j-content">
+        <div class="j-title">Confirmation → Dashboard</div>
+        <div class="j-desc">Récapitulatif 3 secondes : « Bonjour Youssef ! Votre budget de 8 000 DH est prêt. » CTA « Découvrir mon budget ». Animation d'entrée sur le dashboard (fade + slide up).</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sub">Phase 2 — Contextuelle (déclenchée au bon moment)</h3>
+  <div class="grid-2">
+    <div class="card card-accent">
+      <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">DATE DE PAIE</div>
+      <div style="font-size:12.5px;color:var(--text-secondary)">Demandé lors du premier ajout de crédit ou lors de la 3e ouverture de l'app. Pas en onboarding — trop de friction pour une info non urgente.</div>
+    </div>
+    <div class="card card-green">
+      <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">PREMIER OBJECTIF</div>
+      <div style="font-size:12.5px;color:var(--text-secondary)">Suggéré après 7 jours d'utilisation, via une notification douce : « Prêt à fixer un premier objectif ? »</div>
+    </div>
+    <div class="card card-gold">
+      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">FONDS D'URGENCE</div>
+      <div style="font-size:12.5px;color:var(--text-secondary)">Suggéré dans le dashboard si absent après 14 jours. Card informative avec CTA « Configurer ».</div>
+    </div>
+    <div class="card card-cyan">
+      <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:8px">NOTIFICATIONS</div>
+      <div style="font-size:12.5px;color:var(--text-secondary)">Permission demandée seulement lors du premier événement pertinent (ex. : budget catégorie à 80%). Pas dès l'installation.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §5 PARCOURS UTILISATEURS -->
+<section class="section" id="journeys">
+  <div class="section-header">
+    <span class="snum">§ 05</span>
+    <h2 class="section-title">Parcours Utilisateurs</h2>
+  </div>
+  <p class="section-desc">10 scénarios couvrant l'ensemble du cycle de vie. Pour chaque parcours : déclencheur, étapes, état final attendu.</p>
+
+  <h3 class="sub">Parcours 1 — Nouvel utilisateur (J+1)</h3>
+  <div class="journey-steps">
+    <div class="j-step"><div class="j-num" style="background:var(--accent-dim);color:var(--accent)">→</div><div class="j-content"><div class="j-title">Ouverture de l'app</div><div class="j-desc">Splash screen 400ms → Écran 1 onboarding. Durée totale onboarding + config : &lt;90 secondes.</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--accent-dim);color:var(--accent)">→</div><div class="j-content"><div class="j-title">Premier dashboard</div><div class="j-desc">Message de bienvenue personnalisé. Catégories 50/30/20 pré-configurées. Tutorial tooltip sur le bouton « + » (dismissible).</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--accent-dim);color:var(--accent)">→</div><div class="j-content"><div class="j-title">Première transaction</div><div class="j-desc">Bottom sheet d'ajout, saisie montant, choix catégorie, confirmation. Feedback haptic + animation carte qui apparaît dans la liste.</div><div class="j-note">Durée cible : 12 secondes de bout en bout</div></div></div>
+  </div>
+
+  <h3 class="sub">Parcours 2 — Utilisateur régulier (retour quotidien)</h3>
+  <div class="journey-steps">
+    <div class="j-step"><div class="j-num" style="background:var(--green-dim);color:var(--green)">→</div><div class="j-content"><div class="j-title">Ouverture directe sur Dashboard</div><div class="j-desc">Aucun splash si dernier accès &lt;8h. Données chargées depuis SQLite en &lt;100ms. Greeting dynamique (matin/soir/après-midi).</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--green-dim);color:var(--green)">→</div><div class="j-content"><div class="j-title">Scan visuel (&lt;5 secondes)</div><div class="j-desc">Solde disponible · Dépenses du mois · Taux de budget consommé. Un seul coup d'œil suffit.</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--green-dim);color:var(--green)">→</div><div class="j-content"><div class="j-title">Action rapide si besoin</div><div class="j-desc">FAB « + » → Ajouter dépense. Maximum 2 taps. Fermeture du bottom sheet → retour dashboard, liste mise à jour immédiatement.</div></div></div>
+  </div>
+
+  <h3 class="sub">Parcours 3 — Retour après plusieurs mois d'absence</h3>
+  <div class="journey-steps">
+    <div class="j-step"><div class="j-num" style="background:var(--pink-dim);color:var(--pink)">→</div><div class="j-content"><div class="j-title">Écran de reprise contextuel</div><div class="j-desc">Si absence &gt;30 jours : card de bienvenue « Bon retour Fatima ! Voici ce qui a changé. » — résumé des mois manqués (snapshot archivé), pas de blame sur l'inactivité.</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--pink-dim);color:var(--pink)">→</div><div class="j-content"><div class="j-title">Mise à jour du salaire si besoin</div><div class="j-desc">Si la date de paie habituelle est passée plusieurs fois : « Votre salaire a-t-il changé ? » — modal non bloquant, dismissible.</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--pink-dim);color:var(--pink)">→</div><div class="j-content"><div class="j-title">Reprise normale</div><div class="j-desc">Dashboard mis à jour avec le mois courant. Pas de panique sur les données manquantes — les mois sans données sont simplement absents des graphiques.</div></div></div>
+  </div>
+
+  <h3 class="sub">Parcours 4 — Utilisateur avec beaucoup de données (&gt;1 an)</h3>
+  <div class="card card-cyan">
+    <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:8px">EXPÉRIENCE ATTENDUE</div>
+    <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.8">
+      Dashboard toujours fluide — les données anciennes sont archivées et non chargées au démarrage.<br>
+      Filtres temporels dans Statistiques : ce mois / 3 mois / 6 mois / cette année / tout.<br>
+      Recherche rapide dans l'historique avec FTS (saisie 2 caractères minimum).<br>
+      Graphiques adaptés : courbes longue durée avec zoom, pas de barre chart illisible sur 12 mois.
+    </div>
+  </div>
+
+  <h3 class="sub">Parcours 5 — Modification du salaire</h3>
+  <div class="journey-steps">
+    <div class="j-step"><div class="j-num" style="background:var(--gold-dim);color:var(--gold)">→</div><div class="j-content"><div class="j-title">Accès via onglet Salaire</div><div class="j-desc">Tap sur le montant du salaire → Bottom sheet modification. Ancien montant pré-rempli.</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--gold-dim);color:var(--gold)">→</div><div class="j-content"><div class="j-title">Confirmation avec impact</div><div class="j-desc">Avant validation : « Vos catégories seront recalculées selon le nouveau salaire. Continuer ? » Aperçu immédiat des nouveaux montants.</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--gold-dim);color:var(--gold)">→</div><div class="j-content"><div class="j-title">Mise à jour en cascade</div><div class="j-desc">Toutes les barres de progression se recalculent avec une animation smooth 300ms. Toast : « Salaire mis à jour — catégories recalculées ».</div></div></div>
+  </div>
+
+  <h3 class="sub">Parcours 6 — Ajout d'un crédit</h3>
+  <div class="journey-steps">
+    <div class="j-step"><div class="j-num" style="background:var(--red-dim);color:var(--red)">→</div><div class="j-content"><div class="j-title">Onglet Crédits → FAB « + »</div><div class="j-desc">Bottom sheet multi-étapes (stepper interne) : Type → Montant → Mensualité → Durée → Nom banque. Progression visible.</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--red-dim);color:var(--red)">→</div><div class="j-content"><div class="j-title">Impact sur taux d'endettement</div><div class="j-desc">Pendant la saisie, le taux d'endettement se met à jour en temps réel avec indicateur coloré (vert/orange/rouge selon le seuil 33%).</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--red-dim);color:var(--red)">→</div><div class="j-content"><div class="j-title">Confirmation et carte crédit</div><div class="j-desc">Nouvelle carte animée qui apparaît dans la liste. Si taux &gt;33% : alerte non bloquante avec conseil.</div></div></div>
+  </div>
+
+  <h3 class="sub">Parcours 7 — Création d'un objectif</h3>
+  <div class="journey-steps">
+    <div class="j-step"><div class="j-num" style="background:var(--purple-dim);color:var(--purple)">→</div><div class="j-content"><div class="j-title">Onglet Objectifs → « + »</div><div class="j-desc">Bottom sheet : Nom → Type (icône sélectionnable) → Montant cible → Date souhaitée (optionnel). Suggestion automatique de contribution mensuelle calculée.</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--purple-dim);color:var(--purple)">→</div><div class="j-content"><div class="j-title">Carte objectif animée</div><div class="j-desc">Barre de progression à 0% avec animation d'entrée. Message motivant selon le délai : « À ce rythme, vous l'atteignez en mars 2027 ! »</div></div></div>
+  </div>
+
+  <h3 class="sub">Parcours 8 — Suppression accidentelle</h3>
+  <div class="card card-red">
+    <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">PROTECTION ANTI-PERTE</div>
+    <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.8">
+      Swipe-to-delete sur les transactions → <strong>Toast avec ANNULER pendant 5 secondes</strong> (pas de dialog bloquant).<br>
+      Suppression d'un crédit ou objectif → <strong>Confirmation explicite</strong> : dialog avec résumé de ce qui sera supprimé.<br>
+      Toutes les suppressions sont <strong>soft-delete</strong> en base (jamais effacées définitivement les 30 premiers jours).<br>
+      Aucune donnée supprimée sans possibilité de récupération dans les 30 jours.
+    </div>
+  </div>
+
+  <h3 class="sub">Parcours 9 — Consultation statistiques uniquement</h3>
+  <div class="card card-accent">
+    <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">MODE LECTURE</div>
+    <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.8">
+      Onglet Statistiques dédié (futur V2) ou section dans Dashboard.<br>
+      Lecture seule possible sans modifier aucune donnée.<br>
+      Filtres rapides : Mois / Catégorie / Type (dépense/revenu).<br>
+      Export PDF ou partage capture d'écran depuis ce contexte.
+    </div>
+  </div>
+
+  <h3 class="sub">Parcours 10 — Recherche d'une archive</h3>
+  <div class="journey-steps">
+    <div class="j-step"><div class="j-num" style="background:var(--gold-dim);color:var(--gold)">→</div><div class="j-content"><div class="j-title">Accès via Paramètres → Archives</div><div class="j-desc">Liste de tous les snapshots mensuels passés. Tap pour voir le détail d'un mois.</div></div></div>
+    <div class="j-step"><div class="j-num" style="background:var(--gold-dim);color:var(--gold)">→</div><div class="j-content"><div class="j-title">Vue snapshot immutée</div><div class="j-desc">Lecture seule. Toutes les métriques du mois : revenus, dépenses, taux d'épargne, état fonds urgence, objectifs. En lecture seule — aucune modification possible sur un mois archivé.</div></div></div>
+  </div>
+</section>
+
+<!-- §6 NAVIGATION -->
+<section class="section" id="navigation">
+  <div class="section-header">
+    <span class="snum">§ 06</span>
+    <h2 class="section-title">Navigation</h2>
+  </div>
+  <p class="section-desc">Bottom Tab Bar à 5 onglets. C'est le pattern le plus efficace pour les apps à sections parallèles sur mobile — toujours visible, toujours accessible, jamais caché.</p>
+
+  <div class="tab-bar">
+    <div class="tab-item active"><span class="tab-icon">📊</span>Dashboard</div>
+    <div class="tab-item"><span class="tab-icon">💰</span>Salaire</div>
+    <div class="tab-item"><span class="tab-icon">🏦</span>Crédits</div>
+    <div class="tab-item"><span class="tab-icon">🛡️</span>Urgence</div>
+    <div class="tab-item"><span class="tab-icon">🎯</span>Objectifs</div>
+  </div>
+
+  <h3 class="sub">Comparaison des patterns de navigation</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Pattern</th><th>Verdict</th><th>Raison</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Bottom Tab Bar ✓ RETENU</strong></td><td><span class="badge bg">Optimal</span></td><td>Toujours visible, accessible au pouce, 5 sections max, standard iOS/Android. Révèle la structure de l'app dès le premier écran.</td></tr>
+        <tr><td>Navigation Drawer (hamburger)</td><td><span class="badge br">Rejeté</span></td><td>Cache la navigation, nécessite 2 taps pour switcher de section. Inadapté aux structures plates à 5 niveaux.</td></tr>
+        <tr><td>Top Tabs</td><td><span class="badge br">Rejeté</span></td><td>Zone non ergonomique (haut de l'écran = pouce difficile). Masqué par les gestures système iOS/Android.</td></tr>
+        <tr><td>Stack Navigation (hiérarchique)</td><td><span class="badge bc">Partiel</span></td><td>Utilisé à l'intérieur de chaque section pour les détails. Pas comme structure principale.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub">Navigation contextuelle & gestes</h3>
+  <div class="grid-2">
+    <div class="card card-accent">
+      <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">BOTTOM SHEETS (prioritaire)</div>
+      <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.8">
+        Tous les formulaires de création/édition s'ouvrent en Bottom Sheet.<br>
+        Jamais de navigation vers un nouvel écran pour saisir des données.<br>
+        Drag-to-dismiss possible. Fond assombri tappable pour fermer.<br>
+        Clavier pousse le sheet vers le haut (KeyboardAvoidingView).
+      </div>
+    </div>
+    <div class="card card-green">
+      <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">GESTES NATIFS</div>
+      <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.8">
+        Swipe left sur transaction → Supprimer (avec undo).<br>
+        Swipe right sur transaction → Modifier.<br>
+        Pull-to-refresh sur toutes les listes.<br>
+        Long press sur catégorie → Réorganiser (drag & drop futur V2).<br>
+        Pinch sur graphique → Zoom historique.
+      </div>
+    </div>
+    <div class="card card-gold">
+      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">FAB (Floating Action Button)</div>
+      <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.8">
+        Présent sur Dashboard et chaque section.<br>
+        Dashboard FAB : « + » → choix rapide (Dépense / Revenu).<br>
+        Sections FAB : action unique de la section (ex. « + Crédit »).<br>
+        Position : 16px du bord droit, 80px du bas (safe area).
+      </div>
+    </div>
+    <div class="card card-cyan">
+      <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:8px">NAVIGATION HIÉRARCHIQUE</div>
+      <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.8">
+        Détail crédit → stack navigation (plein écran).<br>
+        Détail objectif → stack navigation.<br>
+        Historique archive → stack navigation.<br>
+        Paramètres → stack navigation depuis icône en haut.<br>
+        Toujours un bouton retour en haut à gauche.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §7 ERGONOMIE -->
+<section class="section" id="ergonomics">
+  <div class="section-header">
+    <span class="snum">§ 07</span>
+    <h2 class="section-title">Ergonomie</h2>
+  </div>
+  <p class="section-desc">Design adapté à l'utilisation à une main, avec le pouce, dans la vie réelle (transport, debout, faible luminosité).</p>
+
+  <h3 class="sub">Zone de confort du pouce</h3>
+  <div class="card" style="margin-bottom:20px">
+    <div style="display:flex;gap:20px;flex-wrap:wrap">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div class="zone-indicator" style="background:var(--green)"></div><div style="font-size:13px;font-weight:600;color:var(--green)">Zone Verte — Facile</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:14px">Bas de l'écran (60–100% de la hauteur). Tab bar, FAB, boutons d'action principaux.</div>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div class="zone-indicator" style="background:var(--gold)"></div><div style="font-size:13px;font-weight:600;color:var(--gold)">Zone Orange — Acceptable</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary);margin-bottom:14px">Milieu de l'écran (30–60%). Cartes, listes, contenu scrollable.</div>
+
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div class="zone-indicator" style="background:var(--red)"></div><div style="font-size:13px;font-weight:600;color:var(--red)">Zone Rouge — Difficile</div></div>
+        <div style="font-size:12.5px;color:var(--text-secondary)">Haut de l'écran (0–30%). Réservé aux infos passives (titre, heure). Jamais d'action critique ici.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 class="sub">Spécifications dimensionnelles</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Élément</th><th>Minimum</th><th>Recommandé</th><th>Justification</th></tr></thead>
+      <tbody>
+        <tr><td>Bouton principal</td><td>44 × 44 dp</td><td>52 × 52 dp</td><td>Standard Apple HIG & Material Design</td></tr>
+        <tr><td>Icône tappable (tab bar)</td><td>44 × 44 dp</td><td>48 × 48 dp</td><td>Zone de tap minimale pour 95% des utilisateurs</td></tr>
+        <tr><td>Item de liste</td><td>48 dp hauteur</td><td>64 dp hauteur</td><td>Lisibilité + tap confortable</td></tr>
+        <tr><td>Espacement entre 2 boutons</td><td>8 dp</td><td>12 dp</td><td>Évite les taps accidentels</td></tr>
+        <tr><td>Champ de texte</td><td>44 dp hauteur</td><td>52 dp hauteur</td><td>Clavier confortable, label visible</td></tr>
+        <tr><td>Texte corps</td><td>14 sp</td><td>16 sp</td><td>Lisibilité sur écrans &lt;5 pouces</td></tr>
+        <tr><td>Texte secondaire</td><td>12 sp</td><td>13 sp</td><td>Minimum WCAG accessible</td></tr>
+        <tr><td>Marge latérale écran</td><td>16 dp</td><td>20 dp</td><td>Contenu respire, pas de bord coupé</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub">Temps cible par action</h3>
+  <div class="grid-2">
+    <div class="card card-green">
+      <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:10px">ACTIONS COURANTES (&lt;15 secondes)</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2.1">
+        <li>Voir le solde disponible : <strong>2 sec</strong></li>
+        <li>Ajouter une dépense rapide : <strong>10 sec</strong></li>
+        <li>Voir progression fonds urgence : <strong>3 sec</strong></li>
+        <li>Consulter dernier crédit : <strong>4 sec</strong></li>
+        <li>Vérifier objectif principal : <strong>3 sec</strong></li>
+      </ul>
+    </div>
+    <div class="card card-gold">
+      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:10px">ACTIONS COMPLEXES (&lt;60 secondes)</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2.1">
+        <li>Ajouter un nouveau crédit : <strong>45 sec</strong></li>
+        <li>Créer un objectif financier : <strong>30 sec</strong></li>
+        <li>Modifier la répartition budgétaire : <strong>40 sec</strong></li>
+        <li>Configurer fonds urgence : <strong>25 sec</strong></li>
+        <li>Ajouter source de revenus : <strong>20 sec</strong></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- §8 ACCESSIBILITÉ -->
+<section class="section" id="accessibility">
+  <div class="section-header">
+    <span class="snum">§ 08</span>
+    <h2 class="section-title">Accessibilité</h2>
+  </div>
+  <p class="section-desc">Conformité WCAG 2.1 niveau AA minimum. L'accessibilité n'est pas une option — elle améliore l'expérience pour tous, en particulier les utilisateurs de plus de 45 ans (persona Fatima).</p>
+
+  <div class="grid-2">
+    <div class="card card-accent">
+      <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">CONTRASTE (WCAG 2.1)</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+        <li>Texte normal : ratio 4.5:1 minimum</li>
+        <li>Grand texte (≥18sp) : ratio 3:1 minimum</li>
+        <li>Éléments UI actifs : ratio 3:1 minimum</li>
+        <li>Fond carte #111520 → texte #E2E8F0 : ratio 12.5:1 ✓</li>
+        <li>Accent #6366F1 sur fond sombre : ratio 4.7:1 ✓</li>
+      </ul>
+    </div>
+    <div class="card card-green">
+      <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">TAILLE DE TEXTE</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+        <li>Respecter le scaling système (Dynamic Type iOS)</li>
+        <li>Support Android font scale jusqu'à 1.5×</li>
+        <li>Layouts flexibles qui s'adaptent au texte agrandi</li>
+        <li>Pas de texte en SVG (non scalable)</li>
+        <li>Pas de largeur fixe sur les containers de texte</li>
+      </ul>
+    </div>
+    <div class="card card-gold">
+      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">DALTONISME</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+        <li>Jamais la couleur seule comme seul indicateur</li>
+        <li>Icônes + couleur pour les statuts (✓ vert + icône)</li>
+        <li>Patterns différenciateurs sur les graphiques</li>
+        <li>Test Deuteranopia / Protanopia sur toutes les vues</li>
+        <li>Palette validée par Sim Daltonism</li>
+      </ul>
+    </div>
+    <div class="card card-cyan">
+      <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:8px">LECTEURS D'ÉCRAN</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+        <li>Attribut <code>accessibilityLabel</code> sur toutes les icônes</li>
+        <li><code>accessibilityHint</code> sur les actions non évidentes</li>
+        <li>Ordre de focus logique (gauche→droite, haut→bas)</li>
+        <li>Annonce des mises à jour dynamiques via <code>accessibilityLiveRegion</code></li>
+        <li>VoiceOver (iOS) + TalkBack (Android) testés</li>
+      </ul>
+    </div>
+    <div class="card card-pink">
+      <div style="font-size:12px;font-weight:700;color:var(--pink);margin-bottom:8px">UTILISATION À UNE MAIN</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+        <li>Toutes les actions primaires dans la zone pouce</li>
+        <li>Pas d'actions critiques en haut de l'écran</li>
+        <li>Bottom sheets au lieu d'écrans plein</li>
+        <li>FAB accessible au pouce droit (position droite)</li>
+        <li>Swipe-to-dismiss des modals</li>
+      </ul>
+    </div>
+    <div class="card" style="border-left:3px solid var(--purple)">
+      <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:8px">ANIMATIONS RÉDUITES</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+        <li>Respecter <code>prefers-reduced-motion</code></li>
+        <li>Animations désactivables dans les Paramètres</li>
+        <li>Durées &lt;300ms pour les transitions critiques</li>
+        <li>Aucune animation en boucle infinie non contrôlée</li>
+        <li>Alternatives statiques pour toutes les animations</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- §9 MICRO-INTERACTIONS -->
+<section class="section" id="micro">
+  <div class="section-header">
+    <span class="snum">§ 09</span>
+    <h2 class="section-title">Micro-interactions</h2>
+  </div>
+  <p class="section-desc">Chaque interaction a une réponse sensorielle. Visuel + haptique = sentiment de qualité premium. Toutes les animations durent &lt;350ms et restent fonctionnelles en <code>prefers-reduced-motion</code>.</p>
+
+  <div class="callout callout-accent">
+    <span class="ci">◆</span>
+    <div><strong>Philosophie :</strong> Les animations servent l'utilisateur, pas le designer. Chaque animation doit avoir une fonction : orienter l'attention, confirmer une action, indiquer un changement d'état. Jamais décorative sans utilité.</div>
+  </div>
+
+  <div class="micro-grid">
+    <div class="micro-card">
+      <div class="mc-icon">✅</div>
+      <div class="mc-trigger">Transaction ajoutée</div>
+      <div class="mc-anim">Fade in + slide up (200ms)</div>
+      <div class="mc-desc">La carte apparaît dans la liste depuis le bas. Haptic léger (impact light). Le total de catégorie se met à jour avec counter animation.</div>
+    </div>
+    <div class="micro-card">
+      <div class="mc-icon">❌</div>
+      <div class="mc-trigger">Champ invalide</div>
+      <div class="mc-anim">Shake horizontal (150ms, 3 oscillations)</div>
+      <div class="mc-desc">Le champ tremble légèrement. Bordure rouge + message inline. Haptic erreur. Pas de toast — l'erreur reste visible à côté du champ.</div>
+    </div>
+    <div class="micro-card">
+      <div class="mc-icon">🎯</div>
+      <div class="mc-trigger">Objectif atteint</div>
+      <div class="mc-anim">Confetti léger + scale bounce (400ms)</div>
+      <div class="mc-desc">La barre de progression atteint 100% avec un overshoot élastique. Confetti 1 seconde. Haptic success fort. Badge « Complété » apparaît.</div>
+    </div>
+    <div class="micro-card">
+      <div class="mc-icon">📈</div>
+      <div class="mc-trigger">Ouverture dashboard</div>
+      <div class="mc-anim">Counter animation (800ms ease-out)</div>
+      <div class="mc-desc">Les montants s'incrémentent de 0 vers leur valeur à l'ouverture. Le donut chart se remplit en tournant dans le sens horaire.</div>
+    </div>
+    <div class="micro-card">
+      <div class="mc-icon">💸</div>
+      <div class="mc-trigger">Contribution fonds urgence</div>
+      <div class="mc-anim">Barre qui monte + glow vert (300ms)</div>
+      <div class="mc-desc">La barre de progression gagne de la hauteur. Si un palier est franchi (25/50/75/100%), animation spéciale + badge palier.</div>
+    </div>
+    <div class="micro-card">
+      <div class="mc-icon">🏦</div>
+      <div class="mc-trigger">Paiement crédit enregistré</div>
+      <div class="mc-anim">Montant restant décroit (counter) + barre</div>
+      <div class="mc-desc">Le solde restant du crédit descend avec animation. Si crédit soldé : carte change d'état (grisée + checkmark) avec fondu doux.</div>
+    </div>
+    <div class="micro-card">
+      <div class="mc-icon">📅</div>
+      <div class="mc-trigger">Archivage mensuel auto</div>
+      <div class="mc-anim">Notification in-app discrète (slide depuis haut)</div>
+      <div class="mc-desc">Bannière 3 secondes : « Janvier archivé ✓ ». Pas d'interruption. Tappable pour voir le snapshot.</div>
+    </div>
+    <div class="micro-card">
+      <div class="mc-icon">🔄</div>
+      <div class="mc-trigger">Chargement données</div>
+      <div class="mc-anim">Skeleton screens (pulse 1.2s loop)</div>
+      <div class="mc-desc">Jamais de spinner seul. Les zones de contenu affichent des blocs gris animés à la forme du contenu attendu.</div>
+    </div>
+    <div class="micro-card">
+      <div class="mc-icon">🗑️</div>
+      <div class="mc-trigger">Suppression transaction</div>
+      <div class="mc-anim">Slide out + fade (200ms) + toast undo</div>
+      <div class="mc-desc">La carte disparaît vers la gauche. Toast « Supprimé — ANNULER » 5 secondes. Si annulé : la carte réapparaît depuis la gauche.</div>
+    </div>
+    <div class="micro-card">
+      <div class="mc-icon">☀️</div>
+      <div class="mc-trigger">Salaire modifié</div>
+      <div class="mc-anim">Toutes les barres se recalculent (300ms)</div>
+      <div class="mc-desc">Animation synchronisée de toutes les barres de progression. Effet cascade (décalage 50ms entre chaque barre).</div>
+    </div>
+    <div class="micro-card">
+      <div class="mc-icon">👆</div>
+      <div class="mc-trigger">Tap sur bouton</div>
+      <div class="mc-anim">Scale 0.96 → 1.0 (80ms)</div>
+      <div class="mc-desc">Légère compression au tap sur tous les boutons. Feedback tactile naturel. Standard sur toute l'app (via Pressable).</div>
+    </div>
+    <div class="micro-card">
+      <div class="mc-icon">🔒</div>
+      <div class="mc-trigger">Biométrie activée</div>
+      <div class="mc-anim">Cadenas qui se ferme (spring 400ms)</div>
+      <div class="mc-desc">Écran de verrou avec animation de cadenas. À l'ouverture réussie : cadenas s'ouvre + fade out vers dashboard.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §10 GESTION ERREURS -->
+<section class="section" id="errors">
+  <div class="section-header">
+    <span class="snum">§ 10</span>
+    <h2 class="section-title">Gestion des Erreurs</h2>
+  </div>
+  <p class="section-desc">Chaque erreur est une opportunité de renforcer la confiance. Le ton est toujours calme, constructif, et non-technique. L'utilisateur n'est jamais mis en faute.</p>
+
+  <div class="callout callout-green">
+    <span class="ci">✓</span>
+    <div><strong>Règle du langage d'erreur :</strong> Pas de codes d'erreur, pas de « Erreur 500 », pas de jargon technique. Chaque message dit (1) ce qui s'est passé en termes humains, (2) ce que l'utilisateur peut faire maintenant.</div>
+  </div>
+
+  <div class="error-list">
+    <div class="error-item">
+      <div>
+        <div class="error-scenario">📡 Pas de connexion Internet</div>
+        <div class="error-desc">L'utilisateur tente une action qui nécessite du réseau (sync cloud futur, export en ligne).</div>
+      </div>
+      <div>
+        <div class="error-solution-label">Expérience UX</div>
+        <div class="error-solution">Bannière discrète en haut : « Mode hors ligne — vos données sont sauvegardées localement ». App 100% fonctionnelle. Aucun blocage. L'action réseau est mise en file d'attente silencieusement.</div>
+      </div>
+    </div>
+    <div class="error-item">
+      <div>
+        <div class="error-scenario">📝 Champ obligatoire vide</div>
+        <div class="error-desc">Tentative de valider un formulaire avec un champ requis vide (montant, nom de l'objectif…).</div>
+      </div>
+      <div>
+        <div class="error-solution-label">Expérience UX</div>
+        <div class="error-solution">Validation inline immédiate (pas au submit). Bordure rouge + message sous le champ : « Le montant est requis ». Focus automatique sur le premier champ en erreur. Haptic erreur.</div>
+      </div>
+    </div>
+    <div class="error-item">
+      <div>
+        <div class="error-scenario">🔢 Montant invalide</div>
+        <div class="error-desc">Montant négatif, zéro, ou supérieur à un seuil raisonnable (ex. > 1 000 000 DH).</div>
+      </div>
+      <div>
+        <div class="error-solution-label">Expérience UX</div>
+        <div class="error-solution">Validation en temps réel pendant la saisie. Message contextualisé : « Le montant doit être supérieur à 0 ». Le bouton de validation reste grisé tant que le champ est invalide.</div>
+      </div>
+    </div>
+    <div class="error-item">
+      <div>
+        <div class="error-scenario">🗄️ Base de données corrompue</div>
+        <div class="error-desc">Corruption rare lors d'une coupure pendant une écriture, ou mise à jour app échouée.</div>
+      </div>
+      <div>
+        <div class="error-solution-label">Expérience UX</div>
+        <div class="error-solution">Écran dédié rassurant : « Nous avons détecté un problème avec vos données. Vos sauvegardes sont intactes. » Boutons : « Restaurer la dernière sauvegarde » / « Contacter le support ». Jamais de perte silencieuse.</div>
+      </div>
+    </div>
+    <div class="error-item">
+      <div>
+        <div class="error-scenario">⏱️ Action trop longue</div>
+        <div class="error-desc">Une opération dépasse 3 secondes (migration de données, import CSV futur).</div>
+      </div>
+      <div>
+        <div class="error-solution-label">Expérience UX</div>
+        <div class="error-solution">Progress bar avec pourcentage réel si connu. Message rassurant : « Préparation de vos données… » Jamais un spinner muet &gt;1 seconde sans feedback.</div>
+      </div>
+    </div>
+    <div class="error-item">
+      <div>
+        <div class="error-scenario">🔐 Échec biométrique (3 tentatives)</div>
+        <div class="error-desc">L'utilisateur échoue 3 fois le Face ID / Touch ID.</div>
+      </div>
+      <div>
+        <div class="error-solution-label">Expérience UX</div>
+        <div class="error-solution">Après 3 échecs : proposition automatique du PIN de secours. Message : « Utilisez votre code PIN à la place ». Jamais de verrouillage définitif.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- §11 NOTIFICATIONS & ENGAGEMENT -->
+<section class="section" id="engagement">
+  <div class="section-header">
+    <span class="snum">§ 11</span>
+    <h2 class="section-title">Notifications & Engagement</h2>
+  </div>
+  <p class="section-desc">Philosophie : chaque notification doit avoir une raison d'exister. Si l'utilisateur ne bénéficie pas directement de la notification, elle n'est pas envoyée.</p>
+
+  <h3 class="sub">Règles des notifications</h3>
+  <div class="grid-2">
+    <div class="card card-green">
+      <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">✓ AUTORISÉ</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+        <li>Budget catégorie à 80% consommé</li>
+        <li>Crédit dû dans 3 jours</li>
+        <li>Objectif atteint (fête !)</li>
+        <li>Résumé mensuel (1er du mois)</li>
+        <li>Fonds urgence nouveau palier</li>
+        <li>Conseil financier hebdomadaire (1/semaine max)</li>
+      </ul>
+    </div>
+    <div class="card card-red">
+      <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">✗ INTERDIT</div>
+      <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+        <li>Notifications pour réengager l'utilisateur inactif</li>
+        <li>Rappels « vous n'avez pas ouvert l'app »</li>
+        <li>Publicités déguisées en conseils</li>
+        <li>Plus d'1 notification par jour</li>
+        <li>Notifications sans valeur immédiate</li>
+        <li>Demander la permission dès l'onboarding</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="sub">Catalogue de notifications</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Déclencheur</th><th>Titre</th><th>Corps</th><th>Fréquence</th></tr></thead>
+      <tbody>
+        <tr><td>Budget catégorie à 80%</td><td>« Attention budget Alimentation »</td><td>« Vous avez dépensé 80% de votre budget Alimentation ce mois. Il vous reste 240 DH. »</td><td>1×/catégorie/mois</td></tr>
+        <tr><td>Crédit dû dans 3 jours</td><td>« Crédit Auto — échéance vendredi »</td><td>« Votre mensualité de 1 200 DH est due vendredi 14 juillet. »</td><td>1×/crédit/mois</td></tr>
+        <tr><td>Objectif atteint</td><td>« 🎉 Objectif Voiture atteint ! »</td><td>« Félicitations ! Vous avez atteint votre objectif de 30 000 DH en 14 mois. »</td><td>Événementiel</td></tr>
+        <tr><td>1er du mois</td><td>« Votre bilan de juin »</td><td>« Vous avez épargné 1 200 DH en juin — votre meilleur mois ! Voir le résumé. »</td><td>1×/mois</td></tr>
+        <tr><td>Fonds urgence 50%</td><td>« Mi-chemin pour votre fonds »</td><td>« Votre fonds d'urgence atteint 50% de l'objectif 3 mois. Continuez ! »</td><td>Événementiel</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 class="sub">Mécaniques d'engagement (non intrusives)</h3>
+  <div class="grid-3">
+    <div class="card card-accent">
+      <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">SCORE SANTÉ</div>
+      <div style="font-size:12.5px;color:var(--text-secondary)">Score 0–100 visible sur le dashboard. Calculé à partir du taux d'épargne, d'endettement et de la progression des objectifs. Donne envie de l'améliorer.</div>
+    </div>
+    <div class="card card-green">
+      <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">RÉSUMÉ MENSUEL</div>
+      <div style="font-size:12.5px;color:var(--text-secondary)">Le 1er de chaque mois : écran récapitulatif automatique à l'ouverture. Moment de vérité positif, jamais culpabilisant.</div>
+    </div>
+    <div class="card card-gold">
+      <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">JALONS</div>
+      <div style="font-size:12.5px;color:var(--text-secondary)">Célébrations pour : premier objectif créé, premier crédit soldé, 3 mois de budget consécutifs, fonds urgence complet.</div>
+    </div>
+  </div>
+</section>
+
+<!-- §12 CHECKLIST PREMIUM -->
+<section class="section" id="checklist">
+  <div class="section-header">
+    <span class="snum">§ 12</span>
+    <h2 class="section-title">Checklist Premium & Erreurs à Éviter</h2>
+  </div>
+  <p class="section-desc">Ce qui distingue une app bonne d'une app premium. Chaque point doit être validé avant la livraison de chaque feature.</p>
+
+  <h3 class="sub">Ce qu'une app premium fait systématiquement</h3>
+  <ul class="checklist">
+    <li>Toute action se confirme en &lt;100ms visuellement, même si la donnée met 500ms à être sauvegardée</li>
+    <li>Les montants sont toujours formatés avec la devise et des espaces de milliers (8 000 DH, pas 8000)</li>
+    <li>Chaque écran vide a un état zéro utile (message + action suggérée, jamais une page blanche)</li>
+    <li>Le retour arrière fonctionne partout et de manière prévisible (Android back button inclus)</li>
+    <li>L'app ne demande aucune permission non justifiée — chaque permission explique pourquoi</li>
+    <li>Les données sont sauvegardées automatiquement — l'utilisateur ne perd jamais une saisie à mi-chemin</li>
+    <li>Le mode sombre est aussi soigné que le mode clair — même hiérarchie, mêmes contrastes</li>
+    <li>La navigation en arabe est parfaitement RTL — tous les éléments, pas seulement le texte</li>
+    <li>Les listes longues ne laggent jamais — virtualisation sur toutes les FlatList</li>
+    <li>Le clavier ne cache jamais un champ ou un bouton de validation</li>
+    <li>Les transitions entre onglets sont instantanées (&lt;16ms) — onglets préchargés</li>
+    <li>La date et l'heure respectent la locale de l'utilisateur (format arabe, français, anglais)</li>
+  </ul>
+
+  <h3 class="sub">Les 10 erreurs UX les plus communes à éviter absolument</h3>
+  <ul class="checklist antilist">
+    <li><strong>Demander l'email dès le lancement</strong> — on perd 60% des utilisateurs avant qu'ils voient la valeur</li>
+    <li><strong>Spinner infini sans contexte</strong> — toujours communiquer ce qui se charge et pourquoi</li>
+    <li><strong>Chiffres sans formatage</strong> — « 8000 » n'a pas la même lisibilité que « 8 000 DH »</li>
+    <li><strong>Bouton « Supprimer » sans undo</strong> — la suppression accidentelle génère de la méfiance envers l'app</li>
+    <li><strong>Erreurs techniques exposées</strong> — l'utilisateur ne doit jamais voir une stack trace ou un code d'erreur HTTP</li>
+    <li><strong>Notifications de réengagement</strong> — « On ne vous a pas vu depuis 3 jours » = désinstallation immédiate</li>
+    <li><strong>Onboarding de 6+ écrans</strong> — chaque écran supplémentaire au-delà de 3 fait chuter le taux de complétion de 15%</li>
+    <li><strong>Actions critiques en haut de l'écran</strong> — inaccessible au pouce, surtout sur les grands écrans ≥6''</li>
+    <li><strong>États vides non gérés</strong> — une liste vide sans message ni suggestion = app cassée pour l'utilisateur</li>
+    <li><strong>Animations bloquantes</strong> — si l'animation empêche l'utilisateur d'agir, elle nuit à l'expérience</li>
+  </ul>
+
+  <div class="callout callout-pink" style="margin-top:32px">
+    <span class="ci">★</span>
+    <div><strong>Test de validation finale :</strong> Demander à Fatima (41 ans, moins tech, utilise l'app en arabe) de réaliser 5 actions en aveugle : ajouter une dépense, vérifier son budget, ajouter un crédit, fixer un objectif, consulter le fonds d'urgence. Si elle y arrive sans aide en moins de 3 minutes, l'UX est validée.</div>
+  </div>
+</section>
+
+</main>
+
+<script>
+const sections = document.querySelectorAll('.section[id]');
+const links = document.querySelectorAll('.nav-link');
+const io = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { threshold: 0.2 });
+sections.forEach(s => io.observe(s));
+</script>

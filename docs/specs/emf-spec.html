@@ -1,0 +1,948 @@
+
+<title>SPEC-EMF-001 — Emergency Fund System</title>
+<style>
+  :root {
+    --green:#22C55E; --green-glow:rgba(34,197,94,.13);
+    --indigo:#6366F1; --indigo-glow:rgba(99,102,241,.12);
+    --bg:#18181B; --surface:#27272A; --surface-2:#3F3F46;
+    --text:#F4F4F5; --muted:#A1A1AA;
+    --success:#22C55E; --warning:#F59E0B; --danger:#EF4444; --info:#38BDF8;
+    --sidebar-w:268px;
+  }
+  @media(prefers-color-scheme:light){:root{--bg:#F4F4F5;--surface:#FFF;--surface-2:#E4E4E7;--text:#18181B;--muted:#71717A;}}
+  :root[data-theme="dark"]{--bg:#18181B;--surface:#27272A;--surface-2:#3F3F46;--text:#F4F4F5;--muted:#A1A1AA;}
+  :root[data-theme="light"]{--bg:#F4F4F5;--surface:#FFF;--surface-2:#E4E4E7;--text:#18181B;--muted:#71717A;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{font-size:15px;scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;display:flex;min-height:100vh;line-height:1.65;}
+
+  nav#sidebar{position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;background:var(--surface);border-right:1px solid var(--surface-2);overflow-y:auto;z-index:100;display:flex;flex-direction:column;}
+  .nav-brand{padding:20px 20px 16px;border-bottom:1px solid var(--surface-2);}
+  .nav-brand .badge{display:inline-block;background:var(--green-glow);color:var(--green);font-size:10px;font-weight:700;letter-spacing:.08em;padding:2px 8px;border-radius:20px;margin-bottom:6px;text-transform:uppercase;}
+  .nav-brand h1{font-size:13px;font-weight:700;color:var(--text);line-height:1.3;}
+  .nav-brand p{font-size:11px;color:var(--muted);margin-top:3px;}
+  nav#sidebar ul{list-style:none;padding:10px 0 20px;}
+  nav#sidebar ul li a{display:flex;align-items:center;gap:8px;padding:7px 20px;font-size:12px;color:var(--muted);text-decoration:none;transition:color .15s,background .15s;border-left:2px solid transparent;}
+  nav#sidebar ul li a:hover{color:var(--text);background:var(--green-glow);}
+  nav#sidebar ul li a.active{color:var(--green);border-left-color:var(--green);background:var(--green-glow);font-weight:600;}
+  nav#sidebar ul li a .num{font-size:10px;color:var(--surface-2);min-width:18px;font-weight:600;}
+  nav#sidebar ul li a.active .num{color:var(--green);opacity:.7;}
+  .theme-toggle{margin:auto 16px 16px;padding:8px 12px;background:var(--surface-2);border:none;border-radius:8px;color:var(--muted);font-size:12px;cursor:pointer;text-align:center;width:calc(100% - 32px);}
+  .theme-toggle:hover{color:var(--text);}
+
+  main{margin-left:var(--sidebar-w);flex:1;padding:48px 52px 80px;max-width:960px;}
+
+  .doc-header{margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--surface-2);}
+  .doc-header .spec-id{display:inline-flex;align-items:center;gap:8px;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--green);margin-bottom:16px;}
+  .doc-header .spec-id::before{content:'';display:inline-block;width:8px;height:8px;background:var(--green);border-radius:50%;}
+  .doc-header h2{font-size:32px;font-weight:800;line-height:1.15;text-wrap:balance;margin-bottom:12px;}
+  .doc-header p{font-size:15px;color:var(--muted);max-width:640px;line-height:1.7;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:24px;margin-top:24px;}
+  .meta-item{display:flex;flex-direction:column;gap:3px;}
+  .meta-item .label{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);}
+  .meta-item .val{font-size:13px;font-weight:600;color:var(--text);}
+
+  section{margin-bottom:56px;scroll-margin-top:32px;}
+  section h2{font-size:20px;font-weight:800;color:var(--text);margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--surface-2);display:flex;align-items:center;gap:10px;}
+  section h2 .s-num{font-size:11px;color:var(--green);font-weight:700;letter-spacing:.05em;background:var(--green-glow);padding:2px 8px;border-radius:20px;}
+  h3{font-size:15px;font-weight:700;color:var(--text);margin:24px 0 10px;}
+  h4{font-size:13px;font-weight:700;color:var(--muted);margin:18px 0 8px;text-transform:uppercase;letter-spacing:.05em;}
+  p{color:var(--muted);margin-bottom:10px;font-size:14px;}
+  p strong{color:var(--text);}
+  ul,ol{padding-left:20px;margin-bottom:12px;}
+  li{color:var(--muted);font-size:14px;margin-bottom:4px;line-height:1.6;}
+  li strong{color:var(--text);}
+
+  .table-wrap{overflow-x:auto;margin:16px 0;border-radius:10px;border:1px solid var(--surface-2);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead th{background:var(--surface);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--surface-2);}
+  tbody tr{border-bottom:1px solid var(--surface-2);transition:background .1s;}
+  tbody tr:last-child{border-bottom:none;}
+  tbody tr:hover{background:var(--green-glow);}
+  tbody td{padding:10px 14px;color:var(--muted);vertical-align:top;}
+  tbody td strong{color:var(--text);}
+
+  .pill{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;margin:1px 2px;}
+  .pill-green{background:rgba(34,197,94,.12);color:var(--success);}
+  .pill-yellow{background:rgba(245,158,11,.12);color:var(--warning);}
+  .pill-red{background:rgba(239,68,68,.12);color:var(--danger);}
+  .pill-blue{background:rgba(56,189,248,.12);color:var(--info);}
+  .pill-indigo{background:var(--indigo-glow);color:var(--indigo);}
+  .pill-gray{background:var(--surface-2);color:var(--muted);}
+
+  .formula{background:var(--surface);border:1px solid var(--surface-2);border-radius:8px;padding:16px 18px;margin:14px 0;font-family:'SF Mono','Fira Code',monospace;font-size:13px;color:var(--info);line-height:1.8;white-space:pre;overflow-x:auto;}
+
+  .callout{border-radius:10px;padding:14px 16px;margin:16px 0;font-size:13px;line-height:1.65;display:flex;gap:12px;align-items:flex-start;}
+  .callout-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .callout-body{color:var(--muted);}
+  .callout-body strong{color:var(--text);display:block;margin-bottom:4px;}
+  .callout-info{background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);}
+  .callout-warn{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);}
+  .callout-success{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);}
+  .callout-danger{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);}
+
+  /* MILESTONES */
+  .ms-track{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0;position:relative;}
+  .ms-track::before{content:'';position:absolute;top:28px;left:12%;right:12%;height:2px;background:var(--surface-2);z-index:0;}
+  .ms-card{background:var(--surface);border:2px solid var(--surface-2);border-radius:14px;padding:16px 12px;text-align:center;position:relative;z-index:1;}
+  .ms-card.reached{border-color:var(--green);}
+  .ms-card.current{border-color:var(--warning);box-shadow:0 0 0 3px rgba(245,158,11,.15);}
+  .ms-icon{font-size:22px;margin-bottom:8px;display:block;}
+  .ms-level{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:4px;}
+  .ms-card.reached .ms-level{color:var(--green);}
+  .ms-card.current .ms-level{color:var(--warning);}
+  .ms-name{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .ms-sub{font-size:11px;color:var(--muted);line-height:1.5;}
+  .ms-check{position:absolute;top:-8px;right:-8px;width:20px;height:20px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;}
+
+  /* PROGRESS RING */
+  .ring-demo{display:flex;align-items:center;gap:32px;margin:20px 0;flex-wrap:wrap;}
+  .ring-wrap{position:relative;width:120px;height:120px;flex-shrink:0;}
+  .ring-wrap svg{transform:rotate(-90deg);}
+  .ring-bg{fill:none;stroke:var(--surface-2);stroke-width:10;}
+  .ring-fill{fill:none;stroke:var(--green);stroke-width:10;stroke-linecap:round;stroke-dasharray:283;stroke-dashoffset:85;}
+  .ring-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;}
+  .ring-label .pct{font-size:20px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;}
+  .ring-label .sub{font-size:9px;color:var(--muted);}
+  .ring-info{flex:1;min-width:200px;}
+  .ri-item{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--surface-2);font-size:13px;}
+  .ri-item:last-child{border-bottom:none;}
+  .ri-label{color:var(--muted);}
+  .ri-val{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums;}
+
+  /* HEALTH SCORE */
+  .health-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:10px;margin:16px 0;}
+  .hc-card{background:var(--surface);border:1px solid var(--surface-2);border-radius:10px;padding:14px 16px;}
+  .hc-score{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:2px;}
+  .hc-label{font-size:12px;color:var(--muted);}
+  .hc-max{font-size:10px;color:var(--muted);opacity:.6;}
+  .hc-bar{height:4px;border-radius:2px;background:var(--surface-2);margin-top:8px;overflow:hidden;}
+  .hc-fill{height:100%;border-radius:2px;}
+
+  /* KPI */
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin:16px 0;}
+  .kpi-card{background:var(--surface);border:1px solid var(--surface-2);border-radius:10px;padding:14px 16px;}
+  .kpi-card .k-val{font-size:22px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1;margin-bottom:4px;}
+  .kpi-card .k-label{font-size:12px;color:var(--muted);}
+  .kpi-card .k-sub{font-size:11px;color:var(--muted);margin-top:4px;opacity:.7;}
+
+  /* NOTIF */
+  .notif-list{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+  .notif-item{background:var(--surface);border:1px solid var(--surface-2);border-radius:8px;padding:12px 14px;display:flex;align-items:flex-start;gap:12px;}
+  .n-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+  .n-body .n-title{font-size:13px;font-weight:600;color:var(--text);}
+  .n-body .n-desc{font-size:12px;color:var(--muted);margin-top:2px;}
+  .n-body .n-timing{font-size:11px;color:var(--green);margin-top:4px;font-weight:600;}
+
+  /* EDGE */
+  .edge-list{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+  .edge-item{background:var(--surface);border:1px solid var(--surface-2);border-radius:8px;padding:13px 15px;}
+  .edge-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:8px;}
+  .edge-body{font-size:13px;color:var(--muted);line-height:1.65;}
+
+  /* PERF */
+  .perf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin:16px 0;}
+  .perf-card{background:var(--surface);border:1px solid var(--surface-2);border-radius:10px;padding:14px 16px;}
+  .perf-card .p-val{font-size:22px;font-weight:800;color:var(--green);font-variant-numeric:tabular-nums;line-height:1;margin-bottom:4px;}
+  .perf-card .p-label{font-size:12px;color:var(--muted);}
+
+  @media(max-width:768px){nav#sidebar{display:none;}main{margin-left:0;padding:24px 20px 60px;}.ms-track{grid-template-columns:1fr 1fr;}.ms-track::before{display:none;}.ring-demo{flex-direction:column;}}
+</style>
+
+<nav id="sidebar">
+  <div class="nav-brand">
+    <div class="badge">Finance Bag</div>
+    <h1>SPEC-EMF-001</h1>
+    <p>Emergency Fund System</p>
+  </div>
+  <ul>
+    <li><a href="#s1"><span class="num">01</span> Core Philosophy</a></li>
+    <li><a href="#s2"><span class="num">02</span> Data Model</a></li>
+    <li><a href="#s3"><span class="num">03</span> Milestone System</a></li>
+    <li><a href="#s4"><span class="num">04</span> Fund Configuration</a></li>
+    <li><a href="#s5"><span class="num">05</span> Contribution Lifecycle</a></li>
+    <li><a href="#s6"><span class="num">06</span> Progress Calculations</a></li>
+    <li><a href="#s7"><span class="num">07</span> Visualization</a></li>
+    <li><a href="#s8"><span class="num">08</span> Health Score</a></li>
+    <li><a href="#s9"><span class="num">09</span> Smart Recommendations</a></li>
+    <li><a href="#s10"><span class="num">10</span> Automation</a></li>
+    <li><a href="#s11"><span class="num">11</span> Goal Adjustment</a></li>
+    <li><a href="#s12"><span class="num">12</span> Analytics</a></li>
+    <li><a href="#s13"><span class="num">13</span> Search &amp; History</a></li>
+    <li><a href="#s14"><span class="num">14</span> Notifications</a></li>
+    <li><a href="#s15"><span class="num">15</span> Edge Cases</a></li>
+    <li><a href="#s16"><span class="num">16</span> Scalability &amp; Business Rules</a></li>
+  </ul>
+  <button class="theme-toggle" onclick="toggleTheme()">Toggle Light / Dark</button>
+</nav>
+
+<main>
+  <div class="doc-header">
+    <div class="spec-id">SPEC-EMF-001 &mdash; Emergency Fund</div>
+    <h2>Emergency Fund System</h2>
+    <p>Complete functional specification for the Emergency Fund module of Finance Bag. Covers milestone architecture, contribution lifecycle, progress calculations, behavioral health scoring, smart recommendations, automation, and future scalability.</p>
+    <div class="meta-row">
+      <div class="meta-item"><span class="label">Document</span><span class="val">SPEC-EMF-001</span></div>
+      <div class="meta-item"><span class="label">Version</span><span class="val">1.0.0</span></div>
+      <div class="meta-item"><span class="label">Status</span><span class="val">Draft — Internal</span></div>
+      <div class="meta-item"><span class="label">Date</span><span class="val">July 2026</span></div>
+      <div class="meta-item"><span class="label">Depends on</span><span class="val">SPEC-SAL-001, SPEC-BUD-001</span></div>
+    </div>
+  </div>
+
+  <!-- §1 -->
+  <section id="s1">
+    <h2><span class="s-num">01</span> Core Philosophy</h2>
+    <p>The Emergency Fund is the foundation of financial resilience. Without it, every unexpected expense — a medical bill, a car repair, a job loss — becomes a crisis. With it, the user gains a buffer that transforms emergencies into inconveniences.</p>
+
+    <div class="callout callout-success">
+      <div class="callout-icon">🛡️</div>
+      <div class="callout-body">
+        <strong>Founding Principle</strong>
+        The Emergency Fund is not a savings account — it is financial armor. The system must educate, motivate, and coach — not just track numbers. Every dirham contributed is a step toward the state where unexpected events no longer cause financial panic.
+      </div>
+    </div>
+
+    <h3>Three Roles of the System</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Role</th><th>What the System Does</th><th>Implementation</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Educator</strong></td><td>Explains why each milestone level matters and what it actually protects against</td><td>Contextual descriptions on milestone cards; health score explanations with plain-language impact statements</td></tr>
+        <tr><td><strong>Motivator</strong></td><td>Makes every contribution feel meaningful, regardless of amount</td><td>Progress ring, milestone badges, "You are X% financially protected" messaging, celebration animations</td></tr>
+        <tr><td><strong>Coach</strong></td><td>Guides users toward the right target, pace, and priority relative to other financial goals</td><td>Smart recommendations, health score, DTI-aware contribution suggestions, completion date estimates</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Cross-Module Integration</h3>
+    <ul>
+      <li><strong>Budget (SPEC-BUD-001):</strong> Monthly contribution is an EMERGENCY_FUND category — changes sync automatically, no double entry.</li>
+      <li><strong>Salary (SPEC-SAL-001):</strong> Monthly essential expenses are pre-filled from the budget allocation pattern. Target amounts derive from this figure.</li>
+      <li><strong>Health Score (SPEC-SAL-001):</strong> Fund completion contributes 20 points. Contribution consistency adds weight within that 20-point range.</li>
+      <li><strong>Debt (SPEC-DBT-001):</strong> When DTI &gt;40%, the system recommends reaching Level 1 only, then shifting surplus toward debt — never recommending both simultaneously unless income permits.</li>
+    </ul>
+  </section>
+
+  <!-- §2 DATA MODEL -->
+  <section id="s2">
+    <h2><span class="s-num">02</span> Data Model</h2>
+
+    <h3>EmergencyFund (Singleton)</h3>
+    <div class="formula">EmergencyFund {
+  id                  integer (PK = 1, singleton)
+
+  -- Fund state
+  currentAmount       number (centimes, ≥ 0)
+  targetAmount        number (centimes, > 0)
+  monthlyContribution number (centimes, ≥ 0)
+
+  -- Configuration
+  targetType          '1_month' | '3_months' | '6_months' | 'custom'
+  monthlyExpenses     number (centimes, > 0)    Essential monthly expenses
+  currency            CurrencyCode              default: MAD
+  contributionDay     integer (1–28)            Day of month for scheduled contribution
+  isAutoContribute    boolean                   default: false
+  isPaused            boolean                   default: false
+  pausedAt            ISO-8601 | null
+  pauseReason         string | null
+
+  updatedAt           ISO-8601
+}</div>
+
+    <h3>EmergencyContribution</h3>
+    <div class="formula">EmergencyContribution {
+  id              UUID (primary key)
+  type            ContributionType    DEPOSIT | WITHDRAWAL | ADJUSTMENT | AUTO | BONUS
+  amount          number (centimes)   Positive = in; negative = out (withdrawals)
+  date            ISO-8601 date
+  note            string | null (0–200 chars)
+  tags            string[] (max 5)
+  source          'salary' | 'bonus' | 'manual' | 'bank_sync' | 'auto'
+  balanceAfter    number (centimes)   Running balance snapshot after this entry
+  milestoneReached MilestoneLevel | null  Set when this entry crosses a milestone boundary
+  createdAt       ISO-8601
+  deletedAt       ISO-8601 | null     Soft delete
+}</div>
+
+    <h3>MilestoneLevel (Enum)</h3>
+    <div class="formula">MilestoneLevel:
+  LEVEL_0   = 'started'       Any amount > 0
+  LEVEL_1   = '1_month'       currentAmount ≥ 1 × monthlyExpenses
+  LEVEL_2   = '3_months'      currentAmount ≥ 3 × monthlyExpenses
+  LEVEL_3   = '6_months'      currentAmount ≥ 6 × monthlyExpenses
+  LEVEL_4   = 'custom'        currentAmount ≥ user-defined custom target</div>
+
+    <div class="callout callout-info">
+      <div class="callout-icon">📐</div>
+      <div class="callout-body">
+        <strong>Computed Fields (Never Stored)</strong>
+        The following are always derived at read time from stored data: <code>completionPct</code>, <code>remainingAmount</code>, <code>currentMilestoneLevel</code>, <code>estimatedCompletionDate</code>, <code>monthsToCompletion</code>, <code>averageMonthlyContribution</code>, <code>consistencyScore</code>. Storing computed values would create data integrity risk.
+      </div>
+    </div>
+  </section>
+
+  <!-- §3 MILESTONES -->
+  <section id="s3">
+    <h2><span class="s-num">03</span> Milestone System</h2>
+    <p>The milestone system transforms a large, abstract savings goal into a series of achievable, named stages. Each milestone represents a concrete, understandable level of financial protection.</p>
+
+    <div class="ms-track">
+      <div class="ms-card reached">
+        <div class="ms-check">✓</div>
+        <span class="ms-icon">🌱</span>
+        <div class="ms-level">Level 0</div>
+        <div class="ms-name">Started</div>
+        <div class="ms-sub">Any contribution &gt; 0 MAD. The hardest step is the first.</div>
+      </div>
+      <div class="ms-card reached">
+        <div class="ms-check">✓</div>
+        <span class="ms-icon">🛡️</span>
+        <div class="ms-level">Level 1</div>
+        <div class="ms-name">First Shield</div>
+        <div class="ms-sub">1 month of essential expenses. Covers most single unexpected events.</div>
+      </div>
+      <div class="ms-card current">
+        <span class="ms-icon">💪</span>
+        <div class="ms-level">Level 2 · Active</div>
+        <div class="ms-name">Stable Ground</div>
+        <div class="ms-sub">3 months of expenses. Covers job loss, major illness, or large repair.</div>
+      </div>
+      <div class="ms-card">
+        <span class="ms-icon">🏰</span>
+        <div class="ms-level">Level 3 · Target</div>
+        <div class="ms-name">Financial Fortress</div>
+        <div class="ms-sub">6 months of expenses. The gold standard for financial security.</div>
+      </div>
+    </div>
+
+    <h3>Milestone Definitions</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Level</th><th>Target</th><th>Protection Against</th><th>Industry Standard</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Level 0 — Started</strong></td><td>Any amount &gt; 0</td><td>Very minor unexpected costs. First savings behavior.</td><td>Achievement: behavior change</td></tr>
+        <tr><td><strong>Level 1 — First Shield</strong></td><td>1 × monthlyExpenses</td><td>Minor car repairs, small medical bills, appliance replacement</td><td>Minimum recommended by financial planners</td></tr>
+        <tr><td><strong>Level 2 — Stable Ground</strong></td><td>3 × monthlyExpenses</td><td>1–3 months of job loss, major illness, large unplanned expense</td><td>Recommended for single-income households</td></tr>
+        <tr><td><strong>Level 3 — Financial Fortress</strong></td><td>6 × monthlyExpenses</td><td>Extended job loss, long-term medical issue, major life disruption</td><td>Gold standard — recommended for all households</td></tr>
+        <tr><td><strong>Level 4 — Custom</strong></td><td>User-defined MAD amount</td><td>Context-specific (entrepreneur, variable income, large family)</td><td>User or advisor-defined</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Milestone Crossing Behavior</h3>
+    <p>When a contribution causes <code>currentAmount</code> to cross a milestone threshold for the first time:</p>
+    <ol>
+      <li>The contribution record gets <code>milestoneReached</code> set to that level.</li>
+      <li>A celebration animation triggers in the UI (confetti, ripple).</li>
+      <li>A milestone notification fires immediately (see §14).</li>
+      <li>A milestone badge is unlocked and displayed on the user's profile.</li>
+      <li>The system suggests the next milestone as the new target if the user hasn't already set it.</li>
+    </ol>
+
+    <div class="callout callout-warn">
+      <div class="callout-icon">⚠️</div>
+      <div class="callout-body">
+        <strong>Milestone Re-crossing on Withdrawal</strong>
+        If a withdrawal drops the balance below a milestone threshold, the milestone is not revoked — the badge is retained, but the progress bar reflects the current real balance. A contextual note appears: "Your balance has dipped below your Level 2 milestone. Resume contributions to rebuild."
+      </div>
+    </div>
+  </section>
+
+  <!-- §4 CONFIGURATION -->
+  <section id="s4">
+    <h2><span class="s-num">04</span> Fund Configuration</h2>
+    <p>Users configure the Emergency Fund during onboarding and can adjust it at any time from the Settings tab of the module. Configuration changes never alter historical contribution records.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Setting</th><th>Required?</th><th>Default</th><th>Validation</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Monthly Essential Expenses</strong></td><td><span class="pill pill-red">Required</span></td><td>Derived from budget allocation sum (ESSENTIAL_EXPENSE categories)</td><td>&gt; 0; update refreshes all milestone targets instantly</td></tr>
+        <tr><td><strong>Target Type</strong></td><td><span class="pill pill-red">Required</span></td><td>6_months</td><td>Must be a valid TargetType enum value</td></tr>
+        <tr><td><strong>Custom Target Amount</strong></td><td><span class="pill pill-yellow">If custom</span></td><td>—</td><td>&gt; 0; required only when targetType = 'custom'</td></tr>
+        <tr><td><strong>Monthly Contribution</strong></td><td><span class="pill pill-yellow">Optional</span></td><td>10% of salary (suggested)</td><td>≥ 0; 0 = contribution tracking is manual only</td></tr>
+        <tr><td><strong>Contribution Day</strong></td><td><span class="pill pill-yellow">Optional</span></td><td>Salary payment day + 1</td><td>Integer 1–28</td></tr>
+        <tr><td><strong>Auto-Contribute</strong></td><td><span class="pill pill-yellow">Optional</span></td><td>false</td><td>Boolean; requires monthlyContribution &gt; 0</td></tr>
+        <tr><td><strong>Contribution Source</strong></td><td><span class="pill pill-yellow">Optional</span></td><td>manual</td><td>'salary' | 'bonus' | 'manual' | 'both'</td></tr>
+        <tr><td><strong>Notes</strong></td><td><span class="pill pill-gray">Optional</span></td><td>—</td><td>0–500 chars; shown on fund overview card</td></tr>
+        <tr><td><strong>Currency</strong></td><td><span class="pill pill-gray">Optional</span></td><td>Inherits from user profile (MAD)</td><td>ISO 4217 code; future multi-currency</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Target Amount Derivation</h3>
+    <div class="formula">targetAmount =
+  if targetType = '1_month':  monthlyExpenses × 1
+  if targetType = '3_months': monthlyExpenses × 3
+  if targetType = '6_months': monthlyExpenses × 6
+  if targetType = 'custom':   user-entered customTargetAmount
+
+-- targetAmount refreshes automatically when monthlyExpenses changes
+-- but never retroactively changes historical balanceAfter values</div>
+
+    <h3>Monthly Expenses Pre-fill Logic</h3>
+    <p>During onboarding or first visit to the Emergency Fund module, the system pre-fills <code>monthlyExpenses</code> by summing the allocated amounts of all ESSENTIAL_EXPENSE budget categories from the current budget period. The user can override this figure freely — it is just a starting suggestion, not a binding value.</p>
+  </section>
+
+  <!-- §5 CONTRIBUTION LIFECYCLE -->
+  <section id="s5">
+    <h2><span class="s-num">05</span> Contribution Lifecycle</h2>
+
+    <h3>Contribution Types</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Type</th><th>Definition</th><th>Sign</th><th>Effect on Balance</th></tr></thead>
+      <tbody>
+        <tr><td><strong>DEPOSIT</strong></td><td>Standard manual contribution from the user</td><td>+</td><td>Increases currentAmount</td></tr>
+        <tr><td><strong>AUTO</strong></td><td>System-generated contribution (auto-contribute enabled)</td><td>+</td><td>Increases currentAmount; also marks budget category as spent</td></tr>
+        <tr><td><strong>BONUS</strong></td><td>Extra one-time deposit (windfall, bonus, gift)</td><td>+</td><td>Increases currentAmount; no budget impact</td></tr>
+        <tr><td><strong>WITHDRAWAL</strong></td><td>Emergency drawdown from the fund</td><td>−</td><td>Decreases currentAmount; triggers recovery recommendation</td></tr>
+        <tr><td><strong>ADJUSTMENT</strong></td><td>Manual correction to fix a data entry error</td><td>+ or −</td><td>Sets balance to intended amount; requires a note explaining reason</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Recording a Contribution (User Flow)</h3>
+    <ol>
+      <li>User taps "Add Contribution" and chooses type (Deposit, Bonus, or Withdrawal).</li>
+      <li>User enters amount, date (default: today), optional note, and optional tags.</li>
+      <li>System computes <code>balanceAfter = currentAmount + amount</code> and checks for milestone crossing.</li>
+      <li>If balance &lt; 0: block with error "Withdrawal exceeds fund balance."</li>
+      <li>Contribution is saved. <code>EmergencyFund.currentAmount</code> is updated.</li>
+      <li>Budget module is notified if the contribution links to a budget period (DEPOSIT / AUTO types).</li>
+      <li>Milestone check runs; celebration triggered if appropriate.</li>
+    </ol>
+
+    <h3>Contribution Status</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Status</th><th>When Set</th><th>User Action</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ACTIVE</strong></td><td>Default state for all valid entries</td><td>Editable within 30 days</td></tr>
+        <tr><td><strong>DELETED</strong></td><td>User deletes a contribution</td><td>Soft delete — balance is recalculated; see §15 EC-02</td></tr>
+        <tr><td><strong>ADJUSTED</strong></td><td>An ADJUSTMENT entry references this original entry</td><td>Original preserved; adjustment shown in history</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- §6 CALCULATIONS -->
+  <section id="s6">
+    <h2><span class="s-num">06</span> Progress Calculations</h2>
+
+    <h3>Core Formulas</h3>
+    <div class="formula">-- Completion percentage
+completionPct = currentAmount / targetAmount × 100
+  → capped at display maximum of 100% (can exceed in storage)
+
+-- Remaining amount
+remainingAmount = MAX(targetAmount - currentAmount, 0)
+
+-- Current milestone level
+currentMilestoneLevel:
+  if currentAmount >= 6 × monthlyExpenses   → LEVEL_3
+  if currentAmount >= 3 × monthlyExpenses   → LEVEL_2
+  if currentAmount >= 1 × monthlyExpenses   → LEVEL_1
+  if currentAmount > 0                      → LEVEL_0
+  else                                      → null (not started)
+
+-- Estimated completion date
+averageMonthlyContribution = Σ(DEPOSIT + AUTO contributions in last 3 months) / 3
+monthsToCompletion = CEIL(remainingAmount / averageMonthlyContribution)
+  → Guard: if averageMonthlyContribution = 0 → "Set a monthly contribution to see estimate"
+estimatedCompletionDate = today + monthsToCompletion months
+
+-- Monthly growth rate (last 3 months average)
+monthlyGrowthRate = averageMonthlyContribution / MAX(currentAmount, 1) × 100
+
+-- Consistency score
+monthsActive = months between createdAt and today (minimum 1)
+monthsWithContribution = COUNT(distinct months with ≥ 1 DEPOSIT or AUTO entry)
+consistencyScore = monthsWithContribution / monthsActive × 100  (0–100)</div>
+
+    <h3>Protection Coverage Display</h3>
+    <p>Beyond a raw percentage, the system displays the fund's protection in human terms:</p>
+    <div class="formula">-- "Days of coverage" display
+daysOfCoverage = FLOOR(currentAmount / (monthlyExpenses / 30))
+
+-- Display logic
+if daysOfCoverage < 30:   "X days of protection"
+if daysOfCoverage < 90:   "X weeks of protection"
+if daysOfCoverage >= 90:  "X months of protection"
+
+-- Example: currentAmount=15,000 MAD, monthlyExpenses=5,000 MAD
+-- daysOfCoverage = 15,000 / (5,000/30) = 90 days → "3 months of protection"</div>
+
+    <h3>Live Update Guarantee</h3>
+    <p>All computed values refresh within 100ms of any state change: new contribution, deleted contribution, changed <code>monthlyExpenses</code>, changed <code>targetAmount</code>. The UI never shows stale data.</p>
+  </section>
+
+  <!-- §7 VISUALIZATION -->
+  <section id="s7">
+    <h2><span class="s-num">07</span> Visualization</h2>
+
+    <h3>Primary Progress Ring</h3>
+    <div class="ring-demo">
+      <div class="ring-wrap">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle class="ring-bg" cx="60" cy="60" r="45"/>
+          <circle class="ring-fill" cx="60" cy="60" r="45"/>
+        </svg>
+        <div class="ring-label"><div class="pct">70%</div><div class="sub">Protected</div></div>
+      </div>
+      <div class="ring-info">
+        <div class="ri-item"><span class="ri-label">Current balance</span><span class="ri-val">10,500 MAD</span></div>
+        <div class="ri-item"><span class="ri-label">Target (6 months)</span><span class="ri-val">15,000 MAD</span></div>
+        <div class="ri-item"><span class="ri-label">Remaining</span><span class="ri-val">4,500 MAD</span></div>
+        <div class="ri-item"><span class="ri-label">Coverage</span><span class="ri-val">~63 days</span></div>
+        <div class="ri-item"><span class="ri-label">Est. completion</span><span class="ri-val">Oct 2026</span></div>
+      </div>
+    </div>
+
+    <h3>Visual Elements Inventory</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Visual</th><th>Description</th><th>Location</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Progress Ring</strong></td><td>Animated circular ring showing completion %. Color transitions: red (0–33%) → orange (34–66%) → green (67–100%)</td><td>Module hero card</td></tr>
+        <tr><td><strong>Milestone Track</strong></td><td>4 milestone nodes on a horizontal timeline; reached = green, current = yellow pulse, future = grey</td><td>Below progress ring</td></tr>
+        <tr><td><strong>Monthly Timeline</strong></td><td>Bar chart showing contribution amount per month for the last 12 months</td><td>Analytics tab</td></tr>
+        <tr><td><strong>Growth Curve</strong></td><td>Smooth area chart of running balance over all time; projects forward to target with dotted line</td><td>Analytics tab</td></tr>
+        <tr><td><strong>Milestone Badges</strong></td><td>Unlockable achievement badges displayed on profile: 🌱 Started, 🛡️ First Shield, 💪 Stable Ground, 🏰 Fortress</td><td>Profile screen + milestone card</td></tr>
+        <tr><td><strong>Protection Counter</strong></td><td>Large, human-readable "X months of protection" displayed prominently</td><td>Fund overview</td></tr>
+        <tr><td><strong>Completion Countdown</strong></td><td>"X months to Level 3" — countdown ticker that animates on contribution</td><td>Below ring</td></tr>
+        <tr><td><strong>Contribution Heatmap</strong></td><td>Calendar grid showing which months had contributions (green) and which were missed (grey)</td><td>History tab</td></tr>
+        <tr><td><strong>Celebration Animation</strong></td><td>Full-screen confetti + milestone card reveal when a level is crossed</td><td>Triggered on contribution save</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout callout-success">
+      <div class="callout-icon">✨</div>
+      <div class="callout-body">
+        <strong>Animation Design Principle</strong>
+        Animations serve motivation, not decoration. They fire only on meaningful events: milestone crossing, large contribution (≥ 10% of target), or completion of goal. Animations respect the system's <code>prefers-reduced-motion</code> setting.
+      </div>
+    </div>
+  </section>
+
+  <!-- §8 HEALTH SCORE -->
+  <section id="s8">
+    <h2><span class="s-num">08</span> Emergency Fund Health Score</h2>
+    <p>A dedicated 0–100 score specifically evaluating the health of the emergency fund, separate from (but feeding into) the global Financial Health Score in SPEC-SAL-001.</p>
+
+    <div class="health-grid">
+      <div class="hc-card">
+        <div class="hc-score" style="color:var(--green)">32</div>
+        <div class="hc-label">Fund Completion</div>
+        <div class="hc-max">/ 40 pts</div>
+        <div class="hc-bar"><div class="hc-fill" style="width:80%;background:var(--green)"></div></div>
+      </div>
+      <div class="hc-card">
+        <div class="hc-score" style="color:var(--warning)">16</div>
+        <div class="hc-label">Contribution Consistency</div>
+        <div class="hc-max">/ 25 pts</div>
+        <div class="hc-bar"><div class="hc-fill" style="width:64%;background:var(--warning)"></div></div>
+      </div>
+      <div class="hc-card">
+        <div class="hc-score" style="color:var(--green)">12</div>
+        <div class="hc-label">Goal Realism</div>
+        <div class="hc-max">/ 15 pts</div>
+        <div class="hc-bar"><div class="hc-fill" style="width:80%;background:var(--green)"></div></div>
+      </div>
+      <div class="hc-card">
+        <div class="hc-score" style="color:var(--success)">10</div>
+        <div class="hc-label">Contribution Sustainability</div>
+        <div class="hc-max">/ 10 pts</div>
+        <div class="hc-bar"><div class="hc-fill" style="width:100%;background:var(--success)"></div></div>
+      </div>
+      <div class="hc-card">
+        <div class="hc-score" style="color:var(--green)">8</div>
+        <div class="hc-label">Readiness</div>
+        <div class="hc-max">/ 10 pts</div>
+        <div class="hc-bar"><div class="hc-fill" style="width:80%;background:var(--green)"></div></div>
+      </div>
+    </div>
+
+    <h3>Component Definitions</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Component</th><th>Max</th><th>Formula</th><th>Thresholds</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Fund Completion</strong></td><td>40 pts</td>
+          <td><code>completionPct / 100 × 40</code></td>
+          <td>0% = 0 pts; 50% = 20 pts; 100% = 40 pts; linear</td>
+        </tr>
+        <tr>
+          <td><strong>Contribution Consistency</strong></td><td>25 pts</td>
+          <td><code>consistencyScore / 100 × 25</code></td>
+          <td>Contributes every month for 3+ months = full score approach; 0 months = 0</td>
+        </tr>
+        <tr>
+          <td><strong>Goal Realism</strong></td><td>15 pts</td>
+          <td>Based on estimated months to completion</td>
+          <td>≤12 months: 15 pts · 13–24 months: 10 pts · 25–36 months: 5 pts · &gt;36 months: 0 pts</td>
+        </tr>
+        <tr>
+          <td><strong>Contribution Sustainability</strong></td><td>10 pts</td>
+          <td><code>monthlyContribution / disposableIncome ≤ 20%</code></td>
+          <td>≤20% of disposable income: 10 pts · 21–35%: 5 pts · &gt;35%: 0 pts (unsustainable pace)</td>
+        </tr>
+        <tr>
+          <td><strong>Readiness</strong></td><td>10 pts</td>
+          <td>Fund is accessible (no lockup), in correct currency, not paused</td>
+          <td>All conditions met: 10 pts · Fund paused: 5 pts · Paused + below Level 1: 0 pts</td>
+        </tr>
+      </tbody>
+    </table></div>
+
+    <h3>Score Labels</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Score Range</th><th>Label</th><th>Color</th><th>App Message</th></tr></thead>
+      <tbody>
+        <tr><td>80–100</td><td>Excellent</td><td><span class="pill pill-green">Green</span></td><td>"Your emergency fund is in excellent shape. You are financially resilient."</td></tr>
+        <tr><td>60–79</td><td>Good</td><td><span class="pill pill-blue">Blue</span></td><td>"Good progress. A few more months of contributions will take you to excellent."</td></tr>
+        <tr><td>40–59</td><td>Building</td><td><span class="pill pill-yellow">Yellow</span></td><td>"You're building your safety net. Keep contributing — it's working."</td></tr>
+        <tr><td>20–39</td><td>At Risk</td><td><span class="pill pill-yellow">Orange</span></td><td>"Your emergency fund is limited. An unexpected expense could cause financial stress."</td></tr>
+        <tr><td>0–19</td><td>Vulnerable</td><td><span class="pill pill-red">Red</span></td><td>"You have minimal financial protection. Building your fund is your highest priority."</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- §9 RECOMMENDATIONS -->
+  <section id="s9">
+    <h2><span class="s-num">09</span> Smart Recommendations</h2>
+    <p>The recommendation engine produces contextual, personalized guidance. Recommendations are rule-based at v1.0; AI-enhanced at v2.0. A maximum of 3 recommendations are shown at once, ranked by impact.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Trigger Condition</th><th>Recommendation</th><th>Priority</th></tr></thead>
+      <tbody>
+        <tr><td>currentAmount = 0 and fund exists</td><td>"Start with just 500 MAD — that's one step toward your first month of protection." + CTA to add contribution</td><td>🔴 Critical</td></tr>
+        <tr><td>completionPct &lt; 20% and no monthlyContribution set</td><td>"Set a monthly contribution — even 300 MAD/month gets you to Level 1 in X months."</td><td>🔴 High</td></tr>
+        <tr><td>consistencyScore &lt; 50% (missed &gt;50% of months)</td><td>"Turn on auto-contribute to build the habit automatically — consistency matters more than amount."</td><td>🟠 High</td></tr>
+        <tr><td>monthsToCompletion &gt; 36</td><td>"At your current pace, you'll reach your target in X years. Increasing by Y MAD/month would cut this to Z years."</td><td>🟠 Medium</td></tr>
+        <tr><td>Budget shows unassigned balance ≥ 500 MAD</td><td>"You have X MAD unassigned in your budget. Contributing it now would bring your fund to X% completion."</td><td>🟡 Opportunity</td></tr>
+        <tr><td>DTI &gt; 40% and completionPct &lt; 50%</td><td>"Given your debt load, focus on reaching Level 1 (1 month) before accelerating. Small, consistent contributions are the strategy."</td><td>🟠 Priority</td></tr>
+        <tr><td>Fund just crossed a milestone</td><td>"Excellent! You've reached Level X. Your next milestone is Level Y — you need Z more MAD, achievable in W months at your current pace."</td><td>🟢 Motivational</td></tr>
+        <tr><td>Salary increased vs. last period</td><td>"Your income increased by X MAD. Consider directing Y% of the increase (Z MAD) to your emergency fund."</td><td>🟡 Opportunity</td></tr>
+        <tr><td>WITHDRAWAL recorded</td><td>"You've withdrawn X MAD from your emergency fund. Here's a plan to rebuild: contribute Y MAD/month to restore it in Z months."</td><td>🟠 Recovery</td></tr>
+        <tr><td>3 months since last contribution</td><td>"You haven't contributed in 3 months. Your fund is still available, but it's not growing. Even one contribution this month keeps the habit alive."</td><td>🟡 Re-engagement</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Contribution Amount Suggestion</h3>
+    <div class="formula">-- Suggested monthly contribution (smart default)
+disposableIncome = monthlyIncome - Σ(essential expenses) - Σ(debt payments)
+
+suggestedContribution:
+  if currentMilestoneLevel = null or LEVEL_0:
+    → MIN(disposableIncome × 0.15, remainingAmount)    -- 15% of disposable, aggressive start
+  if currentMilestoneLevel = LEVEL_1:
+    → MIN(disposableIncome × 0.10, remainingAmount)    -- 10%, sustainable building
+  if currentMilestoneLevel = LEVEL_2:
+    → MIN(disposableIncome × 0.08, remainingAmount)    -- 8%, slower as foundation is built
+  if DTI > 40%:
+    → MIN(disposableIncome × 0.05, remainingToLevel1)  -- 5%, minimum viable while servicing debt
+
+-- Always display alongside: "At this rate, you'll reach [milestone] in X months"</div>
+  </section>
+
+  <!-- §10 AUTOMATION -->
+  <section id="s10">
+    <h2><span class="s-num">10</span> Automation</h2>
+
+    <h3>Auto-Contribute</h3>
+    <p>When <code>isAutoContribute = true</code>, the system creates an AUTO-type contribution on <code>contributionDay</code> each month for <code>monthlyContribution</code> MAD. The process:</p>
+    <ol>
+      <li>On the contribution day, the system checks: is the fund paused? Is the budget period open? Is the budget EMERGENCY_FUND category allocation sufficient?</li>
+      <li>If all checks pass: creates an AUTO contribution, updates <code>currentAmount</code>, marks the budget category as spent.</li>
+      <li>If the budget category has less than the scheduled contribution: contributes the available amount only; notifies the user of the shortfall.</li>
+      <li>Sends a confirmation notification: "Monthly contribution of X MAD added automatically."</li>
+    </ol>
+
+    <h3>Salary-Based Contribution</h3>
+    <p>When <code>contributionSource = 'salary'</code>, the scheduled contribution fires on the salary day (from SPEC-SAL-001) rather than a fixed calendar day. This ensures the contribution happens when money is actually available.</p>
+
+    <h3>Automatic Milestone Detection</h3>
+    <p>Every time <code>currentAmount</code> is updated (by any means), the system evaluates <code>currentMilestoneLevel</code> and compares it to the level before the update. If a level has been crossed for the first time, the milestone celebration flow triggers automatically.</p>
+
+    <h3>Automatic Status Updates</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Trigger</th><th>Auto-Action</th></tr></thead>
+      <tbody>
+        <tr><td>currentAmount ≥ targetAmount</td><td>Completion notification fires; suggest archiving or setting a new target</td></tr>
+        <tr><td>3 months with no contribution and isAutoContribute = false</td><td>Re-engagement notification; health score "Consistency" component drops</td></tr>
+        <tr><td>monthlyExpenses changes by &gt;10%</td><td>targetAmount recalculates; notify user "Your target has been updated to X MAD due to expense change"</td></tr>
+        <tr><td>Debt module: last debt paid off</td><td>Suggestion: "You've paid off all debts — consider redirecting X MAD/month to your emergency fund"</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Future: Round-Up Savings (v2.0)</h3>
+    <p>When bank synchronization is available, the app will offer to round up every transaction to the nearest 10 MAD and deposit the difference to the emergency fund. Example: a 73 MAD grocery purchase rounds up to 80 MAD, and 7 MAD flows to the fund. These appear as BONUS contributions.</p>
+  </section>
+
+  <!-- §11 GOAL ADJUSTMENT -->
+  <section id="s11">
+    <h2><span class="s-num">11</span> Goal Adjustment</h2>
+    <p>Users can adjust their emergency fund goal at any time. All adjustments preserve historical data — no contribution record is modified.</p>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Adjustment</th><th>User Action</th><th>System Response</th><th>Data Impact</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Increase Target</strong></td><td>Change targetType to a higher level or increase custom amount</td><td>targetAmount recalculates; completion % drops; new estimated date computed; user notified</td><td>No historical records changed</td></tr>
+        <tr><td><strong>Decrease Target</strong></td><td>Change targetType to a lower level or reduce custom amount</td><td>Confirmation dialog: "This will lower your safety net level. Are you sure?" then recalculates</td><td>No historical records changed; milestones above new target remain earned as badges</td></tr>
+        <tr><td><strong>Change Monthly Expenses</strong></td><td>Update monthly expenses field</td><td>All level-based targets recalculate instantly; if this lowers an absolute target, same confirmation as above</td><td>Historical contributions unaffected</td></tr>
+        <tr><td><strong>Pause Contributions</strong></td><td>Toggle pause with optional reason note</td><td>isPaused = true; auto-contribute suspended; pause notification sent; health score Readiness component drops 5 pts</td><td>No data deleted</td></tr>
+        <tr><td><strong>Resume Contributions</strong></td><td>Toggle pause off</td><td>isPaused = false; auto-contribute resumes on next scheduled day; resumption notification</td><td>Consistency score: paused months counted as gaps</td></tr>
+        <tr><td><strong>Restart Fund</strong></td><td>"Reset my emergency fund" action in settings</td><td>Creates an ADJUSTMENT contribution setting balance to 0; preserves all history; new contributions start fresh. Requires typed confirmation: "RESET"</td><td>All prior contributions preserved; balance set to 0 via adjustment entry</td></tr>
+        <tr><td><strong>Archive Completed Fund</strong></td><td>After reaching 100% target, user opts to archive</td><td>Fund moves to read-only archive view; history preserved; new EMERGENCY_FUND budget category allocation is set to 0; user prompted to set new financial goal</td><td>Immutable archive; no deletion</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout callout-danger">
+      <div class="callout-icon">🔒</div>
+      <div class="callout-body">
+        <strong>Historical Integrity</strong>
+        No goal adjustment, target change, or pause event ever modifies historical contribution records. The <code>balanceAfter</code> fields on past contributions are permanent snapshots. Reports and analytics always reflect what actually happened, not what was planned.
+      </div>
+    </div>
+  </section>
+
+  <!-- §12 ANALYTICS -->
+  <section id="s12">
+    <h2><span class="s-num">12</span> Analytics</h2>
+
+    <div class="table-wrap"><table>
+      <thead><tr><th>Report</th><th>Description</th><th>Time Range</th><th>Visualization</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Balance Growth Curve</strong></td><td>Running balance over all time with projected future line to target</td><td>All history + 24-month projection</td><td>Area chart + dotted projection</td></tr>
+        <tr><td><strong>Monthly Contributions</strong></td><td>Amount contributed each month</td><td>Last 12 months</td><td>Bar chart</td></tr>
+        <tr><td><strong>Yearly Summary</strong></td><td>Total contributed per year vs. target progress</td><td>All years active</td><td>Grouped bar</td></tr>
+        <tr><td><strong>Consistency Heatmap</strong></td><td>Calendar grid showing contributed (green) vs. missed (grey) months</td><td>All time</td><td>Calendar heatmap</td></tr>
+        <tr><td><strong>Average Monthly Contribution</strong></td><td>Rolling 3-month and 12-month averages</td><td>3 and 12 months</td><td>Stat cards</td></tr>
+        <tr><td><strong>Largest Contribution</strong></td><td>Single largest DEPOSIT or BONUS entry with date</td><td>All time</td><td>Highlight card</td></tr>
+        <tr><td><strong>Contribution Frequency</strong></td><td>How many months per year had at least one contribution</td><td>By year</td><td>Metric + bar</td></tr>
+        <tr><td><strong>Time to Milestones</strong></td><td>How many months it took to reach each milestone level</td><td>Historical</td><td>Timeline with durations</td></tr>
+        <tr><td><strong>Withdrawal History</strong></td><td>All WITHDRAWAL entries with dates, amounts, and notes</td><td>All time</td><td>List with balance impact</td></tr>
+        <tr><td><strong>Protection Coverage Trend</strong></td><td>Days/months of coverage over time as both balance and expenses change</td><td>12 months</td><td>Line chart</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Key Metrics Panel</h3>
+    <div class="kpi-grid">
+      <div class="kpi-card"><div class="k-val" style="color:var(--green)">10,500 MAD</div><div class="k-label">Current Balance</div><div class="k-sub">70% of target</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--info)">63 days</div><div class="k-label">Coverage</div><div class="k-sub">~2.1 months</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--warning)">850 MAD</div><div class="k-label">Avg / Month</div><div class="k-sub">Last 3 months</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--green)">78%</div><div class="k-label">Consistency</div><div class="k-sub">7 of 9 months</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--indigo)">5 months</div><div class="k-label">To Target</div><div class="k-sub">At current pace</div></div>
+      <div class="kpi-card"><div class="k-val" style="color:var(--success)">3,200 MAD</div><div class="k-label">Largest Deposit</div><div class="k-sub">March 2026 bonus</div></div>
+    </div>
+  </section>
+
+  <!-- §13 SEARCH & HISTORY -->
+  <section id="s13">
+    <h2><span class="s-num">13</span> Search &amp; History</h2>
+    <p>The contribution history provides a complete audit trail of every fund event. Search and filters allow fast retrieval across potentially years of records.</p>
+
+    <h3>Search Dimensions</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Dimension</th><th>Field</th><th>Match Type</th></tr></thead>
+      <tbody>
+        <tr><td>Month/Year</td><td>date (month + year)</td><td>Exact or range filter</td></tr>
+        <tr><td>Amount</td><td>amount</td><td>Range filter (e.g. "over 1,000 MAD")</td></tr>
+        <tr><td>Type</td><td>type</td><td>Multi-select (DEPOSIT, WITHDRAWAL, AUTO, BONUS, ADJUSTMENT)</td></tr>
+        <tr><td>Source</td><td>source</td><td>Multi-select filter</td></tr>
+        <tr><td>Tags</td><td>tags[]</td><td>Exact or partial tag match</td></tr>
+        <tr><td>Notes</td><td>note</td><td>Full-text substring</td></tr>
+        <tr><td>Milestone</td><td>milestoneReached</td><td>Filter: "show only milestone contributions"</td></tr>
+        <tr><td>Date range</td><td>date</td><td>From–to date picker</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>History View Features</h3>
+    <ul>
+      <li>Chronological list, newest first; month grouping headers.</li>
+      <li>Each entry shows: date, type badge, amount (green for +, red for −), note preview, balanceAfter.</li>
+      <li>Milestone contributions have a ✨ icon and a milestone name label.</li>
+      <li>Running balance column (right-aligned, tabular numerals).</li>
+      <li>Tap any entry to expand: full note, tags, source, deletion option (within 30 days).</li>
+      <li>Export: CSV (v1.0), PDF statement (v2.0).</li>
+      <li>Pagination: 50 entries per page; lazy load on scroll.</li>
+    </ul>
+  </section>
+
+  <!-- §14 NOTIFICATIONS -->
+  <section id="s14">
+    <h2><span class="s-num">14</span> Notifications</h2>
+
+    <div class="notif-list">
+      <div class="notif-item">
+        <div class="n-dot" style="background:var(--green)"></div>
+        <div class="n-body">
+          <div class="n-title">Monthly Contribution Reminder</div>
+          <div class="n-desc">"Your scheduled emergency fund contribution of 800 MAD is due this week. Tap to confirm or record it now."</div>
+          <div class="n-timing">Fires: 3 days before contributionDay (if not auto-contribute)</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="n-dot" style="background:var(--success)"></div>
+        <div class="n-body">
+          <div class="n-title">Milestone Achieved! 🎉</div>
+          <div class="n-desc">"You've reached Level 2 — Stable Ground! Your emergency fund now covers 3 months of essential expenses. You are protected against most financial emergencies."</div>
+          <div class="n-timing">Fires: immediately when milestone is crossed</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="n-dot" style="background:var(--green)"></div>
+        <div class="n-body">
+          <div class="n-title">Auto-Contribution Confirmed</div>
+          <div class="n-desc">"800 MAD has been automatically added to your emergency fund. New balance: 10,500 MAD (70% of target)."</div>
+          <div class="n-timing">Fires: immediately after successful auto-contribution</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="n-dot" style="background:var(--warning)"></div>
+        <div class="n-body">
+          <div class="n-title">Almost There!</div>
+          <div class="n-desc">"You're 90% of the way to your emergency fund target! Just 1,500 MAD remaining. One more contribution and you'll have full financial protection."</div>
+          <div class="n-timing">Fires: once when completionPct first crosses 90%</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="n-dot" style="background:var(--warning)"></div>
+        <div class="n-body">
+          <div class="n-title">No Contribution This Month</div>
+          <div class="n-desc">"You haven't contributed to your emergency fund this month. Even a small deposit keeps your protection growing."</div>
+          <div class="n-timing">Fires: last day of the month if no contribution recorded and isAutoContribute = false</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="n-dot" style="background:var(--info)"></div>
+        <div class="n-body">
+          <div class="n-title">Goal Reached — Full Protection!</div>
+          <div class="n-desc">"Congratulations! Your emergency fund is fully funded at 15,000 MAD — 6 months of essential expenses. You've achieved Financial Fortress status. 🏰"</div>
+          <div class="n-timing">Fires: when currentAmount first reaches or exceeds targetAmount</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="n-dot" style="background:var(--danger)"></div>
+        <div class="n-body">
+          <div class="n-title">Withdrawal Recorded — Recovery Plan</div>
+          <div class="n-desc">"You've withdrawn 2,000 MAD from your emergency fund. Your balance is now 8,500 MAD (57% of target). To rebuild, contribute 500 MAD/month for 4 months."</div>
+          <div class="n-timing">Fires: immediately after any WITHDRAWAL contribution</div>
+        </div>
+      </div>
+      <div class="notif-item">
+        <div class="n-dot" style="background:var(--indigo)"></div>
+        <div class="n-body">
+          <div class="n-title">Motivational Encouragement</div>
+          <div class="n-desc">"In 6 months, you've saved 5,100 MAD for your emergency fund. That's 34% more than the average Finance Bag user at this stage. Keep going!"</div>
+          <div class="n-timing">Fires: on 3-month and 6-month anniversaries of fund creation</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §15 EDGE CASES -->
+  <section id="s15">
+    <h2><span class="s-num">15</span> Edge Cases</h2>
+
+    <div class="edge-list">
+      <div class="edge-item">
+        <div class="edge-title"><span class="pill pill-yellow">EC-01</span> Contribution Edited</div>
+        <div class="edge-body">User edits a recent contribution (within 30 days). The system recalculates all <code>balanceAfter</code> values for every contribution that follows the edited entry in chronological order, then updates <code>currentAmount</code>. This may trigger or un-trigger milestone events — milestone badges are not revoked, but the milestone-crossing notification does not re-fire.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-title"><span class="pill pill-red">EC-02</span> Contribution Deleted</div>
+        <div class="edge-body">Soft-deleted (<code>deletedAt</code> set). All subsequent <code>balanceAfter</code> values are recalculated. <code>currentAmount</code> is updated. If deletion causes the balance to drop below a milestone, a note is displayed: "Your balance is now below Level X. This milestone was earned and the badge is retained, but your fund needs rebuilding." No notification re-fires.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-title"><span class="pill pill-red">EC-03</span> Withdrawal Causes Negative Balance</div>
+        <div class="edge-body">System prevents <code>currentAmount</code> from going below 0. If withdrawal amount &gt; currentAmount, an error is shown: "Withdrawal of X MAD exceeds your fund balance of Y MAD. Maximum withdrawal is Y MAD." The user may enter the exact balance to close the fund, which records a WITHDRAWAL equal to currentAmount and sets the balance to 0.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-title"><span class="pill pill-yellow">EC-04</span> Target Reduced Below Current Balance</div>
+        <div class="edge-body">User lowers the target to an amount below <code>currentAmount</code>. The system shows: "Your current balance (X MAD) already exceeds this target. Your fund is 100% complete." Completion percentage is capped at 100% in display. The system suggests archiving or setting a more ambitious target.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-title"><span class="pill pill-yellow">EC-05</span> Monthly Expenses Increased Significantly</div>
+        <div class="edge-body">User updates monthly expenses (e.g., moved to more expensive housing). Targets recalculate. If this causes <code>completionPct</code> to drop below a milestone threshold, no milestone badge is revoked. A note appears: "Your target has increased to X MAD due to updated expenses. You're now at Y% completion." A new recommended contribution is shown.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-title"><span class="pill pill-yellow">EC-06</span> Emergency Withdrawal (Actual Emergency)</div>
+        <div class="edge-body">User records a WITHDRAWAL for an actual emergency (job loss, medical). System responds empathetically: uses "withdrawal" not "debit." Post-withdrawal, shows a dedicated recovery card: "Emergency funds are meant for this. Here is your rebuild plan: contribute X MAD/month to restore Level Y in Z months." No negative framing or guilt-inducing language.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-title"><span class="pill pill-gray">EC-07</span> Paused Contributions</div>
+        <div class="edge-body">When isPaused is true, auto-contribute is suspended. Budget category allocation for EMERGENCY_FUND is set to 0 for the next period. Health score Readiness component drops by 5 points. After 3 months of pause, a gentle re-engagement notification fires. The pause reason is stored and shown in the fund settings for context.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-title"><span class="pill pill-yellow">EC-08</span> Missed Contribution (Manual Mode)</div>
+        <div class="edge-body">No auto-contribution — user simply did not add a contribution this month. System records the month as "missed" in the consistency heatmap (grey cell). Consistency score drops proportionally. End-of-month notification fires (see §14). No punitive action — the fund simply doesn't grow that month.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-title"><span class="pill pill-gray">EC-09</span> Duplicate Contribution</div>
+        <div class="edge-body">User accidentally adds the same amount on the same date twice. System detects potential duplicate: "A contribution of X MAD was already recorded today. Is this a separate contribution?" User confirms or cancels. No auto-deduplication — user intent is required. If confirmed, both entries are saved and both count toward the balance.</div>
+      </div>
+      <div class="edge-item">
+        <div class="edge-title"><span class="pill pill-blue">EC-10</span> Currency Changed</div>
+        <div class="edge-body">User changes their primary currency. New contributions are recorded in the new currency. Historical contributions retain their original currency notation and are displayed with a footnote: "Original: X MAD." All aggregate analytics normalize to the new currency using the stored exchange rate at the time of the change. The conversion event is recorded as an ADJUSTMENT entry for auditability.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §16 SCALABILITY & BUSINESS RULES -->
+  <section id="s16">
+    <h2><span class="s-num">16</span> Scalability &amp; Business Rules</h2>
+
+    <h3>Future Architecture Extensions</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Feature</th><th>Required Model Change</th><th>Engine Impact</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Bank Synchronization</strong></td><td>Add bankAccountId + syncedAt to EmergencyContribution; add externalTransactionId</td><td>Imported transactions enter same validation pipeline; no bypass</td></tr>
+        <tr><td><strong>Round-Up Savings</strong></td><td>Add roundUpSourceTransactionId to BONUS contributions</td><td>New contribution source; no calculation change</td></tr>
+        <tr><td><strong>Investment-Linked Fund</strong></td><td>Add investmentAccountId; track market value vs. contribution value separately</td><td>New display: contribution value vs. market value; withdrawals draw from investment</td></tr>
+        <tr><td><strong>Multiple Emergency Funds</strong></td><td>Remove singleton constraint; add userId + fundName; all queries filter by active fundId</td><td>All calculations run per-fund; aggregate view across funds</td></tr>
+        <tr><td><strong>Shared Family Fund</strong></td><td>Add ownerId + sharedWith[] + each contributor's userId on contributions</td><td>Aggregate view per family; contribution breakdown by member</td></tr>
+        <tr><td><strong>AI Recommendations (v2.0)</strong></td><td>Expose recommendation API; AI calls formula engine with user context</td><td>Replaces rule-based recommendations with ML-ranked suggestions; no data model change</td></tr>
+        <tr><td><strong>Multiple Currencies</strong></td><td>Add currency + exchangeRate + baseAmount per contribution</td><td>Analytics normalize to user's base currency; no calculation engine change</td></tr>
+        <tr><td><strong>Scenario Simulations</strong></td><td>Add SimulationResult as ephemeral (non-persisted) computation type</td><td>"What if I contribute X MAD/month?" projections — uses existing formula §6</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Performance Targets</h3>
+    <div class="perf-grid">
+      <div class="perf-card"><div class="p-val">&lt;50ms</div><div class="p-label">All computed metrics</div></div>
+      <div class="perf-card"><div class="p-val">&lt;100ms</div><div class="p-label">Contribution save + balance update</div></div>
+      <div class="perf-card"><div class="p-val">&lt;200ms</div><div class="p-label">Full analytics render</div></div>
+      <div class="perf-card"><div class="p-val">100%</div><div class="p-label">Offline operation</div></div>
+      <div class="perf-card"><div class="p-val">∞</div><div class="p-label">Contribution history stored</div></div>
+    </div>
+
+    <h3>Business Rules</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Rule ID</th><th>Statement</th></tr></thead>
+      <tbody>
+        <tr><td><strong>BR-EMF-01</strong></td><td>The Emergency Fund module is a singleton — one fund per user. Multiple funds are a v2.0 feature requiring a data model migration.</td></tr>
+        <tr><td><strong>BR-EMF-02</strong></td><td>All monetary values are stored as integer centimes. Display conversion to MAD occurs only at the presentation layer.</td></tr>
+        <tr><td><strong>BR-EMF-03</strong></td><td>currentAmount may never be negative. Any operation that would result in a negative balance is blocked with a clear error message.</td></tr>
+        <tr><td><strong>BR-EMF-04</strong></td><td>All computed values (completionPct, remainingAmount, milestoneLevel, estimatedCompletionDate, consistencyScore) are derived at read time from stored data. They are never persisted.</td></tr>
+        <tr><td><strong>BR-EMF-05</strong></td><td>Historical contribution records are never modified. Corrections are made via new ADJUSTMENT entries that reference the original. Deletions are soft-deletes only.</td></tr>
+        <tr><td><strong>BR-EMF-06</strong></td><td>Milestone badges, once earned, are not revoked — even if the balance subsequently drops below the milestone threshold. Achievement records the event, not the current state.</td></tr>
+        <tr><td><strong>BR-EMF-07</strong></td><td>The system uses a maximum of 3 months of contribution history to compute averageMonthlyContribution. Older data is used for trend analytics only, not for completion date projections.</td></tr>
+        <tr><td><strong>BR-EMF-08</strong></td><td>When isAutoContribute is true, the AUTO contribution is treated as a budget expense in the EMERGENCY_FUND category. It cannot create a budget overdraft — if the budget category has insufficient allocation, only the available amount is contributed.</td></tr>
+        <tr><td><strong>BR-EMF-09</strong></td><td>The contributionDay is capped at 28 to ensure validity in all months. If the user's preferred day is 29, 30, or 31, it is stored as 28 with a note.</td></tr>
+        <tr><td><strong>BR-EMF-10</strong></td><td>Notification language for withdrawal events must never be punitive or judgmental. Emergency funds exist precisely to be used in emergencies. Post-withdrawal messaging focuses exclusively on recovery, not criticism.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</main>
+
+<script>
+  function toggleTheme(){
+    const r=document.documentElement;
+    r.setAttribute('data-theme',r.getAttribute('data-theme')==='dark'?'light':'dark');
+  }
+  const sections=document.querySelectorAll('section[id]');
+  const links=document.querySelectorAll('nav#sidebar a');
+  new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting)
+        links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id));
+    });
+  },{rootMargin:'-20% 0px -70% 0px'}).observe
+  sections.forEach(s=>new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting)links.forEach(l=>l.classList.toggle('active',l.getAttribute('href')==='#'+e.target.id));
+    });
+  },{rootMargin:'-20% 0px -70% 0px'}).observe(s));
+</script>

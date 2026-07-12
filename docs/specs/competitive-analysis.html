@@ -1,0 +1,1619 @@
+<title>Analyse Concurrentielle — Finance Bag</title>
+<style>
+  /* ── TOKEN SYSTEM ── */
+  :root {
+    --bg:        #0C0E15;
+    --surface:   #131620;
+    --surface2:  #191D2C;
+    --border:    #1F2336;
+    --border2:   #2A2F48;
+    --txt1:      #DDE1F0;
+    --txt2:      #8B90AB;
+    --txt3:      #4A4F6A;
+    --accent:    #5B6CF0;
+    --accent-d:  rgba(91,108,240,.14);
+    --gold:      #C9A84C;
+    --gold-d:    rgba(201,168,76,.12);
+    --green:     #34C78E;
+    --green-d:   rgba(52,199,142,.12);
+    --red:       #E05C5C;
+    --red-d:     rgba(224,92,92,.12);
+    --amber:     #F0A849;
+    --amber-d:   rgba(240,168,73,.12);
+    --radius:    6px;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg:       #EEF0F7;
+      --surface:  #FFFFFF;
+      --surface2: #F4F5FB;
+      --border:   #DCDFF0;
+      --border2:  #C8CCE3;
+      --txt1:     #141728;
+      --txt2:     #555872;
+      --txt3:     #9095B2;
+      --accent:   #4453E8;
+      --accent-d: rgba(68,83,232,.10);
+      --gold:     #9A7520;
+      --gold-d:   rgba(154,117,32,.10);
+      --green:    #1A9A6A;
+      --green-d:  rgba(26,154,106,.10);
+      --red:      #C03030;
+      --red-d:    rgba(192,48,48,.10);
+      --amber:    #B07010;
+      --amber-d:  rgba(176,112,16,.10);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:#0C0E15;--surface:#131620;--surface2:#191D2C;--border:#1F2336;--border2:#2A2F48;
+    --txt1:#DDE1F0;--txt2:#8B90AB;--txt3:#4A4F6A;--accent:#5B6CF0;--accent-d:rgba(91,108,240,.14);
+    --gold:#C9A84C;--gold-d:rgba(201,168,76,.12);--green:#34C78E;--green-d:rgba(52,199,142,.12);
+    --red:#E05C5C;--red-d:rgba(224,92,92,.12);--amber:#F0A849;--amber-d:rgba(240,168,73,.12);
+  }
+  :root[data-theme="light"] {
+    --bg:#EEF0F7;--surface:#FFFFFF;--surface2:#F4F5FB;--border:#DCDFF0;--border2:#C8CCE3;
+    --txt1:#141728;--txt2:#555872;--txt3:#9095B2;--accent:#4453E8;--accent-d:rgba(68,83,232,.10);
+    --gold:#9A7520;--gold-d:rgba(154,117,32,.10);--green:#1A9A6A;--green-d:rgba(26,154,106,.10);
+    --red:#C03030;--red-d:rgba(192,48,48,.10);--amber:#B07010;--amber-d:rgba(176,112,16,.10);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; font-size: 15px; }
+
+  body {
+    background: var(--bg);
+    color: var(--txt1);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── TYPOGRAPHY ── */
+  .serif { font-family: Georgia, 'Palatino Linotype', 'Book Antiqua', serif; }
+  .mono  { font-family: 'SF Mono','Menlo','Monaco','Consolas','Liberation Mono',monospace;
+           font-variant-numeric: tabular-nums; }
+
+  h1 { font-family: Georgia, serif; font-size: clamp(2.2rem, 5vw, 3.6rem);
+       font-weight: 400; line-height: 1.15; text-wrap: balance; letter-spacing: -.02em; }
+  h2 { font-family: Georgia, serif; font-size: clamp(1.4rem, 3vw, 2rem);
+       font-weight: 400; line-height: 1.25; text-wrap: balance; letter-spacing: -.01em; }
+  h3 { font-size: 1rem; font-weight: 600; letter-spacing: .04em;
+       text-transform: uppercase; color: var(--txt2); }
+  h4 { font-family: Georgia, serif; font-size: 1.15rem; font-weight: 400; }
+  p  { color: var(--txt2); max-width: 68ch; }
+  a  { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ── LAYOUT ── */
+  .wrap  { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+  .wrap--wide { max-width: 1260px; margin: 0 auto; padding: 0 28px; }
+  .section { padding: 80px 0; border-top: 1px solid var(--border); }
+  .section:first-of-type { border-top: none; }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  @media(max-width:760px) { .grid-2,.grid-3 { grid-template-columns: 1fr; } }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(12,14,21,.92); backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    height: 52px; max-width: 1100px; margin: 0 auto; padding: 0 28px;
+  }
+  .nav-brand { font-family: Georgia, serif; font-size: .95rem; color: var(--txt1); }
+  .nav-brand span { color: var(--accent); }
+  .nav-links { display: flex; gap: 24px; }
+  .nav-links a { font-size: .8rem; letter-spacing: .06em; text-transform: uppercase;
+                 color: var(--txt3); transition: color .15s; }
+  .nav-links a:hover { color: var(--txt1); text-decoration: none; }
+  @media(max-width:640px){ .nav-links { display: none; } }
+
+  /* ── HERO ── */
+  .hero { padding: 100px 0 80px; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: .75rem; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 28px;
+    padding: 5px 12px; border: 1px solid var(--border2); border-radius: 100px;
+  }
+  .hero-eyebrow::before { content:''; width:6px; height:6px; border-radius:50%;
+                           background:var(--accent); display:block; }
+  .hero h1 { margin-bottom: 20px; }
+  .hero p { font-size: 1.05rem; line-height: 1.7; margin-bottom: 48px; }
+
+  .hero-stats {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 1px;
+    background: var(--border); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    margin-top: 48px;
+  }
+  @media(max-width:640px){ .hero-stats { grid-template-columns: repeat(2,1fr); } }
+  .hero-stat {
+    background: var(--surface); padding: 20px 22px;
+  }
+  .hero-stat .num { font-family: Georgia, serif; font-size: 2rem; color: var(--txt1);
+                    letter-spacing: -.02em; line-height: 1; margin-bottom: 4px; }
+  .hero-stat .num.accent { color: var(--accent); }
+  .hero-stat .num.gold   { color: var(--gold); }
+  .hero-stat .num.green  { color: var(--green); }
+  .hero-stat .lbl { font-size: .75rem; text-transform: uppercase;
+                    letter-spacing: .08em; color: var(--txt3); }
+
+  /* ── APP CARDS ── */
+  .app-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 20px; }
+  @media(max-width:760px){ .app-grid { grid-template-columns: 1fr; } }
+
+  .app-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); overflow: hidden;
+    transition: border-color .2s;
+  }
+  .app-card:hover { border-color: var(--border2); }
+
+  .app-header {
+    display: flex; align-items: flex-start; justify-content: space-between;
+    padding: 20px 22px 16px; border-bottom: 1px solid var(--border);
+    gap: 12px;
+  }
+  .app-meta { display: flex; align-items: center; gap: 14px; }
+  .app-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; flex-shrink: 0;
+  }
+  .app-name { font-family: Georgia, serif; font-size: 1.05rem; font-weight: 400;
+              color: var(--txt1); line-height: 1.2; }
+  .app-tag  { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em;
+              color: var(--txt3); margin-top: 3px; }
+
+  .score-badges { display: flex; gap: 6px; flex-shrink: 0; }
+  .badge {
+    font-size: .7rem; letter-spacing: .04em; padding: 3px 8px;
+    border-radius: 3px; font-weight: 600;
+    font-family: 'SF Mono','Menlo',monospace;
+  }
+  .badge-blue   { background: var(--accent-d); color: var(--accent); }
+  .badge-gold   { background: var(--gold-d);   color: var(--gold); }
+  .badge-green  { background: var(--green-d);  color: var(--green); }
+  .badge-red    { background: var(--red-d);    color: var(--red); }
+  .badge-amber  { background: var(--amber-d);  color: var(--amber); }
+
+  .app-body { padding: 18px 22px; }
+
+  .philosophy {
+    font-family: Georgia, serif; font-style: italic;
+    font-size: .9rem; color: var(--txt2); line-height: 1.6;
+    padding: 12px 14px; border-left: 2px solid var(--border2);
+    margin-bottom: 16px;
+  }
+
+  .score-row { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+  .score-item { display: flex; align-items: center; gap: 10px; }
+  .score-lbl  { font-size: .72rem; text-transform: uppercase; letter-spacing: .06em;
+                color: var(--txt3); width: 90px; flex-shrink: 0; }
+  .score-bar  { flex: 1; height: 3px; background: var(--border);
+                border-radius: 2px; overflow: hidden; }
+  .score-fill { height: 100%; border-radius: 2px; transition: width .3s; }
+  .score-num  { font-family: 'SF Mono',monospace; font-size: .72rem;
+                color: var(--txt2); width: 28px; text-align: right; flex-shrink: 0; }
+
+  .lists { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  @media(max-width:500px){ .lists { grid-template-columns: 1fr; } }
+
+  .list-block h5 { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em;
+                   color: var(--txt3); margin-bottom: 8px; font-weight: 600; }
+  .list-block ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .list-block li { font-size: .82rem; color: var(--txt2); display: flex;
+                   align-items: flex-start; gap: 7px; line-height: 1.4; }
+  .list-block li::before { flex-shrink: 0; margin-top: 2px; font-size: .7rem; }
+  .list-block.strengths li::before { content: '✦'; color: var(--green); }
+  .list-block.weaknesses li::before { content: '✦'; color: var(--red); }
+
+  .key-insight {
+    font-size: .82rem; color: var(--gold); background: var(--gold-d);
+    border: 1px solid rgba(201,168,76,.2); border-radius: 4px;
+    padding: 10px 14px; line-height: 1.5;
+  }
+  .key-insight::before { content: '◈  '; font-weight: 700; }
+
+  /* ── COMPARISON MATRIX ── */
+  .matrix-wrap { overflow-x: auto; }
+  .matrix {
+    width: 100%; border-collapse: collapse; font-size: .82rem;
+    min-width: 700px;
+  }
+  .matrix th {
+    font-size: .7rem; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--txt3); font-weight: 600; padding: 10px 14px;
+    border-bottom: 1px solid var(--border2); text-align: left;
+    background: var(--surface);
+  }
+  .matrix td {
+    padding: 11px 14px; border-bottom: 1px solid var(--border);
+    color: var(--txt2); vertical-align: middle;
+  }
+  .matrix tr:last-child td { border-bottom: none; }
+  .matrix .app-col { color: var(--txt1); font-weight: 500; }
+  .dot-row { display: flex; gap: 3px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+  .dot.fill { background: var(--accent); }
+  .dot.half { background: var(--border2); }
+
+  /* ── PATTERNS ── */
+  .pattern-list { display: flex; flex-direction: column; gap: 0; }
+  .pattern-item {
+    display: grid; grid-template-columns: 56px 1fr;
+    padding: 28px 0; border-bottom: 1px solid var(--border);
+    gap: 24px; align-items: start;
+  }
+  .pattern-item:last-child { border-bottom: none; }
+  .pattern-num {
+    font-family: Georgia, serif; font-size: 2rem; line-height: 1;
+    color: var(--txt3); font-weight: 400;
+  }
+  .pattern-content h4 { color: var(--txt1); margin-bottom: 8px; }
+  .pattern-content p  { font-size: .87rem; line-height: 1.65; max-width: 72ch; }
+  .pattern-tag {
+    display: inline-block; font-size: .68rem; letter-spacing: .08em;
+    text-transform: uppercase; padding: 2px 8px; border-radius: 2px;
+    margin-bottom: 10px; font-weight: 600;
+  }
+  .tag-ux     { background: var(--accent-d); color: var(--accent); }
+  .tag-ui     { background: var(--gold-d);   color: var(--gold); }
+  .tag-psych  { background: var(--green-d);  color: var(--green); }
+  .tag-anti   { background: var(--red-d);    color: var(--red); }
+
+  /* ── BEST PRACTICES ── */
+  .bp-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  @media(max-width:900px){ .bp-grid { grid-template-columns: repeat(2,1fr); } }
+  @media(max-width:560px){ .bp-grid { grid-template-columns: 1fr; } }
+
+  .bp-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 20px;
+  }
+  .bp-rank {
+    font-family: Georgia, serif; font-size: 2.5rem; line-height: 1;
+    font-weight: 400; margin-bottom: 12px;
+  }
+  .bp-card h4 { color: var(--txt1); font-size: 1rem; margin-bottom: 8px;
+                font-family: Georgia, serif; font-weight: 400; }
+  .bp-card p  { font-size: .82rem; line-height: 1.6; }
+  .bp-card .why { font-size: .75rem; color: var(--green); margin-top: 10px;
+                  display: flex; align-items: flex-start; gap: 6px; }
+  .bp-card .why::before { content: '→'; flex-shrink: 0; }
+
+  /* ── VISION ── */
+  .vision-header {
+    padding: 56px; background: var(--surface2);
+    border: 1px solid var(--border2); border-radius: var(--radius);
+    margin-bottom: 32px; position: relative; overflow: hidden;
+  }
+  .vision-header::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--gold), var(--green));
+  }
+  .vision-header h2 { margin-bottom: 12px; }
+  .vision-header p  { font-size: 1rem; max-width: 60ch; }
+
+  .pillar-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 16px; }
+  @media(max-width:660px){ .pillar-grid { grid-template-columns: 1fr; } }
+
+  .pillar {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 24px;
+  }
+  .pillar-icon { font-size: 1.8rem; margin-bottom: 12px; display: block; }
+  .pillar h4   { font-family: Georgia, serif; font-weight: 400; color: var(--txt1);
+                 font-size: 1.05rem; margin-bottom: 8px; }
+  .pillar p    { font-size: .83rem; line-height: 1.65; }
+  .pillar ul   { list-style: none; margin-top: 10px; display: flex;
+                 flex-direction: column; gap: 5px; }
+  .pillar li   { font-size: .8rem; color: var(--txt2); display: flex;
+                 align-items: flex-start; gap: 7px; }
+  .pillar li::before { content: '—'; color: var(--accent); flex-shrink: 0; }
+
+  /* ── FINAL REPORT ── */
+  .report-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 16px; overflow: hidden;
+  }
+  .report-header {
+    display: flex; align-items: center; gap: 16px;
+    padding: 20px 24px; border-bottom: 1px solid var(--border);
+  }
+  .report-num {
+    font-family: Georgia, serif; font-size: 1.6rem; color: var(--txt3);
+    line-height: 1; width: 36px; flex-shrink: 0;
+  }
+  .report-header h4 { color: var(--txt1); font-family: Georgia, serif;
+                      font-weight: 400; font-size: 1.05rem; }
+  .report-body { padding: 20px 24px; }
+  .report-body ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .report-body li { font-size: .87rem; color: var(--txt2); display: flex;
+                    align-items: flex-start; gap: 10px; line-height: 1.5; }
+  .dot-bullet { width: 6px; height: 6px; border-radius: 50%;
+                flex-shrink: 0; margin-top: 5px; }
+
+  /* ── DIVIDER ── */
+  .rule { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+  .label {
+    display: inline-block; font-size: .7rem; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--txt3); margin-bottom: 24px;
+  }
+
+  /* ── QUOTE ── */
+  blockquote {
+    border-left: 2px solid var(--accent); padding: 16px 20px;
+    background: var(--accent-d); border-radius: 0 var(--radius) var(--radius) 0;
+    margin: 24px 0;
+  }
+  blockquote p { color: var(--txt1); font-family: Georgia, serif;
+                 font-style: italic; font-size: .95rem; max-width: 70ch; }
+
+  /* ── CHIP ROW ── */
+  .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .chip { font-size: .75rem; padding: 4px 11px; border-radius: 100px;
+          border: 1px solid var(--border2); color: var(--txt2);
+          letter-spacing: .02em; }
+  .chip.on { background: var(--accent-d); border-color: rgba(91,108,240,.3);
+             color: var(--accent); }
+
+  @media(prefers-reduced-motion: reduce){ * { transition: none !important; animation: none !important; } }
+</style>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-brand">Finance Bag <span>· Analyse Concurrentielle</span></div>
+    <div class="nav-links">
+      <a href="#apps">Applications</a>
+      <a href="#patterns">Patterns</a>
+      <a href="#pratiques">Pratiques</a>
+      <a href="#vision">Vision</a>
+      <a href="#rapport">Rapport</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">Rapport d'Intelligence Produit · Partie 2</div>
+    <h1>Pourquoi les meilleures<br>applications financières<br>créent une <em>dépendance positive</em></h1>
+    <p>Analyse approfondie de 10 applications de référence mondiale. Philosophies, UX, UI, psychologie de l'engagement. Ce document est la fondation stratégique de Finance Bag.</p>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="num accent">10</div>
+        <div class="lbl">Apps analysées</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num gold">47</div>
+        <div class="lbl">Patterns identifiés</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num green">15</div>
+        <div class="lbl">Meilleures pratiques</div>
+      </div>
+      <div class="hero-stat">
+        <div class="num">1</div>
+        <div class="lbl">Vision supérieure</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── SECTION 1 : APPLICATIONS ── -->
+<section class="section" id="apps">
+  <div class="wrap">
+    <span class="label">Section 01 — Les Applications</span>
+    <h2>Analyse des 10 références mondiales</h2>
+    <p style="margin: 12px 0 40px;">Chaque application a été étudiée selon ses propres termes — sa philosophie, son économie d'attention, ses choix de design. Les scores reflètent l'excellence dans leur domaine, pas une comparaison absolue.</p>
+
+    <div class="app-grid">
+
+      <!-- YNAB -->
+      <div class="app-card">
+        <div class="app-header">
+          <div class="app-meta">
+            <div class="app-icon" style="background:#4CAF50;color:#fff;">💡</div>
+            <div>
+              <div class="app-name">YNAB</div>
+              <div class="app-tag">You Need A Budget · US · $109/an</div>
+            </div>
+          </div>
+          <div class="score-badges">
+            <span class="badge badge-green">Méthode 9.5</span>
+          </div>
+        </div>
+        <div class="app-body">
+          <div class="philosophy">"Give every dollar a job." — La finance comportementale avant la technologie.</div>
+          <div class="score-row">
+            <div class="score-item">
+              <div class="score-lbl">Design</div>
+              <div class="score-bar"><div class="score-fill" style="width:62%;background:var(--amber)"></div></div>
+              <div class="score-num mono">6.2</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">UX Onboard.</div>
+              <div class="score-bar"><div class="score-fill" style="width:72%;background:var(--accent)"></div></div>
+              <div class="score-num mono">7.2</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Méthode</div>
+              <div class="score-bar"><div class="score-fill" style="width:96%;background:var(--green)"></div></div>
+              <div class="score-num mono">9.6</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Rétention</div>
+              <div class="score-bar"><div class="score-fill" style="width:88%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.8</div>
+            </div>
+          </div>
+          <div class="lists">
+            <div class="list-block strengths">
+              <h5>Points forts</h5>
+              <ul>
+                <li>Méthodologie zero-based prouvée et pédagogique</li>
+                <li>Communauté exceptionnelle (forums, podcasts, cours)</li>
+                <li>"Age your money" : indicateur motivant et unique</li>
+                <li>Onboarding éducatif — transforme l'utilisateur</li>
+              </ul>
+            </div>
+            <div class="list-block weaknesses">
+              <h5>Points faibles</h5>
+              <ul>
+                <li>Interface utilitaire, aucune émotion visuelle</li>
+                <li>Courbe d'apprentissage élevée — abandons massifs</li>
+                <li>Synchronisation bancaire complexe et fragile</li>
+                <li>Prix élevé pour des marchés émergents</li>
+              </ul>
+            </div>
+          </div>
+          <div class="key-insight">La rétention de YNAB vient de sa <em>transformation identitaire</em> — l'utilisateur ne gère plus un budget, il devient "quelqu'un qui a le contrôle de son argent". Le design ne compte que peu.</div>
+        </div>
+      </div>
+
+      <!-- COPILOT -->
+      <div class="app-card">
+        <div class="app-header">
+          <div class="app-meta">
+            <div class="app-icon" style="background:#1a1a2e;color:#a78bfa;">✦</div>
+            <div>
+              <div class="app-name">Copilot Money</div>
+              <div class="app-tag">iOS + Mac · US · $13/mois</div>
+            </div>
+          </div>
+          <div class="score-badges">
+            <span class="badge badge-blue">Design 9.8</span>
+          </div>
+        </div>
+        <div class="app-body">
+          <div class="philosophy">"Money should be beautiful." — Le Spotify de la finance personnelle.</div>
+          <div class="score-row">
+            <div class="score-item">
+              <div class="score-lbl">Design</div>
+              <div class="score-bar"><div class="score-fill" style="width:97%;background:var(--green)"></div></div>
+              <div class="score-num mono">9.7</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">UX Onboard.</div>
+              <div class="score-bar"><div class="score-fill" style="width:91%;background:var(--green)"></div></div>
+              <div class="score-num mono">9.1</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">IA / Auto</div>
+              <div class="score-bar"><div class="score-fill" style="width:89%;background:var(--accent)"></div></div>
+              <div class="score-num mono">8.9</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Rétention</div>
+              <div class="score-bar"><div class="score-fill" style="width:85%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.5</div>
+            </div>
+          </div>
+          <div class="lists">
+            <div class="list-block strengths">
+              <h5>Points forts</h5>
+              <ul>
+                <li>Le meilleur design visuel de toute la catégorie</li>
+                <li>Dark mode natif avec gradients fluides et cartes premium</li>
+                <li>Catégorisation IA — quasi instantanée et précise</li>
+                <li>Cohérence visuelle totale entre iOS et macOS</li>
+              </ul>
+            </div>
+            <div class="list-block weaknesses">
+              <h5>Points faibles</h5>
+              <ul>
+                <li>iOS uniquement — exclusion totale d'Android</li>
+                <li>100% US — aucune localisation internationale</li>
+                <li>Onboarding bloqué sur la connexion bancaire</li>
+                <li>Pas de gestion de dettes/crédits natives</li>
+              </ul>
+            </div>
+          </div>
+          <div class="key-insight">Copilot prouve qu'on peut vendre une expérience premium à 13$/mois si l'interface ressemble à une œuvre d'art. Les utilisateurs <em>montrent</em> l'app à leurs amis — signal de fierté et de recommandation organique.</div>
+        </div>
+      </div>
+
+      <!-- REVOLUT -->
+      <div class="app-card">
+        <div class="app-header">
+          <div class="app-meta">
+            <div class="app-icon" style="background:#0075EB;color:#fff;">⚡</div>
+            <div>
+              <div class="app-name">Revolut</div>
+              <div class="app-tag">Neobank + Finance · Global · Freemium</div>
+            </div>
+          </div>
+          <div class="score-badges">
+            <span class="badge badge-blue">Innov. 9.5</span>
+          </div>
+        </div>
+        <div class="app-body">
+          <div class="philosophy">"Money without borders." — Une banque complète dans une interface ultra-moderne.</div>
+          <div class="score-row">
+            <div class="score-item">
+              <div class="score-lbl">Design</div>
+              <div class="score-bar"><div class="score-fill" style="width:91%;background:var(--green)"></div></div>
+              <div class="score-num mono">9.1</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Analytics</div>
+              <div class="score-bar"><div class="score-fill" style="width:88%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.8</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Performance</div>
+              <div class="score-bar"><div class="score-fill" style="width:93%;background:var(--green)"></div></div>
+              <div class="score-num mono">9.3</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Innovation</div>
+              <div class="score-bar"><div class="score-fill" style="width:95%;background:var(--green)"></div></div>
+              <div class="score-num mono">9.5</div>
+            </div>
+          </div>
+          <div class="lists">
+            <div class="list-block strengths">
+              <h5>Points forts</h5>
+              <ul>
+                <li>Cartes visuelles avec gradients métalliques — feeling premium absolu</li>
+                <li>Analytics par catégorie avec graphiques animés fluides à 60fps</li>
+                <li>Navigation bottom-tab ultra-propre et intuitive</li>
+                <li>Répartition "Coffres" (Vaults) — UX épargne gamifiée</li>
+              </ul>
+            </div>
+            <div class="list-block weaknesses">
+              <h5>Points faibles</h5>
+              <ul>
+                <li>C'est une banque, pas un outil de budgétisation — tension identitaire</li>
+                <li>Fonctionnalités cachées derrière paywall progressif frustrant</li>
+                <li>Support client catastrophique en cas de problème</li>
+                <li>Pas de gestion crédits/dettes ni objectifs financiers profonds</li>
+              </ul>
+            </div>
+          </div>
+          <div class="key-insight">Les <em>Spaces/Vaults</em> de Revolut montrent comment rendre l'épargne émotionnellement engageante : chaque coffre a une photo, un nom, un objectif. L'abstraction "argent" devient "mon voyage en Japon".</div>
+        </div>
+      </div>
+
+      <!-- MONARCH MONEY -->
+      <div class="app-card">
+        <div class="app-header">
+          <div class="app-meta">
+            <div class="app-icon" style="background:#7C3AED;color:#fff;">♟</div>
+            <div>
+              <div class="app-name">Monarch Money</div>
+              <div class="app-tag">Budgeting · US · $14.99/mois</div>
+            </div>
+          </div>
+          <div class="score-badges">
+            <span class="badge badge-blue">UX 9.2</span>
+          </div>
+        </div>
+        <div class="app-body">
+          <div class="philosophy">"Your money. Your rules." — Le meilleur tableau de bord financier de la décennie.</div>
+          <div class="score-row">
+            <div class="score-item">
+              <div class="score-lbl">Design</div>
+              <div class="score-bar"><div class="score-fill" style="width:88%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.8</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Dashboard</div>
+              <div class="score-bar"><div class="score-fill" style="width:95%;background:var(--green)"></div></div>
+              <div class="score-num mono">9.5</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Graphiques</div>
+              <div class="score-bar"><div class="score-fill" style="width:92%;background:var(--green)"></div></div>
+              <div class="score-num mono">9.2</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Rétention</div>
+              <div class="score-bar"><div class="score-fill" style="width:87%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.7</div>
+            </div>
+          </div>
+          <div class="lists">
+            <div class="list-block strengths">
+              <h5>Points forts</h5>
+              <ul>
+                <li>Dashboard patrimoine net — unique dans sa clarté visuelle</li>
+                <li>Graphiques cash-flow mensuels : barres empilées élégantes</li>
+                <li>Règles d'automatisation puissantes pour la catégorisation</li>
+                <li>Vue collaborative pour couples — rare et bien conçue</li>
+              </ul>
+            </div>
+            <div class="list-block weaknesses">
+              <h5>Points faibles</h5>
+              <ul>
+                <li>US uniquement, sync bancaire indisponible ailleurs</li>
+                <li>App mobile moins puissante que la version web</li>
+                <li>Trop de fonctionnalités avancées — complexité croissante</li>
+                <li>Onboarding long et cognitively overloaded</li>
+              </ul>
+            </div>
+          </div>
+          <div class="key-insight">Monarch a résolu le problème de la <em>vue globale</em> : en un seul écran, l'utilisateur voit son patrimoine total, ses flux du mois, ses catégories, ses objectifs. C'est l'inspiration directe pour notre dashboard.</div>
+        </div>
+      </div>
+
+      <!-- WALLET -->
+      <div class="app-card">
+        <div class="app-header">
+          <div class="app-meta">
+            <div class="app-icon" style="background:#1DB954;color:#fff;">💼</div>
+            <div>
+              <div class="app-name">Wallet by BudgetBakers</div>
+              <div class="app-tag">Multi-devises · Europe · Freemium</div>
+            </div>
+          </div>
+          <div class="score-badges">
+            <span class="badge badge-amber">Multi-devise 8.5</span>
+          </div>
+        </div>
+        <div class="app-body">
+          <div class="philosophy">"Clarity for every wallet, everywhere." — La meilleure solution multi-devises du marché.</div>
+          <div class="score-row">
+            <div class="score-item">
+              <div class="score-lbl">Design</div>
+              <div class="score-bar"><div class="score-fill" style="width:74%;background:var(--amber)"></div></div>
+              <div class="score-num mono">7.4</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Multi-devises</div>
+              <div class="score-bar"><div class="score-fill" style="width:88%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.8</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Graphiques</div>
+              <div class="score-bar"><div class="score-fill" style="width:79%;background:var(--accent)"></div></div>
+              <div class="score-num mono">7.9</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Accessibilité</div>
+              <div class="score-bar"><div class="score-fill" style="width:83%;background:var(--accent)"></div></div>
+              <div class="score-num mono">8.3</div>
+            </div>
+          </div>
+          <div class="lists">
+            <div class="list-block strengths">
+              <h5>Points forts</h5>
+              <ul>
+                <li>Meilleure gestion multi-comptes multi-devises</li>
+                <li>Métaphore des cartes (wallets) intuitive et visuelle</li>
+                <li>Export de données complet et flexible</li>
+                <li>Rapports périodiques clairs et compréhensibles</li>
+              </ul>
+            </div>
+            <div class="list-block weaknesses">
+              <h5>Points faibles</h5>
+              <ul>
+                <li>Design daté dans certaines zones de l'interface</li>
+                <li>Saisie manuelle laborieuse — UX transaction frustrante</li>
+                <li>Navigation parfois confuse entre comptes et catégories</li>
+                <li>Sync bancaire instable selon les pays</li>
+              </ul>
+            </div>
+          </div>
+          <div class="key-insight">La <em>métaphore des cartes de portefeuille</em> est un modèle mental naturel que nos utilisateurs comprennent instantanément. Chaque wallet a sa couleur, son icône — c'est concret, pas abstrait.</div>
+        </div>
+      </div>
+
+      <!-- SPENDEE -->
+      <div class="app-card">
+        <div class="app-header">
+          <div class="app-meta">
+            <div class="app-icon" style="background:#FF6B6B;color:#fff;">🎨</div>
+            <div>
+              <div class="app-name">Spendee</div>
+              <div class="app-tag">Social Finance · Europe · Freemium</div>
+            </div>
+          </div>
+          <div class="score-badges">
+            <span class="badge badge-gold">Visuel 8.4</span>
+          </div>
+        </div>
+        <div class="app-body">
+          <div class="philosophy">"Make your finances beautiful." — La finance comme une expérience sensorielle.</div>
+          <div class="score-row">
+            <div class="score-item">
+              <div class="score-lbl">Design</div>
+              <div class="score-bar"><div class="score-fill" style="width:84%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.4</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Saisie rapide</div>
+              <div class="score-bar"><div class="score-fill" style="width:86%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.6</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Graphiques</div>
+              <div class="score-bar"><div class="score-fill" style="width:78%;background:var(--accent)"></div></div>
+              <div class="score-num mono">7.8</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Social</div>
+              <div class="score-bar"><div class="score-fill" style="width:75%;background:var(--amber)"></div></div>
+              <div class="score-num mono">7.5</div>
+            </div>
+          </div>
+          <div class="lists">
+            <div class="list-block strengths">
+              <h5>Points forts</h5>
+              <ul>
+                <li>Palette de couleurs vibrantes et émotionnellement engageante</li>
+                <li>Saisie de transaction rapide et fluide — moins de 3 taps</li>
+                <li>Wallets de voyage — fonctionnalité unique et utile</li>
+                <li>Onboarding visuel attractif avec illustrations</li>
+              </ul>
+            </div>
+            <div class="list-block weaknesses">
+              <h5>Points faibles</h5>
+              <ul>
+                <li>L'esthétique "fun" crée un manque de crédibilité financière</li>
+                <li>Synchronisation bancaire régulièrement instable</li>
+                <li>Fonctionnalités budgétaires trop superficielles</li>
+                <li>Trop coloré — hiérarchie visuelle difficile à lire</li>
+              </ul>
+            </div>
+          </div>
+          <div class="key-insight">Spendee apprend une leçon douloureuse : <em>beau ≠ utile</em>. Les couleurs vives attirent les nouveaux utilisateurs mais la profondeur fonctionnelle manquante provoque l'abandon à 30 jours.</div>
+        </div>
+      </div>
+
+      <!-- MONEY LOVER -->
+      <div class="app-card">
+        <div class="app-header">
+          <div class="app-meta">
+            <div class="app-icon" style="background:#FF8C00;color:#fff;">❤️</div>
+            <div>
+              <div class="app-name">Money Lover</div>
+              <div class="app-tag">Tracking détaillé · Asie-Global · Freemium</div>
+            </div>
+          </div>
+          <div class="score-badges">
+            <span class="badge badge-amber">Détail 8.0</span>
+          </div>
+        </div>
+        <div class="app-body">
+          <div class="philosophy">"Track every penny, reach every goal." — La minutie comme philosophie de la liberté financière.</div>
+          <div class="score-row">
+            <div class="score-item">
+              <div class="score-lbl">Design</div>
+              <div class="score-bar"><div class="score-fill" style="width:68%;background:var(--amber)"></div></div>
+              <div class="score-num mono">6.8</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Dettes/Prêts</div>
+              <div class="score-bar"><div class="score-fill" style="width:87%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.7</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Objectifs</div>
+              <div class="score-bar"><div class="score-fill" style="width:80%;background:var(--accent)"></div></div>
+              <div class="score-num mono">8.0</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Multi-devises</div>
+              <div class="score-bar"><div class="score-fill" style="width:85%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.5</div>
+            </div>
+          </div>
+          <div class="lists">
+            <div class="list-block strengths">
+              <h5>Points forts</h5>
+              <ul>
+                <li>Gestion de dettes/prêts entre particuliers très complète</li>
+                <li>"Jars" d'épargne — enveloppes visuelles et motivantes</li>
+                <li>Vue calendrier des transactions — unique et très utile</li>
+                <li>Rapports détaillés exportables (PDF, XLS)</li>
+              </ul>
+            </div>
+            <div class="list-block weaknesses">
+              <h5>Points faibles</h5>
+              <ul>
+                <li>Interface vieillie et parfois incohérente</li>
+                <li>Publicités intrusives dans la version gratuite</li>
+                <li>Saisie de transaction trop de champs obligatoires</li>
+                <li>Navigation entre fonctionnalités peu intuitive</li>
+              </ul>
+            </div>
+          </div>
+          <div class="key-insight">La fonctionnalité <em>"Jars" (bocaux d'épargne)</em> est un modèle mental issu de la psychologie comportementale (mental accounting) qui rend l'épargne concrète et engageante. À intégrer dans notre vision.</div>
+        </div>
+      </div>
+
+      <!-- ROCKET MONEY -->
+      <div class="app-card">
+        <div class="app-header">
+          <div class="app-meta">
+            <div class="app-icon" style="background:#0091FF;color:#fff;">🚀</div>
+            <div>
+              <div class="app-name">Rocket Money</div>
+              <div class="app-tag">Bill Management · US · Freemium</div>
+            </div>
+          </div>
+          <div class="score-badges">
+            <span class="badge badge-green">Unique 8.5</span>
+          </div>
+        </div>
+        <div class="app-body">
+          <div class="philosophy">"Save more, stress less." — Le détective de vos dépenses cachées et abonnements oubliés.</div>
+          <div class="score-row">
+            <div class="score-item">
+              <div class="score-lbl">Design</div>
+              <div class="score-bar"><div class="score-fill" style="width:71%;background:var(--amber)"></div></div>
+              <div class="score-num mono">7.1</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Détection</div>
+              <div class="score-bar"><div class="score-fill" style="width:92%;background:var(--green)"></div></div>
+              <div class="score-num mono">9.2</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">ROI perçu</div>
+              <div class="score-bar"><div class="score-fill" style="width:89%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.9</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Onboarding</div>
+              <div class="score-bar"><div class="score-fill" style="width:76%;background:var(--accent)"></div></div>
+              <div class="score-num mono">7.6</div>
+            </div>
+          </div>
+          <div class="lists">
+            <div class="list-block strengths">
+              <h5>Points forts</h5>
+              <ul>
+                <li>Détection automatique des abonnements oubliés = valeur immédiate</li>
+                <li>Négociation de factures — différenciation radicale</li>
+                <li>Onboarding à ROI rapide — l'utilisateur voit un bénéfice en < 2 min</li>
+                <li>Alertes intelligentes sur les dépenses inhabituelles</li>
+              </ul>
+            </div>
+            <div class="list-block weaknesses">
+              <h5>Points faibles</h5>
+              <ul>
+                <li>Ce n'est pas un outil de budgétisation — profondeur limitée</li>
+                <li>Design fonctionnel mais sans personnalité</li>
+                <li>Exclusivement américain — aucune internationalisation</li>
+                <li>Modèle freemium agressif et frustrant</li>
+              </ul>
+            </div>
+          </div>
+          <div class="key-insight">Rocket Money a résolu le problème du <em>premier moment de valeur (AHA moment)</em> : l'utilisateur découvre un abonnement oublié en 2 minutes. Ce déclencheur émotionnel immédiat est la clé de leur taux de rétention.</div>
+        </div>
+      </div>
+
+      <!-- EMMA -->
+      <div class="app-card">
+        <div class="app-header">
+          <div class="app-meta">
+            <div class="app-icon" style="background:#6B21A8;color:#fff;">💜</div>
+            <div>
+              <div class="app-name">Emma</div>
+              <div class="app-tag">Finance Joyeuse · UK-Europe · Freemium</div>
+            </div>
+          </div>
+          <div class="score-badges">
+            <span class="badge badge-blue">Ton 8.2</span>
+          </div>
+        </div>
+        <div class="app-body">
+          <div class="philosophy">"Your financial best friend." — La bonne humeur comme stratégie contre l'anxiété financière.</div>
+          <div class="score-row">
+            <div class="score-item">
+              <div class="score-lbl">Design</div>
+              <div class="score-bar"><div class="score-fill" style="width:74%;background:var(--amber)"></div></div>
+              <div class="score-num mono">7.4</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Ton / Voice</div>
+              <div class="score-bar"><div class="score-fill" style="width:90%;background:var(--green)"></div></div>
+              <div class="score-num mono">9.0</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Analytique</div>
+              <div class="score-bar"><div class="score-fill" style="width:72%;background:var(--amber)"></div></div>
+              <div class="score-num mono">7.2</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Engagement</div>
+              <div class="score-bar"><div class="score-fill" style="width:78%;background:var(--accent)"></div></div>
+              <div class="score-num mono">7.8</div>
+            </div>
+          </div>
+          <div class="lists">
+            <div class="list-block strengths">
+              <h5>Points forts</h5>
+              <ul>
+                <li>Ton de voix humoristique et non-culpabilisant — révolutionnaire</li>
+                <li>"Emma vous a économisé X£" — feedback positif récurrent</li>
+                <li>Résumés hebdomadaires avec personnalité et humour</li>
+                <li>Détection d'abonnements doublons et inutiles</li>
+              </ul>
+            </div>
+            <div class="list-block weaknesses">
+              <h5>Points faibles</h5>
+              <ul>
+                <li>L'humour peut sembler déplacé lors de vraies difficultés financières</li>
+                <li>Fonctionnalités budgétaires peu développées</li>
+                <li>Disponibilité bancaire limitée hors UK</li>
+                <li>Interface parfois trop "joyeuse" — manque de sérieux</li>
+              </ul>
+            </div>
+          </div>
+          <div class="key-insight">Emma révèle que le <em>ton de communication</em> est aussi important que le design. Remplacer la culpabilité par la bienveillance change l'émotion associée à l'application — et donc la fréquence d'utilisation.</div>
+        </div>
+      </div>
+
+      <!-- MONEY MANAGER -->
+      <div class="app-card">
+        <div class="app-header">
+          <div class="app-meta">
+            <div class="app-icon" style="background:#DC2626;color:#fff;">📊</div>
+            <div>
+              <div class="app-name">Money Manager</div>
+              <div class="app-tag">Comptabilité · Asie · Freemium</div>
+            </div>
+          </div>
+          <div class="score-badges">
+            <span class="badge badge-amber">Détail 8.8</span>
+          </div>
+        </div>
+        <div class="app-body">
+          <div class="philosophy">"Every transaction tells a story." — La comptabilité en partie double pour monsieur-tout-le-monde.</div>
+          <div class="score-row">
+            <div class="score-item">
+              <div class="score-lbl">Design</div>
+              <div class="score-bar"><div class="score-fill" style="width:56%;background:var(--red)"></div></div>
+              <div class="score-num mono">5.6</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Profondeur</div>
+              <div class="score-bar"><div class="score-fill" style="width:91%;background:var(--green)"></div></div>
+              <div class="score-num mono">9.1</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Vue calendrier</div>
+              <div class="score-bar"><div class="score-fill" style="width:88%;background:var(--green)"></div></div>
+              <div class="score-num mono">8.8</div>
+            </div>
+            <div class="score-item">
+              <div class="score-lbl">Rapports</div>
+              <div class="score-bar"><div class="score-fill" style="width:84%;background:var(--accent)"></div></div>
+              <div class="score-num mono">8.4</div>
+            </div>
+          </div>
+          <div class="lists">
+            <div class="list-block strengths">
+              <h5>Points forts</h5>
+              <ul>
+                <li>Vue calendrier des transactions — navigation temporelle unique</li>
+                <li>Partie double comptable — précision absolue pour les avancés</li>
+                <li>Rapports graphiques extrêmement détaillés</li>
+                <li>Fidélité extrême — les power users ne partent jamais</li>
+              </ul>
+            </div>
+            <div class="list-block weaknesses">
+              <h5>Points faibles</h5>
+              <ul>
+                <li>Interface des années 2010 — aucune modernisation</li>
+                <li>Courbe d'apprentissage décourageante pour les débutants</li>
+                <li>Pas de version web ni synchronisation cloud facile</li>
+                <li>UX de saisie lente et répétitive</li>
+              </ul>
+            </div>
+          </div>
+          <div class="key-insight">Money Manager prouve qu'une <em>interface horrible peut survivre</em> si la profondeur fonctionnelle est exceptionnelle. Mais c'est un plafond, pas un avantage — une app qui combine les deux dominera.</div>
+        </div>
+      </div>
+
+    </div><!-- /app-grid -->
+
+    <!-- Comparison Matrix -->
+    <div style="margin-top:48px;">
+      <span class="label">Tableau Comparatif</span>
+      <div class="matrix-wrap">
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th>Application</th>
+              <th>Design</th>
+              <th>Onboarding</th>
+              <th>Budget</th>
+              <th>Dettes</th>
+              <th>Objectifs</th>
+              <th>Analytics</th>
+              <th>i18n</th>
+              <th>Offline</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="app-col">YNAB</td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot half"></div><div class="dot half"></div><div class="dot half"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div><div class="dot half"></div></div></td>
+              <td><span class="badge badge-green">✓</span></td>
+            </tr>
+            <tr>
+              <td class="app-col">Copilot</td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot half"></div><div class="dot half"></div><div class="dot half"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div><div class="dot half"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div></div></td>
+              <td><span class="badge badge-red">US seul</span></td>
+              <td><span class="badge badge-amber">Partiel</span></td>
+            </tr>
+            <tr>
+              <td class="app-col">Revolut</td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot half"></div><div class="dot half"></div><div class="dot half"></div><div class="dot half"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div></div></td>
+              <td><span class="badge badge-green">Global</span></td>
+              <td><span class="badge badge-red">Non</span></td>
+            </tr>
+            <tr>
+              <td class="app-col">Monarch</td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div><div class="dot half"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot half"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div><div class="dot fill"></div></div></td>
+              <td><span class="badge badge-red">US seul</span></td>
+              <td><span class="badge badge-amber">Partiel</span></td>
+            </tr>
+            <tr style="background:var(--accent-d);">
+              <td class="app-col" style="color:var(--accent);">Finance Bag ★</td>
+              <td><div class="dot-row"><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div></div></td>
+              <td><div class="dot-row"><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div><div class="dot fill" style="background:var(--accent)"></div></div></td>
+              <td><span class="badge badge-blue">FR/AR/EN</span></td>
+              <td><span class="badge badge-green">100% ✓</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 2 : PATTERNS UX ── -->
+<section class="section" id="patterns">
+  <div class="wrap">
+    <span class="label">Section 02 — Patterns UX</span>
+    <h2>Ce qui crée la dépendance positive</h2>
+    <p style="margin:12px 0 48px;">Ces patterns apparaissent dans toutes les applications qui réussissent. Ce ne sont pas des fonctionnalités — ce sont des mécaniques psychologiques.</p>
+
+    <div class="pattern-list">
+
+      <div class="pattern-item">
+        <div class="pattern-num">01</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-psych">Psychologie</span>
+          <h4>L'AHA Moment — La première valeur doit être instantanée</h4>
+          <p>Les apps qui survivent (Rocket Money, Revolut, YNAB) provoquent toutes un moment "wow" dans les 2 premières minutes. Rocket Money trouve un abonnement oublié. Revolut montre votre solde en temps réel. YNAB révèle votre déficit réel. Ce déclencheur émotionnel initial est irremplaçable : il ancre la relation affective avec l'app. Sans AHA moment, le taux d'abandon à J+7 dépasse 60%.</p>
+        </div>
+      </div>
+
+      <div class="pattern-item">
+        <div class="pattern-num">02</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-psych">Psychologie</span>
+          <h4>La Transformation Identitaire — Devenir quelqu'un de différent</h4>
+          <p>YNAB ne vend pas un logiciel — il vend l'identité de "quelqu'un qui contrôle son argent". Cette distinction est fondamentale. Les utilisateurs fidèles ne disent pas "j'utilise YNAB" ; ils disent "je suis YNABer". Quand une application vous donne une nouvelle identité, l'abandon devient une trahison de soi-même. Notre application doit vendre cette transformation : l'utilisateur passe de "quelqu'un qui subit son salaire" à "quelqu'un qui pilote sa vie financière".</p>
+        </div>
+      </div>
+
+      <div class="pattern-item">
+        <div class="pattern-num">03</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-ux">UX</span>
+          <h4>Le Feedback Loop — La récompense doit être immédiate et visible</h4>
+          <p>Toutes les grandes apps financières ont un mécanisme de feedback positif visible : la barre de progression qui monte, le solde "disponible" qui change instantanément, le badge "Objectif atteint". Ce feedback remplace la récompense différée naturelle de l'épargne (qui prend des mois) par une gratification immédiate. C'est le même mécanisme que les jeux vidéo. Sans lui, le comportement financier vertueux s'éteint rapidement.</p>
+        </div>
+      </div>
+
+      <div class="pattern-item">
+        <div class="pattern-num">04</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-ux">UX</span>
+          <h4>La Friction Juste — Ni trop, ni trop peu</h4>
+          <p>Money Manager impose trop de friction (abandon), Spendee en impose trop peu (superficialité). Les meilleures apps calibrent la friction à leur philosophie : YNAB rend l'allocation délibérément manuelle parce que la réflexion est la valeur. Copilot automatise tout parce que l'insight est la valeur. Notre règle : la friction doit être là où elle génère de la prise de conscience, absente là où elle n'est que de l'effort inutile.</p>
+        </div>
+      </div>
+
+      <div class="pattern-item">
+        <div class="pattern-num">05</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-psych">Psychologie</span>
+          <h4>Le Progrès Visible — L'effet "presque fini" comme moteur</h4>
+          <p>Toutes les studies en psychologie comportementale montrent que voir une barre de progression à 75% motive davantage qu'une à 0%. Monarch Money, Revolut (Vaults), YNAB utilisent cela massivement. La tactique avancée : démarrer les barres de progression à 10% dès la création d'un objectif (pour éviter la démotivation du zéro absolu) — "endowed progress effect" (Nunes & Drèze, 2006).</p>
+        </div>
+      </div>
+
+      <div class="pattern-item">
+        <div class="pattern-num">06</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-ux">UX</span>
+          <h4>L'Onboarding Progressif — Révéler, ne pas déverser</h4>
+          <p>Les apps qui échouent montrent tout en onboarding (Money Manager, Wallet early versions). Les apps qui réussissent révèlent les fonctionnalités au fur et à mesure que l'utilisateur en a besoin. Copilot ne montre le budget qu'une fois les transactions catégorisées. YNAB enseigne une règle à la fois sur 4 semaines. Notre principe : une valeur prouvée par étape, jamais une fonctionnalité montrée avant d'être comprise.</p>
+        </div>
+      </div>
+
+      <div class="pattern-item">
+        <div class="pattern-num">07</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-psych">Psychologie</span>
+          <h4>Le Ton Non-Culpabilisant — La finance sans anxiété</h4>
+          <p>L'argent est chargé émotionnellement. Les apps qui traitent les dépassements de budget comme des "alertes rouges" et des "erreurs" créent de l'anxiété qui conduit à l'évitement (l'utilisateur ferme l'app quand la situation financière est mauvaise — précisément quand il aurait besoin de l'ouvrir). Emma a compris cela : un ton bienveillant et humoristique transforme la sanction en invitation. Notre application ne juge jamais. Elle accompagne.</p>
+        </div>
+      </div>
+
+      <div class="pattern-item">
+        <div class="pattern-num">08</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-ux">UX</span>
+          <h4>L'Ancrage Temporel — Le mois comme unité naturelle</h4>
+          <p>Toutes les apps qui réussissent (YNAB, Monarch, Copilot) sont fondamentalement organisées autour du mois calendaire. Pas de la semaine (trop court), pas de l'année (trop abstrait). Le mois correspond au cycle de salaire de la majorité des utilisateurs. Chaque nouveau mois est une ardoise remise à zéro — psychologiquement, c'est une nouvelle chance. Notre application doit célébrer le 1er du mois comme un événement de recommencement.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="rule">
+
+    <span class="label" style="margin-top:32px;display:block;">Patterns UI</span>
+    <h3 style="margin-bottom:32px;">Ce qui crée le sentiment premium</h3>
+
+    <div class="pattern-list">
+      <div class="pattern-item">
+        <div class="pattern-num">UI1</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-ui">UI</span>
+          <h4>Le Fond Sombre comme Décision de Confiance</h4>
+          <p>Copilot Money a fait du dark mode sa signature. Revolut aussi. Ce n'est pas une préférence : c'est un choix de marque qui signale "nous sommes sérieux, nous sommes premium, nous respectons l'intimité de vos données". Sur fond sombre, les chiffres lumineux en blanc créent une lisibilité et une dramatisation que le fond blanc ne peut pas atteindre. Les gradients indigo-violet sur fond sombre crient "technologie financière avancée".</p>
+        </div>
+      </div>
+
+      <div class="pattern-item">
+        <div class="pattern-num">UI2</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-ui">UI</span>
+          <h4>La Carte Financière Principale — Le Hero Visuel</h4>
+          <p>Toutes les grandes apps ont une "carte principale" en haut du dashboard — gradient, chiffre grand en blanc, 3 métriques secondaires dessous. C'est devenu un standard cognitif : l'utilisateur cherche d'abord ce bloc. Revolut y met son solde bancaire. Monarch y met son patrimoine net. YNAB y met son "à budgéter". Notre carte principale doit synthétiser : revenu — dépensé — disponible. Grande taille, impression de contrôle immédiate.</p>
+        </div>
+      </div>
+
+      <div class="pattern-item">
+        <div class="pattern-num">UI3</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-ui">UI</span>
+          <h4>La Hiérarchie Numérique — Les chiffres comme personnages principaux</h4>
+          <p>Dans les apps financières, les chiffres sont les informations. La règle Copilot : le montant principal est en 34–48pt, les labels sont en 11–12pt, les montants secondaires en 16–20pt. Cette asymétrie crée une hiérarchie visuelle immédiate — l'œil sait immédiatement quelle donnée est principale. La police utilisée pour les chiffres doit avoir de bons tabular numbers (chiffres fixes-width) pour éviter le sautillement lors des mises à jour.</p>
+        </div>
+      </div>
+
+      <div class="pattern-item">
+        <div class="pattern-num">UI4</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-ui">UI</span>
+          <h4>La Couleur Sémantique — Vert/Rouge comme langage universel</h4>
+          <p>Toutes les apps sans exception utilisent le même code couleur : vert = bon/surplus/croissance, rouge = mauvais/déficit/dette. C'est si profondément ancré qu'aller à l'encontre crée de la confusion cognitive. Ce qui varie et crée la différenciation : l'accentuation de cette dichotomie. Les meilleures apps ajoutent une nuance : l'orange/amber pour les situations "à surveiller" (budget à 80%). Trois états — serein, vigilant, critique — plutôt que deux.</p>
+        </div>
+      </div>
+
+      <div class="pattern-item">
+        <div class="pattern-num">UI5</div>
+        <div class="pattern-content">
+          <span class="pattern-tag tag-ui">UI</span>
+          <h4>Les Micro-animations — Le Mouvement comme Confirmation</h4>
+          <p>Copilot et Revolut ont toutes deux des micro-animations sur les barres de progression, les compteurs, les transitions d'écran. Ces animations durent 200–400ms maximum. Leur rôle n'est pas décoratif — elles sont des confirmations visuelles que l'action a eu lieu. La barre qui monte de 45% à 52% après l'ajout d'une contribution récompense l'action. L'objectif : chaque interaction doit se sentir, pas seulement se voir.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 3 : MEILLEURES PRATIQUES ── -->
+<section class="section" id="pratiques">
+  <div class="wrap">
+    <span class="label">Section 03 — Meilleures Pratiques</span>
+    <h2>Les 15 règles classées par importance</h2>
+    <p style="margin:12px 0 40px;">Chaque règle est extraite de l'observation concrète des apps analysées et de la littérature en psychologie comportementale et design de l'expérience.</p>
+
+    <div class="bp-grid">
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--gold)">1</div>
+        <h4>Valeur visible en &lt; 60 secondes</h4>
+        <p>L'utilisateur doit voir un bénéfice concret avant la fin de son premier usage. Pas une promesse — une preuve.</p>
+        <div class="why">Réduction du taux d'abandon J+1 de 60% → 25% dans les apps qui appliquent ce principe (données sectorielles Amplitude)</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--gold)">2</div>
+        <h4>Un seul nombre par écran principal</h4>
+        <p>L'utilisateur ne peut pas absorber 8 métriques simultanément. Choisir le nombre qui compte le plus et le rendre impossible à manquer.</p>
+        <div class="why">La réduction de charge cognitive augmente la compréhension et la confiance dans l'application</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--gold)">3</div>
+        <h4>Ne jamais punir — toujours accompagner</h4>
+        <p>Les alertes de dépassement sont des invitations à ajuster, pas des amendes. Ton bienveillant systématiquement.</p>
+        <div class="why">Les apps culpabilisantes sont fermées quand elles sont le plus nécessaires — l'inverse exact de l'objectif</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--accent)">4</div>
+        <h4>Le mois comme cycle naturel</h4>
+        <p>Toute la navigation et les statistiques sont organisées autour du mois. Chaque 1er du mois est un événement.</p>
+        <div class="why">Aligne l'outil sur le cycle de vie réel des utilisateurs salariés</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--accent)">5</div>
+        <h4>Onboarding en 3 étapes maximum</h4>
+        <p>Nom + salaire + devise. Tout le reste peut être configuré plus tard, en contexte, quand l'utilisateur en a besoin.</p>
+        <div class="why">Chaque étape d'onboarding supplémentaire coûte 15–20% de complétion (Nielsen Norman)</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--accent)">6</div>
+        <h4>Feedback animé sur chaque action</h4>
+        <p>Chaque ajout de transaction, chaque contribution à un objectif, chaque remboursement déclenche un feedback visuel (barre qui monte, nombre qui change).</p>
+        <div class="why">La dopamine de la récompense immédiate renforce le comportement et l'habitude d'utilisation</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--green)">7</div>
+        <h4>Personnaliser les couleurs par pilier</h4>
+        <p>Chaque section a sa signature colorée : salaire = indigo, crédits = rouge, urgences = amber, objectifs = violet. La couleur devient un navigateur cognitif.</p>
+        <div class="why">Réduit le temps de reconnaissance et de navigation de 30–40% (études d'eye-tracking)</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--green)">8</div>
+        <h4>La règle preset avant le custom</h4>
+        <p>Toujours proposer une option "recommandée" (ex: règle 50/30/20) avant la personnalisation. Les utilisateurs s'en emparent à 70%.</p>
+        <div class="why">Réduit la paralysie de choix et assure un setup de qualité dès le départ</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--green)">9</div>
+        <h4>3 états visuels pour chaque métrique</h4>
+        <p>Serein (vert), À surveiller (amber), Critique (rouge). Jamais uniquement ok/ko.</p>
+        <div class="why">La nuance amber prévient avant la crise — elle est la fonctionnalité la plus utile</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--txt2)">10</div>
+        <h4>Permettre l'ajout en moins de 5 secondes</h4>
+        <p>L'ajout d'une transaction doit pouvoir se faire en : montant → catégorie → confirmer. Sans date obligatoire, sans description obligatoire.</p>
+        <div class="why">Si c'est laborieux, les utilisateurs ne le font pas en temps réel — les données deviennent inexactes</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--txt2)">11</div>
+        <h4>Le progrès partiel comme récompense</h4>
+        <p>Ne jamais afficher 0% sur un objectif ou un budget. Commencer à 5–10% psychologiquement ("endowed progress"). L'utilisateur veut compléter ce qui est déjà commencé.</p>
+        <div class="why">Augmente le taux de complétion des objectifs de 82% (Nunes & Drèze, JMR 2006)</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--txt2)">12</div>
+        <h4>Abstraire la complexité — exposer la clarté</h4>
+        <p>Le taux d'intérêt composé d'un crédit, calculé en coulisses. L'utilisateur voit : "Votre crédit sera soldé dans 18 mois".</p>
+        <div class="why">La complexité cachée crée la confiance. La complexité exposée crée l'anxiété et l'abandon.</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--txt3)">13</div>
+        <h4>Contextualiser avec du storytelling chiffré</h4>
+        <p>"Vous avez économisé 340 DH ce mois-ci — soit 3 tanks d'essence" est plus mémorable que "340 DH".</p>
+        <div class="why">Ancrer les chiffres dans la réalité concrète crée de l'émotion et de la mémorisation</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--txt3)">14</div>
+        <h4>Le conseil proactif non intrusif</h4>
+        <p>Un conseil pertinent par semaine, au bon moment, basé sur les données réelles. Jamais de notifications push aléatoires.</p>
+        <div class="why">Les notifications non pertinentes entraînent leur désactivation — puis l'abandon de l'app</div>
+      </div>
+
+      <div class="bp-card">
+        <div class="bp-rank" style="color:var(--txt3)">15</div>
+        <h4>Le design offline-first</h4>
+        <p>L'app doit fonctionner sans connexion avec les mêmes fonctionnalités. La connexion est optionnelle, jamais un prérequis.</p>
+        <div class="why">Dans les marchés MENA et Afrique, la connexion 4G est intermittente — le offline-first est un facteur de confiance</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 4 : VISION ── -->
+<section class="section" id="vision">
+  <div class="wrap">
+    <span class="label">Section 04 — Notre Vision</span>
+    <h2>Finance Bag : une application supérieure</h2>
+
+    <div class="vision-header">
+      <h2 class="serif" style="font-size:1.6rem;margin-bottom:14px;">Le concept directeur</h2>
+      <p>Finance Bag est le premier coach financier francophone conçu pour les salariés des marchés MENA et Afrique. Il combine la <strong style="color:var(--txt1)">profondeur méthodologique de YNAB</strong>, la <strong style="color:var(--txt1)">beauté visuelle de Copilot</strong>, et l'<strong style="color:var(--txt1)">engagement émotionnel de Revolut</strong> — dans un produit né pour fonctionner hors ligne, en français, pour des réalités locales.</p>
+      <blockquote style="margin-top:20px;background:rgba(91,108,240,.08);">
+        <p>"Pas une app qui enregistre vos dépenses. Un compagnon qui transforme votre rapport à l'argent."</p>
+      </blockquote>
+    </div>
+
+    <div class="pillar-grid">
+
+      <div class="pillar">
+        <span class="pillar-icon">🎯</span>
+        <h4>UX Directrice : Le Pilotage, pas le Rapport</h4>
+        <p>La différence fondamentale : nos concurrents vous montrent où va votre argent. Nous vous montrons comment le diriger. Chaque écran répond à la question "Que dois-je faire maintenant ?" pas "Qu'est-il arrivé ?"</p>
+        <ul>
+          <li>Dashboard = état actuel + action recommandée</li>
+          <li>Alertes = invitation à agir, pas punition</li>
+          <li>Historique = apprentissage, pas archive</li>
+          <li>Objectifs = chemin vers, pas catalogue de rêves</li>
+        </ul>
+      </div>
+
+      <div class="pillar">
+        <span class="pillar-icon">✨</span>
+        <h4>Design Directeur : La Clarté comme Luxe</h4>
+        <p>Ni la frivolité de Spendee ni l'austérité de Money Manager. Un premium sobre : fond sombre bleu nuit, typographie grande et aérée, couleurs restreintes et signifiantes. Chaque pixel mérite sa place.</p>
+        <ul>
+          <li>Maximum 3 couleurs par écran (+ sémantiques)</li>
+          <li>Les chiffres sont les héros visuels</li>
+          <li>Aucune information non actionnelle en surface</li>
+          <li>Animations fonctionnelles — jamais décoratives</li>
+        </ul>
+      </div>
+
+      <div class="pillar">
+        <span class="pillar-icon">🧠</span>
+        <h4>Psychologie Directrice : Le Coach, pas le Juge</h4>
+        <p>L'argent est émotionnel. Nos utilisateurs ont honte, ont peur, procrastinent. Notre ton est celui d'un ami qui connaît la finance — bienveillant, direct, jamais condescendant, jamais culpabilisant.</p>
+        <ul>
+          <li>Dépassement de budget = "vous avez 200 DH de plus à réaffecter"</li>
+          <li>Crédit élevé = "voici 3 mois pour récupérer"</li>
+          <li>Bonne habitude = célébration visible et mémorable</li>
+          <li>Pas de notifications anxiogènes</li>
+        </ul>
+      </div>
+
+      <div class="pillar">
+        <span class="pillar-icon">⚡</span>
+        <h4>Technique Directeur : Vitesse et Résilience</h4>
+        <p>Une app financière doit s'ouvrir en moins d'une seconde. Les données doivent être disponibles hors ligne. La synchronisation doit être invisible. Aucun spinner, aucune attente perceptible pour les opérations locales.</p>
+        <ul>
+          <li>Offline-first avec AsyncStorage synchrone</li>
+          <li>Optimistic UI — les changements s'affichent avant la persistance</li>
+          <li>Animations à 60fps systématiques</li>
+          <li>Chargement initial &lt; 1.5 secondes</li>
+        </ul>
+      </div>
+
+      <div class="pillar">
+        <span class="pillar-icon">🌍</span>
+        <h4>Marché Directeur : Le francophone global</h4>
+        <p>Aucun concurrent ne s'est sérieusement attaqué au marché francophone MENA. C'est une opportunité béante. Finance Bag est conçu pour Casablanca, Tunis, Alger, Paris, Dakar — avec une profondeur locale que les apps américaines ne peuvent pas offrir.</p>
+        <ul>
+          <li>RTL natif pour l'arabe</li>
+          <li>Multi-devises : MAD, TND, DZD, EUR</li>
+          <li>Réalités locales : crédit immo, salaire début de mois</li>
+          <li>Support offline — connexion intermittente gérée</li>
+        </ul>
+      </div>
+
+      <div class="pillar">
+        <span class="pillar-icon">🔁</span>
+        <h4>Rétention Directrice : L'habitude du lundi matin</h4>
+        <p>L'objectif n'est pas que l'utilisateur ouvre l'app tous les jours. C'est qu'il l'ouvre au moment décisif : le jour de paie, avant un gros achat, en fin de mois. Ces 3 moments-clés doivent être conçus comme des rituels.</p>
+        <ul>
+          <li>Notification de début de mois — "Distribuez votre salaire"</li>
+          <li>Résumé de mi-mois — "Voici où vous en êtes"</li>
+          <li>Célébration de fin de mois — "Ce mois-ci vous avez..."</li>
+          <li>Jalon d'objectif atteint — animation mémorable</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Différenciants -->
+    <div style="margin-top:40px;">
+      <span class="label">Nos Différenciants Absolus</span>
+      <div class="chip-row" style="margin-top:16px;">
+        <span class="chip on">Premier en FR/AR/EN</span>
+        <span class="chip on">Offline-first total</span>
+        <span class="chip on">Crédits + Urgences + Objectifs en native</span>
+        <span class="chip on">Règle 50/30/20 en 1 tap</span>
+        <span class="chip on">Taux d'endettement en temps réel</span>
+        <span class="chip on">Zéro synchronisation bancaire requise</span>
+        <span class="chip">Pas de pub</span>
+        <span class="chip">Pas de paywall abusif</span>
+        <span class="chip">RTL natif</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SECTION 5 : RAPPORT FINAL ── -->
+<section class="section" id="rapport">
+  <div class="wrap">
+    <span class="label">Section 05 — Rapport Final</span>
+    <h2>Les 6 décisions stratégiques</h2>
+    <p style="margin:12px 0 40px;">Ce rapport synthétise l'ensemble de l'analyse. C'est le document de référence pour toutes les décisions de conception de Finance Bag.</p>
+
+    <div class="report-section">
+      <div class="report-header">
+        <div class="report-num">1</div>
+        <h4>Les meilleures idées à conserver</h4>
+      </div>
+      <div class="report-body">
+        <ul>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">De YNAB</strong> : la philosophie "chaque dirham a un rôle" — allouer avant de dépenser, pas après. L'éducation financière intégrée dans le flux.</li>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">De Copilot</strong> : le dark mode comme signature, la carte principale en gradient, la hiérarchie des chiffres — le design premium sobre.</li>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">De Revolut</strong> : les Vaults/Coffres nommés avec photo — transformer l'abstrait "épargne" en concret "mon voyage". L'analytique par catégorie animée.</li>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">De Monarch</strong> : le dashboard synthétique en un coup d'œil, les graphiques cash-flow, la vue patrimoniale.</li>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">De Money Lover</strong> : la gestion de dettes natives profonde, les "jars" d'épargne comme enveloppes mentales.</li>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">D'Emma</strong> : le ton bienveillant et non-culpabilisant — le "coach" pas le "juge".</li>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">De Rocket Money</strong> : l'AHA moment immédiat — montrer la valeur avant de demander l'effort.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-header">
+        <div class="report-num">2</div>
+        <h4>Les erreurs à éviter absolument</h4>
+      </div>
+      <div class="report-body">
+        <ul>
+          <li><div class="dot-bullet" style="background:var(--red)"></div><strong style="color:var(--txt1)">L'onboarding bloquant</strong> : ne jamais exiger une synchronisation bancaire pour démarrer (Copilot, Revolut). Finance Bag démarre avec juste un nom et un salaire.</li>
+          <li><div class="dot-bullet" style="background:var(--red)"></div><strong style="color:var(--txt1)">La complexité dès J+1</strong> : Money Manager montre 15 fonctionnalités à l'utilisateur en jour 1. Résultat : 70% d'abandon. Révéler progressivement.</li>
+          <li><div class="dot-bullet" style="background:var(--red)"></div><strong style="color:var(--txt1)">Les alertes rouges culpabilisantes</strong> : Wallet et Money Manager affichent des "DANGER" quand le budget est dépassé. Cela crée de l'évitement.</li>
+          <li><div class="dot-bullet" style="background:var(--red)"></div><strong style="color:var(--txt1)">La frivolité esthétique</strong> : Spendee est trop "joyeux" pour inspirer confiance en période difficile. Le fun doit être sobre, pas cartoon.</li>
+          <li><div class="dot-bullet" style="background:var(--red)"></div><strong style="color:var(--txt1)">Le paywall à J+3</strong> : les apps qui bloquent les fonctionnalités clés trop tôt créent de la frustration et des mauvaises reviews — qui tuent l'acquisition.</li>
+          <li><div class="dot-bullet" style="background:var(--red)"></div><strong style="color:var(--txt1)">L'absence d'offline</strong> : une app financière qui demande du réseau pour afficher votre solaire est une app qu'on n'utilise pas dans le métro — soit 40% des moments de consultation.</li>
+          <li><div class="dot-bullet" style="background:var(--red)"></div><strong style="color:var(--txt1)">Le dashboard chargé</strong> : afficher 12 métriques simultanées (problème de Wallet, Emma) crée une paralysie d'analyse — l'utilisateur ne sait plus quoi regarder.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-header">
+        <div class="report-num">3</div>
+        <h4>Les fonctionnalités indispensables</h4>
+      </div>
+      <div class="report-body">
+        <ul>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Dashboard synthétique</strong> : un écran qui répond à "comment je me porte ce mois-ci ?" en moins de 5 secondes</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Répartition du salaire</strong> : règle 50/30/20 en 1 tap, catégories personnalisables, suivi budget/dépensé/restant</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Gestion des crédits</strong> : unique en profondeur — taux d'endettement, progression de remboursement, date de libération</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Fonds d'urgence</strong> : objectif 3/6/12 mois, progression visuelle, historique des contributions</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Objectifs financiers</strong> : création simple, contribution progressive, calcul automatique du mensuel nécessaire</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Ajout rapide de transaction</strong> : 3 taps maximum, aucune friction</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Score de santé budgétaire</strong> : un indicateur simple qui synthétise la situation globale</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Multilinguisme complet</strong> : FR/AR(RTL)/EN sans aucun texte codé en dur</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-header">
+        <div class="report-num">4</div>
+        <h4>Les fonctionnalités inutiles à éviter</h4>
+      </div>
+      <div class="report-body">
+        <ul>
+          <li><div class="dot-bullet" style="background:var(--amber)"></div><strong style="color:var(--txt1)">La synchronisation bancaire automatique</strong> : complexité technique, fragile, inutile si la saisie manuelle est rapide (< 3 taps). À ajouter en V2 max.</li>
+          <li><div class="dot-bullet" style="background:var(--amber)"></div><strong style="color:var(--txt1)">Les rapports PDF exportables</strong> : utilisés par < 3% des utilisateurs (Money Lover data). Complexité technique non justifiée en V1.</li>
+          <li><div class="dot-bullet" style="background:var(--amber)"></div><strong style="color:var(--txt1)">Les fonctionnalités collaboratives/couple</strong> : utiles (Monarch) mais complexifient l'architecture dès V1. Phase 3 minimum.</li>
+          <li><div class="dot-bullet" style="background:var(--amber)"></div><strong style="color:var(--txt1)">La comptabilité en partie double</strong> : Money Manager en propose — utilisé par < 1% des non-comptables. Complexité inutile.</li>
+          <li><div class="dot-bullet" style="background:var(--amber)"></div><strong style="color:var(--txt1)">La négociation de factures</strong> : Rocket Money en fait son AHA moment, mais cela nécessite une équipe humaine ou une IA complexe. Hors scope V1.</li>
+          <li><div class="dot-bullet" style="background:var(--amber)"></div><strong style="color:var(--txt1)">Les wallets multi-devises complexes</strong> : utile pour les voyageurs fréquents, mais la complexité UX est disproportionnée pour notre cible principale.</li>
+          <li><div class="dot-bullet" style="background:var(--amber)"></div><strong style="color:var(--txt1)">La gamification explicite</strong> : badges, points, niveaux — perçus comme infantilisants par les adultes > 25 ans qui constituent notre cible principale.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="report-section">
+      <div class="report-header">
+        <div class="report-num">5</div>
+        <h4>Les améliorations que Finance Bag apportera</h4>
+      </div>
+      <div class="report-body">
+        <ul>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">Les 5 piliers intégrés</strong> : aucun concurrent ne combine salaire + crédits + urgences + objectifs + dashboard dans une expérience cohérente. YNAB ignore les crédits. Copilot n'a pas de fonds d'urgence natif. Nous serons les seuls.</li>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">Le taux d'endettement en temps réel</strong> : aucune app analysée n'affiche le ratio mensualités/revenu de façon aussi visible. C'est pourtant L'indicateur clé de santé financière.</li>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">L'onboarding en 3 minutes</strong> : nom + salaire + devise = 3 champs. L'utilisateur voit son dashboard fonctionnel en 3 minutes, là où YNAB prend 30 min et Monarch 45 min.</li>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">Le francophone first</strong> : nous sommes les seuls à prioriser le français + arabe avec une expérience RTL native de qualité. Marché vierge, 300M+ de locuteurs.</li>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">L'offline-first absolu</strong> : toutes les fonctionnalités principales fonctionnent sans connexion. Réalité du terrain dans nos marchés cibles.</li>
+          <li><div class="dot-bullet" style="background:var(--green)"></div><strong style="color:var(--txt1)">La santé budgétaire en score unique</strong> : plutôt que 12 métriques, un score synthétique 0–100 qui agrège tout — comme un crédit score mais pour vos habitudes mensuelles.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="report-section" style="border-color:var(--border2);">
+      <div class="report-header" style="background:var(--accent-d);">
+        <div class="report-num" style="color:var(--accent);">6</div>
+        <h4 style="color:var(--txt1);">La vision UX globale du produit</h4>
+      </div>
+      <div class="report-body">
+        <ul>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Navigation par onglets permanente</strong> : 5 piliers, toujours accessibles, couleur propre à chaque pilier. L'utilisateur sait toujours où il est et où il va.</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Dashboard = pilote de cockpit</strong> : une grande carte de synthèse en haut (revenu / dépensé / disponible), puis les 4 autres piliers en résumé sous forme de tuiles actionnables. Tout en un écran.</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Bottom sheets pour toutes les actions</strong> : aucune navigation vers un nouvel écran pour ajouter une transaction, une contribution, un crédit. La saisie se fait sur le même écran, en glissant vers le haut.</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Chaque pilier = un storytelling visuel</strong> : l'écran Crédits raconte l'histoire de votre libération de dette. L'écran Urgences raconte la construction de votre sécurité. L'écran Objectifs raconte le chemin vers votre rêve. Pas des listes de données — des narratives visuelles.</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Animations fonctionnelles, pas décoratives</strong> : chaque animation répond à une question — "est-ce que mon action a fonctionné ?", "comment je progresse ?", "qu'est-ce qui change ?". Durées : 200ms (micro-interactions), 400ms (transitions d'état), 600ms (barres de progression).</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Hiérarchie typographique stricte</strong> : montants principaux en 34–48pt, labels en 11pt uppercase, montants secondaires en 16–20pt, descriptions en 14pt. Cette échelle ne varie pas d'un écran à l'autre — la cohérence crée la confiance.</li>
+          <li><div class="dot-bullet" style="background:var(--accent)"></div><strong style="color:var(--txt1)">Palette restreinte à 6 couleurs</strong> : fond, surface, texte, accent (indigo), succès (vert), danger (rouge) + 2 sémantiques (amber, violet). Toute autre couleur est une couleur de catégorie personnalisée par l'utilisateur. La discipline coloristique est une marque de luxe.</li>
+        </ul>
+
+        <blockquote style="margin-top:24px;">
+          <p>Finance Bag ne sera pas la plus complète, ni la plus automatisée, ni la moins chère. Elle sera la plus <em>claire</em>, la plus <em>motivante</em>, et la seule pensée pour le monde francophone. C'est notre territoire incontestable.</p>
+        </blockquote>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer style="border-top:1px solid var(--border);padding:40px 0;margin-top:40px;">
+  <div class="wrap" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
+    <div>
+      <div style="font-family:Georgia,serif;font-size:1rem;color:var(--txt1);">Finance Bag</div>
+      <div style="font-size:.78rem;color:var(--txt3);margin-top:4px;">Rapport d'Intelligence Produit · Partie 2 · Analyse Concurrentielle</div>
+    </div>
+    <div style="font-size:.75rem;color:var(--txt3);">10 applications · 47 patterns · 15 pratiques · 1 vision</div>
+  </div>
+</footer>

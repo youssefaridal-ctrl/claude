@@ -1,0 +1,1710 @@
+
+<title>Finance Bag — Architecture Technique v3.0</title>
+<style>
+:root {
+  --bg: #080C18;
+  --bg-surface: #0D1221;
+  --bg-card: #111827;
+  --bg-code: #0A0E1A;
+  --border: rgba(99,102,241,0.18);
+  --border-subtle: rgba(255,255,255,0.06);
+  --accent: #6366F1;
+  --accent-dim: rgba(99,102,241,0.12);
+  --accent-glow: rgba(99,102,241,0.25);
+  --green: #10B981;
+  --green-dim: rgba(16,185,129,0.12);
+  --gold: #F59E0B;
+  --gold-dim: rgba(245,158,11,0.12);
+  --red: #EF4444;
+  --red-dim: rgba(239,68,68,0.12);
+  --cyan: #06B6D4;
+  --cyan-dim: rgba(6,182,212,0.12);
+  --purple: #8B5CF6;
+  --text-primary: #E2E8F0;
+  --text-secondary: #94A3B8;
+  --text-muted: #64748B;
+  --text-code: #A5B4FC;
+  --sidebar-w: 268px;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-card: #F1F5F9;
+    --bg-code: #1E293B;
+    --border: rgba(99,102,241,0.2);
+    --border-subtle: rgba(0,0,0,0.07);
+    --accent-dim: rgba(99,102,241,0.08);
+    --green-dim: rgba(16,185,129,0.08);
+    --gold-dim: rgba(245,158,11,0.08);
+    --red-dim: rgba(239,68,68,0.08);
+    --cyan-dim: rgba(6,182,212,0.08);
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+    --text-code: #6366F1;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #080C18; --bg-surface: #0D1221; --bg-card: #111827; --bg-code: #0A0E1A;
+  --border: rgba(99,102,241,0.18); --border-subtle: rgba(255,255,255,0.06);
+  --accent-dim: rgba(99,102,241,0.12); --green-dim: rgba(16,185,129,0.12);
+  --gold-dim: rgba(245,158,11,0.12); --red-dim: rgba(239,68,68,0.12);
+  --cyan-dim: rgba(6,182,212,0.12);
+  --text-primary: #E2E8F0; --text-secondary: #94A3B8; --text-muted: #64748B; --text-code: #A5B4FC;
+}
+:root[data-theme="light"] {
+  --bg: #F8FAFC; --bg-surface: #FFFFFF; --bg-card: #F1F5F9; --bg-code: #1E293B;
+  --border: rgba(99,102,241,0.2); --border-subtle: rgba(0,0,0,0.07);
+  --accent-dim: rgba(99,102,241,0.08); --green-dim: rgba(16,185,129,0.08);
+  --gold-dim: rgba(245,158,11,0.08); --red-dim: rgba(239,68,68,0.08);
+  --cyan-dim: rgba(6,182,212,0.08);
+  --text-primary: #0F172A; --text-secondary: #475569; --text-muted: #94A3B8; --text-code: #6366F1;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-size: 14.5px;
+  line-height: 1.65;
+  display: flex;
+  min-height: 100vh;
+}
+/* SIDEBAR */
+.sidebar {
+  width: var(--sidebar-w);
+  flex-shrink: 0;
+  background: var(--bg-surface);
+  border-right: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  padding: 24px 0 40px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.sidebar-brand {
+  padding: 0 20px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 16px;
+}
+.sidebar-brand .logo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.3px;
+}
+.sidebar-brand .version {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.nav-group { margin-bottom: 6px; }
+.nav-group-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 8px 20px 4px;
+}
+.nav-link {
+  display: block;
+  padding: 6px 20px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: all 0.15s;
+}
+.nav-link:hover { color: var(--text-primary); background: var(--accent-dim); border-left-color: var(--accent); }
+.nav-link.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+.nav-link.sub { padding-left: 32px; font-size: 12px; }
+/* MAIN */
+.main {
+  flex: 1;
+  min-width: 0;
+  padding: 48px 56px 80px;
+  max-width: 960px;
+}
+/* HEADER */
+.doc-header {
+  margin-bottom: 52px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.doc-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.doc-title {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.8px;
+  line-height: 1.15;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+.doc-sub {
+  font-size: 15px;
+  color: var(--text-secondary);
+  max-width: 620px;
+  line-height: 1.6;
+}
+.doc-meta {
+  display: flex;
+  gap: 24px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+.meta-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 20px;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+}
+.meta-pill .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+}
+/* SECTIONS */
+.section { margin-bottom: 64px; }
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.section-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  background: var(--accent-dim);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text-primary);
+}
+.section-desc {
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  font-size: 13.5px;
+}
+h3.sub-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 28px 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+  letter-spacing: -0.2px;
+}
+/* CARDS */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+.card-accent { border-color: var(--border); border-left: 3px solid var(--accent); }
+.card-green { border-left: 3px solid var(--green); }
+.card-gold { border-left: 3px solid var(--gold); }
+.card-red { border-left: 3px solid var(--red); }
+.card-cyan { border-left: 3px solid var(--cyan); }
+/* GRID */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+@media (max-width: 700px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+/* TABLE */
+.table-wrap { overflow-x: auto; margin-bottom: 20px; border-radius: 10px; border: 1px solid var(--border-subtle); }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+thead { background: var(--bg-card); }
+thead th {
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-subtle);
+}
+tbody td {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: top;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+tbody tr:last-child td { border-bottom: none; }
+tbody tr:hover { background: rgba(255,255,255,0.02); }
+td.chosen { color: var(--text-primary); font-weight: 500; }
+td.tech { font-family: 'SF Mono', Consolas, monospace; font-size: 12px; color: var(--accent); }
+/* CODE / TREE */
+pre {
+  background: var(--bg-code);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 20px 24px;
+  overflow-x: auto;
+  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #CBD5E1;
+  margin-bottom: 20px;
+}
+pre .c { color: var(--text-muted); font-style: italic; }
+pre .k { color: #93C5FD; }
+pre .s { color: #6EE7B7; }
+pre .n { color: #FCA5A5; }
+pre .cm { color: var(--accent); font-weight: 600; }
+pre .h { color: var(--gold); }
+code {
+  font-family: 'SF Mono', Consolas, monospace;
+  font-size: 12px;
+  background: var(--accent-dim);
+  color: var(--text-code);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+/* LAYER DIAGRAM */
+.arch-diagram {
+  background: var(--bg-code);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px;
+  margin-bottom: 24px;
+}
+.arch-layer {
+  border-radius: 8px;
+  padding: 14px 20px;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.arch-layer .layer-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  min-width: 160px;
+}
+.arch-layer .layer-items {
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.layer-item {
+  background: rgba(255,255,255,0.06);
+  padding: 2px 10px;
+  border-radius: 4px;
+  font-family: 'SF Mono', monospace;
+  font-size: 11px;
+}
+.arch-arrow {
+  text-align: center;
+  font-size: 10px;
+  color: var(--text-muted);
+  padding: 3px 0;
+  letter-spacing: 0.1em;
+}
+.layer-presentation { background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.3); }
+.layer-presentation .layer-label { color: var(--accent); }
+.layer-application { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.25); }
+.layer-application .layer-label { color: var(--purple); }
+.layer-domain { background: rgba(245,158,11,0.1); border: 2px solid rgba(245,158,11,0.4); }
+.layer-domain .layer-label { color: var(--gold); }
+.layer-infrastructure { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); }
+.layer-infrastructure .layer-label { color: var(--green); }
+.layer-core { background: rgba(6,182,212,0.08); border: 1px solid rgba(6,182,212,0.2); }
+.layer-core .layer-label { color: var(--cyan); }
+/* BADGE */
+.badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.badge-green { background: var(--green-dim); color: var(--green); }
+.badge-gold { background: var(--gold-dim); color: var(--gold); }
+.badge-accent { background: var(--accent-dim); color: var(--accent); }
+.badge-red { background: var(--red-dim); color: var(--red); }
+.badge-cyan { background: var(--cyan-dim); color: var(--cyan); }
+/* FEATURE MODULE */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.feature-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.feature-card .feat-icon { font-size: 20px; margin-bottom: 6px; }
+.feature-card .feat-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.feature-card .feat-desc { font-size: 11.5px; color: var(--text-muted); }
+/* DB TABLE */
+.db-table {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+.db-table-header {
+  background: var(--accent-dim);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.db-table-name {
+  font-family: 'SF Mono', monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.db-table-body table { font-size: 12px; }
+.db-table-body table thead th { font-size: 10.5px; }
+.col-pk { color: var(--gold) !important; }
+.col-fk { color: var(--cyan) !important; }
+.type-tag { font-family: 'SF Mono', monospace; font-size: 11px; color: var(--green); }
+/* PIPELINE */
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding: 20px 0;
+  margin-bottom: 20px;
+}
+.pipe-step {
+  flex-shrink: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 12px 16px;
+  text-align: center;
+  min-width: 110px;
+}
+.pipe-step .step-icon { font-size: 18px; margin-bottom: 4px; }
+.pipe-step .step-name { font-size: 11px; font-weight: 700; color: var(--text-primary); }
+.pipe-step .step-tools { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+.pipe-arrow {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  font-size: 16px;
+  padding: 0 6px;
+}
+/* ROADMAP */
+.roadmap-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.roadmap-item:last-child { border-bottom: none; }
+.phase-badge {
+  flex-shrink: 0;
+  width: 60px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+.phase-1 { background: var(--green-dim); color: var(--green); }
+.phase-2 { background: var(--accent-dim); color: var(--accent); }
+.phase-3 { background: var(--gold-dim); color: var(--gold); }
+.phase-4 { background: var(--red-dim); color: var(--red); }
+.roadmap-content .rmap-title { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; }
+.roadmap-content .rmap-items { font-size: 12px; color: var(--text-secondary); }
+/* PRINCIPLE BOX */
+.principle-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.principle-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.principle-box .p-title { font-size: 12.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 5px; }
+.principle-box .p-desc { font-size: 12px; color: var(--text-secondary); line-height: 1.5; }
+/* THEME TOGGLE */
+.theme-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 36px; height: 36px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  z-index: 100;
+  transition: all 0.2s;
+}
+.theme-toggle:hover { border-color: var(--accent); background: var(--accent-dim); }
+/* DIVIDER */
+.divider { border: none; border-top: 1px solid var(--border-subtle); margin: 32px 0; }
+/* CALLOUT */
+.callout {
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  line-height: 1.6;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.callout-accent { background: var(--accent-dim); border: 1px solid rgba(99,102,241,0.3); color: var(--text-primary); }
+.callout-gold { background: var(--gold-dim); border: 1px solid rgba(245,158,11,0.3); color: var(--text-primary); }
+.callout-green { background: var(--green-dim); border: 1px solid rgba(16,185,129,0.3); color: var(--text-primary); }
+.callout-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .main { padding: 28px 20px 60px; }
+  .principle-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">◐</button>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div class="logo">Finance Bag</div>
+    <div class="version">Architecture Technique · v3.0</div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-group-label">Introduction</div>
+    <a href="#overview" class="nav-link active">§1 Vue d'ensemble</a>
+    <a href="#stack" class="nav-link">§2 Stack Technologique</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Architecture</div>
+    <a href="#layers" class="nav-link">§3 Couches Architecture</a>
+    <a href="#structure" class="nav-link">§4 Structure du Projet</a>
+    <a href="#features" class="nav-link">§5 Modules Features</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Données</div>
+    <a href="#database" class="nav-link">§6 Base de Données</a>
+    <a href="#sync" class="nav-link">§7 Synchronisation</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Qualité</div>
+    <a href="#security" class="nav-link">§8 Sécurité</a>
+    <a href="#performance" class="nav-link">§9 Performances</a>
+    <a href="#testing" class="nav-link">§10 Tests</a>
+    <a href="#cicd" class="nav-link">§11 CI/CD</a>
+  </div>
+  <div class="nav-group">
+    <div class="nav-group-label">Évolution</div>
+    <a href="#roadmap" class="nav-link">§12 Feuille de Route</a>
+  </div>
+</nav>
+
+<main class="main">
+
+  <!-- HEADER -->
+  <header class="doc-header">
+    <div class="doc-eyebrow">Software Architecture Specification</div>
+    <h1 class="doc-title">Finance Bag<br>Architecture Technique</h1>
+    <p class="doc-sub">Spécification d'architecture complète pour une application de gestion financière personnelle premium, conçue pour plusieurs millions d'utilisateurs, évolutive sur plusieurs années.</p>
+    <div class="doc-meta">
+      <span class="meta-pill"><span class="dot"></span>v3.0 · Juillet 2026</span>
+      <span class="meta-pill">React Native + Expo 53</span>
+      <span class="meta-pill">Clean Architecture</span>
+      <span class="meta-pill">12 modules feature</span>
+      <span class="meta-pill">SQLite · Offline-first</span>
+    </div>
+  </header>
+
+  <!-- §1 VUE D'ENSEMBLE -->
+  <section class="section" id="overview">
+    <div class="section-header">
+      <span class="section-num">§ 01</span>
+      <h2 class="section-title">Vue d'ensemble</h2>
+    </div>
+    <p class="section-desc">Finance Bag est architecturée selon le modèle <strong>Clean Architecture</strong> combiné à une organisation <strong>Feature-Driven</strong>. Chaque couche a une responsabilité unique. Le domaine métier est pur — aucune dépendance sur React Native. L'infrastructure est interchangeable.</p>
+
+    <div class="callout callout-accent">
+      <span class="callout-icon">◆</span>
+      <div><strong>Règle d'or :</strong> Les dépendances ne pointent que vers l'intérieur. La couche Domaine ne dépend de rien. L'Infrastructure dépend du Domaine, jamais l'inverse. La Présentation ne touche jamais la base de données directement.</div>
+    </div>
+
+    <div class="grid-3">
+      <div class="card card-accent">
+        <div style="font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.06em;margin-bottom:8px">OBJECTIF PRINCIPAL</div>
+        <div style="font-size:13px;color:var(--text-secondary)">Application premium fonctionnant hors-ligne, fluide à 60 fps, sécurisée, maintenable sur 5+ ans</div>
+      </div>
+      <div class="card card-green">
+        <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:.06em;margin-bottom:8px">CONTRAINTES CLÉS</div>
+        <div style="font-size:13px;color:var(--text-secondary)">Offline-first · 60 fps · &lt;1s démarrage à froid · Support 100K+ enregistrements</div>
+      </div>
+      <div class="card card-gold">
+        <div style="font-size:11px;font-weight:700;color:var(--gold);letter-spacing:.06em;margin-bottom:8px">ÉVOLUTIVITÉ</div>
+        <div style="font-size:13px;color:var(--text-secondary)">Open Banking · IA · OCR · Wear OS · Apple Watch · Multi-utilisateurs — sans refactoring majeur</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- §2 STACK -->
+  <section class="section" id="stack">
+    <div class="section-header">
+      <span class="section-num">§ 02</span>
+      <h2 class="section-title">Stack Technologique</h2>
+    </div>
+    <p class="section-desc">Chaque technologie est choisie pour sa maturité, ses performances et son adéquation avec les objectifs premium de l'application.</p>
+
+    <h3 class="sub-title">Framework & Langage</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Domaine</th><th>Choix retenu</th><th>Alternatives rejetées</th><th>Justification</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Framework mobile</td>
+            <td class="tech">React Native 0.76 + Expo SDK 53</td>
+            <td>Flutter, Kotlin Multiplatform</td>
+            <td class="chosen">Codebase unique Android/iOS. Expo SDK réduit la configuration native à zéro. Nouvelle architecture (JSI + Fabric) = performances natives. Écosystème JS le plus large.</td>
+          </tr>
+          <tr>
+            <td>Langage</td>
+            <td class="tech">TypeScript 5.5 (strict)</td>
+            <td>JavaScript, Flow</td>
+            <td class="chosen">Strict mode + <code>noUncheckedIndexedAccess</code> élimine 70% des bugs runtime. IDE auto-complétion sur tout le projet. Indispensable à cette échelle.</td>
+          </tr>
+          <tr>
+            <td>Navigation</td>
+            <td class="tech">Expo Router 4 (file-based)</td>
+            <td>React Navigation v7</td>
+            <td class="chosen">Navigation déclarative par fichiers = zero config. Deep linking automatique. Compatible avec le web si besoin futur. Construit sur React Navigation.</td>
+          </tr>
+          <tr>
+            <td>Build System</td>
+            <td class="tech">EAS Build + EAS Update</td>
+            <td>Xcode/Gradle direct, Fastlane</td>
+            <td class="chosen">APK, AAB, IPA sans environnement natif local. OTA updates via expo-updates. Profiles preview/staging/production. CI cloud intégré.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub-title">Architecture & État</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Domaine</th><th>Choix retenu</th><th>Alternatives rejetées</th><th>Justification</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Architecture logicielle</td>
+            <td class="tech">Clean Architecture + FDD</td>
+            <td>MVC, MVVM, Layered Architecture</td>
+            <td class="chosen">Séparation stricte domaine/infrastructure. Domain testable sans simulateur. Features indépendantes. Extensible sans dette technique.</td>
+          </tr>
+          <tr>
+            <td>State management</td>
+            <td class="tech">Zustand 5 + TanStack Query v5</td>
+            <td>Redux Toolkit, MobX, Recoil, Jotai</td>
+            <td class="chosen">Zustand pour état global synchrone (UI, préférences). TanStack Query pour état asynchrone (cache, background refetch, stale-while-revalidate). Aucun provider hell.</td>
+          </tr>
+          <tr>
+            <td>Injection dépendances</td>
+            <td class="tech">Service Locator pattern (custom)</td>
+            <td>InversifyJS, tsyringe</td>
+            <td class="chosen">Pattern léger, zero overhead runtime. Interfaces TypeScript comme contrats. Swap facile dans les tests (mock repositories). Pas de décorateurs expérimentaux.</td>
+          </tr>
+          <tr>
+            <td>Animations</td>
+            <td class="tech">React Native Reanimated 3</td>
+            <td>Animated API, Moti, Lottie (pour animations custom)</td>
+            <td class="chosen">Worklets s'exécutent sur le thread UI, 0 JS bridge frames dropped. Gesture Handler intégré. 60 fps garanti même en charge CPU.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub-title">Données & Stockage</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Domaine</th><th>Choix retenu</th><th>Alternatives rejetées</th><th>Justification</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Base de données locale</td>
+            <td class="tech">expo-sqlite (SQLite 3.45)</td>
+            <td>AsyncStorage, MMKV, WatermelonDB, Realm</td>
+            <td class="chosen">SQLite = standard industrie. Requêtes complexes, index, transactions, FTS. Supporte des millions de lignes sans dégradation. WatermelonDB ajoute une couche inutile. MMKV est clé-valeur — insuffisant pour données relationnelles.</td>
+          </tr>
+          <tr>
+            <td>ORM / Query Builder</td>
+            <td class="tech">drizzle-orm (SQLite dialect)</td>
+            <td>TypeORM, Sequelize, SQL brut</td>
+            <td class="chosen">TypeScript-first. Génère des requêtes SQL optimales. Migrations type-safe. Zero overhead runtime. Compatible expo-sqlite. SQL brut non maintenu à grande échelle.</td>
+          </tr>
+          <tr>
+            <td>Stockage sécurisé</td>
+            <td class="tech">expo-secure-store</td>
+            <td>AsyncStorage, @react-native-async-storage</td>
+            <td class="chosen">Keychain iOS + Keystore Android. Chiffrement matériel. Pour tokens, clés de chiffrement, PIN. AsyncStorage = stockage non chiffré, inacceptable pour données sensibles.</td>
+          </tr>
+          <tr>
+            <td>Cloud sync (futur)</td>
+            <td class="tech">Supabase (architecture-ready)</td>
+            <td>Firebase, PocketBase, Appwrite</td>
+            <td class="chosen">PostgreSQL compatible avec le schéma SQLite. Realtime intégré. Auth JWT. Row Level Security. Open-source self-hostable. Firebase = NoSQL inadapté aux données financières relationnelles.</td>
+          </tr>
+          <tr>
+            <td>Fichiers</td>
+            <td class="tech">expo-file-system</td>
+            <td>react-native-fs</td>
+            <td class="chosen">API unifiée iOS/Android. Gestion exports PDF/CSV, backups locaux, cache images. Intégré à l'écosystème Expo.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub-title">Sécurité, Qualité & Ops</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Domaine</th><th>Choix retenu</th><th>Justification</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Chiffrement</td>
+            <td class="tech">expo-crypto + AES-256-GCM</td>
+            <td class="chosen">Chiffrement AES-256-GCM des données sensibles en base. Clé dérivée via PBKDF2 stockée dans SecureStore.</td>
+          </tr>
+          <tr>
+            <td>Authentification locale</td>
+            <td class="tech">expo-local-authentication</td>
+            <td class="chosen">Face ID, Touch ID, empreinte Android. Fallback PIN chiffré. Verrou automatique après inactivité.</td>
+          </tr>
+          <tr>
+            <td>i18n</td>
+            <td class="tech">i18next + react-i18next</td>
+            <td class="chosen">Namespaces par feature. Lazy loading des traductions. Support RTL (Arabe) via I18nManager. Pluralisation, formatage monétaire locale.</td>
+          </tr>
+          <tr>
+            <td>Notifications</td>
+            <td class="tech">expo-notifications</td>
+            <td class="chosen">Alertes budget, jalons d'objectifs, résumés mensuels. Planification locale sans serveur. Respecte les préférences utilisateur.</td>
+          </tr>
+          <tr>
+            <td>Analytics</td>
+            <td class="tech">PostHog (self-hosted option)</td>
+            <td class="chosen">RGPD-compliant, open-source, pas de tracking tiers. Events anonymisés. Product analytics sans envoyer données financières.</td>
+          </tr>
+          <tr>
+            <td>Crash reporting</td>
+            <td class="tech">Sentry React Native</td>
+            <td class="chosen">Source maps, breadcrumbs, performance monitoring. Alertes Slack en production. Dashboard erreurs détaillé.</td>
+          </tr>
+          <tr>
+            <td>Tests unitaires</td>
+            <td class="tech">Jest 30 + Testing Library</td>
+            <td class="chosen">React Native Testing Library pour composants. Jest pour use cases et domaine. Couverture cible 80%.</td>
+          </tr>
+          <tr>
+            <td>Tests E2E</td>
+            <td class="tech">Detox</td>
+            <td class="chosen">Tests boîte noire sur émulateur/simulateur réel. Seule solution mature pour RN E2E en CI. Maestro comme alternative légère.</td>
+          </tr>
+          <tr>
+            <td>Linting / Format</td>
+            <td class="tech">ESLint 9 + Prettier + Biome</td>
+            <td class="chosen">Biome remplace ESLint + Prettier en un outil (10x plus rapide). Règles strictes adaptées React Native. Pre-commit hook via Husky.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- §3 ARCHITECTURE EN COUCHES -->
+  <section class="section" id="layers">
+    <div class="section-header">
+      <span class="section-num">§ 03</span>
+      <h2 class="section-title">Architecture en Couches</h2>
+    </div>
+    <p class="section-desc">Clean Architecture avec 6 couches. Les dépendances pointent exclusivement vers le centre. Le Domaine est la couche la plus stable — elle ne dépend d'aucune technologie.</p>
+
+    <div class="arch-diagram">
+      <div class="arch-layer layer-presentation">
+        <div class="layer-label">Présentation</div>
+        <div class="layer-items">
+          <span class="layer-item">Screens</span>
+          <span class="layer-item">Components</span>
+          <span class="layer-item">Navigation</span>
+          <span class="layer-item">Hooks UI</span>
+          <span class="layer-item">Animations</span>
+        </div>
+      </div>
+      <div class="arch-arrow">↓ dépend de</div>
+      <div class="arch-layer layer-application">
+        <div class="layer-label">Application</div>
+        <div class="layer-items">
+          <span class="layer-item">Use Cases</span>
+          <span class="layer-item">Zustand Stores</span>
+          <span class="layer-item">TanStack Query</span>
+          <span class="layer-item">Services App</span>
+          <span class="layer-item">Event Bus</span>
+        </div>
+      </div>
+      <div class="arch-arrow">↓ dépend de</div>
+      <div class="arch-layer layer-domain">
+        <div class="layer-label">Domaine ★</div>
+        <div class="layer-items">
+          <span class="layer-item">Entities</span>
+          <span class="layer-item">Value Objects</span>
+          <span class="layer-item">Repository Interfaces</span>
+          <span class="layer-item">Business Rules</span>
+          <span class="layer-item">Domain Events</span>
+        </div>
+      </div>
+      <div class="arch-arrow">↓ implémenté par</div>
+      <div class="arch-layer layer-infrastructure">
+        <div class="layer-label">Infrastructure</div>
+        <div class="layer-items">
+          <span class="layer-item">SQLite / Drizzle</span>
+          <span class="layer-item">SecureStore</span>
+          <span class="layer-item">Repositories SQLite</span>
+          <span class="layer-item">Sync Engine</span>
+          <span class="layer-item">Notifications</span>
+          <span class="layer-item">Crypto</span>
+        </div>
+      </div>
+      <div class="arch-arrow">transversal</div>
+      <div class="arch-layer layer-core">
+        <div class="layer-label">Core / Shared</div>
+        <div class="layer-items">
+          <span class="layer-item">Design System</span>
+          <span class="layer-item">i18n</span>
+          <span class="layer-item">Theme</span>
+          <span class="layer-item">Logger</span>
+          <span class="layer-item">Result&lt;T,E&gt;</span>
+          <span class="layer-item">DI Container</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Responsabilités par couche</h3>
+    <div class="grid-2">
+      <div class="card card-accent">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">PRÉSENTATION</div>
+        <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6">Affichage et interactions. Appelle les Use Cases via les stores. Ne contient aucune logique métier. Ne touche jamais la base de données. Gère les états de chargement et d'erreur.</div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--purple)">
+        <div style="font-size:12px;font-weight:700;color:var(--purple);margin-bottom:8px">APPLICATION</div>
+        <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6">Orchestration des Use Cases. Gère l'état global (Zustand). Coordonne plusieurs repositories. Publie des Domain Events. Aucune dépendance sur React Native.</div>
+      </div>
+      <div class="card card-gold">
+        <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">DOMAINE ★</div>
+        <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6">Cœur de l'application. Entités métier pures (Transaction, Goal, Credit). Règles invariantes. Interfaces des repositories. <strong>Zéro import React Native ou framework.</strong></div>
+      </div>
+      <div class="card card-green">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">INFRASTRUCTURE</div>
+        <div style="font-size:12.5px;color:var(--text-secondary);line-height:1.6">Implémentations concrètes. SQLite, SecureStore, API Cloud. Interchangeable sans toucher au Domaine. En test : remplacé par des mocks mémoire.</div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Pattern Result&lt;T, E&gt;</h3>
+    <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px">Toutes les opérations fallibles retournent <code>Result&lt;T, AppError&gt;</code> — jamais de <code>throw</code> non contrôlé dans le domaine.</p>
+    <pre><span class="k">type</span> Result&lt;T, E = AppError&gt; =
+  | <span class="s">{ ok: true; value: T }</span>
+  | <span class="s">{ ok: false; error: E }</span>;
+
+<span class="k">const</span> ok  = &lt;T&gt;(value: T): Result&lt;T&gt; =&gt; ({ ok: true, value });
+<span class="k">const</span> err = &lt;E&gt;(error: E): Result&lt;never, E&gt; =&gt; ({ ok: false, error });
+
+<span class="c">// Usage dans un Use Case</span>
+<span class="k">async function</span> <span class="n">addTransaction</span>(dto: CreateTransactionDTO): Promise&lt;Result&lt;Transaction&gt;&gt; {
+  <span class="k">const</span> validated = Transaction.create(dto);
+  <span class="k">if</span> (!validated.ok) <span class="k">return</span> err(validated.error);
+
+  <span class="k">const</span> saved = <span class="k">await</span> this.repo.save(validated.value);
+  <span class="k">return</span> saved.ok ? ok(saved.value) : err(saved.error);
+}</pre>
+  </section>
+
+  <!-- §4 STRUCTURE DU PROJET -->
+  <section class="section" id="structure">
+    <div class="section-header">
+      <span class="section-num">§ 04</span>
+      <h2 class="section-title">Structure du Projet</h2>
+    </div>
+    <p class="section-desc">Organisation modulaire claire. Chaque dossier a une responsabilité unique et délimitée.</p>
+
+    <pre><span class="h">finance-bag/</span>
+├── <span class="cm">app/</span>                          <span class="c"># Expo Router — entrées de navigation uniquement</span>
+│   ├── _layout.tsx               <span class="c"># Bootstrap DI, theme, i18n, db</span>
+│   ├── onboarding/
+│   │   ├── welcome.tsx
+│   │   ├── language.tsx
+│   │   └── setup.tsx
+│   └── (tabs)/
+│       ├── _layout.tsx           <span class="c"># Tab bar config</span>
+│       ├── dashboard.tsx         <span class="c"># Delegate to features/dashboard</span>
+│       ├── salary.tsx
+│       ├── credits.tsx
+│       ├── emergency.tsx
+│       └── goals.tsx
+│
+├── <span class="cm">src/</span>
+│   ├── <span class="h">core/</span>                     <span class="c"># Fondations framework-agnostiques</span>
+│   │   ├── result/
+│   │   │   └── index.ts          <span class="c"># Result&lt;T,E&gt;, ok(), err()</span>
+│   │   ├── errors/
+│   │   │   ├── AppError.ts       <span class="c"># DomainError | InfraError | ValidationError</span>
+│   │   │   └── ErrorCodes.ts
+│   │   ├── events/
+│   │   │   └── EventBus.ts       <span class="c"># Pub/sub in-process (typed events)</span>
+│   │   ├── di/
+│   │   │   ├── Container.ts      <span class="c"># Service locator léger</span>
+│   │   │   └── tokens.ts         <span class="c"># Symbol tokens pour chaque service</span>
+│   │   ├── logger/
+│   │   │   └── Logger.ts         <span class="c"># Log structuré (debug en dev, Sentry en prod)</span>
+│   │   └── types/
+│   │       └── index.ts          <span class="c"># Branded types, DeepReadonly, etc.</span>
+│   │
+│   ├── <span class="h">domain/</span>                   <span class="c"># Logique métier pure — aucun import RN</span>
+│   │   ├── entities/
+│   │   │   ├── User.ts
+│   │   │   ├── Transaction.ts
+│   │   │   ├── BudgetCategory.ts
+│   │   │   ├── IncomeSource.ts
+│   │   │   ├── Credit.ts
+│   │   │   ├── CreditPayment.ts
+│   │   │   ├── EmergencyFund.ts
+│   │   │   ├── Goal.ts
+│   │   │   └── GoalContribution.ts
+│   │   ├── repositories/         <span class="c"># Interfaces — contrats uniquement</span>
+│   │   │   ├── IUserRepository.ts
+│   │   │   ├── ITransactionRepository.ts
+│   │   │   ├── ICreditRepository.ts
+│   │   │   ├── IEmergencyRepository.ts
+│   │   │   └── IGoalRepository.ts
+│   │   ├── valueobjects/
+│   │   │   ├── Money.ts          <span class="c"># Amount (Decimal) + Currency — immutable</span>
+│   │   │   ├── Percentage.ts     <span class="c"># 0–100, validé</span>
+│   │   │   ├── DateRange.ts
+│   │   │   └── TransactionId.ts  <span class="c"># Branded string</span>
+│   │   ├── usecases/
+│   │   │   ├── salary/
+│   │   │   │   ├── SetSalaryUseCase.ts
+│   │   │   │   ├── Apply503020UseCase.ts
+│   │   │   │   └── AddIncomeSourceUseCase.ts
+│   │   │   ├── transactions/
+│   │   │   │   ├── AddTransactionUseCase.ts
+│   │   │   │   ├── GetMonthlyTransactionsUseCase.ts
+│   │   │   │   └── DeleteTransactionUseCase.ts
+│   │   │   ├── credits/
+│   │   │   │   ├── AddCreditUseCase.ts
+│   │   │   │   ├── RecordPaymentUseCase.ts
+│   │   │   │   └── GetDebtRatioUseCase.ts
+│   │   │   ├── emergency/
+│   │   │   │   ├── SetTargetUseCase.ts
+│   │   │   │   └── RecordContributionUseCase.ts
+│   │   │   ├── goals/
+│   │   │   │   ├── CreateGoalUseCase.ts
+│   │   │   │   └── ContributeGoalUseCase.ts
+│   │   │   └── dashboard/
+│   │   │       ├── GetBudgetHealthUseCase.ts
+│   │   │       └── GetMonthlySnapshotUseCase.ts
+│   │   └── events/               <span class="c"># Domain Events (typed)</span>
+│   │       ├── TransactionAdded.ts
+│   │       └── GoalCompleted.ts
+│   │
+│   ├── <span class="h">infrastructure/</span>           <span class="c"># Implémentations concrètes</span>
+│   │   ├── database/
+│   │   │   ├── client.ts         <span class="c"># Singleton expo-sqlite connection</span>
+│   │   │   ├── schema.ts         <span class="c"># Drizzle schema definitions</span>
+│   │   │   └── migrations/
+│   │   │       ├── 0001_initial.ts
+│   │   │       ├── 0002_add_snapshots.ts
+│   │   │       └── runner.ts     <span class="c"># Migration runner au démarrage</span>
+│   │   ├── repositories/
+│   │   │   ├── SQLiteUserRepository.ts
+│   │   │   ├── SQLiteTransactionRepository.ts
+│   │   │   ├── SQLiteCreditRepository.ts
+│   │   │   ├── SQLiteEmergencyRepository.ts
+│   │   │   └── SQLiteGoalRepository.ts
+│   │   ├── storage/
+│   │   │   ├── SecureStorage.ts  <span class="c"># Wrapper expo-secure-store</span>
+│   │   │   └── FileStorage.ts    <span class="c"># Wrapper expo-file-system</span>
+│   │   ├── crypto/
+│   │   │   └── EncryptionService.ts  <span class="c"># AES-256-GCM via expo-crypto</span>
+│   │   ├── notifications/
+│   │   │   └── NotificationService.ts
+│   │   ├── biometric/
+│   │   │   └── BiometricService.ts
+│   │   └── sync/                 <span class="c"># Architecture cloud-ready (implémentation future)</span>
+│   │       ├── SyncEngine.ts
+│   │       ├── ConflictResolver.ts
+│   │       └── SupabaseAdapter.ts
+│   │
+│   ├── <span class="h">application/</span>              <span class="c"># Orchestration</span>
+│   │   ├── store/
+│   │   │   ├── userStore.ts      <span class="c"># Profil, préférences, onboarding</span>
+│   │   │   ├── salaryStore.ts    <span class="c"># Salaire, catégories, revenus</span>
+│   │   │   ├── creditsStore.ts   <span class="c"># Crédits, paiements</span>
+│   │   │   ├── emergencyStore.ts <span class="c"># Fonds d'urgence</span>
+│   │   │   ├── goalsStore.ts     <span class="c"># Objectifs, contributions</span>
+│   │   │   ├── uiStore.ts        <span class="c"># Modals, bottom sheets, toasts</span>
+│   │   │   └── index.ts          <span class="c"># Exports + types</span>
+│   │   └── services/
+│   │       ├── BudgetAnalysisService.ts   <span class="c"># 50/30/20, santé budgétaire</span>
+│   │       ├── NotificationScheduler.ts   <span class="c"># Planification alertes</span>
+│   │       ├── SnapshotService.ts         <span class="c"># Archivage mensuel</span>
+│   │       └── ExportService.ts           <span class="c"># PDF, CSV (futur)</span>
+│   │
+│   ├── <span class="h">features/</span>                 <span class="c"># Modules fonctionnels indépendants</span>
+│   │   ├── dashboard/
+│   │   ├── salary/
+│   │   ├── credits/
+│   │   ├── emergency/
+│   │   ├── goals/
+│   │   ├── statistics/
+│   │   ├── settings/
+│   │   ├── onboarding/
+│   │   ├── notifications/
+│   │   ├── archives/
+│   │   ├── profile/
+│   │   └── authentication/
+│   │
+│   └── <span class="h">shared/</span>                   <span class="c"># UI transversale</span>
+│       ├── ui/                   <span class="c"># Design system (Button, Input, ...)</span>
+│       ├── theme/                <span class="c"># Tokens couleur, typo, spacing</span>
+│       ├── i18n/                 <span class="c"># Initialisation + namespaces</span>
+│       ├── hooks/                <span class="c"># useTheme, useCurrency, useDebounce</span>
+│       └── utils/                <span class="c"># formatCurrency, formatDate, validators</span>
+│
+├── <span class="h">assets/</span>
+│   ├── fonts/                    <span class="c"># Polices embarquées (Inter)</span>
+│   ├── icons/                    <span class="c"># SVG optimisés</span>
+│   └── images/
+│
+├── <span class="h">config/</span>
+│   ├── app.config.ts             <span class="c"># Expo dynamic config</span>
+│   └── env.ts                    <span class="c"># Zod schema + typed env vars</span>
+│
+└── <span class="h">tests/</span>
+    ├── unit/                     <span class="c"># Tests domaine + use cases</span>
+    ├── integration/              <span class="c"># Tests repositories + store</span>
+    ├── e2e/                      <span class="c"># Tests Detox (émulateur)</span>
+    └── fixtures/                 <span class="c"># Données de test partagées</span></pre>
+  </section>
+
+  <!-- §5 MODULES FEATURES -->
+  <section class="section" id="features">
+    <div class="section-header">
+      <span class="section-num">§ 05</span>
+      <h2 class="section-title">Modules Features</h2>
+    </div>
+    <p class="section-desc">Chaque feature est un module autonome avec ses propres couches internes. Aucune feature ne dépend d'une autre directement — communication via le store ou l'Event Bus.</p>
+
+    <pre><span class="h">features/dashboard/</span>             <span class="c"># Exemple de structure complète</span>
+├── <span class="k">presentation/</span>
+│   ├── DashboardScreen.tsx       <span class="c"># Écran principal</span>
+│   ├── components/
+│   │   ├── BudgetHealthCard.tsx
+│   │   ├── QuickActions.tsx
+│   │   ├── CategoryProgress.tsx
+│   │   ├── RecentTransactions.tsx
+│   │   └── DonutSummary.tsx
+│   └── hooks/
+│       ├── useDashboardData.ts   <span class="c"># TanStack Query hook</span>
+│       └── useDashboardAnimations.ts
+├── <span class="k">application/</span>
+│   └── dashboardStore.ts         <span class="c"># Slice Zustand spécifique</span>
+├── <span class="k">domain/</span>
+│   └── BudgetHealth.ts           <span class="c"># Value object : score, statut, couleur</span>
+├── <span class="k">data/</span>
+│   └── DashboardRepository.ts    <span class="c"># Requêtes agrégées optimisées</span>
+└── index.ts                      <span class="c"># Public API du module</span></pre>
+
+    <div class="feature-grid">
+      <div class="feature-card"><div class="feat-icon">📊</div><div class="feat-name">dashboard</div><div class="feat-desc">Vue synthèse, santé budgétaire, transactions rapides</div></div>
+      <div class="feature-card"><div class="feat-icon">💰</div><div class="feat-name">salary</div><div class="feat-desc">Salaire, 50/30/20, catégories, revenus</div></div>
+      <div class="feature-card"><div class="feat-icon">🏦</div><div class="feat-name">credits</div><div class="feat-desc">Dettes, taux endettement, stratégies</div></div>
+      <div class="feature-card"><div class="feat-icon">🛡️</div><div class="feat-name">emergency</div><div class="feat-desc">Fonds urgence, objectif 3/6/12 mois</div></div>
+      <div class="feature-card"><div class="feat-icon">🎯</div><div class="feat-name">goals</div><div class="feat-desc">Objectifs financiers, contributions, suivi</div></div>
+      <div class="feature-card"><div class="feat-icon">📈</div><div class="feat-name">statistics</div><div class="feat-desc">Historique, graphiques, tendances</div></div>
+      <div class="feature-card"><div class="feat-icon">📁</div><div class="feat-name">archives</div><div class="feat-desc">Snapshots mensuels, historique complet</div></div>
+      <div class="feature-card"><div class="feat-icon">🔔</div><div class="feat-name">notifications</div><div class="feat-desc">Alertes budget, jalons, rappels</div></div>
+      <div class="feature-card"><div class="feat-icon">👤</div><div class="feat-name">profile</div><div class="feat-desc">Nom, devise, préférences visuelles</div></div>
+      <div class="feature-card"><div class="feat-icon">⚙️</div><div class="feat-name">settings</div><div class="feat-desc">Langue, thème, sécurité, export</div></div>
+      <div class="feature-card"><div class="feat-icon">🔒</div><div class="feat-name">authentication</div><div class="feat-desc">Biométrie, PIN, verrou automatique</div></div>
+      <div class="feature-card"><div class="feat-icon">🚀</div><div class="feat-name">onboarding</div><div class="feat-desc">Accueil, langue, configuration initiale</div></div>
+    </div>
+
+    <h3 class="sub-title">Règles inter-modules</h3>
+    <div class="grid-2">
+      <div class="card card-green">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">✓ AUTORISÉ</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+          <li>Importer depuis <code>shared/</code></li>
+          <li>Importer depuis <code>core/</code></li>
+          <li>Lire le store global (lecture seule)</li>
+          <li>Émettre des Domain Events</li>
+          <li>Importer l'index public d'une autre feature</li>
+        </ul>
+      </div>
+      <div class="card card-red">
+        <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">✗ INTERDIT</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+          <li>Importer les internals d'une autre feature</li>
+          <li>Accéder directement à la DB depuis la présentation</li>
+          <li>Dépendances circulaires entre features</li>
+          <li>Logique métier dans les composants UI</li>
+          <li>Appels API dans les entités du domaine</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- §6 BASE DE DONNÉES -->
+  <section class="section" id="database">
+    <div class="section-header">
+      <span class="section-num">§ 06</span>
+      <h2 class="section-title">Base de Données</h2>
+    </div>
+    <p class="section-desc">SQLite 3.45 via expo-sqlite + Drizzle ORM. Schéma relationnel complet avec index optimisés, migrations versionnées et archivage automatique.</p>
+
+    <div class="callout callout-gold">
+      <span class="callout-icon">⚠</span>
+      <div><strong>Principe zéro perte de données :</strong> Toutes les écritures sont dans des transactions SQLite. Les suppressions sont logiques (soft delete avec <code>deleted_at</code>). Un snapshot mensuel est archivé le 1er de chaque mois. Exports auto hebdomadaires vers FileSystem.</div>
+    </div>
+
+    <!-- TABLES -->
+    <div class="db-table">
+      <div class="db-table-header">
+        <span class="db-table-name">users</span>
+        <span class="badge badge-green">Singleton</span>
+        <span style="font-size:11px;color:var(--text-muted);margin-left:auto">Profil utilisateur unique</span>
+      </div>
+      <div class="db-table-body">
+        <table><thead><tr><th>Colonne</th><th>Type</th><th>Contrainte</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="col-pk">id</td><td class="type-tag">TEXT</td><td>PRIMARY KEY</td><td>Valeur fixe <code>'local'</code></td></tr>
+          <tr><td>name</td><td class="type-tag">TEXT</td><td>NOT NULL</td><td>Prénom affiché</td></tr>
+          <tr><td>currency</td><td class="type-tag">TEXT</td><td>NOT NULL DEFAULT 'MAD'</td><td>Code devise ISO</td></tr>
+          <tr><td>language</td><td class="type-tag">TEXT</td><td>NOT NULL DEFAULT 'fr'</td><td>Code langue (fr/ar/en)</td></tr>
+          <tr><td>monthly_salary</td><td class="type-tag">REAL</td><td>NOT NULL DEFAULT 0</td><td>Revenu mensuel principal</td></tr>
+          <tr><td>onboarding_done</td><td class="type-tag">INTEGER</td><td>NOT NULL DEFAULT 0</td><td>Booléen 0/1</td></tr>
+          <tr><td>biometric_enabled</td><td class="type-tag">INTEGER</td><td>NOT NULL DEFAULT 0</td><td>Verrou biométrique</td></tr>
+          <tr><td>theme</td><td class="type-tag">TEXT</td><td>DEFAULT 'dark'</td><td>Préférence thème</td></tr>
+          <tr><td>created_at</td><td class="type-tag">INTEGER</td><td>NOT NULL</td><td>Unix timestamp (ms)</td></tr>
+          <tr><td>updated_at</td><td class="type-tag">INTEGER</td><td>NOT NULL</td><td>Dernière modification</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="db-table">
+      <div class="db-table-header">
+        <span class="db-table-name">transactions</span>
+        <span class="badge badge-accent">Principale</span>
+        <span style="font-size:11px;color:var(--text-muted);margin-left:auto">Toutes les opérations financières</span>
+      </div>
+      <div class="db-table-body">
+        <table><thead><tr><th>Colonne</th><th>Type</th><th>Index</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="col-pk">id</td><td class="type-tag">TEXT</td><td>PK</td><td>UUID v4</td></tr>
+          <tr><td>type</td><td class="type-tag">TEXT</td><td>—</td><td><code>'income'</code> | <code>'expense'</code></td></tr>
+          <tr><td>amount</td><td class="type-tag">REAL</td><td>—</td><td>Montant (centimes évité, REAL suffisant)</td></tr>
+          <tr><td class="col-fk">category_id</td><td class="type-tag">TEXT</td><td>idx_tx_cat</td><td>FK → budget_categories.id</td></tr>
+          <tr><td>description</td><td class="type-tag">TEXT</td><td>FTS5</td><td>Recherche plein texte future</td></tr>
+          <tr><td>date</td><td class="type-tag">INTEGER</td><td>idx_tx_date DESC</td><td>Timestamp Unix (ms)</td></tr>
+          <tr><td>month</td><td class="type-tag">TEXT</td><td>idx_tx_month</td><td>Format YYYY-MM — partition clé</td></tr>
+          <tr><td>tags</td><td class="type-tag">TEXT</td><td>—</td><td>JSON array de strings</td></tr>
+          <tr><td>is_recurring</td><td class="type-tag">INTEGER</td><td>—</td><td>Transaction récurrente</td></tr>
+          <tr><td>deleted_at</td><td class="type-tag">INTEGER</td><td>—</td><td>Soft delete (NULL = actif)</td></tr>
+          <tr><td>created_at</td><td class="type-tag">INTEGER</td><td>—</td><td>Timestamp création</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="db-table">
+      <div class="db-table-header">
+        <span class="db-table-name">credits</span>
+        <span class="badge badge-accent">Dettes</span>
+      </div>
+      <div class="db-table-body">
+        <table><thead><tr><th>Colonne</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="col-pk">id</td><td class="type-tag">TEXT</td><td>UUID v4</td></tr>
+          <tr><td>name</td><td class="type-tag">TEXT</td><td>Nom du crédit</td></tr>
+          <tr><td>type</td><td class="type-tag">TEXT</td><td>mortgage / car / personal / student / other</td></tr>
+          <tr><td>initial_amount</td><td class="type-tag">REAL</td><td>Montant initial emprunté</td></tr>
+          <tr><td>remaining_amount</td><td class="type-tag">REAL</td><td>Solde restant (calculé)</td></tr>
+          <tr><td>monthly_payment</td><td class="type-tag">REAL</td><td>Mensualité</td></tr>
+          <tr><td>interest_rate</td><td class="type-tag">REAL</td><td>Taux annuel (%)</td></tr>
+          <tr><td>start_date</td><td class="type-tag">INTEGER</td><td>Date début (timestamp)</td></tr>
+          <tr><td>end_date</td><td class="type-tag">INTEGER</td><td>Date fin prévue</td></tr>
+          <tr><td>lender</td><td class="type-tag">TEXT</td><td>Organisme prêteur</td></tr>
+          <tr><td>color</td><td class="type-tag">TEXT</td><td>Couleur hex d'affichage</td></tr>
+          <tr><td>active</td><td class="type-tag">INTEGER</td><td>0 = soldé</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="db-table">
+        <div class="db-table-header"><span class="db-table-name">credit_payments</span><span class="badge badge-cyan">Paiements</span></div>
+        <div class="db-table-body"><table><thead><tr><th>Colonne</th><th>Type</th></tr></thead>
+        <tbody>
+          <tr><td class="col-pk">id</td><td class="type-tag">TEXT PK</td></tr>
+          <tr><td class="col-fk">credit_id</td><td class="type-tag">TEXT FK → credits</td></tr>
+          <tr><td>amount</td><td class="type-tag">REAL</td></tr>
+          <tr><td>payment_date</td><td class="type-tag">INTEGER</td></tr>
+          <tr><td>month</td><td class="type-tag">TEXT idx</td></tr>
+          <tr><td>note</td><td class="type-tag">TEXT</td></tr>
+        </tbody></table></div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-header"><span class="db-table-name">goals</span><span class="badge badge-gold">Objectifs</span></div>
+        <div class="db-table-body"><table><thead><tr><th>Colonne</th><th>Type</th></tr></thead>
+        <tbody>
+          <tr><td class="col-pk">id</td><td class="type-tag">TEXT PK</td></tr>
+          <tr><td>name</td><td class="type-tag">TEXT NOT NULL</td></tr>
+          <tr><td>target_amount</td><td class="type-tag">REAL NOT NULL</td></tr>
+          <tr><td>current_amount</td><td class="type-tag">REAL DEFAULT 0</td></tr>
+          <tr><td>monthly_contrib</td><td class="type-tag">REAL</td></tr>
+          <tr><td>target_date</td><td class="type-tag">INTEGER</td></tr>
+          <tr><td>priority</td><td class="type-tag">TEXT idx</td></tr>
+          <tr><td>completed</td><td class="type-tag">INTEGER DEFAULT 0</td></tr>
+        </tbody></table></div>
+      </div>
+    </div>
+
+    <div class="db-table">
+      <div class="db-table-header">
+        <span class="db-table-name">monthly_snapshots</span>
+        <span class="badge badge-green">Archivage</span>
+        <span style="font-size:11px;color:var(--text-muted);margin-left:auto">Snapshot immuable créé le 1er de chaque mois</span>
+      </div>
+      <div class="db-table-body">
+        <table><thead><tr><th>Colonne</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="col-pk">month</td><td class="type-tag">TEXT</td><td>YYYY-MM — clé primaire</td></tr>
+          <tr><td>salary</td><td class="type-tag">REAL</td><td>Revenu du mois</td></tr>
+          <tr><td>total_income</td><td class="type-tag">REAL</td><td>Total revenus (toutes sources)</td></tr>
+          <tr><td>total_expenses</td><td class="type-tag">REAL</td><td>Total dépenses</td></tr>
+          <tr><td>savings_rate</td><td class="type-tag">REAL</td><td>Taux d'épargne (%)</td></tr>
+          <tr><td>debt_ratio</td><td class="type-tag">REAL</td><td>Taux d'endettement (%)</td></tr>
+          <tr><td>emergency_amount</td><td class="type-tag">REAL</td><td>Montant fonds urgence</td></tr>
+          <tr><td>net_worth_estimate</td><td class="type-tag">REAL</td><td>Patrimoine estimé</td></tr>
+          <tr><td>categories_json</td><td class="type-tag">TEXT</td><td>JSON snapshot des catégories</td></tr>
+          <tr><td>created_at</td><td class="type-tag">INTEGER</td><td>Horodatage snapshot</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Index & Performances</h3>
+    <pre><span class="c">-- Index critiques pour les requêtes fréquentes</span>
+<span class="k">CREATE INDEX</span> idx_transactions_month      <span class="k">ON</span> transactions(month);
+<span class="k">CREATE INDEX</span> idx_transactions_date_desc  <span class="k">ON</span> transactions(date <span class="k">DESC</span>);
+<span class="k">CREATE INDEX</span> idx_transactions_category   <span class="k">ON</span> transactions(category_id);
+<span class="k">CREATE INDEX</span> idx_credit_payments_credit  <span class="k">ON</span> credit_payments(credit_id, payment_date <span class="k">DESC</span>);
+<span class="k">CREATE INDEX</span> idx_goal_contributions_goal <span class="k">ON</span> goal_contributions(goal_id, date <span class="k">DESC</span>);
+<span class="k">CREATE INDEX</span> idx_emergency_tx_month      <span class="k">ON</span> emergency_transactions(month);
+
+<span class="c">-- Table de suivi des migrations (obligatoire)</span>
+<span class="k">CREATE TABLE</span> schema_migrations (
+  version     INTEGER <span class="k">PRIMARY KEY</span>,
+  applied_at  INTEGER <span class="k">NOT NULL</span>,
+  description TEXT    <span class="k">NOT NULL</span>
+);
+
+<span class="c">-- Table sync_metadata (prête pour cloud sync futur)</span>
+<span class="k">CREATE TABLE</span> sync_metadata (
+  table_name   TEXT    <span class="k">NOT NULL</span>,
+  record_id    TEXT    <span class="k">NOT NULL</span>,
+  last_modified INTEGER <span class="k">NOT NULL</span>,
+  sync_status  TEXT    <span class="k">NOT NULL DEFAULT</span> <span class="s">'pending'</span>,
+  device_id    TEXT    <span class="k">NOT NULL</span>,
+  <span class="k">PRIMARY KEY</span> (table_name, record_id)
+);</pre>
+
+    <h3 class="sub-title">Stratégie de Migration</h3>
+    <div class="grid-2">
+      <div class="card card-green">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">PRINCIPE</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+          <li>Chaque migration a un numéro séquentiel</li>
+          <li>Migrations idempotentes (vérification avant exécution)</li>
+          <li>Rollback conservatif : jamais de <code>DROP COLUMN</code></li>
+          <li>Runner exécuté au démarrage avant toute requête</li>
+          <li>Backup automatique avant migration majeure</li>
+        </ul>
+      </div>
+      <div class="card card-gold">
+        <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">PROTECTION</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+          <li>Soft deletes uniquement (jamais de DELETE physique)</li>
+          <li>Colonnes toujours ajoutées, jamais supprimées</li>
+          <li>Export auto JSON chiffré hebdomadaire</li>
+          <li>Validation de l'intégrité référentielle au démarrage</li>
+          <li>Snapshot mensuel immuable</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- §7 SYNCHRONISATION -->
+  <section class="section" id="sync">
+    <div class="section-header">
+      <span class="section-num">§ 07</span>
+      <h2 class="section-title">Architecture de Synchronisation</h2>
+    </div>
+    <p class="section-desc">Offline-first par design. La DB locale est la source de vérité. Le cloud est une projection secondaire — il n'est jamais requis pour le fonctionnement de l'app.</p>
+
+    <div class="arch-diagram">
+      <div style="display:flex;gap:12px;align-items:stretch;flex-wrap:wrap">
+        <div style="flex:1;min-width:160px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:8px;padding:16px;text-align:center">
+          <div style="font-size:20px;margin-bottom:8px">📱</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent)">Device A</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">SQLite local<br>Source de vérité</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 8px">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">sync</div>
+          <div style="font-size:18px;color:var(--text-muted)">⇄</div>
+        </div>
+        <div style="flex:1;min-width:160px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;padding:16px;text-align:center">
+          <div style="font-size:20px;margin-bottom:8px">☁️</div>
+          <div style="font-size:13px;font-weight:700;color:var(--gold)">Supabase Cloud</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">PostgreSQL<br>Backup + Multi-device</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 8px">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">sync</div>
+          <div style="font-size:18px;color:var(--text-muted)">⇄</div>
+        </div>
+        <div style="flex:1;min-width:160px;background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.3);border-radius:8px;padding:16px;text-align:center">
+          <div style="font-size:20px;margin-bottom:8px">📱</div>
+          <div style="font-size:13px;font-weight:700;color:var(--accent)">Device B</div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px">SQLite local<br>Réplication</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Stratégie Offline-First</h3>
+    <div class="principle-grid">
+      <div class="principle-box">
+        <div class="p-title">1. Local First</div>
+        <div class="p-desc">Toute écriture va d'abord en SQLite local. Retour immédiat à l'utilisateur. Pas d'attente réseau.</div>
+      </div>
+      <div class="principle-box">
+        <div class="p-title">2. Sync Queue</div>
+        <div class="p-desc">La table <code>sync_metadata</code> enregistre chaque modification avec timestamp et statut. Le SyncEngine les traite quand le réseau est disponible.</div>
+      </div>
+      <div class="principle-box">
+        <div class="p-title">3. Résolution Conflits</div>
+        <div class="p-desc">Last-write-wins sur les champs simples. Merge intelligent sur les listes. Version vector (device_id + timestamp) pour détecter les divergences.</div>
+      </div>
+      <div class="principle-box">
+        <div class="p-title">4. Delta Sync</div>
+        <div class="p-desc">Seules les modifications depuis le dernier sync sont envoyées. Pas de full-sync à chaque connexion. Efficace sur mobile data.</div>
+      </div>
+    </div>
+
+    <div class="callout callout-green">
+      <span class="callout-icon">✓</span>
+      <div><strong>Architecture-ready :</strong> La table <code>sync_metadata</code> et les interfaces <code>SyncEngine</code> + <code>ConflictResolver</code> sont définies dès V1. L'implémentation Supabase s'y branche sans modifier le schéma ni les repositories existants.</div>
+    </div>
+  </section>
+
+  <!-- §8 SÉCURITÉ -->
+  <section class="section" id="security">
+    <div class="section-header">
+      <span class="section-num">§ 08</span>
+      <h2 class="section-title">Sécurité</h2>
+    </div>
+    <p class="section-desc">Défense en profondeur : chiffrement à repos, stockage matériel, authentification biométrique, et protection contre la falsification.</p>
+
+    <h3 class="sub-title">Modèle de Menaces</h3>
+    <div class="grid-3">
+      <div class="card card-red">
+        <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">MENACE 1</div>
+        <div style="font-size:12.5px;color:var(--text-secondary)">Accès physique au téléphone déverrouillé → verrou biométrique + auto-lock</div>
+      </div>
+      <div class="card card-red">
+        <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">MENACE 2</div>
+        <div style="font-size:12.5px;color:var(--text-secondary)">Extraction APK + lecture base SQLite → chiffrement AES-256-GCM à repos</div>
+      </div>
+      <div class="card card-red">
+        <div style="font-size:11px;font-weight:700;color:var(--red);margin-bottom:6px">MENACE 3</div>
+        <div style="font-size:12.5px;color:var(--text-secondary)">Interception réseau → TLS 1.3 + certificate pinning (APIs futures)</div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Implémentation</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Couche</th><th>Mécanisme</th><th>Technologie</th></tr></thead>
+        <tbody>
+          <tr>
+            <td>Authentification</td>
+            <td class="chosen">Face ID / Touch ID / Fingerprint. Fallback PIN à 6 chiffres (dérivé PBKDF2). Auto-lock après 5 minutes d'inactivité.</td>
+            <td class="tech">expo-local-authentication</td>
+          </tr>
+          <tr>
+            <td>Clés secrètes</td>
+            <td class="chosen">Clé de chiffrement DB générée aléatoirement au premier lancement. Stockée dans le Keychain iOS / Keystore Android. Jamais en clair en mémoire longtemps.</td>
+            <td class="tech">expo-secure-store</td>
+          </tr>
+          <tr>
+            <td>Chiffrement DB</td>
+            <td class="chosen">Champs sensibles (montants, descriptions) chiffrés AES-256-GCM avant stockage. IV unique par enregistrement.</td>
+            <td class="tech">expo-crypto</td>
+          </tr>
+          <tr>
+            <td>Transport</td>
+            <td class="chosen">TLS 1.3 obligatoire. Certificate pinning activé pour toutes les API calls (implémentation cloud).</td>
+            <td class="tech">Network Security Config (Android) + ATS (iOS)</td>
+          </tr>
+          <tr>
+            <td>Obfuscation</td>
+            <td class="chosen">ProGuard / R8 en production Android. Hermes bytecode — pas de source JS en clair dans l'APK/IPA.</td>
+            <td class="tech">EAS Build production profile</td>
+          </tr>
+          <tr>
+            <td>Validation</td>
+            <td class="chosen">Toutes les entrées utilisateur validées par Zod avant traitement. Types branded pour montants (pas de NaN, pas de négatifs non contrôlés).</td>
+            <td class="tech">Zod 3</td>
+          </tr>
+          <tr>
+            <td>Logs</td>
+            <td class="chosen">Logger structuré masque automatiquement les montants et noms en prod. Logs Sentry : breadcrumbs sans PII.</td>
+            <td class="tech">Logger.ts custom</td>
+          </tr>
+          <tr>
+            <td>Exports</td>
+            <td class="chosen">Fichiers export (CSV, PDF) chiffrés si partagés. Avertissement utilisateur avant tout partage de données financières.</td>
+            <td class="tech">expo-sharing + expo-crypto</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- §9 PERFORMANCES -->
+  <section class="section" id="performance">
+    <div class="section-header">
+      <span class="section-num">§ 09</span>
+      <h2 class="section-title">Performances</h2>
+    </div>
+    <p class="section-desc">Objectifs : démarrage à froid &lt;1s, navigation &lt;100ms, 60 fps constant, &lt;120 Mo RAM, support de 10 ans d'historique sans dégradation.</p>
+
+    <h3 class="sub-title">Démarrage (Cold Start)</h3>
+    <pre><span class="h">Séquence de démarrage optimisée :</span>
+
+<span class="k">1.</span> <span class="n">SplashScreen.preventAutoHideAsync()</span>        <span class="c"># Immédiat</span>
+<span class="k">2.</span> Initialisation SQLite + migrations             <span class="c"># &lt;100ms</span>
+<span class="k">3.</span> Chargement état utilisateur (SELECT simple)    <span class="c"># &lt;20ms</span>
+<span class="k">4.</span> Résolution route (onboarding vs tabs)          <span class="c"># &lt;5ms</span>
+<span class="k">5.</span> Rendu premier écran                            <span class="c"># &lt;200ms</span>
+<span class="k">6.</span> <span class="n">SplashScreen.hideAsync()</span>                      <span class="c"># &lt;400ms total</span>
+<span class="k">7.</span> Chargement données dashboard en arrière-plan   <span class="c"># Non bloquant</span>
+
+<span class="h">Cible : &lt;700ms avant premier pixel utile</span></pre>
+
+    <h3 class="sub-title">Stratégies par Domaine</h3>
+    <div class="grid-2">
+      <div class="card card-accent">
+        <div style="font-size:12px;font-weight:700;color:var(--accent);margin-bottom:8px">RENDU (60 fps)</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+          <li><code>React.memo</code> + <code>useCallback</code> sur tous les composants lourds</li>
+          <li>Animations via Reanimated worklets (thread UI)</li>
+          <li>FlashList au lieu de FlatList (Shopify)</li>
+          <li>Lazy loading des features par onglet</li>
+          <li>Skeleton loaders — jamais de spinner bloquant</li>
+        </ul>
+      </div>
+      <div class="card card-green">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">BASE DE DONNÉES</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+          <li>Pagination curseur (pas offset) pour les listes</li>
+          <li>Requêtes agrégées au lieu de calculs JS</li>
+          <li>Index sur toutes les colonnes de filtre</li>
+          <li>Journalisation WAL pour écritures concurrentes</li>
+          <li>Requêtes en arrière-plan (non bloquantes)</li>
+        </ul>
+      </div>
+      <div class="card card-gold">
+        <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">MÉMOIRE</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+          <li>TanStack Query cache LRU (50 queries max)</li>
+          <li>Images optimisées + cache expo-image</li>
+          <li>Nettoyage store onUnmount des features</li>
+          <li>Éviter les closures et les fuites de refs</li>
+          <li>Hermes GC optimisé (activé par défaut Expo 52+)</li>
+        </ul>
+      </div>
+      <div class="card card-cyan">
+        <div style="font-size:12px;font-weight:700;color:var(--cyan);margin-bottom:8px">BATTERIE & RÉSEAU</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+          <li>Sync cloud uniquement sur WiFi (configurable)</li>
+          <li>Backoff exponentiel sur les erreurs réseau</li>
+          <li>Pas de polling — événements push natifs</li>
+          <li>Notifications locales (sans réseau)</li>
+          <li>Analytics batch (pas de request par event)</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- §10 TESTS -->
+  <section class="section" id="testing">
+    <div class="section-header">
+      <span class="section-num">§ 10</span>
+      <h2 class="section-title">Stratégie de Tests</h2>
+    </div>
+    <p class="section-desc">Pyramide de tests classique. Le domaine est la zone la plus testée — il est pur TypeScript, pas besoin de simulateur.</p>
+
+    <div class="arch-diagram">
+      <div style="text-align:center;padding:10px 0 6px">
+        <div style="display:inline-block;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.3);border-radius:6px;padding:10px 40px;font-size:12px;color:var(--red);font-weight:700">E2E (Detox) — 20 scénarios critiques</div>
+      </div>
+      <div style="text-align:center;padding:6px 0">
+        <div style="display:inline-block;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:6px;padding:10px 80px;font-size:12px;color:var(--gold);font-weight:700">Intégration — Repositories + Stores</div>
+      </div>
+      <div style="text-align:center;padding:6px 0">
+        <div style="display:inline-block;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);border-radius:6px;padding:10px 120px;font-size:12px;color:var(--green);font-weight:700">Unitaires — Domaine, Use Cases, Utils (cible 80%)</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card card-green">
+        <div style="font-size:12px;font-weight:700;color:var(--green);margin-bottom:8px">TESTS UNITAIRES — Jest 30</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+          <li>Entités domaine (invariants, validations)</li>
+          <li>Value Objects (Money, Percentage)</li>
+          <li>Use Cases (mock repositories en mémoire)</li>
+          <li>Utils (formatCurrency, dateRange)</li>
+          <li>Business Rules (503020, debt ratio)</li>
+        </ul>
+      </div>
+      <div class="card card-gold">
+        <div style="font-size:12px;font-weight:700;color:var(--gold);margin-bottom:8px">TESTS INTÉGRATION</div>
+        <ul style="font-size:12.5px;color:var(--text-secondary);padding-left:16px;line-height:2">
+          <li>Repositories sur SQLite in-memory</li>
+          <li>Stores Zustand avec actions séquentielles</li>
+          <li>Composants via React Native Testing Library</li>
+          <li>Migrations DB (toutes les versions)</li>
+          <li>Scénarios multi-use-cases</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Tests E2E — Detox</h3>
+    <pre><span class="c">// Scénarios critiques E2E</span>
+<span class="k">describe</span>(<span class="s">'Onboarding complet'</span>, () =&gt; {
+  it(<span class="s">'crée un profil et accède au dashboard'</span>, <span class="k">async</span> () =&gt; {
+    <span class="k">await</span> device.launchApp({ newInstance: true });
+    <span class="k">await</span> element(by.id(<span class="s">'btn-get-started'</span>)).tap();
+    <span class="k">await</span> element(by.id(<span class="s">'lang-fr'</span>)).tap();
+    <span class="k">await</span> element(by.id(<span class="s">'input-name'</span>)).typeText(<span class="s">'Ahmed'</span>);
+    <span class="k">await</span> element(by.id(<span class="s">'input-salary'</span>)).typeText(<span class="s">'8000'</span>);
+    <span class="k">await</span> element(by.id(<span class="s">'btn-complete'</span>)).tap();
+    <span class="k">await</span> expect(element(by.id(<span class="s">'dashboard-screen'</span>))).toBeVisible();
+  });
+});
+
+<span class="k">describe</span>(<span class="s">'Ajout transaction'</span>, () =&gt; {
+  it(<span class="s">'ajoute une dépense et met à jour le budget'</span>, <span class="k">async</span> () =&gt; {
+    <span class="k">await</span> element(by.id(<span class="s">'fab-add-expense'</span>)).tap();
+    <span class="k">await</span> element(by.id(<span class="s">'amount-input'</span>)).typeText(<span class="s">'150'</span>);
+    <span class="k">await</span> element(by.id(<span class="s">'btn-confirm'</span>)).tap();
+    <span class="c">// Vérifie mise à jour dashboard</span>
+    <span class="k">await</span> expect(element(by.id(<span class="s">'budget-spent'</span>))).toHaveText(<span class="s">'150'</span>);
+  });
+});</pre>
+  </section>
+
+  <!-- §11 CI/CD -->
+  <section class="section" id="cicd">
+    <div class="section-header">
+      <span class="section-num">§ 11</span>
+      <h2 class="section-title">Pipeline CI/CD</h2>
+    </div>
+    <p class="section-desc">GitHub Actions + EAS Build. Chaque push déclenche les vérifications. Les builds release sont signés et distribués automatiquement.</p>
+
+    <h3 class="sub-title">Pipeline Pull Request</h3>
+    <div class="pipeline">
+      <div class="pipe-step"><div class="step-icon">🔍</div><div class="step-name">Lint</div><div class="step-tools">Biome + TypeScript</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="step-icon">🧪</div><div class="step-name">Unit Tests</div><div class="step-tools">Jest + coverage</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="step-icon">🔗</div><div class="step-name">Integration</div><div class="step-tools">Jest + SQLite</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="step-icon">🏗️</div><div class="step-name">Build Check</div><div class="step-tools">expo export</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="step-icon">✅</div><div class="step-name">Merge Gate</div><div class="step-tools">Required checks</div></div>
+    </div>
+
+    <h3 class="sub-title">Pipeline Release</h3>
+    <div class="pipeline">
+      <div class="pipe-step"><div class="step-icon">🏷️</div><div class="step-name">Tag v*.*.*</div><div class="step-tools">git tag</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="step-icon">🤖</div><div class="step-name">E2E Tests</div><div class="step-tools">Detox (émulateur)</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="step-icon">📦</div><div class="step-name">EAS Build</div><div class="step-tools">APK + AAB + IPA</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="step-icon">🚀</div><div class="step-name">Distribution</div><div class="step-tools">Play Store + TestFlight</div></div>
+      <div class="pipe-arrow">→</div>
+      <div class="pipe-step"><div class="step-icon">📊</div><div class="step-name">Monitoring</div><div class="step-tools">Sentry release</div></div>
+    </div>
+
+    <pre><span class="c"># .github/workflows/ci.yml (structure)</span>
+<span class="k">name:</span> CI
+
+<span class="k">on:</span>
+  push:    { branches: [main, develop] }
+  pull_request: { branches: [main] }
+
+<span class="k">jobs:</span>
+  quality:
+    <span class="k">steps:</span>
+      - <span class="n">biome check --apply</span>         <span class="c"># lint + format</span>
+      - <span class="n">tsc --noEmit</span>                 <span class="c"># type check</span>
+      - <span class="n">jest --coverage --ci</span>          <span class="c"># unit + intégration</span>
+      - <span class="n">jest --coverageThreshold 80</span>   <span class="c"># gate sur couverture</span>
+
+  build-check:
+    <span class="k">needs:</span> quality
+    <span class="k">steps:</span>
+      - <span class="n">npx expo export --platform all</span>  <span class="c"># vérifie que le build compile</span>
+
+  release:
+    <span class="k">if:</span> startsWith(github.ref, 'refs/tags/v')
+    <span class="k">steps:</span>
+      - <span class="n">eas build --platform all --profile production</span>
+      - <span class="n">eas submit --platform all</span></pre>
+  </section>
+
+  <!-- §12 ROADMAP -->
+  <section class="section" id="roadmap">
+    <div class="section-header">
+      <span class="section-num">§ 12</span>
+      <h2 class="section-title">Feuille de Route Technique</h2>
+    </div>
+    <p class="section-desc">L'architecture est conçue pour absorber ces évolutions sans refactoring majeur. Chaque extension s'intègre comme un nouveau module ou une nouvelle implémentation d'interface existante.</p>
+
+    <div class="card" style="margin-bottom:24px">
+      <div class="roadmap-item">
+        <div class="phase-badge phase-1">V1</div>
+        <div class="roadmap-content">
+          <div class="rmap-title">Core App — Hors ligne complet</div>
+          <div class="rmap-items">Dashboard · Salary · Credits · Emergency · Goals · i18n FR/AR/EN · Biométrie · SQLite · EAS Build</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="phase-badge phase-2">V2</div>
+        <div class="roadmap-content">
+          <div class="rmap-title">Cloud & Multi-devices</div>
+          <div class="rmap-items">Supabase Auth · Sync multi-appareils · Backup cloud · Résolution conflits · Export PDF/CSV · Statistiques avancées · Widgets iOS/Android</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="phase-badge phase-3">V3</div>
+        <div class="roadmap-content">
+          <div class="rmap-title">Intelligence & Connectivité</div>
+          <div class="rmap-items">OCR tickets de caisse · Open Banking (agrégateur) · Import CSV relevés bancaires · IA catégorisation auto · Assistant financier · Apple Watch / Wear OS</div>
+        </div>
+      </div>
+      <div class="roadmap-item">
+        <div class="phase-badge phase-4">V4</div>
+        <div class="roadmap-content">
+          <div class="rmap-title">Plateforme & Multi-utilisateurs</div>
+          <div class="rmap-items">Comptes familiaux · Partage couple · API publique · Marketplace de plugins · Web app (Expo Web) · Export comptable</div>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub-title">Points d'Extension Prévus</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Fonctionnalité Future</th><th>Point d'extension actuel</th><th>Effort d'intégration</th></tr></thead>
+        <tbody>
+          <tr><td>Open Banking</td><td>Nouvelle implémentation <code>ITransactionRepository</code></td><td class="badge badge-green">Faible</td></tr>
+          <tr><td>IA catégorisation</td><td>Nouveau <code>UseCase</code> + service <code>AIClassifier</code></td><td class="badge badge-green">Faible</td></tr>
+          <tr><td>OCR</td><td>Nouveau module feature <code>scanner/</code></td><td class="badge badge-green">Faible</td></tr>
+          <tr><td>Widgets Android/iOS</td><td>Lecture SQLite depuis extension (déjà architecture-ready)</td><td class="badge badge-gold">Moyen</td></tr>
+          <tr><td>Apple Watch</td><td>Nouveau target Expo + shared store read-only</td><td class="badge badge-gold">Moyen</td></tr>
+          <tr><td>Multi-utilisateurs</td><td><code>user_id</code> ajouté à chaque table via migration, RLS Supabase</td><td class="badge badge-gold">Moyen</td></tr>
+          <tr><td>Export PDF</td><td><code>ExportService.ts</code> (interface définie en V1)</td><td class="badge badge-green">Faible</td></tr>
+          <tr><td>Assistant IA</td><td>Nouveau module feature <code>assistant/</code> + API externe</td><td class="badge badge-accent">Standard</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-accent" style="margin-top:32px">
+      <span class="callout-icon">◆</span>
+      <div><strong>Décision finale :</strong> Cette architecture est validée pour supporter 5+ ans d'évolution et plusieurs millions d'utilisateurs. Le domain layer pur TypeScript garantit une testabilité maximale. L'infrastructure interchangeable (Repository pattern) permet de migrer la DB ou le cloud provider sans toucher à la logique métier. Les features indépendantes permettent un travail en équipe sans conflits.</div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+function toggleTheme() {
+  const root = document.documentElement;
+  const current = root.getAttribute('data-theme');
+  root.setAttribute('data-theme', current === 'light' ? 'dark' : 'light');
+}
+
+// Active nav link on scroll
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { threshold: 0.25 });
+sections.forEach(s => observer.observe(s));
+</script>

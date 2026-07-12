@@ -1,0 +1,1687 @@
+<title>Finance Bag — Auth & Account System Specification</title>
+<style>
+  /* ── Tokens ─────────────────────────────────────────────────────── */
+  :root {
+    --ink: #0D1117;
+    --ink-2: #374151;
+    --ink-3: #64748B;
+    --surface: #F4F5F8;
+    --card: #FFFFFF;
+    --border: #E2E8F0;
+    --accent: #6366F1;
+    --accent-dim: rgba(99,102,241,.10);
+    --accent-2: #8B5CF6;
+    --danger: #EF4444;
+    --danger-dim: rgba(239,68,68,.10);
+    --warning: #F59E0B;
+    --warning-dim: rgba(245,158,11,.10);
+    --success: #10B981;
+    --success-dim: rgba(16,185,129,.10);
+    --info: #3B82F6;
+    --info-dim: rgba(59,130,246,.10);
+    --sidebar-w: 252px;
+    --content-max: 760px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #F1F5F9;
+      --ink-2: #CBD5E1;
+      --ink-3: #94A3B8;
+      --surface: #090E1A;
+      --card: #111827;
+      --border: #1E2A40;
+      --accent-dim: rgba(99,102,241,.15);
+      --danger-dim: rgba(239,68,68,.15);
+      --warning-dim: rgba(245,158,11,.15);
+      --success-dim: rgba(16,185,129,.15);
+      --info-dim: rgba(59,130,246,.15);
+    }
+  }
+  :root[data-theme="light"] {
+    --ink: #0D1117; --ink-2: #374151; --ink-3: #64748B;
+    --surface: #F4F5F8; --card: #FFFFFF; --border: #E2E8F0;
+    --accent-dim: rgba(99,102,241,.10);
+    --danger-dim: rgba(239,68,68,.10);
+    --warning-dim: rgba(245,158,11,.10);
+    --success-dim: rgba(16,185,129,.10);
+    --info-dim: rgba(59,130,246,.10);
+  }
+  :root[data-theme="dark"] {
+    --ink: #F1F5F9; --ink-2: #CBD5E1; --ink-3: #94A3B8;
+    --surface: #090E1A; --card: #111827; --border: #1E2A40;
+    --accent-dim: rgba(99,102,241,.15);
+    --danger-dim: rgba(239,68,68,.15);
+    --warning-dim: rgba(245,158,11,.15);
+    --success-dim: rgba(16,185,129,.15);
+    --info-dim: rgba(59,130,246,.15);
+  }
+
+  /* ── Reset & base ────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* ── Layout ──────────────────────────────────────────────────────── */
+  .layout { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--card);
+    border-right: 1px solid var(--border);
+    padding: 0 0 32px 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar-brand {
+    padding: 20px 20px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: sticky;
+    top: 0;
+    background: var(--card);
+    z-index: 1;
+  }
+  .brand-icon {
+    width: 32px; height: 32px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .brand-text { font-size: 12px; font-weight: 600; color: var(--ink); line-height: 1.2; }
+  .brand-sub { font-size: 10px; color: var(--ink-3); font-weight: 400; }
+
+  .sidebar nav { padding: 12px 0; }
+  .nav-section { padding: 6px 20px 2px; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); margin-top: 6px; }
+  .nav-link {
+    display: block;
+    padding: 5px 20px;
+    font-size: 12.5px;
+    color: var(--ink-2);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all .15s;
+    line-height: 1.4;
+  }
+  .nav-link:hover { color: var(--accent); background: var(--accent-dim); }
+  .nav-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-dim); font-weight: 500; }
+  .nav-sub { padding-left: 32px; font-size: 11.5px; }
+
+  /* Main */
+  .main {
+    margin-left: var(--sidebar-w);
+    flex: 1;
+    padding: 0 40px 80px;
+    min-width: 0;
+  }
+
+  /* Theme toggle */
+  .theme-btn {
+    margin: 12px 20px 0;
+    display: flex; align-items: center; gap: 6px;
+    background: none; border: 1px solid var(--border);
+    border-radius: 6px; padding: 5px 10px;
+    cursor: pointer; color: var(--ink-3); font-size: 11px;
+    transition: all .15s; width: calc(100% - 40px);
+  }
+  .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Document header ─────────────────────────────────────────────── */
+  .doc-header {
+    padding: 48px 0 36px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .doc-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--accent);
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    margin-bottom: 10px;
+  }
+  .doc-title {
+    font-size: 30px; font-weight: 700; color: var(--ink);
+    line-height: 1.2; margin-bottom: 14px;
+    text-wrap: balance;
+  }
+  .doc-meta {
+    display: flex; flex-wrap: wrap; gap: 20px;
+    font-size: 12.5px; color: var(--ink-3);
+  }
+  .doc-meta span { display: flex; align-items: center; gap: 5px; }
+  .status-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 600;
+    letter-spacing: .02em;
+  }
+  .chip-draft { background: var(--warning-dim); color: var(--warning); }
+  .chip-approved { background: var(--success-dim); color: var(--success); }
+  .chip-security { background: var(--danger-dim); color: var(--danger); }
+  .chip-spec { background: var(--accent-dim); color: var(--accent); }
+  .chip-optional { background: var(--info-dim); color: var(--info); }
+  .chip-required { background: var(--success-dim); color: var(--success); }
+
+  /* ── Sections ────────────────────────────────────────────────────── */
+  .section { margin-bottom: 60px; scroll-margin-top: 24px; max-width: var(--content-max); }
+  .section-number {
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    letter-spacing: .06em; margin-bottom: 6px;
+  }
+  h2.section-title {
+    font-size: 22px; font-weight: 700; color: var(--ink);
+    margin-bottom: 6px; text-wrap: balance;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 28px;
+  }
+  h3 {
+    font-size: 15px; font-weight: 700; color: var(--ink);
+    margin: 28px 0 10px;
+  }
+  h3:first-child { margin-top: 0; }
+  h4 {
+    font-size: 13px; font-weight: 700; color: var(--ink-2);
+    margin: 20px 0 8px; text-transform: uppercase;
+    letter-spacing: .04em; font-size: 11px;
+  }
+  p { color: var(--ink-2); margin-bottom: 12px; }
+  p:last-child { margin-bottom: 0; }
+  ul, ol { color: var(--ink-2); padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 5px; }
+  li:last-child { margin-bottom: 0; }
+  code {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    font-size: 12px; background: var(--accent-dim);
+    color: var(--accent); padding: 1px 5px; border-radius: 4px;
+  }
+  strong { color: var(--ink); font-weight: 600; }
+
+  /* ── Callouts ────────────────────────────────────────────────────── */
+  .callout {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 20px 0;
+    display: flex; gap: 12px;
+    font-size: 14px;
+  }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { flex: 1; min-width: 0; }
+  .callout-title { font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+  .callout-text { color: inherit; opacity: .85; margin: 0; }
+  .callout-rec { background: var(--success-dim); color: var(--success); }
+  .callout-sec { background: var(--danger-dim); color: var(--danger); }
+  .callout-warn { background: var(--warning-dim); color: var(--warning); }
+  .callout-info { background: var(--info-dim); color: var(--info); }
+  .callout-priv { background: var(--accent-dim); color: var(--accent); }
+
+  /* ── Tables ──────────────────────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; margin: 20px 0; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead { background: var(--surface); }
+  th {
+    text-align: left; padding: 10px 14px;
+    font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
+    color: var(--ink-3); border-bottom: 1px solid var(--border);
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--ink-2); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--accent-dim); }
+  .td-good { color: var(--success); font-weight: 600; }
+  .td-bad { color: var(--danger); }
+  .td-warn { color: var(--warning); font-weight: 500; }
+
+  /* ── Flow boxes ──────────────────────────────────────────────────── */
+  .flow {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin: 20px 0;
+  }
+  .flow-title {
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .06em; color: var(--ink-3); margin-bottom: 14px;
+  }
+  .flow-steps { list-style: none; padding: 0; }
+  .flow-step {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+  }
+  .flow-step:last-child { border-bottom: none; padding-bottom: 0; }
+  .step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--accent); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+  }
+  .step-body { flex: 1; }
+  .step-label { font-weight: 600; font-size: 13.5px; color: var(--ink); margin-bottom: 2px; }
+  .step-detail { font-size: 12.5px; color: var(--ink-3); }
+
+  /* ── Rule boxes ──────────────────────────────────────────────────── */
+  .rule-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0;
+  }
+  .rule-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .rule-label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px; }
+  .rule-value { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .rule-why { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+
+  /* ── Risk matrix ─────────────────────────────────────────────────── */
+  .risk-row { display: grid; grid-template-columns: 1fr 60px 60px 1fr; gap: 10px; align-items: start; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+  .risk-row:last-child { border-bottom: none; }
+  .risk-row-header { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); padding: 0 0 6px; }
+  .sev { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+  .sev-crit { background: var(--danger-dim); color: var(--danger); }
+  .sev-high { background: var(--warning-dim); color: var(--warning); }
+  .sev-med { background: var(--info-dim); color: var(--info); }
+  .sev-low { background: var(--success-dim); color: var(--success); }
+
+  /* ── Spec blocks ─────────────────────────────────────────────────── */
+  .spec-block {
+    background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+    overflow: hidden; margin: 20px 0;
+  }
+  .spec-row { display: flex; border-bottom: 1px solid var(--border); }
+  .spec-row:last-child { border-bottom: none; }
+  .spec-key {
+    width: 180px; flex-shrink: 0; padding: 10px 16px;
+    font-size: 12px; font-weight: 600; color: var(--ink-3);
+    background: var(--surface); border-right: 1px solid var(--border);
+  }
+  .spec-val { padding: 10px 16px; font-size: 13px; color: var(--ink-2); flex: 1; }
+
+  /* ── Screen specs ────────────────────────────────────────────────── */
+  .screen-spec {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 20px 24px; margin: 16px 0;
+  }
+  .screen-name {
+    font-size: 15px; font-weight: 700; color: var(--ink); margin-bottom: 2px;
+  }
+  .screen-purpose { font-size: 12.5px; color: var(--ink-3); margin-bottom: 14px; font-style: italic; }
+  .screen-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .screen-col h4 { margin-top: 0; }
+
+  /* ── Dividers ────────────────────────────────────────────────────── */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+  /* ── Responsive ──────────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    :root { --sidebar-w: 0px; }
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 20px 20px 60px; }
+    .rule-grid { grid-template-columns: 1fr; }
+    .screen-grid { grid-template-columns: 1fr; }
+    .risk-row { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+
+<div class="layout">
+
+  <!-- ── Sidebar ─────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">💼</div>
+      <div>
+        <div class="brand-text">Finance Bag</div>
+        <div class="brand-sub">Auth Specification v1.0</div>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-section">Overview</div>
+      <a class="nav-link active" href="#summary">Executive Summary</a>
+      <a class="nav-link" href="#rec-matrix">Recommendation Matrix</a>
+
+      <div class="nav-section">Identity</div>
+      <a class="nav-link" href="#registration">Account Creation</a>
+      <a class="nav-link nav-sub" href="#email-reg">Email Registration</a>
+      <a class="nav-link nav-sub" href="#phone-reg">Phone Registration</a>
+      <a class="nav-link nav-sub" href="#social-reg">Social Auth</a>
+      <a class="nav-link nav-sub" href="#guest-mode">Guest Mode</a>
+      <a class="nav-link" href="#email-verify">Email Verification</a>
+      <a class="nav-link" href="#login">Login</a>
+      <a class="nav-link" href="#password">Password Policy</a>
+      <a class="nav-link" href="#recovery">Password Recovery</a>
+
+      <div class="nav-section">Profile</div>
+      <a class="nav-link" href="#profile">User Profile</a>
+      <a class="nav-link" href="#settings">Account Settings</a>
+
+      <div class="nav-section">Architecture</div>
+      <a class="nav-link" href="#security">Security</a>
+      <a class="nav-link nav-sub" href="#hashing">Hashing & Storage</a>
+      <a class="nav-link nav-sub" href="#sessions">Session Management</a>
+      <a class="nav-link nav-sub" href="#rate-limiting">Rate Limiting</a>
+      <a class="nav-link" href="#privacy">Privacy & GDPR</a>
+      <a class="nav-link" href="#offline">Offline Behavior</a>
+
+      <div class="nav-section">UX Specs</div>
+      <a class="nav-link" href="#ux-screens">Screen Descriptions</a>
+      <a class="nav-link" href="#edge-cases">Edge Cases</a>
+      <a class="nav-link" href="#risks">Risk Matrix</a>
+    </nav>
+    <button class="theme-btn" onclick="(function(){const r=document.documentElement;const cur=r.getAttribute('data-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');r.setAttribute('data-theme',cur==='dark'?'light':'dark');})()">
+      <span>⚡</span> Toggle Theme
+    </button>
+  </aside>
+
+  <!-- ── Main content ─────────────────────────────────────────── -->
+  <main class="main">
+
+    <div class="doc-header">
+      <div class="doc-eyebrow">SPEC-AUTH-001 · Finance Bag · July 2026</div>
+      <h1 class="doc-title">Authentication &amp; User Account System<br>Specification</h1>
+      <div class="doc-meta">
+        <span><span class="status-chip chip-draft">● Draft</span></span>
+        <span>🔐 Security Classification: Internal</span>
+        <span>📋 Version 1.0.0</span>
+        <span>🌍 Targets: FR · AR · EN markets</span>
+      </div>
+    </div>
+
+    <!-- ═══ 1. EXECUTIVE SUMMARY ═══════════════════════════════════ -->
+    <section class="section" id="summary">
+      <div class="section-number">01</div>
+      <h2 class="section-title">Executive Summary</h2>
+
+      <p>Finance Bag handles sensitive personal financial data — salary figures, credit obligations, savings goals. The authentication system must ensure that users trust the application from their first interaction. Trust is earned through transparency, resilience, and the feeling that their data is protected even if their device is lost.</p>
+
+      <p>This specification defines a <strong>privacy-first, offline-capable authentication model</strong> designed for the francophone and Arabic-speaking markets of the Maghreb and Middle East, where phone-based identity often supersedes email, internet connectivity is inconsistent, and user trust in digital financial products is earned gradually.</p>
+
+      <div class="callout callout-rec">
+        <div class="callout-icon">✅</div>
+        <div class="callout-body">
+          <div class="callout-title">Core Recommendation</div>
+          <p class="callout-text">Launch with <strong>Email + Password</strong> as the only registration method, with optional <strong>biometric unlock</strong> for returning users. Add Google Sign-In in v1.1 and phone-based OTP in v1.2. Do not launch with anonymous guest mode — the trust signal from requiring a verified email is more valuable than conversion friction reduction at this stage.</p>
+        </div>
+      </div>
+
+      <h3>Guiding Principles</h3>
+      <ul>
+        <li><strong>Offline-first:</strong> Once authenticated, users must be able to access all their local financial data without an internet connection.</li>
+        <li><strong>Zero knowledge where possible:</strong> Financial data remains encrypted at rest on the device. The server does not need to read it.</li>
+        <li><strong>Friction proportional to risk:</strong> Reading data requires less verification than modifying account credentials.</li>
+        <li><strong>Graceful degradation:</strong> Authentication failures should never permanently lock a user out of their own financial data.</li>
+        <li><strong>Minimal data collection:</strong> Collect only what is needed for authentication and app functionality. Nothing more.</li>
+      </ul>
+    </section>
+
+    <!-- ═══ RECOMMENDATION MATRIX ══════════════════════════════════ -->
+    <section class="section" id="rec-matrix">
+      <div class="section-number">02</div>
+      <h2 class="section-title">Recommendation Matrix</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Method</th>
+              <th>Launch (v1.0)</th>
+              <th>v1.1</th>
+              <th>v1.2</th>
+              <th>Priority Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Email + Password</strong></td>
+              <td class="td-good">✓ Yes</td>
+              <td>—</td><td>—</td>
+              <td>Universal, auditable, works without app store</td>
+            </tr>
+            <tr>
+              <td><strong>Biometric Unlock</strong> (local)</td>
+              <td class="td-good">✓ Yes</td>
+              <td>—</td><td>—</td>
+              <td>Convenience for returning users; no server dependency</td>
+            </tr>
+            <tr>
+              <td><strong>Google Sign-In</strong></td>
+              <td class="td-bad">✗ No</td>
+              <td class="td-good">✓ Yes</td><td>—</td>
+              <td>High reach, reduces friction; defer to stabilize core first</td>
+            </tr>
+            <tr>
+              <td><strong>Apple Sign-In</strong></td>
+              <td class="td-bad">✗ No</td>
+              <td class="td-good">✓ Yes</td><td>—</td>
+              <td>Required by Apple if any social auth offered on iOS</td>
+            </tr>
+            <tr>
+              <td><strong>Phone OTP</strong></td>
+              <td class="td-bad">✗ No</td>
+              <td class="td-bad">✗ No</td>
+              <td class="td-good">✓ Yes</td>
+              <td>Critical for MENA market; requires SMS provider budget</td>
+            </tr>
+            <tr>
+              <td><strong>Anonymous Guest</strong></td>
+              <td class="td-bad">✗ No</td>
+              <td class="td-bad">✗ No</td>
+              <td class="td-warn">Evaluate</td>
+              <td>Risk of data loss at upgrade; undermines trust signaling</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ═══ 3. ACCOUNT CREATION ═════════════════════════════════════ -->
+    <section class="section" id="registration">
+      <div class="section-number">03</div>
+      <h2 class="section-title">Account Creation</h2>
+
+      <!-- Email -->
+      <h3 id="email-reg">Email Registration</h3>
+      <p>Email registration is the foundation method. It gives users a portable, recoverable identity that is not tied to any third-party platform or telephone carrier.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Dimension</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Advantages</strong></td><td>Works everywhere, no carrier dependency, recoverable, user understands it, audit trail possible, no third-party privacy concern</td></tr>
+            <tr><td><strong>Disadvantages</strong></td><td>Requires email access for recovery, inbox delivery not guaranteed, higher friction than social login</td></tr>
+            <tr><td><strong>Security Considerations</strong></td><td>Email can be compromised; verification step mandatory before full account access. Disposable email domains must be blocked at registration.</td></tr>
+            <tr><td><strong>UX Recommendation</strong></td><td>Single-screen form: email field, password field, confirm password. Inline validation, strength indicator. CTA: "Créer mon compte". No username, no birthday.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flow">
+        <div class="flow-title">Email Registration Flow</div>
+        <ol class="flow-steps">
+          <li class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">User enters email + password</div><div class="step-detail">Inline validation fires on blur. Email format check. Password strength indicator updates in real time.</div></div></li>
+          <li class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Client-side validation passes</div><div class="step-detail">Email format valid, password meets policy, both password fields match.</div></div></li>
+          <li class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">POST /auth/register</div><div class="step-detail">Server normalizes email (lowercase, trim). Checks for existing account. Checks for disposable email domain. Hashes password with Argon2id.</div></div></li>
+          <li class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Server sends verification OTP</div><div class="step-detail">6-digit code, 10-minute TTL, delivered via transactional email. Account created but marked <code>unverified</code>.</div></div></li>
+          <li class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">User enters OTP</div><div class="step-detail">Auto-submit on last digit. If incorrect, decrement attempt counter. Account deleted after 5 consecutive failures.</div></div></li>
+          <li class="flow-step"><div class="step-num">6</div><div class="step-body"><div class="step-label">Account verified → onboarding</div><div class="step-detail">Account status set to <code>active</code>. Server issues refresh token + access token. App transitions to onboarding welcome screen.</div></div></li>
+        </ol>
+      </div>
+
+      <!-- Phone -->
+      <h3 id="phone-reg">Phone Registration (v1.2)</h3>
+      <p>Phone-based registration is a priority for the MENA market, where mobile numbers are the primary digital identity for many users. It is deferred to v1.2 due to the SMS infrastructure cost and SIM-swapping risks that require additional mitigations.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Dimension</th><th>Detail</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Advantages</strong></td><td>Higher trust in MENA context, no email required, fast registration, familiar to WhatsApp / banking app users</td></tr>
+            <tr><td><strong>Disadvantages</strong></td><td>SIM-swapping attacks, SMS delivery failures in some regions, carrier costs, phone number can change</td></tr>
+            <tr><td><strong>Security Considerations</strong></td><td>SIM-swap protection: require a 24-hour hold before phone number change takes effect. Always link an email as backup recovery method.</td></tr>
+            <tr><td><strong>UX Recommendation</strong></td><td>Country selector (flag + dial code auto-detected by locale), phone field. OTP sent as SMS. 6-digit, 5-minute TTL.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Social -->
+      <h3 id="social-reg">Social Authentication (v1.1)</h3>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Provider</th><th>Advantages</th><th>Disadvantages</th><th>Security Notes</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>Google Sign-In</strong></td>
+              <td>Fastest registration path, high trust signal, email pre-verified</td>
+              <td>Dependency on Google, requires Google Play Services on Android</td>
+              <td>Validate <code>id_token</code> server-side. Store Google sub ID, not the token. Never store OAuth access tokens.</td>
+            </tr>
+            <tr>
+              <td><strong>Apple Sign-In</strong></td>
+              <td>Privacy-first (email relay), required by App Store if social auth offered, high iOS adoption</td>
+              <td>iOS only, Apple-controlled identity, relay email creates support complexity</td>
+              <td>Verify Apple JWT server-side. Handle <code>is_private_email</code>. Store Apple user identifier, not the credential token.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-sec">
+        <div class="callout-icon">🔐</div>
+        <div class="callout-body">
+          <div class="callout-title">Social Auth Security Rule</div>
+          <p class="callout-text">Never trust the client-side social auth result. Always validate the provider's token on the server before creating or authenticating a user. A forged client-side result is the most common social auth vulnerability.</p>
+        </div>
+      </div>
+
+      <!-- Guest Mode -->
+      <h3 id="guest-mode">Anonymous Guest Mode — Decision</h3>
+
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-body">
+          <div class="callout-title">Decision: Do Not Launch Guest Mode</div>
+          <p class="callout-text">Guest mode is not recommended for a financial application at launch. The primary reason is <strong>data loss risk</strong>: if a user populates the app with financial data as a guest and then loses the device or uninstalls, all data is permanently lost. In a financial context, this creates a traumatic first experience that destroys trust permanently. The secondary reason is that Finance Bag targets users who are already motivated to manage their finances — they will register. Guest mode is more useful for entertainment or utility apps where casual exploration has no real cost.</p>
+        </div>
+      </div>
+
+      <p><strong>Alternative:</strong> Offer a <em>demo mode</em> with pre-populated fake data that users can explore before registering. This provides the "try before you commit" benefit without the data loss risk. Demo mode data is never stored.</p>
+    </section>
+
+    <!-- ═══ 4. EMAIL VERIFICATION ═══════════════════════════════════ -->
+    <section class="section" id="email-verify">
+      <div class="section-number">04</div>
+      <h2 class="section-title">Email Verification</h2>
+
+      <p>Email verification is mandatory before a user can access full app functionality. An unverified account cannot add financial data. This prevents disposable email abuse and ensures account recovery is possible.</p>
+
+      <h3>OTP Specification</h3>
+      <div class="rule-grid">
+        <div class="rule-card">
+          <div class="rule-label">Format</div>
+          <div class="rule-value">6-digit numeric</div>
+          <div class="rule-why">Numeric-only enables <code>keyboardType="numeric"</code> on mobile. 6 digits = 1 million possible values, sufficient for short-TTL codes.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-label">Expiration</div>
+          <div class="rule-value">10 minutes</div>
+          <div class="rule-why">Long enough for users to check email on another device. Short enough to limit brute-force windows.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-label">Max attempts per OTP</div>
+          <div class="rule-value">5 attempts</div>
+          <div class="rule-why">After 5 wrong entries the OTP is invalidated. The user must request a new one. Prevents brute force (5 × 1,000,000 = very large keyspace in practice).</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-label">Resend limit</div>
+          <div class="rule-value">3 per hour</div>
+          <div class="rule-why">Prevents using the verification system as a spam vector to send emails to arbitrary addresses.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-label">Generation</div>
+          <div class="rule-value">CSPRNG</div>
+          <div class="rule-why">Cryptographically secure pseudorandom number generator. Never use <code>Math.random()</code> for security tokens.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-label">Storage on server</div>
+          <div class="rule-value">Bcrypt hash only</div>
+          <div class="rule-why">The OTP is hashed before storage so a database breach cannot expose valid codes. Verified by <code>bcrypt.compare()</code>.</div>
+        </div>
+      </div>
+
+      <h3>Anti-spam Protection</h3>
+      <ul>
+        <li>Block known disposable email domains (maintained blocklist: <code>mailinator.com</code>, <code>guerrillamail.com</code>, etc.).</li>
+        <li>Rate-limit verification email sends per IP: max 10 per hour per IP address.</li>
+        <li>Rate-limit per email address: max 3 resends per hour.</li>
+        <li>If resend limit is hit, surface a clear countdown timer showing when the next send is available.</li>
+        <li>Unverified accounts older than 24 hours are automatically purged by a background job.</li>
+      </ul>
+
+      <h3>Email Content Requirements</h3>
+      <ul>
+        <li>Subject line in the user's registration language (FR/AR/EN).</li>
+        <li>Code displayed prominently in a large font — avoid hiding it in a link-only email.</li>
+        <li>Expiration time explicitly stated: "This code expires in 10 minutes."</li>
+        <li>Security notice: "If you did not create a Finance Bag account, ignore this email."</li>
+        <li>No links to click — code-only. This eliminates phishing risk from link-based verification.</li>
+      </ul>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ️</div>
+        <div class="callout-body">
+          <div class="callout-title">OTP vs Magic Link Decision</div>
+          <p class="callout-text">This spec chooses a <strong>6-digit OTP over a magic link</strong>. The reason is mobile UX: on a phone, users often check email on the same device running the app. A magic link causes them to leave the app, tap the link in the email client, and deep-link back — which fails in many email clients. A numeric code is trivially typed and auto-submits, which is a significantly better experience.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ 5. LOGIN ════════════════════════════════════════════════ -->
+    <section class="section" id="login">
+      <div class="section-number">05</div>
+      <h2 class="section-title">Login</h2>
+
+      <h3>Login Flow</h3>
+      <div class="flow">
+        <div class="flow-title">Email + Password Login</div>
+        <ol class="flow-steps">
+          <li class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">User enters email + password</div><div class="step-detail">Email normalized to lowercase. No real-time validation to avoid leaking whether an email is registered.</div></div></li>
+          <li class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">POST /auth/login</div><div class="step-detail">Rate-limited per IP and per email. Timing-safe comparison to prevent email enumeration via response time.</div></div></li>
+          <li class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Server validates credentials</div><div class="step-detail">Fetch user by email. Compare submitted password against Argon2id hash. If no match: increment lockout counter, return generic error.</div></div></li>
+          <li class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Lockout check</div><div class="step-detail">If 10 consecutive failures: account enters soft lock for 15 minutes. Email sent with unlock link. Counter resets on successful login.</div></div></li>
+          <li class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Session creation</div><div class="step-detail">Server issues access token (JWT, 15-min TTL) and refresh token (opaque, 30-day TTL). Refresh token stored as HttpOnly cookie + in secure device storage.</div></div></li>
+          <li class="flow-step"><div class="step-num">6</div><div class="step-body"><div class="step-label">Biometric prompt (if enrolled)</div><div class="step-detail">On subsequent logins, skip email/password. Biometric success unlocks the locally cached refresh token. No password required.</div></div></li>
+        </ol>
+      </div>
+
+      <h3>Error Messages</h3>
+      <p>Error messages must be generic enough not to reveal whether an email is registered, but specific enough to be actionable:</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Situation</th><th>Message Shown to User</th><th>Rationale</th></tr></thead>
+          <tbody>
+            <tr><td>Wrong email or password</td><td>"Email ou mot de passe incorrect."</td><td>Never distinguish — prevents email enumeration</td></tr>
+            <tr><td>Account locked</td><td>"Trop de tentatives. Réessayez dans 15 min ou consultez vos emails."</td><td>Reveals lock state but not the email registration status</td></tr>
+            <tr><td>Account not verified</td><td>"Vérifiez votre email pour activer votre compte. [Renvoyer le code]"</td><td>Safe to reveal; user already knows they registered</td></tr>
+            <tr><td>Network error</td><td>"Connexion impossible. Vérifiez votre réseau."</td><td>Clear, actionable</td></tr>
+            <tr><td>Server error</td><td>"Une erreur est survenue. Réessayez dans quelques instants."</td><td>Never expose stack traces or internal errors</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Automatic Login</h3>
+      <p>On app relaunch, the following sequence applies:</p>
+      <ol>
+        <li>Check if a valid refresh token exists in <code>expo-secure-store</code>.</li>
+        <li>If yes and not expired: silently exchange for a new access token in the background. User lands directly on the dashboard.</li>
+        <li>If refresh token is expired or missing: show the login screen.</li>
+        <li>If biometric is enrolled and refresh token is present but locked: show biometric prompt before unlocking the token.</li>
+      </ol>
+
+      <h3>Suspicious Login Detection</h3>
+      <p>Flag a login as suspicious when: the device fingerprint is new AND the location/timezone differs significantly from the last known login. Action: send a security alert email ("New device sign-in to your Finance Bag account") with device details and a one-click "This was not me" revocation link.</p>
+
+      <h3>Session Parameters</h3>
+      <div class="spec-block">
+        <div class="spec-row"><div class="spec-key">Access token TTL</div><div class="spec-val">15 minutes. Short to limit window if intercepted.</div></div>
+        <div class="spec-row"><div class="spec-key">Refresh token TTL</div><div class="spec-val">30 days. Extended since it is stored in secure device storage, not in memory.</div></div>
+        <div class="spec-row"><div class="spec-key">Refresh rotation</div><div class="spec-val">On every use. Old refresh token invalidated immediately. Reuse of old token triggers family revocation (all sessions of that user revoked).</div></div>
+        <div class="spec-row"><div class="spec-key">Max concurrent sessions</div><div class="spec-val">5 devices. Oldest session revoked when limit exceeded.</div></div>
+        <div class="spec-row"><div class="spec-key">Idle timeout</div><div class="spec-val">No idle timeout for local biometric-protected sessions. The biometric acts as the idle protection.</div></div>
+      </div>
+    </section>
+
+    <!-- ═══ 6. PASSWORD POLICY ══════════════════════════════════════ -->
+    <section class="section" id="password">
+      <div class="section-number">06</div>
+      <h2 class="section-title">Password Policy</h2>
+
+      <div class="rule-grid">
+        <div class="rule-card">
+          <div class="rule-label">Minimum Length</div>
+          <div class="rule-value">8 characters</div>
+          <div class="rule-why">NIST SP 800-63B recommends 8 as the minimum for user-created passwords. Complexity rules compensate for short passwords.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-label">Maximum Length</div>
+          <div class="rule-value">128 characters</div>
+          <div class="rule-why">Argon2id handles any length after hashing. A maximum prevents DoS via extremely long password inputs.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-label">Complexity</div>
+          <div class="rule-value">1 uppercase + 1 digit</div>
+          <div class="rule-why">Minimal complexity. Research (NIST SP 800-63B) shows excessive complexity rules lead to predictable patterns (P@ssw0rd). Focus on length and uniqueness instead.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-label">Common password check</div>
+          <div class="rule-value">Top 10,000 blocked</div>
+          <div class="rule-why">Blocks "password123", "123456789", etc. Check against an offline blocklist on the client — do not send candidate passwords to a server for checking.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-label">Personal info check</div>
+          <div class="rule-value">Name/email blocked</div>
+          <div class="rule-why">If user's email is <code>ali@example.com</code>, block passwords containing "ali" or "example". Prevents obvious guessing.</div>
+        </div>
+        <div class="rule-card">
+          <div class="rule-label">Breach check</div>
+          <div class="rule-value">HaveIBeenPwned API</div>
+          <div class="rule-why">Use k-anonymity: send first 5 chars of SHA-1 hash, receive matching hash suffixes. Never send the full password or hash. Warn user; do not block.</div>
+        </div>
+      </div>
+
+      <h3>Password Strength Indicator</h3>
+      <p>Display a 4-level strength bar (<span style="color:var(--danger)">Faible</span> / <span style="color:var(--warning)">Moyen</span> / <span style="color:var(--info)">Fort</span> / <span style="color:var(--success)">Très fort</span>) calculated client-side using the <code>zxcvbn</code> algorithm. The score should reflect real-world crackability, not just character class presence.</p>
+
+      <h3>Password Visibility Toggle</h3>
+      <p>All password fields must include a visibility toggle (eye icon). This is a usability necessity, not a security risk: users on mobile frequently make typos in hidden fields, which causes unnecessary login failures.</p>
+
+      <h3>Password Confirmation</h3>
+      <p>Require a confirm password field only on the registration screen. On all other screens (password change, password reset), a single field is sufficient since the user is authenticated and can use the visibility toggle to verify their input.</p>
+    </section>
+
+    <!-- ═══ 7. PASSWORD RECOVERY ════════════════════════════════════ -->
+    <section class="section" id="recovery">
+      <div class="section-number">07</div>
+      <h2 class="section-title">Password Recovery</h2>
+
+      <div class="flow">
+        <div class="flow-title">Password Reset Flow</div>
+        <ol class="flow-steps">
+          <li class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">User taps "Mot de passe oublié"</div><div class="step-detail">Shown on the login screen below the password field.</div></div></li>
+          <li class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">User enters email address</div><div class="step-detail">Normalize to lowercase. Submit triggers POST /auth/forgot-password.</div></div></li>
+          <li class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Server response: always success</div><div class="step-detail">"Si cet email existe, vous recevrez un code." — Response is identical whether the email is registered or not. Prevents email enumeration.</div></div></li>
+          <li class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Server sends 6-digit reset OTP</div><div class="step-detail">Separate OTP namespace from verification OTP. 15-minute TTL. Max 3 resends per hour. Stored as bcrypt hash.</div></div></li>
+          <li class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">User enters OTP</div><div class="step-detail">5 attempts allowed. After 5 failures: OTP invalidated, back to step 2.</div></div></li>
+          <li class="flow-step"><div class="step-num">6</div><div class="step-body"><div class="step-label">OTP verified → new password screen</div><div class="step-detail">Server returns a short-lived reset token (5 minutes). App shows new password + confirm password fields.</div></div></li>
+          <li class="flow-step"><div class="step-num">7</div><div class="step-body"><div class="step-label">User submits new password</div><div class="step-detail">Client validates against policy. POST /auth/reset-password with new password + reset token. Server hashes new password, invalidates all existing sessions, sends security email.</div></div></li>
+          <li class="flow-step"><div class="step-num">8</div><div class="step-body"><div class="step-label">All sessions revoked</div><div class="step-detail">Immediately invalidate all refresh tokens for this user. User is logged out of all devices. This is mandatory after a password reset.</div></div></li>
+        </ol>
+      </div>
+
+      <div class="callout callout-sec">
+        <div class="callout-icon">🔐</div>
+        <div class="callout-body">
+          <div class="callout-title">Lost Email Access</div>
+          <p class="callout-text">If a user loses access to their email, there is currently no fallback recovery path at v1.0. This is intentional — adding phone recovery as a fallback is the v1.2 phone integration. For v1.0, the account is unrecoverable. This edge case must be disclosed in the account creation screen: "Your email is your account recovery method. Please use a reliable email address."</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ═══ 8. USER PROFILE ═════════════════════════════════════════ -->
+    <section class="section" id="profile">
+      <div class="section-number">08</div>
+      <h2 class="section-title">User Profile</h2>
+
+      <h3>Profile Schema</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Field</th>
+              <th>Required</th>
+              <th>Source</th>
+              <th>Validation</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>id</code></td>
+              <td><span class="status-chip chip-required">Required</span></td>
+              <td>System</td>
+              <td>UUID v4</td>
+              <td>Non-sequential to prevent enumeration</td>
+            </tr>
+            <tr>
+              <td><code>email</code></td>
+              <td><span class="status-chip chip-required">Required</span></td>
+              <td>Registration</td>
+              <td>RFC 5322, lowercase, verified</td>
+              <td>Primary identity; change requires re-verification</td>
+            </tr>
+            <tr>
+              <td><code>displayName</code></td>
+              <td><span class="status-chip chip-required">Required</span></td>
+              <td>Onboarding</td>
+              <td>2–50 chars, no HTML</td>
+              <td>Used in greeting ("Bonjour, Youssef")</td>
+            </tr>
+            <tr>
+              <td><code>language</code></td>
+              <td><span class="status-chip chip-required">Required</span></td>
+              <td>Onboarding</td>
+              <td>enum: fr | ar | en</td>
+              <td>Default: device locale, fallback fr</td>
+            </tr>
+            <tr>
+              <td><code>currency</code></td>
+              <td><span class="status-chip chip-required">Required</span></td>
+              <td>Onboarding</td>
+              <td>enum: MAD | EUR | USD | GBP | TND | DZD | SAR | AED</td>
+              <td>Affects all financial display</td>
+            </tr>
+            <tr>
+              <td><code>salaryPaymentDay</code></td>
+              <td><span class="status-chip chip-required">Required</span></td>
+              <td>Onboarding</td>
+              <td>integer 1–28</td>
+              <td>Capped at 28 to handle all months</td>
+            </tr>
+            <tr>
+              <td><code>phone</code></td>
+              <td><span class="status-chip chip-optional">Optional</span></td>
+              <td>Settings</td>
+              <td>E.164 format, verified</td>
+              <td>For future SMS recovery; not required at v1.0</td>
+            </tr>
+            <tr>
+              <td><code>country</code></td>
+              <td><span class="status-chip chip-optional">Optional</span></td>
+              <td>Onboarding / Settings</td>
+              <td>ISO 3166-1 alpha-2</td>
+              <td>Auto-detected from locale; not mandatory</td>
+            </tr>
+            <tr>
+              <td><code>timezone</code></td>
+              <td><span class="status-chip chip-optional">Optional</span></td>
+              <td>System</td>
+              <td>IANA timezone string</td>
+              <td>Device timezone used by default; user override in settings</td>
+            </tr>
+            <tr>
+              <td><code>avatarUrl</code></td>
+              <td><span class="status-chip chip-optional">Optional</span></td>
+              <td>Settings</td>
+              <td>Signed URL, max 2MB, JPEG/PNG/WebP</td>
+              <td>Stored in object storage, not in DB. Never required.</td>
+            </tr>
+            <tr>
+              <td><code>createdAt</code></td>
+              <td><span class="status-chip chip-required">Required</span></td>
+              <td>System</td>
+              <td>ISO 8601 UTC</td>
+              <td>Immutable. Shown in account settings as "Member since"</td>
+            </tr>
+            <tr>
+              <td><code>emailVerifiedAt</code></td>
+              <td><span class="status-chip chip-required">Required</span></td>
+              <td>System</td>
+              <td>ISO 8601 UTC or null</td>
+              <td>Null = unverified account</td>
+            </tr>
+            <tr>
+              <td><code>lastLoginAt</code></td>
+              <td><span class="status-chip chip-required">Required</span></td>
+              <td>System</td>
+              <td>ISO 8601 UTC</td>
+              <td>Updated on every successful authentication</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-priv">
+        <div class="callout-icon">🔒</div>
+        <div class="callout-body">
+          <div class="callout-title">Data Minimization Principle</div>
+          <p class="callout-text">No birth date. No gender. No address. No employer. No nationality beyond currency preference. The application needs none of these fields to function, and collecting them creates compliance obligations and breach exposure with no benefit.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ 9. ACCOUNT SETTINGS ═════════════════════════════════════ -->
+    <section class="section" id="settings">
+      <div class="section-number">09</div>
+      <h2 class="section-title">Account Settings</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>Auth Required</th>
+              <th>Flow</th>
+              <th>Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Change display name</strong></td>
+              <td>Session token</td>
+              <td>Edit → Save</td>
+              <td>Instant. No verification step.</td>
+            </tr>
+            <tr>
+              <td><strong>Change language / currency</strong></td>
+              <td>Session token</td>
+              <td>Select → Save</td>
+              <td>Applied immediately across all app screens.</td>
+            </tr>
+            <tr>
+              <td><strong>Change email</strong></td>
+              <td>Current password + OTP to new email</td>
+              <td>Enter new email → verify new OTP → change</td>
+              <td>Old email receives security notification. 24-hour cooling period before old email is deregistered.</td>
+            </tr>
+            <tr>
+              <td><strong>Change password</strong></td>
+              <td>Current password required</td>
+              <td>Enter current → enter new → confirm → save</td>
+              <td>All sessions revoked on success. Security email sent. Biometric re-enrollment required.</td>
+            </tr>
+            <tr>
+              <td><strong>Change phone number</strong></td>
+              <td>Current password + OTP to new number</td>
+              <td>Enter new number → OTP → verify</td>
+              <td>24-hour hold before old number is deregistered. SIM-swap protection.</td>
+            </tr>
+            <tr>
+              <td><strong>Biometric settings</strong></td>
+              <td>Current password (to enroll) / biometric (to unenroll)</td>
+              <td>Enroll / Unenroll toggle</td>
+              <td>Biometric enrollment is per-device. Listed under "Mes appareils".</td>
+            </tr>
+            <tr>
+              <td><strong>Logout</strong></td>
+              <td>Session token</td>
+              <td>Confirm → clear local token → redirect to login</td>
+              <td>Revokes current device refresh token only. Other devices remain logged in.</td>
+            </tr>
+            <tr>
+              <td><strong>Logout all devices</strong></td>
+              <td>Current password</td>
+              <td>Confirm password → revoke all refresh tokens</td>
+              <td>Emergency action for suspected compromise.</td>
+            </tr>
+            <tr>
+              <td><strong>Export data</strong></td>
+              <td>Current password</td>
+              <td>Request → email with download link (24h TTL)</td>
+              <td>JSON export of all user data. Required for GDPR compliance.</td>
+            </tr>
+            <tr>
+              <td><strong>Delete account</strong></td>
+              <td>Current password + type "SUPPRIMER"</td>
+              <td>Warning → confirm → 30-day grace period → hard delete</td>
+              <td>Account suspended immediately. All sessions revoked. Grace period allows recovery. After 30 days, all data permanently deleted.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Connected Devices</h3>
+      <p>Under Settings → Sécurité → Mes appareils, users can see:</p>
+      <ul>
+        <li>Device name (e.g., "iPhone 15 Pro"), approximate location (city-level), first seen, last active.</li>
+        <li>The current device is highlighted. One-tap revocation of any other device's session.</li>
+        <li>This panel is the primary tool for users to respond to suspicious login alerts.</li>
+      </ul>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ═══ 10. SECURITY ════════════════════════════════════════════ -->
+    <section class="section" id="security">
+      <div class="section-number">10</div>
+      <h2 class="section-title">Security Architecture</h2>
+
+      <h3 id="hashing">Password Hashing</h3>
+      <p>Use <strong>Argon2id</strong> with the following parameters (OWASP 2023 recommendation for interactive logins):</p>
+      <div class="spec-block">
+        <div class="spec-row"><div class="spec-key">Algorithm</div><div class="spec-val"><code>argon2id</code> — hybrid mode resistant to both GPU and side-channel attacks</div></div>
+        <div class="spec-row"><div class="spec-key">Memory</div><div class="spec-val">64 MiB (<code>m=65536</code>)</div></div>
+        <div class="spec-row"><div class="spec-key">Iterations</div><div class="spec-val">3 (<code>t=3</code>)</div></div>
+        <div class="spec-row"><div class="spec-key">Parallelism</div><div class="spec-val">4 (<code>p=4</code>)</div></div>
+        <div class="spec-row"><div class="spec-key">Output length</div><div class="spec-val">32 bytes</div></div>
+        <div class="spec-row"><div class="spec-key">Salt</div><div class="spec-val">16-byte random salt per hash, generated with CSPRNG. Stored alongside hash.</div></div>
+      </div>
+
+      <div class="callout callout-sec">
+        <div class="callout-icon">🔐</div>
+        <div class="callout-body">
+          <div class="callout-title">Why Not bcrypt?</div>
+          <p class="callout-text">bcrypt is limited to 72-byte passwords, has no memory hardness, and is increasingly fast to crack on GPUs. Argon2id is the winner of the Password Hashing Competition (2015) and is recommended by OWASP, NIST, and the IETF. It's the right choice for new systems in 2026.</p>
+        </div>
+      </div>
+
+      <h3>Secure Storage on Device</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data</th><th>Storage</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Refresh token</td><td><code>expo-secure-store</code></td><td>Backed by iOS Keychain / Android Keystore. Not readable outside the app. Never stored in AsyncStorage.</td></tr>
+            <tr><td>Biometric key</td><td><code>expo-secure-store</code> with biometric requirement</td><td>Token only unlockable after biometric success.</td></tr>
+            <tr><td>Access token</td><td>In-memory (Zustand store) only</td><td>Short-lived; no persistence needed. Cleared on app close.</td></tr>
+            <tr><td>Financial data</td><td>SQLite (expo-sqlite)</td><td>Encrypted at rest by SQLCipher when using expo-sqlite with encryption key.</td></tr>
+            <tr><td>Database key</td><td><code>expo-secure-store</code></td><td>The SQLite encryption key is stored in the secure store, not hardcoded.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 id="sessions">Token Architecture</h3>
+      <p><strong>Access Token</strong> — JWT signed with RS256. Short-lived (15 min). Contains: <code>userId</code>, <code>sessionId</code>, <code>iat</code>, <code>exp</code>. No sensitive data in the payload — JWTs are only base64-encoded, not encrypted.</p>
+      <p><strong>Refresh Token</strong> — Opaque random string (256-bit, base64url). Stored in the database as a bcrypt hash. Supports rotation on every use. Revocable per-session or per-user.</p>
+      <p><strong>Reset Token</strong> — Opaque random string (256-bit). Single-use. 5-minute TTL. Deleted immediately after use.</p>
+
+      <h3 id="rate-limiting">Rate Limiting</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Endpoint</th><th>Limit</th><th>Window</th><th>Scope</th></tr></thead>
+          <tbody>
+            <tr><td>POST /auth/login</td><td>10 attempts</td><td>15 min</td><td>Per IP + per email (separate counters)</td></tr>
+            <tr><td>POST /auth/register</td><td>5 accounts</td><td>1 hour</td><td>Per IP</td></tr>
+            <tr><td>POST /auth/forgot-password</td><td>3 requests</td><td>1 hour</td><td>Per IP + per email</td></tr>
+            <tr><td>POST /auth/verify-otp</td><td>5 attempts</td><td>Per OTP</td><td>Per OTP token</td></tr>
+            <tr><td>POST /auth/resend-otp</td><td>3 resends</td><td>1 hour</td><td>Per email</td></tr>
+            <tr><td>All auth endpoints</td><td>100 req</td><td>1 min</td><td>Per IP (DDoS protection)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout callout-warn">
+        <div class="callout-icon">⚠️</div>
+        <div class="callout-body">
+          <div class="callout-title">IP Rate Limiting + VPN / Mobile Networks</div>
+          <p class="callout-text">Aggressive per-IP rate limiting on mobile can block legitimate users sharing a mobile carrier's NAT IP (very common in Maghreb networks). Use IP-based limits as a secondary defense, not the primary. Email-based rate limiting is the primary control and should be stricter.</p>
+        </div>
+      </div>
+
+      <h3>Security Event Logging</h3>
+      <p>The following events must be logged with timestamp, user ID (not email), IP, and device fingerprint:</p>
+      <ul>
+        <li>Successful login</li>
+        <li>Failed login (increment lockout counter)</li>
+        <li>Account lockout triggered</li>
+        <li>OTP generated, OTP verified, OTP failed</li>
+        <li>Password changed</li>
+        <li>Email changed</li>
+        <li>Session revoked</li>
+        <li>Account deleted</li>
+      </ul>
+      <p>Logs are retained for 90 days. Logs are the primary tool for investigating account compromise claims.</p>
+    </section>
+
+    <!-- ═══ 11. PRIVACY ═════════════════════════════════════════════ -->
+    <section class="section" id="privacy">
+      <div class="section-number">11</div>
+      <h2 class="section-title">Privacy &amp; Data Governance</h2>
+
+      <h3>Data Inventory</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Data Category</th><th>Stored Where</th><th>Retention</th><th>Legal Basis</th><th>User Controls</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Email address</td>
+              <td>Server DB (encrypted at column level)</td>
+              <td>Until account deletion + 30 days</td>
+              <td>Contract performance</td>
+              <td>Change, export, delete</td>
+            </tr>
+            <tr>
+              <td>Hashed password</td>
+              <td>Server DB</td>
+              <td>Until account deletion + 30 days</td>
+              <td>Contract performance</td>
+              <td>Change, delete</td>
+            </tr>
+            <tr>
+              <td>Display name</td>
+              <td>Server DB + Device SQLite</td>
+              <td>Until account deletion + 30 days</td>
+              <td>Contract performance</td>
+              <td>Change, export, delete</td>
+            </tr>
+            <tr>
+              <td>Financial data (salary, transactions, etc.)</td>
+              <td>Device SQLite only (no server sync at v1.0)</td>
+              <td>Until account deletion or app uninstall</td>
+              <td>Contract performance</td>
+              <td>Export (JSON), delete</td>
+            </tr>
+            <tr>
+              <td>Refresh tokens</td>
+              <td>Server DB (bcrypt hash of token)</td>
+              <td>30-day TTL, or until revoked</td>
+              <td>Contract performance</td>
+              <td>Revoke per session or all</td>
+            </tr>
+            <tr>
+              <td>Security event logs</td>
+              <td>Server logging (pseudonymized)</td>
+              <td>90 days</td>
+              <td>Legitimate interest (security)</td>
+              <td>Included in data export</td>
+            </tr>
+            <tr>
+              <td>Device fingerprint</td>
+              <td>Server DB (hashed)</td>
+              <td>Until session expires</td>
+              <td>Legitimate interest (security)</td>
+              <td>Clear via logout all devices</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Privacy by Design</h3>
+      <ul>
+        <li><strong>Data minimization:</strong> Only the fields listed above are stored. No analytics trackers, no advertising IDs, no behavioral telemetry.</li>
+        <li><strong>Purpose limitation:</strong> Email is used only for authentication and security notifications. Never for marketing without separate explicit consent.</li>
+        <li><strong>Local-first:</strong> All financial data lives on the device only (v1.0). The server never sees salary figures, transaction amounts, or credit details.</li>
+        <li><strong>Encryption in transit:</strong> All API communication over HTTPS/TLS 1.3 minimum. Certificate pinning recommended for the mobile app.</li>
+        <li><strong>Encryption at rest:</strong> SQLite database encrypted with a per-user key stored in the device secure store. Server DB columns containing PII encrypted at the application layer.</li>
+      </ul>
+
+      <h3>Account Deletion Process</h3>
+      <div class="flow">
+        <div class="flow-title">Account Deletion Flow</div>
+        <ol class="flow-steps">
+          <li class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">User initiates deletion in settings</div><div class="step-detail">Warning dialog: "This will permanently delete all your data. This cannot be undone after 30 days."</div></div></li>
+          <li class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Require current password + type "SUPPRIMER"</div><div class="step-detail">Prevents accidental deletion. High-friction is appropriate here.</div></div></li>
+          <li class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Account suspended immediately</div><div class="step-detail">All sessions revoked. Email locked. Account status = <code>pending_deletion</code>. Confirmation email sent with recovery link (valid 30 days).</div></div></li>
+          <li class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">30-day grace period</div><div class="step-detail">User can cancel via recovery link in the confirmation email. After 30 days with no cancellation, hard delete is triggered.</div></div></li>
+          <li class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Hard delete</div><div class="step-detail">All server records deleted. Backup purge scheduled within 7 days. Confirmation email sent: "Your account has been deleted."</div></div></li>
+        </ol>
+      </div>
+
+      <h3>Data Export (GDPR Article 20)</h3>
+      <p>User can request a machine-readable export of all their data from Settings. The export is:</p>
+      <ul>
+        <li>Delivered within 24 hours via a secure download link sent to the verified email.</li>
+        <li>JSON format, UTF-8 encoded.</li>
+        <li>Includes: profile data, all financial records stored on device (if sync is enabled in future versions), security event log, device list.</li>
+        <li>Download link expires after 24 hours.</li>
+        <li>Limited to once per 30 days to prevent abuse.</li>
+      </ul>
+
+      <h3>Consent Management</h3>
+      <p>At registration, users consent to the Privacy Policy and Terms of Service via a checkbox with a link. This is the only consent gate at v1.0. If email marketing is added in future versions, a separate explicit opt-in is mandatory — it must not be pre-ticked.</p>
+    </section>
+
+    <!-- ═══ 12. OFFLINE BEHAVIOR ════════════════════════════════════ -->
+    <section class="section" id="offline">
+      <div class="section-number">12</div>
+      <h2 class="section-title">Offline Behavior</h2>
+
+      <h3>Design Principle</h3>
+      <p>Finance Bag's core value proposition (budgeting, tracking expenses, monitoring credits) must be usable without an internet connection. Authentication should not block access to local data that already exists on the device.</p>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Scenario</th>
+              <th>Behavior</th>
+              <th>Available Features</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Previously logged in, offline</strong></td>
+              <td>Biometric or cached session unlocks local SQLite DB. No server call needed.</td>
+              <td class="td-good">All local features: dashboard, transactions, credits, goals, emergency fund. Full read + write.</td>
+            </tr>
+            <tr>
+              <td><strong>Access token expired, offline</strong></td>
+              <td>Biometric succeeds → app works locally. Server sync deferred until connectivity returns.</td>
+              <td class="td-good">All local features. Sync icon shows pending state.</td>
+            </tr>
+            <tr>
+              <td><strong>Never logged in, offline</strong></td>
+              <td>Login screen shown. Cannot authenticate. Cannot create account.</td>
+              <td class="td-bad">None — first authentication requires connectivity.</td>
+            </tr>
+            <tr>
+              <td><strong>Auth server unreachable, online</strong></td>
+              <td>If refresh token is valid locally, proceed. If expired, show login with message: "Serveur inaccessible. Réessayez plus tard."</td>
+              <td class="td-warn">Local features only if previously authenticated.</td>
+            </tr>
+            <tr>
+              <td><strong>Session revoked server-side (e.g., all devices logout)</strong></td>
+              <td>Next server sync attempt returns 401. App clears local tokens and shows login screen. Data remains in local DB.</td>
+              <td class="td-warn">User must re-authenticate. Local data preserved.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Local Authentication Gates</h3>
+      <p>When the app is backgrounded and reopened, the behavior depends on the time elapsed:</p>
+      <ul>
+        <li><strong>Less than 5 minutes:</strong> No re-authentication required. App resumes directly.</li>
+        <li><strong>5 to 30 minutes:</strong> Biometric prompt shown if enrolled. Passcode fallback if biometric fails.</li>
+        <li><strong>Over 30 minutes:</strong> Biometric prompt required. If biometric fails 3 times, full login (email + password) required.</li>
+      </ul>
+
+      <div class="callout callout-info">
+        <div class="callout-icon">ℹ️</div>
+        <div class="callout-body">
+          <div class="callout-title">Local-First Commitment</div>
+          <p class="callout-text">At v1.0, Finance Bag is fully local. There is no cloud sync of financial data. This means the offline story is simple: if you are authenticated on your device, everything works. Cloud sync in a future version will require careful thinking about conflict resolution and end-to-end encryption to preserve the privacy-first design.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="divider">
+
+    <!-- ═══ 13. UX SCREENS ══════════════════════════════════════════ -->
+    <section class="section" id="ux-screens">
+      <div class="section-number">13</div>
+      <h2 class="section-title">Screen Descriptions</h2>
+
+      <div class="screen-spec">
+        <div class="screen-name">Welcome / Splash</div>
+        <div class="screen-purpose">First impression; routes authenticated vs unauthenticated users</div>
+        <div class="screen-grid">
+          <div class="screen-col">
+            <h4>Information</h4>
+            <ul>
+              <li>App logo + name</li>
+              <li>Loading indicator</li>
+            </ul>
+            <h4>Success Flow</h4>
+            <ul>
+              <li>Valid session found → navigate to Dashboard</li>
+              <li>No session → navigate to Auth Welcome</li>
+            </ul>
+          </div>
+          <div class="screen-col">
+            <h4>User Actions</h4>
+            <p>None — automatic.</p>
+            <h4>Failure Flow</h4>
+            <ul>
+              <li>DB init fails → error screen with retry button</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-spec">
+        <div class="screen-name">Auth Welcome</div>
+        <div class="screen-purpose">Entry point for unauthenticated users; presents registration vs login paths</div>
+        <div class="screen-grid">
+          <div class="screen-col">
+            <h4>Information</h4>
+            <ul>
+              <li>Brief value proposition (1-2 lines)</li>
+              <li>CTA: "Créer un compte" (primary)</li>
+              <li>CTA: "J'ai déjà un compte" (secondary)</li>
+              <li>Language selector</li>
+            </ul>
+          </div>
+          <div class="screen-col">
+            <h4>User Actions</h4>
+            <ul>
+              <li>Tap "Créer un compte" → Registration screen</li>
+              <li>Tap "J'ai déjà un compte" → Login screen</li>
+              <li>Change language → UI language switches immediately</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-spec">
+        <div class="screen-name">Registration</div>
+        <div class="screen-purpose">Collects email + password to create a new account</div>
+        <div class="screen-grid">
+          <div class="screen-col">
+            <h4>Required Fields</h4>
+            <ul>
+              <li>Email (text input, keyboard: email)</li>
+              <li>Password (masked, visibility toggle)</li>
+              <li>Confirm password</li>
+              <li>Password strength indicator</li>
+              <li>Privacy policy + T&amp;C checkbox</li>
+            </ul>
+            <h4>Validation</h4>
+            <ul>
+              <li>Email: format on blur</li>
+              <li>Password: real-time strength score</li>
+              <li>Confirm: match check on blur</li>
+              <li>Submit disabled if checkbox unchecked</li>
+            </ul>
+          </div>
+          <div class="screen-col">
+            <h4>Success Flow</h4>
+            <ol>
+              <li>API returns 201 → navigate to Email Verification screen</li>
+            </ol>
+            <h4>Failure Flows</h4>
+            <ul>
+              <li>Email already registered → generic error (do not confirm)</li>
+              <li>Disposable email → "Utilisez une adresse email valide"</li>
+              <li>Password too weak → strength indicator shown</li>
+              <li>Network error → inline error + retry</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-spec">
+        <div class="screen-name">Email Verification</div>
+        <div class="screen-purpose">Confirms the user owns the email address they registered with</div>
+        <div class="screen-grid">
+          <div class="screen-col">
+            <h4>Information</h4>
+            <ul>
+              <li>Instruction text with email address shown</li>
+              <li>6 separate digit input boxes (auto-focus)</li>
+              <li>Countdown timer for resend (format: 2:34)</li>
+              <li>Resend link (disabled during countdown)</li>
+            </ul>
+            <h4>Validation</h4>
+            <ul>
+              <li>Auto-submit when 6th digit entered</li>
+              <li>Shake animation on wrong code</li>
+              <li>Attempt counter: "X essais restants"</li>
+            </ul>
+          </div>
+          <div class="screen-col">
+            <h4>Success Flow</h4>
+            <ol>
+              <li>OTP verified → navigate to Onboarding</li>
+            </ol>
+            <h4>Failure Flows</h4>
+            <ul>
+              <li>Wrong code → decrement counter + clear fields</li>
+              <li>5 failures → "Code invalidé. Demandez un nouveau code."</li>
+              <li>OTP expired → "Code expiré. [Renvoyer]"</li>
+              <li>Resend limit hit → "Vous avez atteint la limite. Réessayez dans X minutes."</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-spec">
+        <div class="screen-name">Login</div>
+        <div class="screen-purpose">Authenticates a returning user</div>
+        <div class="screen-grid">
+          <div class="screen-col">
+            <h4>Required Fields</h4>
+            <ul>
+              <li>Email</li>
+              <li>Password (masked, visibility toggle)</li>
+            </ul>
+            <h4>Actions</h4>
+            <ul>
+              <li>"Mot de passe oublié?" link</li>
+              <li>"Connexion" primary button</li>
+              <li>"Créer un compte" link at bottom</li>
+            </ul>
+          </div>
+          <div class="screen-col">
+            <h4>Success Flow</h4>
+            <ol>
+              <li>Valid credentials → store tokens → navigate to Dashboard</li>
+              <li>If biometric enrolled: biometric prompt shown first, skipping form</li>
+            </ol>
+            <h4>Failure Flows</h4>
+            <ul>
+              <li>Wrong credentials → generic error message</li>
+              <li>Account locked → lockout message + countdown</li>
+              <li>Account not verified → redirect to verification screen</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-spec">
+        <div class="screen-name">Biometric Unlock</div>
+        <div class="screen-purpose">Unlocks the app for returning users without requiring email/password</div>
+        <div class="screen-grid">
+          <div class="screen-col">
+            <h4>Information</h4>
+            <ul>
+              <li>User display name: "Bonjour, Youssef"</li>
+              <li>Biometric prompt (triggered automatically)</li>
+              <li>Fallback: "Utiliser le mot de passe"</li>
+            </ul>
+          </div>
+          <div class="screen-col">
+            <h4>Success Flow</h4>
+            <ol>
+              <li>Biometric success → unlock local DB → Dashboard</li>
+            </ol>
+            <h4>Failure Flow</h4>
+            <ul>
+              <li>3 failures → full login screen</li>
+              <li>Fallback tapped → Login screen</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen-spec">
+        <div class="screen-name">Forgot Password</div>
+        <div class="screen-purpose">Initiates the password reset flow via email OTP</div>
+        <div class="screen-grid">
+          <div class="screen-col">
+            <h4>Required Fields</h4>
+            <ul>
+              <li>Email address</li>
+            </ul>
+            <h4>Validation</h4>
+            <ul>
+              <li>Email format on submit</li>
+              <li>Always show success message regardless of whether email exists</li>
+            </ul>
+          </div>
+          <div class="screen-col">
+            <h4>Success Flow</h4>
+            <ol>
+              <li>Submit → success screen → Email Verification (reset context)</li>
+              <li>OTP verified → New Password screen</li>
+            </ol>
+            <h4>Failure Flows</h4>
+            <ul>
+              <li>Rate limit hit → "Réessayez dans X minutes"</li>
+              <li>Network error → retry</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ 14. EDGE CASES ══════════════════════════════════════════ -->
+    <section class="section" id="edge-cases">
+      <div class="section-number">14</div>
+      <h2 class="section-title">Edge Cases</h2>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Edge Case</th>
+              <th>Detection</th>
+              <th>Handling</th>
+              <th>User Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Expired OTP</strong></td>
+              <td>Server compares <code>created_at + 10min</code> to <code>now()</code></td>
+              <td>Invalidate OTP. Redirect to resend flow.</td>
+              <td>"Votre code a expiré. [Renvoyer le code]"</td>
+            </tr>
+            <tr>
+              <td><strong>Invalid OTP (5 failures)</strong></td>
+              <td>Attempt counter reaches 5</td>
+              <td>Delete OTP record. Block further attempts against this OTP.</td>
+              <td>"Code invalidé après trop de tentatives. Demandez un nouveau code."</td>
+            </tr>
+            <tr>
+              <td><strong>Duplicate email at registration</strong></td>
+              <td>Unique constraint on <code>users.email</code></td>
+              <td>Return generic error (do not reveal existence)</td>
+              <td>"Impossible de créer ce compte. Vérifiez vos informations."</td>
+            </tr>
+            <tr>
+              <td><strong>Duplicate phone (v1.2)</strong></td>
+              <td>Unique constraint on <code>users.phone</code></td>
+              <td>Same generic error</td>
+              <td>Same generic message</td>
+            </tr>
+            <tr>
+              <td><strong>Weak password</strong></td>
+              <td>Client-side zxcvbn score &lt; 2</td>
+              <td>Submit button disabled. Strength indicator shown.</td>
+              <td>"Mot de passe trop faible. Ajoutez des chiffres et des majuscules."</td>
+            </tr>
+            <tr>
+              <td><strong>Breached password</strong></td>
+              <td>HaveIBeenPwned k-anonymity check</td>
+              <td>Show warning, do not block. Recommend change.</td>
+              <td>"Ce mot de passe a été compromis dans une fuite de données. Nous recommandons d'en choisir un autre."</td>
+            </tr>
+            <tr>
+              <td><strong>Network interruption mid-registration</strong></td>
+              <td>Network request timeout / error</td>
+              <td>Retain form data. Show retry. Do not clear inputs.</td>
+              <td>"Connexion perdue. Vérifiez votre réseau et réessayez."</td>
+            </tr>
+            <tr>
+              <td><strong>Network interruption after OTP sent</strong></td>
+              <td>No response from verify endpoint</td>
+              <td>OTP still valid on server. User can retry when online.</td>
+              <td>"Connexion perdue. Le code est toujours valide. Réessayez dans quelques instants."</td>
+            </tr>
+            <tr>
+              <td><strong>Device change</strong></td>
+              <td>New device fingerprint on login</td>
+              <td>Security alert email. Session created normally.</td>
+              <td>Email: "Nouvelle connexion depuis un nouvel appareil."</td>
+            </tr>
+            <tr>
+              <td><strong>Lost access to email</strong></td>
+              <td>User cannot receive OTP for password reset</td>
+              <td>v1.0: no alternative. Account unrecoverable. v1.2: phone fallback.</td>
+              <td>Documented at registration: "Utilisez un email auquel vous avez accès en permanence."</td>
+            </tr>
+            <tr>
+              <td><strong>Multiple rapid login attempts</strong></td>
+              <td>Rate limiter per IP + per email</td>
+              <td>Exponential backoff: 1s, 2s, 4s, 8s delay between attempts.</td>
+              <td>"Trop de tentatives. Attendez X secondes avant de réessayer."</td>
+            </tr>
+            <tr>
+              <td><strong>User cancels during registration</strong></td>
+              <td>App navigates away before completion</td>
+              <td>Unverified account purged after 24h by background job. No dangling accounts.</td>
+              <td>None — silent cleanup.</td>
+            </tr>
+            <tr>
+              <td><strong>Token refresh race condition</strong></td>
+              <td>Two simultaneous requests with same refresh token</td>
+              <td>First use succeeds, second returns 401. Refresh token rotation detects reuse. All sessions revoked.</td>
+              <td>User redirected to login: "Session expirée. Reconnectez-vous."</td>
+            </tr>
+            <tr>
+              <td><strong>Biometric hardware unavailable</strong></td>
+              <td><code>expo-local-authentication</code> returns unsupported</td>
+              <td>Biometric enrollment option hidden. Password-only mode.</td>
+              <td>No message — option simply not shown.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ═══ 15. RISK MATRIX ═════════════════════════════════════════ -->
+    <section class="section" id="risks">
+      <div class="section-number">15</div>
+      <h2 class="section-title">Risk Matrix &amp; Mitigations</h2>
+
+      <div class="risk-row risk-row-header">
+        <div>Risk</div>
+        <div>Severity</div>
+        <div>Likelihood</div>
+        <div>Mitigation</div>
+      </div>
+
+      <div class="risk-row">
+        <div>Database breach — password hashes leaked</div>
+        <div><span class="sev sev-crit">Critical</span></div>
+        <div><span class="sev sev-med">Medium</span></div>
+        <div>Argon2id with high cost parameters renders brute-force impractical. Column-level encryption as second layer.</div>
+      </div>
+      <div class="risk-row">
+        <div>Account takeover via credential stuffing</div>
+        <div><span class="sev sev-high">High</span></div>
+        <div><span class="sev sev-high">High</span></div>
+        <div>Rate limiting per email, lockout after 10 failures, breached password warning at registration, security email on new device login.</div>
+      </div>
+      <div class="risk-row">
+        <div>OTP brute force</div>
+        <div><span class="sev sev-high">High</span></div>
+        <div><span class="sev sev-med">Medium</span></div>
+        <div>5 attempts per OTP, OTP hashed server-side, 10-min TTL, rate-limited resend.</div>
+      </div>
+      <div class="risk-row">
+        <div>SIM-swap attack on phone auth (v1.2)</div>
+        <div><span class="sev sev-high">High</span></div>
+        <div><span class="sev sev-med">Medium</span></div>
+        <div>Mandatory email as backup. 24-hour hold on phone number changes. Security notification on any phone change.</div>
+      </div>
+      <div class="risk-row">
+        <div>JWT token interception</div>
+        <div><span class="sev sev-high">High</span></div>
+        <div><span class="sev sev-low">Low</span></div>
+        <div>15-minute TTL limits damage window. TLS 1.3 minimum prevents interception. Certificate pinning on mobile.</div>
+      </div>
+      <div class="risk-row">
+        <div>Insecure local storage of refresh token</div>
+        <div><span class="sev sev-crit">Critical</span></div>
+        <div><span class="sev sev-low">Low</span></div>
+        <div>Token stored exclusively in expo-secure-store (iOS Keychain / Android Keystore). Never in AsyncStorage or SQLite.</div>
+      </div>
+      <div class="risk-row">
+        <div>Email enumeration via registration/reset</div>
+        <div><span class="sev sev-med">Medium</span></div>
+        <div><span class="sev sev-high">High</span></div>
+        <div>All endpoints return the same response whether the email is registered or not. Timing attacks mitigated by constant-time comparison.</div>
+      </div>
+      <div class="risk-row">
+        <div>Disposable email abuse / fake accounts</div>
+        <div><span class="sev sev-med">Medium</span></div>
+        <div><span class="sev sev-high">High</span></div>
+        <div>Disposable domain blocklist at registration. Unverified accounts auto-purged after 24h. Rate limit per IP.</div>
+      </div>
+      <div class="risk-row">
+        <div>Data loss on account deletion</div>
+        <div><span class="sev sev-high">High</span></div>
+        <div><span class="sev sev-low">Low</span></div>
+        <div>30-day grace period before hard delete. Confirmation email with recovery link. Data export available before deletion.</div>
+      </div>
+      <div class="risk-row">
+        <div>User locked out permanently (lost email)</div>
+        <div><span class="sev sev-high">High</span></div>
+        <div><span class="sev sev-med">Medium</span></div>
+        <div>Disclosed at registration. Phone recovery added in v1.2. For v1.0: local biometric access preserves data even if account recovery is impossible.</div>
+      </div>
+      <div class="risk-row">
+        <div>GDPR non-compliance (data export/deletion)</div>
+        <div><span class="sev sev-high">High</span></div>
+        <div><span class="sev sev-low">Low</span></div>
+        <div>Data export implemented. Account deletion implemented with 30-day grace + hard delete. Data inventory documented.</div>
+      </div>
+      <div class="risk-row">
+        <div>Social auth token forgery (v1.1)</div>
+        <div><span class="sev sev-crit">Critical</span></div>
+        <div><span class="sev sev-low">Low</span></div>
+        <div>Server-side token validation against Google/Apple JWK endpoints. Never trust client-side auth result.</div>
+      </div>
+
+      <div class="callout callout-sec" style="margin-top: 28px">
+        <div class="callout-icon">🔐</div>
+        <div class="callout-body">
+          <div class="callout-title">Security Review Requirement</div>
+          <p class="callout-text">Before production launch, this authentication system must undergo a dedicated security review covering: authentication endpoint penetration testing, OTP timing analysis, token storage audit on physical devices, and OWASP Mobile Top 10 assessment. This specification is an architecture document — it does not substitute for empirical security testing.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="padding: 32px 0; border-top: 1px solid var(--border); color: var(--ink-3); font-size: 12px; display: flex; justify-content: space-between; align-items: center; max-width: var(--content-max);">
+      <span>Finance Bag · Auth Specification · SPEC-AUTH-001 · v1.0.0</span>
+      <span>July 2026 · Confidential</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+// Scrollspy
+const navLinks = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('.section');
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const id = entry.target.id;
+      const active = document.querySelector(`.nav-link[href="#${id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-10% 0px -70% 0px' });
+
+sections.forEach(s => observer.observe(s));
+</script>

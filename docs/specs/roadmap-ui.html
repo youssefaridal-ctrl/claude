@@ -1,0 +1,760 @@
+<title>Financial Roadmap — Finance Bag</title>
+<style>
+  :root {
+    --shell: #0F0F12;
+    --bg: #18181B;
+    --surface: #27272A;
+    --surface2: #3F3F46;
+    --border: rgba(255,255,255,0.07);
+    --text: #F4F4F5;
+    --text2: #D4D4D8;
+    --muted: #71717A;
+    --green: #22C55E;
+    --green-d: rgba(34,197,94,0.14);
+    --green-b: rgba(34,197,94,0.28);
+    --indigo: #6366F1;
+    --indigo-d: rgba(99,102,241,0.14);
+    --indigo-b: rgba(99,102,241,0.28);
+    --red: #EF4444;
+    --red-d: rgba(239,68,68,0.14);
+    --red-b: rgba(239,68,68,0.28);
+    --amber: #F59E0B;
+    --amber-d: rgba(245,158,11,0.14);
+    --purple: #8B5CF6;
+    --purple-d: rgba(139,92,246,0.14);
+    --purple-b: rgba(139,92,246,0.28);
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --shell: #D4D4D8;
+      --bg: #F4F4F5;
+      --surface: #FFFFFF;
+      --surface2: #E4E4E7;
+      --border: rgba(0,0,0,0.07);
+      --text: #18181B;
+      --text2: #3F3F46;
+      --muted: #71717A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --shell:#0F0F12; --bg:#18181B; --surface:#27272A; --surface2:#3F3F46;
+    --border:rgba(255,255,255,0.07); --text:#F4F4F5; --text2:#D4D4D8; --muted:#71717A;
+  }
+  :root[data-theme="light"] {
+    --shell:#D4D4D8; --bg:#F4F4F5; --surface:#FFFFFF; --surface2:#E4E4E7;
+    --border:rgba(0,0,0,0.07); --text:#18181B; --text2:#3F3F46; --muted:#71717A;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', system-ui, sans-serif;
+    background: var(--shell);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    -webkit-font-smoothing: antialiased;
+    padding: 32px 0 80px;
+  }
+
+  /* ── PHONE SHELL ── */
+  .phone {
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg);
+    min-height: calc(100vh - 64px);
+    border-radius: 36px;
+    overflow: hidden;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06);
+    position: relative;
+  }
+
+  /* ── STATUS BAR ── */
+  .status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text2);
+  }
+  .status-time { letter-spacing: 0.02em; }
+  .status-icons { display: flex; gap: 5px; align-items: center; font-size: 13px; }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 20px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .tb-btn {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 15px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .tb-btn:hover { border-color: var(--indigo-b); color: var(--indigo); }
+  .topbar-title { font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+
+  /* ── SUMMARY ROW ── */
+  .summary {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .health {
+    background: var(--purple-d);
+    border: 1px solid var(--purple-b);
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .h-score { font-size: 24px; font-weight: 900; color: var(--purple); line-height: 1; font-variant-numeric: tabular-nums; }
+  .h-right { display: flex; flex-direction: column; gap: 1px; }
+  .h-label { font-size: 11px; font-weight: 800; color: var(--purple); text-transform: uppercase; letter-spacing: 0.06em; line-height: 1; }
+  .h-sub { font-size: 10px; color: var(--muted); }
+
+  .stats { display: flex; flex: 1; }
+  .stat { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; }
+  .stat + .stat { border-left: 1px solid var(--border); }
+  .s-num { font-size: 20px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums; }
+  .s-num.g { color: var(--green); }
+  .s-num.i { color: var(--indigo); }
+  .s-num.r { color: var(--red); }
+  .s-num.m { color: var(--muted); }
+  .s-lbl { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; }
+
+  /* ── ROADMAP HORIZON ── */
+  .horizon-bar {
+    padding: 10px 20px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .horizon-label { font-size: 11px; color: var(--muted); font-weight: 600; }
+  .horizon-value { font-size: 12px; font-weight: 700; color: var(--text2); }
+  .horizon-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 20px;
+    background: var(--purple-d); color: var(--purple);
+    border: 1px solid var(--purple-b);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  /* ── TIMELINE ── */
+  .timeline { padding: 8px 20px 0; }
+
+  .node {
+    display: flex;
+    gap: 12px;
+    align-items: stretch;
+    position: relative;
+  }
+
+  /* Spine column */
+  .spine {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 40px;
+    flex-shrink: 0;
+  }
+  .cn { /* connector */ width: 2px; flex: 1; min-height: 14px; border-radius: 1px; }
+  .cn-none { background: transparent; }
+  .cn-green { background: var(--green); }
+  .cn-grad { background: linear-gradient(to bottom, var(--green), var(--indigo)); }
+  .cn-indigo { background: var(--indigo); }
+  .cn-idash {
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--indigo) 0, var(--indigo) 5px,
+      transparent 5px, transparent 10px
+    );
+  }
+  .cn-gdash {
+    opacity: 0.35;
+    background: repeating-linear-gradient(
+      to bottom,
+      var(--muted) 0, var(--muted) 4px,
+      transparent 4px, transparent 9px
+    );
+  }
+
+  /* Status indicator dots */
+  .dot {
+    width: 36px; height: 36px;
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    font-size: 15px;
+    position: relative;
+    z-index: 1;
+  }
+  .dot-done {
+    background: var(--green-d);
+    border: 2px solid var(--green-b);
+    color: var(--green);
+    font-size: 16px;
+    font-weight: 900;
+  }
+  .dot-active {
+    background: transparent;
+    border: none;
+  }
+  .dot-blocked {
+    background: var(--red-d);
+    border: 2px solid var(--red-b);
+    font-size: 14px;
+    animation: blocked-pulse 3s ease-in-out infinite;
+  }
+  .dot-upcoming {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    opacity: 0.5;
+  }
+
+  @keyframes blocked-pulse {
+    0%, 100% { border-color: var(--red-b); box-shadow: none; }
+    50% { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-d); }
+  }
+
+  /* Progress ring for active dot */
+  .ring-wrap {
+    width: 36px; height: 36px;
+    position: relative;
+    animation: active-glow 2.5s ease-in-out infinite;
+  }
+  .ring-wrap svg { position: absolute; top:0; left:0; }
+  .ring-bg { fill: none; stroke: rgba(99,102,241,0.18); stroke-width: 2.5; }
+  .ring-fg {
+    fill: none; stroke: var(--indigo); stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 0 94.25;
+    animation: fill-ring 1.5s cubic-bezier(0.34, 1.4, 0.64, 1) 0.4s forwards;
+    transform-origin: 18px 18px;
+    transform: rotate(-90deg);
+  }
+  .ring-bg-fill { fill: var(--indigo-d); }
+  .ring-pct {
+    position: absolute; top:50%; left:50%;
+    transform: translate(-50%,-50%);
+    font-size: 9px; font-weight: 900;
+    color: var(--indigo); letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+  @keyframes fill-ring {
+    to { stroke-dasharray: 42.41 94.25; }
+    /* 45% × 2π×15 = 45% × 94.25 = 42.41 */
+  }
+  @keyframes active-glow {
+    0%, 100% { filter: drop-shadow(0 0 0 rgba(99,102,241,0)); }
+    50% { filter: drop-shadow(0 0 6px rgba(99,102,241,0.45)); }
+  }
+
+  /* ── NODE CONTENT ── */
+  .node-body {
+    flex: 1;
+    padding-bottom: 4px;
+    padding-top: 8px;
+  }
+
+  /* Goal cards */
+  .gc {
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 13px 14px;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .gc::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 4px; bottom: 4px;
+    width: 3px; border-radius: 0 2px 2px 0;
+  }
+  .gc.done::before { background: var(--green); }
+  .gc.active::before { background: var(--indigo); }
+  .gc.blocked::before { background: var(--red); }
+  .gc.upcoming::before { background: var(--muted); opacity: 0.3; }
+  .gc.active { border-color: var(--indigo-b); }
+  .gc.blocked { border-color: var(--red-b); }
+  .gc.upcoming { opacity: 0.5; }
+
+  .gc-head {
+    display: flex; align-items: flex-start;
+    justify-content: space-between; gap: 8px;
+    margin-bottom: 5px;
+  }
+  .gc-name { font-size: 14px; font-weight: 700; color: var(--text); line-height: 1.2; }
+  .gc-name.dim { color: var(--muted); }
+
+  .badge {
+    font-size: 9.5px; font-weight: 800;
+    padding: 3px 7px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: 0.07em;
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .b-done { background: var(--green-d); color: var(--green); border: 1px solid var(--green-b); }
+  .b-active { background: var(--indigo-d); color: var(--indigo); border: 1px solid var(--indigo-b); }
+  .b-blocked { background: var(--red-d); color: var(--red); border: 1px solid var(--red-b); }
+  .b-up { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+  .gc-meta {
+    display: flex; align-items: center;
+    gap: 5px; flex-wrap: wrap;
+  }
+  .gc-meta-item { font-size: 11.5px; color: var(--muted); display: flex; align-items: center; gap: 3px; }
+  .gc-meta-item b { color: var(--text2); font-weight: 600; }
+  .gc-sep { color: var(--border); font-size: 14px; }
+
+  /* Progress bar */
+  .pbar-wrap { margin-top: 10px; }
+  .pbar-track { height: 3.5px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .pbar-fill { height: 100%; border-radius: 2px; background: var(--indigo); transition: width 0.5s ease; }
+  .pbar-row { display: flex; justify-content: space-between; margin-top: 5px; }
+  .pbar-pct { font-size: 11px; font-weight: 700; color: var(--indigo); }
+  .pbar-eta { font-size: 11px; color: var(--muted); }
+  .pbar-eta b { color: var(--text2); }
+
+  /* Blocked detail */
+  .blk-detail {
+    margin-top: 10px;
+    background: var(--red-d);
+    border: 1px solid var(--red-b);
+    border-radius: 9px;
+    padding: 9px 11px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .blk-icon { font-size: 13px; flex-shrink: 0; }
+  .blk-right { flex: 1; min-width: 0; }
+  .blk-lbl { font-size: 11px; font-weight: 700; color: var(--red); margin-bottom: 4px; }
+  .blk-bar-track { height: 3px; background: rgba(239,68,68,0.18); border-radius: 2px; overflow: hidden; }
+  .blk-bar-fill { height: 100%; background: var(--red); border-radius: 2px; transition: width 0.5s; }
+  .blk-eta { font-size: 10px; color: var(--muted); margin-top: 3px; }
+  .blk-eta b { color: var(--text2); }
+
+  /* Upcoming hint */
+  .up-hint { font-size: 11px; color: var(--muted); margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+
+  /* ── WHAT-IF PANEL ── */
+  .sim-panel {
+    margin: 12px 20px;
+    background: var(--surface);
+    border: 1px solid var(--indigo-b);
+    border-radius: 18px;
+    padding: 16px 16px 14px;
+    position: relative;
+    overflow: hidden;
+  }
+  .sim-panel::after {
+    content: '';
+    position: absolute;
+    top: -20px; right: -20px;
+    width: 100px; height: 100px;
+    background: radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .sim-eyebrow {
+    font-size: 10px; font-weight: 800;
+    color: var(--indigo); letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .sim-eyebrow::before { content: '⚡'; }
+  .sim-question {
+    font-size: 13.5px; font-weight: 600; color: var(--text);
+    margin-bottom: 12px; line-height: 1.3;
+  }
+  .sim-question em { color: var(--amber); font-style: normal; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+  /* Slider */
+  .slider-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .slider-min, .slider-max { font-size: 10px; color: var(--muted); font-weight: 600; flex-shrink: 0; }
+  .slider-outer { flex: 1; position: relative; height: 20px; display: flex; align-items: center; }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; border-radius: 2px;
+    background: var(--surface2);
+    outline: none; cursor: pointer; position: relative; z-index: 1;
+    background: linear-gradient(to right, var(--amber) 0%, var(--surface2) 0%);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--amber);
+    border: 3px solid var(--bg);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+    cursor: pointer;
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--amber); border: 3px solid var(--bg);
+    cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+  }
+
+  /* Result grid */
+  .sim-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .sim-tile { background: var(--surface2); border-radius: 11px; padding: 10px 12px; }
+  .sim-tile-lbl { font-size: 9.5px; font-weight: 800; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 5px; }
+  .sim-tile-val { font-size: 17px; font-weight: 900; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+  .sim-tile-val.pos { color: var(--green); }
+  .sim-tile-sub { font-size: 10.5px; color: var(--muted); margin-top: 3px; }
+  .sim-tile-sub b { color: var(--text2); font-weight: 600; }
+
+  /* ── RECOMMENDATION ── */
+  .rec {
+    margin: 0 20px 28px;
+    background: var(--amber-d);
+    border: 1px solid rgba(245,158,11,0.25);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display: flex; gap: 11px; align-items: flex-start;
+  }
+  .rec-icon { font-size: 20px; flex-shrink: 0; line-height: 1; margin-top: 1px; }
+  .rec-title { font-size: 12px; font-weight: 800; color: var(--amber); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .rec-body { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+  .rec-body b { color: var(--text2); font-weight: 600; }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+  @media (max-width: 460px) {
+    body { padding: 0; }
+    .phone { border-radius: 0; box-shadow: none; min-height: 100vh; }
+  }
+</style>
+
+<div class="phone">
+  <!-- Status bar -->
+  <div class="status-bar">
+    <div class="status-time">9:41</div>
+    <div class="status-icons">
+      <span>●●●</span>
+      <span>WiFi</span>
+      <span>⬛</span>
+    </div>
+  </div>
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <button class="tb-btn" aria-label="Back">←</button>
+    <div class="topbar-title">Financial Roadmap</div>
+    <button class="tb-btn" id="theme-btn" onclick="toggleTheme()" aria-label="Toggle theme">☀</button>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary">
+    <div class="health">
+      <div class="h-score">72</div>
+      <div class="h-right">
+        <div class="h-label">Good</div>
+        <div class="h-sub">/ 100 pts</div>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="s-num g">2</div><div class="s-lbl">Done</div></div>
+      <div class="stat"><div class="s-num i">1</div><div class="s-lbl">Active</div></div>
+      <div class="stat"><div class="s-num r">1</div><div class="s-lbl">Blocked</div></div>
+      <div class="stat"><div class="s-num m">2</div><div class="s-lbl">Upcoming</div></div>
+    </div>
+  </div>
+
+  <!-- Horizon strip -->
+  <div class="horizon-bar">
+    <div>
+      <div class="horizon-label">Roadmap horizon</div>
+      <div class="horizon-value">Business Launch · est. 2030</div>
+    </div>
+    <div class="horizon-badge">3 Unlockable</div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="timeline">
+
+    <!-- ① Emergency Fund Level 1 — COMPLETED -->
+    <div class="node">
+      <div class="spine">
+        <div class="cn cn-none" style="min-height:10px;"></div>
+        <div class="dot dot-done" aria-label="Completed">✓</div>
+        <div class="cn cn-green"></div>
+      </div>
+      <div class="node-body">
+        <div class="gc done">
+          <div class="gc-head">
+            <div class="gc-name">Emergency Fund Level 1</div>
+            <div class="badge b-done">Done</div>
+          </div>
+          <div class="gc-meta">
+            <div class="gc-meta-item">🛡 <b>$5,000</b> saved</div>
+            <div class="gc-sep">·</div>
+            <div class="gc-meta-item">Sep 2025</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② Pay off Credit Card — COMPLETED -->
+    <div class="node">
+      <div class="spine">
+        <div class="cn cn-green"></div>
+        <div class="dot dot-done" aria-label="Completed">✓</div>
+        <div class="cn cn-grad"></div>
+      </div>
+      <div class="node-body">
+        <div class="gc done">
+          <div class="gc-head">
+            <div class="gc-name">Pay off Credit Card</div>
+            <div class="badge b-done">Done</div>
+          </div>
+          <div class="gc-meta">
+            <div class="gc-meta-item">💳 <b>$8,200</b> cleared</div>
+            <div class="gc-sep">·</div>
+            <div class="gc-meta-item">Jan 2026</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ House Down Payment — IN PROGRESS -->
+    <div class="node">
+      <div class="spine">
+        <div class="cn cn-indigo"></div>
+        <div class="dot dot-active" aria-label="In Progress — 45%">
+          <div class="ring-wrap">
+            <svg width="36" height="36" viewBox="0 0 36 36">
+              <circle class="ring-bg" cx="18" cy="18" r="15"/>
+              <circle class="ring-bg-fill" cx="18" cy="18" r="12"/>
+              <circle class="ring-fg" cx="18" cy="18" r="15"/>
+            </svg>
+            <div class="ring-pct">45%</div>
+          </div>
+        </div>
+        <div class="cn cn-idash"></div>
+      </div>
+      <div class="node-body">
+        <div class="gc active" id="active-card">
+          <div class="gc-head">
+            <div class="gc-name">Save House Down Payment</div>
+            <div class="badge b-active">Active</div>
+          </div>
+          <div class="gc-meta">
+            <div class="gc-meta-item">🏠 <b id="saved-amt">$25,650</b> of $57,000</div>
+            <div class="gc-sep">·</div>
+            <div class="gc-meta-item"><b id="monthly-display">$2,850</b>/mo</div>
+          </div>
+          <div class="pbar-wrap">
+            <div class="pbar-track">
+              <div class="pbar-fill" id="pbar-fill" style="width:45%"></div>
+            </div>
+            <div class="pbar-row">
+              <div class="pbar-pct">45% complete</div>
+              <div class="pbar-eta">Est. <b id="active-eta">Jun 2027</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ Buy House — BLOCKED -->
+    <div class="node">
+      <div class="spine">
+        <div class="cn cn-idash"></div>
+        <div class="dot dot-blocked" aria-label="Blocked">🔒</div>
+        <div class="cn cn-gdash"></div>
+      </div>
+      <div class="node-body">
+        <div class="gc blocked">
+          <div class="gc-head">
+            <div class="gc-name">Buy House</div>
+            <div class="badge b-blocked">Blocked</div>
+          </div>
+          <div class="gc-meta">
+            <div class="gc-meta-item">🏡 ~$570,000 purchase</div>
+          </div>
+          <div class="blk-detail">
+            <div class="blk-icon">⏳</div>
+            <div class="blk-right">
+              <div class="blk-lbl">Waiting: Down Payment · 45%</div>
+              <div class="blk-bar-track">
+                <div class="blk-bar-fill" id="blk-fill" style="width:45%"></div>
+              </div>
+              <div class="blk-eta">Unblocks ~<b id="blk-eta">Jun 2027</b></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑤ Build Investment Portfolio — UPCOMING -->
+    <div class="node">
+      <div class="spine">
+        <div class="cn cn-gdash"></div>
+        <div class="dot dot-upcoming" aria-label="Upcoming">◎</div>
+        <div class="cn cn-gdash"></div>
+      </div>
+      <div class="node-body">
+        <div class="gc upcoming">
+          <div class="gc-head">
+            <div class="gc-name dim">Build Investment Portfolio</div>
+            <div class="badge b-up">Upcoming</div>
+          </div>
+          <div class="gc-meta">
+            <div class="gc-meta-item">📈 <b>$50,000</b> target</div>
+          </div>
+          <div class="up-hint">🔗 Starts after: Buy House</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ⑥ Start Business — UPCOMING -->
+    <div class="node">
+      <div class="spine">
+        <div class="cn cn-gdash"></div>
+        <div class="dot dot-upcoming" aria-label="Upcoming">◎</div>
+        <div class="cn cn-none" style="min-height:12px;"></div>
+      </div>
+      <div class="node-body">
+        <div class="gc upcoming">
+          <div class="gc-head">
+            <div class="gc-name dim">Start Business</div>
+            <div class="badge b-up">Upcoming</div>
+          </div>
+          <div class="gc-meta">
+            <div class="gc-meta-item">💼 <b>$25,000</b> capital</div>
+          </div>
+          <div class="up-hint">🔗 Starts after: Investment Portfolio</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /timeline -->
+
+  <!-- What-If Simulation Panel -->
+  <div class="sim-panel">
+    <div class="sim-eyebrow">What-If Simulation</div>
+    <div class="sim-question">
+      If I add <em id="extra-label">$0</em> extra/mo to my Down Payment:
+    </div>
+    <div class="slider-row">
+      <div class="slider-min">$0</div>
+      <div class="slider-outer">
+        <input type="range" id="sim-slider" min="0" max="2000" step="100" value="0"
+          oninput="runSim(+this.value)" aria-label="Extra monthly contribution">
+      </div>
+      <div class="slider-max">$2k</div>
+    </div>
+    <div class="sim-grid">
+      <div class="sim-tile">
+        <div class="sim-tile-lbl">Completes</div>
+        <div class="sim-tile-val" id="sim-date">Jun 2027</div>
+        <div class="sim-tile-sub" id="sim-months">11 months left</div>
+      </div>
+      <div class="sim-tile">
+        <div class="sim-tile-lbl">Time Saved</div>
+        <div class="sim-tile-val pos" id="sim-saved">—</div>
+        <div class="sim-tile-sub">House unblocks <b id="sim-unblock">Jun 2027</b></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recommendation -->
+  <div class="rec">
+    <div class="rec-icon">💡</div>
+    <div>
+      <div class="rec-title">High-Leverage Move</div>
+      <div class="rec-body">
+        Finishing the Down Payment unlocks <b>3 future goals</b> simultaneously. At <b>$2,850/mo</b> you're <b id="rec-months">11 months</b> away — every extra $100/mo shaves another 2–3 weeks off your entire roadmap.
+      </div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+
+<script>
+  const REMAINING = 31350;
+  const BASE = 2850;
+  // Today = July 2026 per session context
+  const TODAY = new Date(2026, 6, 11);
+
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function fmtDate(d) {
+    return MONTHS[d.getMonth()] + ' ' + d.getFullYear();
+  }
+
+  function addMonths(base, n) {
+    const d = new Date(base);
+    d.setMonth(d.getMonth() + n);
+    return d;
+  }
+
+  function runSim(extra) {
+    const monthly = BASE + extra;
+    const months = Math.ceil(REMAINING / monthly);
+    const baseMonths = Math.ceil(REMAINING / BASE);
+    const saved = baseMonths - months;
+    const completion = addMonths(TODAY, months);
+    const dateStr = fmtDate(completion);
+
+    // Label
+    document.getElementById('extra-label').textContent =
+      extra > 0 ? '$' + extra.toLocaleString() : '$0';
+
+    // Simulation results
+    document.getElementById('sim-date').textContent = dateStr;
+    document.getElementById('sim-months').textContent =
+      months + ' month' + (months !== 1 ? 's' : '') + ' left';
+    document.getElementById('sim-saved').textContent =
+      saved > 0 ? saved + ' mo sooner' : '—';
+    document.getElementById('sim-unblock').textContent = dateStr;
+
+    // Update active card ETA
+    document.getElementById('active-eta').textContent = dateStr;
+    document.getElementById('blk-eta').textContent = dateStr;
+
+    // Recommendation months
+    document.getElementById('rec-months').textContent =
+      months + ' month' + (months !== 1 ? 's' : '');
+
+    // Slider fill
+    const pct = (extra / 2000) * 100;
+    document.getElementById('sim-slider').style.background =
+      `linear-gradient(to right, var(--amber) ${pct}%, var(--surface2) ${pct}%)`;
+  }
+
+  function toggleTheme() {
+    const root = document.documentElement;
+    const cur = root.getAttribute('data-theme') ||
+      (matchMedia('(prefers-color-scheme:dark)').matches ? 'dark' : 'light');
+    const next = cur === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    const icon = next === 'dark' ? '☀' : '🌙';
+    document.getElementById('theme-btn').textContent = icon;
+  }
+
+  // Init
+  runSim(0);
+</script>

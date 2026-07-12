@@ -1,0 +1,1329 @@
+<title>Finance Bag — Salary Management Specification</title>
+<style>
+  /* ── Tokens ─────────────────────────────────────────────────────── */
+  :root {
+    --ink: #0D1117; --ink-2: #374151; --ink-3: #64748B;
+    --surface: #F4F5F8; --card: #FFFFFF; --border: #E2E8F0;
+    --accent: #6366F1; --accent-2: #8B5CF6;
+    --accent-dim: rgba(99,102,241,.10);
+    --danger: #EF4444; --danger-dim: rgba(239,68,68,.10);
+    --warning: #F59E0B; --warning-dim: rgba(245,158,11,.10);
+    --success: #10B981; --success-dim: rgba(16,185,129,.10);
+    --info: #3B82F6; --info-dim: rgba(59,130,246,.10);
+    --gold: #D97706; --gold-dim: rgba(217,119,6,.10);
+    --sidebar-w: 256px; --content-max: 780px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ink: #F1F5F9; --ink-2: #CBD5E1; --ink-3: #94A3B8;
+      --surface: #090E1A; --card: #111827; --border: #1E2A40;
+      --accent-dim: rgba(99,102,241,.15);
+      --danger-dim: rgba(239,68,68,.15);
+      --warning-dim: rgba(245,158,11,.15);
+      --success-dim: rgba(16,185,129,.15);
+      --info-dim: rgba(59,130,246,.15);
+      --gold-dim: rgba(217,119,6,.15);
+    }
+  }
+  :root[data-theme="light"] {
+    --ink: #0D1117; --ink-2: #374151; --ink-3: #64748B;
+    --surface: #F4F5F8; --card: #FFFFFF; --border: #E2E8F0;
+    --accent-dim: rgba(99,102,241,.10);
+    --danger-dim: rgba(239,68,68,.10);
+    --warning-dim: rgba(245,158,11,.10);
+    --success-dim: rgba(16,185,129,.10);
+    --info-dim: rgba(59,130,246,.10);
+    --gold-dim: rgba(217,119,6,.10);
+  }
+  :root[data-theme="dark"] {
+    --ink: #F1F5F9; --ink-2: #CBD5E1; --ink-3: #94A3B8;
+    --surface: #090E1A; --card: #111827; --border: #1E2A40;
+    --accent-dim: rgba(99,102,241,.15);
+    --danger-dim: rgba(239,68,68,.15);
+    --warning-dim: rgba(245,158,11,.15);
+    --success-dim: rgba(16,185,129,.15);
+    --info-dim: rgba(59,130,246,.15);
+    --gold-dim: rgba(217,119,6,.15);
+  }
+
+  /* ── Reset ───────────────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 15px; scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--surface); color: var(--ink); line-height: 1.7; min-height: 100vh;
+  }
+
+  /* ── Layout ──────────────────────────────────────────────────────── */
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    position: fixed; top: 0; left: 0;
+    width: var(--sidebar-w); height: 100vh;
+    overflow-y: auto; background: var(--card);
+    border-right: 1px solid var(--border);
+    padding: 0 0 32px 0; z-index: 100;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-brand {
+    padding: 18px 18px 14px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+    position: sticky; top: 0; background: var(--card); z-index: 1;
+  }
+  .brand-icon {
+    width: 32px; height: 32px; background: var(--accent);
+    border-radius: 8px; display: flex; align-items: center;
+    justify-content: center; font-size: 16px; flex-shrink: 0;
+  }
+  .brand-text { font-size: 12px; font-weight: 600; color: var(--ink); line-height: 1.2; }
+  .brand-sub { font-size: 10px; color: var(--ink-3); font-weight: 400; }
+
+  nav { padding: 10px 0; }
+  .nav-section { padding: 6px 18px 2px; font-size: 9px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-3); margin-top: 6px; }
+  .nav-link {
+    display: block; padding: 5px 18px; font-size: 12.5px;
+    color: var(--ink-2); text-decoration: none;
+    border-left: 2px solid transparent; transition: all .15s; line-height: 1.4;
+  }
+  .nav-link:hover { color: var(--accent); background: var(--accent-dim); }
+  .nav-link.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-dim); font-weight: 500; }
+  .nav-sub { padding-left: 30px; font-size: 11.5px; }
+
+  .theme-btn {
+    margin: 10px 18px 0;
+    display: flex; align-items: center; gap: 6px;
+    background: none; border: 1px solid var(--border);
+    border-radius: 6px; padding: 5px 10px; cursor: pointer;
+    color: var(--ink-3); font-size: 11px; transition: all .15s;
+    width: calc(100% - 36px);
+  }
+  .theme-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── Main ────────────────────────────────────────────────────────── */
+  .main { margin-left: var(--sidebar-w); flex: 1; padding: 0 44px 80px; min-width: 0; }
+
+  /* ── Doc header ──────────────────────────────────────────────────── */
+  .doc-header { padding: 48px 0 36px; border-bottom: 1px solid var(--border); margin-bottom: 52px; }
+  .doc-eyebrow {
+    font-size: 11px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--accent);
+    font-family: 'SF Mono', 'Fira Code', monospace; margin-bottom: 10px;
+  }
+  .doc-title { font-size: 30px; font-weight: 700; color: var(--ink); line-height: 1.2; margin-bottom: 14px; text-wrap: balance; }
+  .doc-meta { display: flex; flex-wrap: wrap; gap: 18px; font-size: 12.5px; color: var(--ink-3); }
+  .chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 2px 9px; border-radius: 12px; font-size: 11px; font-weight: 600;
+  }
+  .chip-draft { background: var(--warning-dim); color: var(--warning); }
+  .chip-core { background: var(--accent-dim); color: var(--accent); }
+  .chip-req { background: var(--success-dim); color: var(--success); }
+  .chip-opt { background: var(--info-dim); color: var(--info); }
+  .chip-future { background: var(--gold-dim); color: var(--gold); }
+
+  /* ── Sections ────────────────────────────────────────────────────── */
+  .section { margin-bottom: 64px; scroll-margin-top: 24px; max-width: var(--content-max); }
+  .section-number { font-family: 'SF Mono','Fira Code',monospace; font-size: 11px; font-weight: 700; color: var(--accent); letter-spacing: .06em; margin-bottom: 6px; }
+  h2.section-title {
+    font-size: 22px; font-weight: 700; color: var(--ink);
+    padding-bottom: 12px; border-bottom: 2px solid var(--border); margin-bottom: 28px;
+    text-wrap: balance;
+  }
+  h3 { font-size: 15.5px; font-weight: 700; color: var(--ink); margin: 30px 0 10px; }
+  h3:first-child { margin-top: 0; }
+  h4 { font-size: 10px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); margin: 18px 0 8px; }
+  p { color: var(--ink-2); margin-bottom: 12px; }
+  p:last-child { margin-bottom: 0; }
+  ul, ol { color: var(--ink-2); padding-left: 20px; margin-bottom: 12px; }
+  li { margin-bottom: 5px; }
+  code {
+    font-family: 'SF Mono','Fira Code','Cascadia Code',monospace;
+    font-size: 12px; background: var(--accent-dim); color: var(--accent);
+    padding: 1px 5px; border-radius: 4px;
+  }
+  strong { color: var(--ink); font-weight: 600; }
+  hr.divider { border: none; border-top: 1px solid var(--border); margin: 44px 0; }
+
+  /* ── Callouts ────────────────────────────────────────────────────── */
+  .callout {
+    border-radius: 8px; padding: 14px 18px; margin: 20px 0;
+    display: flex; gap: 12px; font-size: 14px;
+  }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 2px; }
+  .callout-body { flex: 1; min-width: 0; }
+  .callout-title { font-weight: 700; margin-bottom: 4px; font-size: 13px; }
+  .callout-text { color: inherit; opacity: .85; margin: 0; font-size: 13.5px; }
+  .c-rec { background: var(--success-dim); color: var(--success); }
+  .c-rule { background: var(--accent-dim); color: var(--accent); }
+  .c-warn { background: var(--warning-dim); color: var(--warning); }
+  .c-risk { background: var(--danger-dim); color: var(--danger); }
+  .c-tip { background: var(--gold-dim); color: var(--gold); }
+  .c-info { background: var(--info-dim); color: var(--info); }
+
+  /* ── Formula blocks ──────────────────────────────────────────────── */
+  .formula-block {
+    background: var(--card); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent); border-radius: 0 8px 8px 0;
+    padding: 16px 20px; margin: 18px 0; font-family: 'SF Mono','Fira Code',monospace;
+    font-size: 13px; overflow-x: auto;
+  }
+  .formula-block .f-comment { color: var(--ink-3); }
+  .formula-block .f-label { color: var(--accent); font-weight: 700; }
+  .formula-block .f-eq { color: var(--ink-2); }
+  .formula-block .f-result { color: var(--success); font-weight: 700; }
+  .formula-title { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 8px; }
+
+  /* ── Tables ──────────────────────────────────────────────────────── */
+  .table-wrap { overflow-x: auto; margin: 20px 0; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead { background: var(--surface); }
+  th { text-align: left; padding: 10px 14px; font-size: 10.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); border-bottom: 1px solid var(--border); }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--border); color: var(--ink-2); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--accent-dim); }
+  .td-good { color: var(--success); font-weight: 600; }
+  .td-bad { color: var(--danger); }
+  .td-warn { color: var(--warning); font-weight: 500; }
+  .td-muted { color: var(--ink-3); font-style: italic; }
+
+  /* ── Timeline ────────────────────────────────────────────────────── */
+  .timeline { margin: 24px 0; position: relative; }
+  .timeline::before { content: ''; position: absolute; left: 18px; top: 24px; bottom: 24px; width: 2px; background: var(--border); }
+  .tl-item { display: flex; gap: 16px; padding: 0 0 28px 0; position: relative; }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-dot {
+    width: 38px; height: 38px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 16px; position: relative; z-index: 1;
+    border: 2px solid var(--card);
+  }
+  .tl-accent { background: var(--accent); }
+  .tl-success { background: var(--success); }
+  .tl-warning { background: var(--warning); }
+  .tl-info { background: var(--info); }
+  .tl-gold { background: var(--gold); }
+  .tl-body { flex: 1; padding-top: 6px; }
+  .tl-title { font-weight: 700; font-size: 14px; color: var(--ink); margin-bottom: 4px; }
+  .tl-desc { font-size: 13px; color: var(--ink-3); }
+  .tl-trigger { font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); margin-top: 4px; }
+
+  /* ── Flow ────────────────────────────────────────────────────────── */
+  .flow { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin: 20px 0; }
+  .flow-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); margin-bottom: 14px; }
+  .flow-steps { list-style: none; padding: 0; }
+  .flow-step { display: flex; gap: 12px; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); }
+  .flow-step:last-child { border-bottom: none; padding-bottom: 0; }
+  .step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .step-body { flex: 1; }
+  .step-label { font-weight: 600; font-size: 13.5px; color: var(--ink); margin-bottom: 2px; }
+  .step-detail { font-size: 12.5px; color: var(--ink-3); }
+
+  /* ── Spec blocks ─────────────────────────────────────────────────── */
+  .spec-block { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: 20px 0; }
+  .spec-row { display: flex; border-bottom: 1px solid var(--border); }
+  .spec-row:last-child { border-bottom: none; }
+  .spec-key { width: 190px; flex-shrink: 0; padding: 10px 16px; font-size: 12px; font-weight: 600; color: var(--ink-3); background: var(--surface); border-right: 1px solid var(--border); }
+  .spec-val { padding: 10px 16px; font-size: 13px; color: var(--ink-2); flex: 1; }
+
+  /* ── Score components ────────────────────────────────────────────── */
+  .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .score-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; }
+  .score-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+  .score-name { font-size: 13px; font-weight: 700; color: var(--ink); }
+  .score-weight { font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); margin-top: 2px; }
+  .score-pts { font-size: 20px; font-weight: 700; color: var(--accent); font-family: 'SF Mono','Fira Code',monospace; font-variant-numeric: tabular-nums; }
+  .score-max { font-size: 12px; color: var(--ink-3); }
+  .score-bar { height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 8px 0 6px; }
+  .score-fill { height: 100%; border-radius: 3px; }
+  .fill-accent { background: var(--accent); }
+  .fill-success { background: var(--success); }
+  .fill-warning { background: var(--warning); }
+  .fill-info { background: var(--info); }
+  .fill-gold { background: var(--gold); }
+  .score-desc { font-size: 11.5px; color: var(--ink-3); }
+
+  /* ── Grade table ─────────────────────────────────────────────────── */
+  .grade-row { display: flex; align-items: center; gap: 12px; padding: 9px 16px; border-bottom: 1px solid var(--border); background: var(--card); font-size: 13.5px; }
+  .grade-row:first-child { border-radius: 8px 8px 0 0; }
+  .grade-row:last-child { border-bottom: none; border-radius: 0 0 8px 8px; }
+  .grade-badge { width: 36px; text-align: center; font-weight: 800; font-size: 15px; }
+  .grade-range { width: 90px; font-variant-numeric: tabular-nums; font-family: 'SF Mono','Fira Code',monospace; font-size: 12px; color: var(--ink-3); }
+  .grade-label { flex: 1; font-weight: 500; color: var(--ink-2); }
+  .grade-action { font-size: 12px; color: var(--ink-3); font-style: italic; }
+
+  /* ── Method cards ────────────────────────────────────────────────── */
+  .method-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 20px 0; }
+  .method-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .method-header { padding: 14px 18px 10px; border-bottom: 1px solid var(--border); }
+  .method-name { font-size: 14px; font-weight: 700; color: var(--ink); }
+  .method-tag { display: inline-block; margin-top: 4px; }
+  .method-body { padding: 12px 18px; }
+  .method-pros, .method-cons { font-size: 12.5px; color: var(--ink-3); margin-bottom: 6px; }
+  .method-pros::before { content: '+ '; color: var(--success); font-weight: 700; }
+  .method-cons::before { content: '− '; color: var(--danger); font-weight: 700; }
+
+  /* ── Insight cards ───────────────────────────────────────────────── */
+  .insight-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0; }
+  .insight-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; }
+  .insight-icon { font-size: 20px; flex-shrink: 0; }
+  .insight-body { flex: 1; }
+  .insight-text { font-size: 13.5px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+  .insight-meta { font-size: 11.5px; color: var(--ink-3); }
+  .insight-tag { display: inline-block; padding: 1px 7px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-right: 6px; }
+  .t-alert { background: var(--danger-dim); color: var(--danger); }
+  .t-praise { background: var(--success-dim); color: var(--success); }
+  .t-tip { background: var(--info-dim); color: var(--info); }
+  .t-milestone { background: var(--gold-dim); color: var(--gold); }
+
+  /* ── Rule grid ───────────────────────────────────────────────────── */
+  .rule-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 20px 0; }
+  .rule-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .rule-label { font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px; }
+  .rule-value { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .rule-why { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+
+  /* ── Responsive ──────────────────────────────────────────────────── */
+  @media (max-width: 920px) {
+    :root { --sidebar-w: 0px; }
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 20px 20px 60px; }
+    .score-grid, .method-grid, .rule-grid { grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="layout">
+
+<!-- ── Sidebar ─────────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="brand-icon">💼</div>
+    <div>
+      <div class="brand-text">Finance Bag</div>
+      <div class="brand-sub">Salary Module Spec v1.0</div>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-section">Overview</div>
+    <a class="nav-link active" href="#philosophy">Module Philosophy</a>
+    <a class="nav-link" href="#summary">Executive Summary</a>
+
+    <div class="nav-section">Lifecycle</div>
+    <a class="nav-link" href="#monthly-cycle">Monthly Cycle</a>
+    <a class="nav-link nav-sub" href="#budget-period">Budget Period</a>
+    <a class="nav-link nav-sub" href="#lifecycle-stages">Lifecycle Stages</a>
+    <a class="nav-link nav-sub" href="#rollover">Rollover Logic</a>
+
+    <div class="nav-section">Income</div>
+    <a class="nav-link" href="#income">Income Architecture</a>
+    <a class="nav-link nav-sub" href="#primary-salary">Primary Salary</a>
+    <a class="nav-link nav-sub" href="#extra-income">Extra Income</a>
+    <a class="nav-link" href="#categories">Budget Categories</a>
+    <a class="nav-link" href="#allocation-methods">Allocation Methods</a>
+
+    <div class="nav-section">Calculations</div>
+    <a class="nav-link" href="#realtime-calc">Real-Time Engine</a>
+    <a class="nav-link nav-sub" href="#formulas">Formula Set</a>
+    <a class="nav-link nav-sub" href="#constraints">Constraints</a>
+    <a class="nav-link" href="#health-score">Financial Health Score</a>
+    <a class="nav-link" href="#insights">Smart Insights</a>
+
+    <div class="nav-section">History</div>
+    <a class="nav-link" href="#archives">Monthly Archives</a>
+    <a class="nav-link" href="#search">Search & History</a>
+    <a class="nav-link" href="#comparison">Month Comparison</a>
+    <a class="nav-link" href="#report">Monthly Report</a>
+
+    <div class="nav-section">Engineering</div>
+    <a class="nav-link" href="#scalability">Scalability Design</a>
+    <a class="nav-link" href="#edge-cases">Edge Cases</a>
+    <a class="nav-link" href="#business-rules">Business Rules</a>
+  </nav>
+  <button class="theme-btn" onclick="(function(){const r=document.documentElement;const cur=r.getAttribute('data-theme')||(window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');r.setAttribute('data-theme',cur==='dark'?'light':'dark');})()">⚡ Toggle Theme</button>
+</aside>
+
+<!-- ── Main ────────────────────────────────────────────────────── -->
+<main class="main">
+
+<div class="doc-header">
+  <div class="doc-eyebrow">SPEC-SAL-001 · Finance Bag · July 2026</div>
+  <h1 class="doc-title">Salary Management &amp; Monthly<br>Financial Planning Specification</h1>
+  <div class="doc-meta">
+    <span><span class="chip chip-draft">● Draft</span></span>
+    <span><span class="chip chip-core">Core Module</span></span>
+    <span>📋 Version 1.0.0</span>
+    <span>🔗 Depends on: SPEC-AUTH-001</span>
+  </div>
+</div>
+
+<!-- ══ 01 PHILOSOPHY ══════════════════════════════════════════════ -->
+<section class="section" id="philosophy">
+  <div class="section-number">01</div>
+  <h2 class="section-title">Module Philosophy</h2>
+
+  <p>The central premise of Finance Bag is simple and powerful: <strong>every monthly salary becomes a complete financial plan the moment it arrives.</strong> Before a single dirham is spent, the user has a clear, intentional allocation of where every unit of income goes.</p>
+
+  <p>Most budgeting apps treat budgets as retroactive — you spend first, then categorize later. This module inverts that model. The budget is built proactively at the start of each month, and real-world spending is measured against it. The financial plan is the primary artifact; transactions are evidence of execution.</p>
+
+  <div class="callout c-rule">
+    <div class="callout-icon">📐</div>
+    <div class="callout-body">
+      <div class="callout-title">Design Axiom</div>
+      <p class="callout-text">At any moment, the user should be able to answer five questions without any mental effort: (1) How much did I earn this month? (2) How much have I planned to spend? (3) How much is still unallocated? (4) Am I on track for my financial goals? (5) Is my financial situation getting better or worse? All five answers must be visible on the salary screen without tapping anything.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 02 EXECUTIVE SUMMARY ══════════════════════════════════════ -->
+<section class="section" id="summary">
+  <div class="section-number">02</div>
+  <h2 class="section-title">Executive Summary</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dimension</th><th>Decision</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Budget period alignment</strong></td><td>Salary-day-aligned (not calendar month). Budget runs from salary payment day to day before next payment.</td></tr>
+        <tr><td><strong>Allocation method</strong></td><td>Hybrid — percentage templates with fixed-amount overrides per category. Most flexible for all user types.</td></tr>
+        <tr><td><strong>Income model</strong></td><td>Primary salary + unlimited additional income sources, each typed and dated.</td></tr>
+        <tr><td><strong>Archive trigger</strong></td><td>Automatic on salary payment day. Manual trigger also available.</td></tr>
+        <tr><td><strong>Health score</strong></td><td>0–100 composite score across 5 financial dimensions. Updates in real time.</td></tr>
+        <tr><td><strong>Insights</strong></td><td>Rule-based engine (no ML at v1.0). Compares to 3-month rolling average.</td></tr>
+        <tr><td><strong>Negative balance</strong></td><td>Allowed but prominently surfaced with red indicator. Never blocked.</td></tr>
+        <tr><td><strong>Carry-over</strong></td><td>Opt-in. Unspent balance from previous month can be added to new month's income.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══ 03 MONTHLY CYCLE ══════════════════════════════════════════ -->
+<section class="section" id="monthly-cycle">
+  <div class="section-number">03</div>
+  <h2 class="section-title">Monthly Budget Cycle</h2>
+
+  <h3 id="budget-period">Budget Period Definition</h3>
+  <p>A critical design decision that most budgeting apps get wrong: the budget period should align with <strong>when money actually arrives</strong>, not with the calendar month. If a user is paid on the 25th of every month, their financial month should run from the 25th to the 24th of the following month.</p>
+
+  <div class="callout c-rec">
+    <div class="callout-icon">✅</div>
+    <div class="callout-body">
+      <div class="callout-title">Salary-Day-Aligned Budget Period</div>
+      <p class="callout-text">Budget period = from <code>salaryPaymentDay</code> of month N to (<code>salaryPaymentDay</code> − 1) of month N+1. Example: salary paid on the 25th → budget runs 25 Jan → 24 Feb. This matches real cash flow and eliminates the "I'm always broke in the last week of the month" problem that calendar-month budgets create.</p>
+    </div>
+  </div>
+
+  <div class="spec-block">
+    <div class="spec-row"><div class="spec-key">Period start</div><div class="spec-val"><code>salaryPaymentDay</code> of the current calendar month</div></div>
+    <div class="spec-row"><div class="spec-key">Period end</div><div class="spec-val">(<code>salaryPaymentDay</code> − 1) of the following calendar month, inclusive</div></div>
+    <div class="spec-row"><div class="spec-key">Period ID format</div><div class="spec-val"><code>YYYY-MM</code> where MM = the calendar month of the <em>start date</em>. This is the archive key.</div></div>
+    <div class="spec-row"><div class="spec-key">Payment day = 29, 30, 31</div><div class="spec-val">Capped at 28 in user settings to handle all months (February). System maps day 28 to last day of month when the month has fewer days.</div></div>
+    <div class="spec-row"><div class="spec-key">First-time users</div><div class="spec-val">First budget period starts from today regardless of <code>salaryPaymentDay</code>. Partial months are valid.</div></div>
+  </div>
+
+  <h3 id="lifecycle-stages">Monthly Lifecycle Stages</h3>
+
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-dot tl-accent">💰</div>
+      <div class="tl-body">
+        <div class="tl-title">Stage 1 — Salary Received</div>
+        <div class="tl-desc">User confirms salary amount (or it is auto-filled from the previous month's amount). Any additional income sources for this month are added. Total Available Income is calculated.</div>
+        <div class="tl-trigger">TRIGGER: User action on salary payment day (or push notification reminder)</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot tl-info">📋</div>
+      <div class="tl-body">
+        <div class="tl-title">Stage 2 — Budget Creation</div>
+        <div class="tl-desc">New monthly budget created. Category allocations are pre-populated from the previous month's plan (carry-forward template). User reviews and adjusts. Budget is <code>draft</code> until confirmed.</div>
+        <div class="tl-trigger">TRIGGER: Automatic after Stage 1 completion</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot tl-success">✅</div>
+      <div class="tl-body">
+        <div class="tl-title">Stage 3 — Active Month</div>
+        <div class="tl-desc">Budget is <code>active</code>. User adds transactions, tracks spending against allocations, monitors financial health score, receives smart insights. Real-time calculations update as transactions are entered.</div>
+        <div class="tl-trigger">TRIGGER: User confirms budget (moves from draft to active)</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot tl-warning">📊</div>
+      <div class="tl-body">
+        <div class="tl-title">Stage 4 — End-of-Month Summary</div>
+        <div class="tl-desc">System generates an automatic monthly report 3 days before the budget period ends. Surfaces unspent allocations, final health score, goal progress, and a recommendation for next month's budget. A push notification prompts the user to review.</div>
+        <div class="tl-trigger">TRIGGER: Automatic, 3 days before period end date</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot tl-gold">📦</div>
+      <div class="tl-body">
+        <div class="tl-title">Stage 5 — Archive</div>
+        <div class="tl-desc">The completed month is snapshotted and archived. A frozen, immutable record of the budget, all categories, allocations, actual spending, health score, and income is stored. The archived month is accessible forever in history.</div>
+        <div class="tl-trigger">TRIGGER: Next <code>salaryPaymentDay</code> reached (automatic) or manual "Clôturer le mois" button</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-dot tl-accent">🔄</div>
+      <div class="tl-body">
+        <div class="tl-title">Stage 6 — New Month Starts</div>
+        <div class="tl-desc">Budget template carried forward from archived month. Carry-over balance (if opted in) added to new income. Stage 1 of new cycle begins.</div>
+        <div class="tl-trigger">TRIGGER: Immediately after Stage 5</div>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="rollover">Rollover & Carry-Over Logic</h3>
+  <p><strong>Carry-over</strong> is the unspent balance from the previous month. It is opt-in at the category level.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Carry-Over Mode</th><th>Behavior</th><th>Use Case</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Off (default)</strong></td><td>Each month starts fresh. Unspent money is considered "saved" implicitly.</td><td>Most users. Clean slate each month.</td></tr>
+        <tr><td><strong>Add to Income</strong></td><td>Total unspent balance added to next month's Total Available Income as "Reliquat".</td><td>Users who want to reallocate last month's savings explicitly.</td></tr>
+        <tr><td><strong>Per-Category Rollover</strong></td><td>Unspent amount per category carried forward to the same category next month. E.g., unspent "Loisirs" rolls into next month's "Loisirs".</td><td>Variable categories where spending fluctuates (e.g., clothing budget saved over 3 months for one purchase).</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout c-warn">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body">
+      <div class="callout-title">Rollover Boundary Rule</div>
+      <p class="callout-text">Carry-over is calculated only from <em>unspent allocation</em>, never from income itself. If a category was over-spent, its rollover is zero (not negative). Negative rollovers are not applied — debt tracking is handled by the Credits module, not by carry-over.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 04 INCOME ARCHITECTURE ════════════════════════════════════ -->
+<section class="section" id="income">
+  <div class="section-number">04</div>
+  <h2 class="section-title">Income Architecture</h2>
+
+  <h3 id="primary-salary">Primary Salary</h3>
+  <p>The primary salary is the backbone of the monthly budget. It is a monthly fixed amount that the user declares. The system stores the <strong>net salary</strong> (after tax and deductions) — we allocate what arrives in the bank account, not the gross figure.</p>
+
+  <div class="spec-block">
+    <div class="spec-row"><div class="spec-key">Type</div><div class="spec-val">Fixed monthly amount (net)</div></div>
+    <div class="spec-row"><div class="spec-key">Currency</div><div class="spec-val">User's declared currency from profile</div></div>
+    <div class="spec-row"><div class="spec-key">Precision</div><div class="spec-val">2 decimal places. Stored as integer centimes (× 100) to avoid float rounding errors.</div></div>
+    <div class="spec-row"><div class="spec-key">Minimum</div><div class="spec-val">0 (some users may have no salary and rely on other income sources)</div></div>
+    <div class="spec-row"><div class="spec-key">Maximum</div><div class="spec-val">No upper limit enforced. Validation: warn if value increases by more than 200% vs previous month.</div></div>
+    <div class="spec-row"><div class="spec-key">History</div><div class="spec-val">Salary changes are timestamped and appended to a salary history log. Previous salaries are never overwritten.</div></div>
+    <div class="spec-row"><div class="spec-key">Pre-fill</div><div class="spec-val">On new month creation, pre-filled with previous month's salary value. User confirms or adjusts.</div></div>
+  </div>
+
+  <h3 id="extra-income">Additional Income Sources</h3>
+  <p>Income beyond the primary salary is managed as a collection of <strong>typed income events</strong> that can recur or be one-time.</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td>UUID</td><td><span class="chip chip-req">Yes</span></td><td>Non-sequential</td></tr>
+        <tr><td><code>name</code></td><td>string</td><td><span class="chip chip-req">Yes</span></td><td>User-defined label. E.g., "Prime de Ramadan"</td></tr>
+        <tr><td><code>amount</code></td><td>integer (centimes)</td><td><span class="chip chip-req">Yes</span></td><td>Positive only</td></tr>
+        <tr><td><code>type</code></td><td>enum</td><td><span class="chip chip-req">Yes</span></td><td><code>bonus | freelance | rental | investment | gift | refund | other</code></td></tr>
+        <tr><td><code>recurrence</code></td><td>enum</td><td><span class="chip chip-req">Yes</span></td><td><code>one_time | monthly | quarterly | annual</code></td></tr>
+        <tr><td><code>receivedDate</code></td><td>date</td><td><span class="chip chip-req">Yes</span></td><td>When the income was received in the current period</td></tr>
+        <tr><td><code>note</code></td><td>string</td><td><span class="chip chip-opt">No</span></td><td>Optional description</td></tr>
+        <tr><td><code>taxable</code></td><td>boolean</td><td><span class="chip chip-opt">No</span></td><td>For future tax reporting feature</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="formula-block">
+    <div class="formula-title">Total Available Income</div>
+    <span class="f-label">Total_Income</span> <span class="f-eq">= Salary + Σ(income_sources.amount)</span>
+    <br>
+    <span class="f-comment">// All amounts within the current budget period</span>
+    <br><br>
+    <span class="f-label">Carry_Over</span> <span class="f-eq">= Σ(prev_month.category.unspent) × carry_over_flag</span>
+    <br>
+    <span class="f-label">Total_Available</span> <span class="f-eq">= Total_Income + Carry_Over</span>
+  </div>
+</section>
+
+<!-- ══ 05 CATEGORIES ═════════════════════════════════════════════ -->
+<section class="section" id="categories">
+  <div class="section-number">05</div>
+  <h2 class="section-title">Budget Categories System</h2>
+
+  <h3>Default Category Set</h3>
+  <p>New users begin with 7 default categories that cover the most common household budget structure for the target market:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Category</th><th>Icon</th><th>Default %</th><th>Type</th><th>Lockable</th></tr></thead>
+      <tbody>
+        <tr><td>Logement</td><td>🏠</td><td>30%</td><td>Essential</td><td class="td-good">Yes</td></tr>
+        <tr><td>Alimentation</td><td>🛒</td><td>15%</td><td>Essential</td><td class="td-good">Yes</td></tr>
+        <tr><td>Transport</td><td>🚗</td><td>10%</td><td>Essential</td><td class="td-good">Yes</td></tr>
+        <tr><td>Santé</td><td>❤️</td><td>5%</td><td>Essential</td><td class="td-good">Yes</td></tr>
+        <tr><td>Loisirs</td><td>🎮</td><td>10%</td><td>Flexible</td><td class="td-bad">No</td></tr>
+        <tr><td>Épargne</td><td>💰</td><td>20%</td><td>Strategic</td><td class="td-good">Yes</td></tr>
+        <tr><td>Factures & Abonnements</td><td>⚡</td><td>10%</td><td>Essential</td><td class="td-good">Yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Category Data Model</h3>
+  <div class="spec-block">
+    <div class="spec-row"><div class="spec-key">id</div><div class="spec-val">string — UUID for user-created; short slug for defaults (e.g., <code>housing</code>)</div></div>
+    <div class="spec-row"><div class="spec-key">name</div><div class="spec-val">string, 1–40 chars, no HTML, user-editable</div></div>
+    <div class="spec-row"><div class="spec-key">icon</div><div class="spec-val">Single emoji character (picker with 30+ options) or system icon name</div></div>
+    <div class="spec-row"><div class="spec-key">color</div><div class="spec-val">Hex color from a 16-color curated palette. User cannot enter arbitrary hex to ensure design consistency.</div></div>
+    <div class="spec-row"><div class="spec-key">allocationType</div><div class="spec-val">enum: <code>percentage | fixed | hybrid</code></div></div>
+    <div class="spec-row"><div class="spec-key">percentage</div><div class="spec-val">0.00–100.00. Meaningful only when allocationType = percentage or hybrid.</div></div>
+    <div class="spec-row"><div class="spec-key">fixedAmount</div><div class="spec-val">Centimes. Meaningful only when allocationType = fixed or hybrid (as the minimum floor).</div></div>
+    <div class="spec-row"><div class="spec-key">computedAmount</div><div class="spec-val">Calculated field. The actual allocation in currency for the current month. Never stored — always derived.</div></div>
+    <div class="spec-row"><div class="spec-key">spent</div><div class="spec-val">Sum of all transactions in this category for the current period. Derived from transaction table.</div></div>
+    <div class="spec-row"><div class="spec-key">isLocked</div><div class="spec-val">boolean. Locked categories cannot be deleted. Percentage can still be adjusted. Default categories are locked by default but can be unlocked.</div></div>
+    <div class="spec-row"><div class="spec-key">carryOver</div><div class="spec-val">enum: <code>none | add_to_income | roll_forward</code></div></div>
+    <div class="spec-row"><div class="spec-key">sortOrder</div><div class="spec-val">integer. User drag-reorder sets this. Affects display order throughout the app.</div></div>
+    <div class="spec-row"><div class="spec-key">type</div><div class="spec-val">enum: <code>essential | flexible | strategic | debt | savings | emergency | custom</code></div></div>
+    <div class="spec-row"><div class="spec-key">notes</div><div class="spec-val">Optional string. User-added note per category per month (e.g., "Ramadan month, food budget increased").</div></div>
+  </div>
+
+  <h3>Category Operations</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Operation</th><th>Constraint</th><th>Effect on Budget</th></tr></thead>
+      <tbody>
+        <tr><td>Create category</td><td>Max 20 categories total. No duplicate names.</td><td>Percentage sum may exceed 100% after creation — user must rebalance.</td></tr>
+        <tr><td>Rename category</td><td>No constraint except length and uniqueness.</td><td>All linked transactions retain the category ID. Only the display name changes.</td></tr>
+        <tr><td>Delete category</td><td>Locked categories cannot be deleted. Categories with active transactions in current month trigger a warning: user must re-assign transactions first.</td><td>Allocations and computedAmount are removed from totals immediately.</td></tr>
+        <tr><td>Reorder</td><td>Free reorder via drag-and-drop. Sort order persists to next month.</td><td>Display only — no effect on calculations.</td></tr>
+        <tr><td>Change color / icon</td><td>Color from curated palette only.</td><td>Display only.</td></tr>
+        <tr><td>Lock / Unlock</td><td>User can lock/unlock any category. Lock prevents accidental deletion.</td><td>None — lock is a UI safeguard only.</td></tr>
+        <tr><td>Change allocation type</td><td>No constraint.</td><td>Triggers immediate recalculation of computedAmount and all downstream totals.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ 06 ALLOCATION METHODS ═════════════════════════════════════ -->
+<section class="section" id="allocation-methods">
+  <div class="section-number">06</div>
+  <h2 class="section-title">Allocation Methods</h2>
+
+  <div class="method-grid">
+    <div class="method-card">
+      <div class="method-header">
+        <div class="method-name">Percentage-Based</div>
+        <div class="method-tag"><span class="chip chip-opt">Simple</span></div>
+      </div>
+      <div class="method-body">
+        <p style="font-size:13px; color:var(--ink-3); margin-bottom: 8px;">Each category is assigned a percentage of Total Available Income. Amount adjusts automatically as income changes.</p>
+        <div class="method-pros">Scales perfectly with salary changes</div>
+        <div class="method-pros">Easy to understand (50% of income to needs)</div>
+        <div class="method-cons">Doesn't reflect fixed real-world costs (rent is not % of salary)</div>
+        <div class="method-cons">Awkward for expenses like subscriptions (€9.99/month)</div>
+      </div>
+    </div>
+    <div class="method-card">
+      <div class="method-header">
+        <div class="method-name">Fixed-Amount</div>
+        <div class="method-tag"><span class="chip chip-opt">Precise</span></div>
+      </div>
+      <div class="method-body">
+        <p style="font-size:13px; color:var(--ink-3); margin-bottom: 8px;">Each category has a fixed currency amount. Unallocated remainder is surfaced clearly.</p>
+        <div class="method-pros">Matches real costs (rent = 3,500 MAD exactly)</div>
+        <div class="method-pros">Easy to set up when expenses are known</div>
+        <div class="method-cons">Must be manually updated on income changes</div>
+        <div class="method-cons">Easy to leave large unallocated remainders</div>
+      </div>
+    </div>
+    <div class="method-card" style="border-color: var(--accent);">
+      <div class="method-header" style="background: var(--accent-dim);">
+        <div class="method-name">Hybrid <span style="color:var(--accent); font-size:11px; font-weight:600;">★ RECOMMENDED</span></div>
+        <div class="method-tag"><span class="chip chip-core">Best Fit</span></div>
+      </div>
+      <div class="method-body">
+        <p style="font-size:13px; color:var(--ink-3); margin-bottom: 8px;">Fixed amounts for known costs (rent, loan) + percentage for flexible spending. Remainder shown as allocation runway.</p>
+        <div class="method-pros">Mirrors how real budgeting works</div>
+        <div class="method-pros">Fixed costs lock in first, percentages share the rest</div>
+        <div class="method-pros">Works for any income level and spending pattern</div>
+        <div class="method-cons">More cognitive load to set up initially</div>
+      </div>
+    </div>
+    <div class="method-card">
+      <div class="method-header">
+        <div class="method-name">Templates</div>
+        <div class="method-tag"><span class="chip chip-future">Quick Start</span></div>
+      </div>
+      <div class="method-body">
+        <p style="font-size:13px; color:var(--ink-3); margin-bottom: 8px;">Pre-built allocation presets that user can apply and then customize.</p>
+        <div class="method-pros">Zero-friction onboarding for first-time budgeters</div>
+        <div class="method-pros">Encodes financial wisdom (50/30/20 rule)</div>
+        <div class="method-cons">One-size-fits-none without customization</div>
+        <div class="method-cons">Users may apply and never adjust</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Hybrid Allocation: Calculation Order</h3>
+  <p>In hybrid mode, the allocation engine processes categories in a strict order to ensure predictable results:</p>
+
+  <div class="flow">
+    <div class="flow-title">Hybrid Allocation Resolution Order</div>
+    <ol class="flow-steps">
+      <li class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Reserve Fixed Amounts</div><div class="step-detail">All categories with <code>allocationType = fixed</code> claim their amounts first. <code>Fixed_Total = Σ(fixed_categories.fixedAmount)</code></div></div></li>
+      <li class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Calculate Flexible Pool</div><div class="step-detail"><code>Flexible_Pool = Total_Available − Fixed_Total</code>. This is the income remaining after fixed costs.</div></div></li>
+      <li class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Distribute Percentage Categories</div><div class="step-detail">Percentage categories apply their <code>%</code> to <code>Flexible_Pool</code>, not to Total_Available. This ensures percentages reflect the discretionary portion.</div></div></li>
+      <li class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Apply Hybrid Floors</div><div class="step-detail">Categories with <code>allocationType = hybrid</code> get <code>MAX(fixedAmount, percentage × Flexible_Pool)</code>. The fixed amount acts as a spending floor.</div></div></li>
+      <li class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Calculate Unallocated Remainder</div><div class="step-detail"><code>Unallocated = Total_Available − Σ(all_categories.computedAmount)</code>. Surfaced prominently in the UI.</div></div></li>
+    </ol>
+  </div>
+
+  <h3>Built-In Templates</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Template</th><th>Allocation</th><th>Best For</th></tr></thead>
+      <tbody>
+        <tr><td><strong>50/30/20 Rule</strong></td><td>50% Besoins · 30% Envies · 20% Épargne</td><td>Beginners, stable incomes</td></tr>
+        <tr><td><strong>70/20/10 Rule</strong></td><td>70% Dépenses · 20% Épargne · 10% Dons/Dettes</td><td>Those with higher fixed costs</td></tr>
+        <tr><td><strong>Ramadan Template</strong></td><td>Food +10%, Loisirs −5%, Dons +5%</td><td>Seasonal spending shift. Contextual suggestion triggered by system date.</td></tr>
+        <tr><td><strong>Debt Priority</strong></td><td>Fixed debt payments first, 30% savings, rest flexible</td><td>Users in active debt repayment</td></tr>
+        <tr><td><strong>Savings First</strong></td><td>30% savings reserved first, rest distributed by default %</td><td>Users building emergency fund rapidly</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- ══ 07 REAL-TIME CALCULATIONS ═════════════════════════════════ -->
+<section class="section" id="realtime-calc">
+  <div class="section-number">07</div>
+  <h2 class="section-title">Real-Time Calculation Engine</h2>
+
+  <p>Every change to income, allocations, or transactions triggers an instant recalculation cascade. The user must never see stale numbers. All calculations are performed synchronously in the Zustand store layer — no loading indicators, no debounce delays.</p>
+
+  <h3 id="formulas">Complete Formula Set</h3>
+
+  <div class="formula-block">
+    <div class="formula-title">Income Calculations</div>
+    <span class="f-label">Total_Income</span>        <span class="f-eq">= Salary + Σ(income_sources.amount)</span><br>
+    <span class="f-label">Total_Available</span>     <span class="f-eq">= Total_Income + Carry_Over</span><br>
+    <span class="f-label">Fixed_Total</span>         <span class="f-eq">= Σ(cat.fixedAmount) for cat where allocationType ∈ {fixed, hybrid}</span><br>
+    <span class="f-label">Flexible_Pool</span>       <span class="f-eq">= Total_Available − Fixed_Total</span>
+  </div>
+
+  <div class="formula-block">
+    <div class="formula-title">Allocation Calculations</div>
+    <span class="f-label">Cat.computedAmount</span>  <span class="f-eq">= fixedAmount                              // if type=fixed</span><br>
+    <span class="f-label">Cat.computedAmount</span>  <span class="f-eq">= (percentage / 100) × Flexible_Pool       // if type=percentage</span><br>
+    <span class="f-label">Cat.computedAmount</span>  <span class="f-eq">= MAX(fixedAmount, (pct/100)×Flexible_Pool) // if type=hybrid</span><br>
+    <span class="f-label">Total_Allocated</span>     <span class="f-eq">= Σ(cat.computedAmount)</span><br>
+    <span class="f-label">Unallocated</span>         <span class="f-eq">= Total_Available − Total_Allocated</span><br>
+    <span class="f-label">Allocation_Pct</span>      <span class="f-eq">= (Total_Allocated / Total_Available) × 100</span>
+  </div>
+
+  <div class="formula-block">
+    <div class="formula-title">Spending Calculations (current period)</div>
+    <span class="f-label">Cat.spent</span>           <span class="f-eq">= Σ(tx.amount) for tx where tx.categoryId=cat.id AND tx.type='expense'</span><br>
+    <span class="f-label">Cat.remaining</span>       <span class="f-eq">= Cat.computedAmount − Cat.spent</span><br>
+    <span class="f-label">Cat.over_budget</span>     <span class="f-eq">= MAX(0, Cat.spent − Cat.computedAmount)</span><br>
+    <span class="f-label">Cat.utilization</span>     <span class="f-eq">= (Cat.spent / Cat.computedAmount) × 100   // can exceed 100%</span><br>
+    <span class="f-label">Total_Spent</span>         <span class="f-eq">= Σ(cat.spent)</span><br>
+    <span class="f-label">Available_Cash</span>      <span class="f-eq">= Total_Available − Total_Spent</span>
+  </div>
+
+  <div class="formula-block">
+    <div class="formula-title">Financial Ratios</div>
+    <span class="f-label">Savings_Rate</span>        <span class="f-eq">= (savings_categories.computedAmount / Total_Income) × 100</span><br>
+    <span class="f-label">Debt_Ratio</span>          <span class="f-eq">= (Σ(credits.monthlyPayment) / Total_Income) × 100</span><br>
+    <span class="f-label">Emergency_Progress</span>  <span class="f-eq">= (emergencyFund.currentAmount / emergencyFund.targetAmount) × 100</span><br>
+    <span class="f-label">Net_Monthly_Balance</span> <span class="f-eq">= Total_Income − Total_Spent − Σ(credits.monthlyPayment)</span><br>
+    <span class="f-label">Burn_Rate</span>           <span class="f-eq">= Total_Spent / days_elapsed × days_in_period</span><br>
+    <span class="f-comment">// Burn_Rate projects end-of-month spending at current pace</span>
+  </div>
+
+  <h3 id="constraints">Constraint Validation</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Condition</th><th>Severity</th><th>UI Response</th></tr></thead>
+      <tbody>
+        <tr><td>Allocation_Pct > 100%</td><td class="td-warn">Warning</td><td>Orange indicator: "Vous avez alloué X% de plus que votre revenu." Submit allowed.</td></tr>
+        <tr><td>Allocation_Pct > 120%</td><td class="td-bad">Critical</td><td>Red indicator. Health score penalty. Recommend rebalancing.</td></tr>
+        <tr><td>Unallocated > 20% of income</td><td class="td-warn">Nudge</td><td>"Vous avez X MAD non alloués. Pensez à augmenter votre épargne."</td></tr>
+        <tr><td>Savings_Rate < 5%</td><td class="td-warn">Warning</td><td>Health score impact. Insight: "Votre taux d'épargne est très bas."</td></tr>
+        <tr><td>Debt_Ratio > 40%</td><td class="td-bad">Critical</td><td>Red debt ratio badge. Insight with repayment strategy link.</td></tr>
+        <tr><td>Cat.spent > Cat.computedAmount</td><td class="td-warn">Warning</td><td>Category bar turns red. Over-budget amount shown in red text.</td></tr>
+        <tr><td>Burn_Rate > Total_Available</td><td class="td-bad">Critical</td><td>"À ce rythme, vous dépasserez votre budget le [date]."</td></tr>
+        <tr><td>Total_Income = 0</td><td class="td-muted">Info</td><td>Special zero-income state. All percentage allocations = 0. Prompt to add salary.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ 08 FINANCIAL HEALTH SCORE ══════════════════════════════════ -->
+<section class="section" id="health-score">
+  <div class="section-number">08</div>
+  <h2 class="section-title">Financial Health Score</h2>
+
+  <p>The Financial Health Score is a single 0–100 number that summarizes the user's financial situation across five dimensions. It recalculates in real time. It is not a judgment — it is a compass.</p>
+
+  <h3>Score Components</h3>
+
+  <div class="score-grid">
+    <div class="score-card">
+      <div class="score-header">
+        <div>
+          <div class="score-name">Taux d'Épargne</div>
+          <div class="score-weight">Weight: 25 pts</div>
+        </div>
+        <div><span class="score-pts">25</span> <span class="score-max">/ 25</span></div>
+      </div>
+      <div class="score-bar"><div class="score-fill fill-success" style="width:100%"></div></div>
+      <div class="score-desc">
+        <strong>≥ 20%:</strong> 25 pts · <strong>15–19%:</strong> 18 pts · <strong>10–14%:</strong> 12 pts · <strong>5–9%:</strong> 6 pts · <strong>&lt; 5%:</strong> 0 pts
+      </div>
+    </div>
+    <div class="score-card">
+      <div class="score-header">
+        <div>
+          <div class="score-name">Ratio d'Endettement</div>
+          <div class="score-weight">Weight: 25 pts</div>
+        </div>
+        <div><span class="score-pts">25</span> <span class="score-max">/ 25</span></div>
+      </div>
+      <div class="score-bar"><div class="score-fill fill-accent" style="width:100%"></div></div>
+      <div class="score-desc">
+        <strong>&lt; 15%:</strong> 25 pts · <strong>15–29%:</strong> 18 pts · <strong>30–39%:</strong> 10 pts · <strong>40–49%:</strong> 4 pts · <strong>≥ 50%:</strong> 0 pts
+      </div>
+    </div>
+    <div class="score-card">
+      <div class="score-header">
+        <div>
+          <div class="score-name">Fonds d'Urgence</div>
+          <div class="score-weight">Weight: 20 pts</div>
+        </div>
+        <div><span class="score-pts">20</span> <span class="score-max">/ 20</span></div>
+      </div>
+      <div class="score-bar"><div class="score-fill fill-warning" style="width:100%"></div></div>
+      <div class="score-desc">
+        Linear: <strong>(emergency_progress / 100) × 20 pts</strong>. A fully-funded 6-month emergency fund scores the maximum.
+      </div>
+    </div>
+    <div class="score-card">
+      <div class="score-header">
+        <div>
+          <div class="score-name">Allocation Budget</div>
+          <div class="score-weight">Weight: 15 pts</div>
+        </div>
+        <div><span class="score-pts">15</span> <span class="score-max">/ 15</span></div>
+      </div>
+      <div class="score-bar"><div class="score-fill fill-info" style="width:100%"></div></div>
+      <div class="score-desc">
+        <strong>80–100% allocated:</strong> 15 pts · <strong>60–79%:</strong> 10 pts · <strong>40–59%:</strong> 6 pts · <strong>&lt; 40%:</strong> 0 pts. Over 100% = 8 pts (over-allocation is a problem, but spending awareness is better than nothing).
+      </div>
+    </div>
+    <div class="score-card" style="grid-column: 1 / -1;">
+      <div class="score-header">
+        <div>
+          <div class="score-name">Progression des Objectifs</div>
+          <div class="score-weight">Weight: 15 pts</div>
+        </div>
+        <div><span class="score-pts">15</span> <span class="score-max">/ 15</span></div>
+      </div>
+      <div class="score-bar"><div class="score-fill fill-gold" style="width:100%"></div></div>
+      <div class="score-desc">
+        Averaged across active goals: <strong>(Σ(goal.currentAmount / goal.targetAmount) / goal_count) × 15 pts</strong>. If no goals: 8 pts (neutral — not penalized for not having goals, but not rewarded either).
+      </div>
+    </div>
+  </div>
+
+  <h3>Score Grades</h3>
+  <div style="border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin: 20px 0;">
+    <div class="grade-row" style="border-top: none;">
+      <div class="grade-badge" style="color: var(--success)">A</div>
+      <div class="grade-range">85 – 100</div>
+      <div class="grade-label">Excellent · Santé Financière Optimale</div>
+      <div class="grade-action">Félicitations. Maintenez le cap.</div>
+    </div>
+    <div class="grade-row">
+      <div class="grade-badge" style="color: var(--info)">B</div>
+      <div class="grade-range">70 – 84</div>
+      <div class="grade-label">Bien · Sur la Bonne Voie</div>
+      <div class="grade-action">1–2 axes à améliorer.</div>
+    </div>
+    <div class="grade-row">
+      <div class="grade-badge" style="color: var(--warning)">C</div>
+      <div class="grade-range">50 – 69</div>
+      <div class="grade-label">Correct · Améliorations Nécessaires</div>
+      <div class="grade-action">Focus sur épargne et dette.</div>
+    </div>
+    <div class="grade-row">
+      <div class="grade-badge" style="color: var(--warning)">D</div>
+      <div class="grade-range">30 – 49</div>
+      <div class="grade-label">Fragile · Situation à Surveiller</div>
+      <div class="grade-action">Revoir allocation et dépenses.</div>
+    </div>
+    <div class="grade-row">
+      <div class="grade-badge" style="color: var(--danger)">F</div>
+      <div class="grade-range">0 – 29</div>
+      <div class="grade-label">Critique · Action Immédiate Requise</div>
+      <div class="grade-action">Contacter un conseiller financier.</div>
+    </div>
+  </div>
+
+  <div class="callout c-info">
+    <div class="callout-icon">ℹ️</div>
+    <div class="callout-body">
+      <div class="callout-title">Tone of the Score</div>
+      <p class="callout-text">The score should always be accompanied by an <strong>explanation of which component pulled it down</strong> and a <strong>single specific recommendation</strong> for the biggest improvement. A score without context is demoralizing. A score with a clear action is motivating. Never show the score alone.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══ 09 SMART INSIGHTS ═════════════════════════════════════════ -->
+<section class="section" id="insights">
+  <div class="section-number">09</div>
+  <h2 class="section-title">Smart Insights Engine</h2>
+
+  <p>The insights engine compares the user's current month data against their 3-month rolling history and their own declared targets. All rules are deterministic — no machine learning at v1.0. A maximum of 3 insights are shown at once, prioritized by severity.</p>
+
+  <h3>Insight Categories & Trigger Rules</h3>
+
+  <div class="insight-list">
+    <div class="insight-card">
+      <div class="insight-icon">🔴</div>
+      <div class="insight-body">
+        <div class="insight-text">"Votre budget Loisirs est épuisé à 85% — il reste encore 12 jours."</div>
+        <div class="insight-meta"><span class="insight-tag t-alert">Alerte</span> Trigger: cat.utilization ≥ 80% AND days_remaining > 7. Priority: High.</div>
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">📈</div>
+      <div class="insight-body">
+        <div class="insight-text">"Vos dépenses Alimentation ont augmenté de 23% par rapport à votre moyenne des 3 derniers mois."</div>
+        <div class="insight-meta"><span class="insight-tag t-alert">Alerte</span> Trigger: cat.spent > avg_3months(cat.spent) × 1.20. Priority: Medium.</div>
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">💰</div>
+      <div class="insight-body">
+        <div class="insight-text">"Votre taux d'épargne ce mois-ci est de 22% — votre meilleur score depuis 4 mois !"</div>
+        <div class="insight-meta"><span class="insight-tag t-praise">Bravo</span> Trigger: savings_rate > max(savings_rate, last_4_months). Priority: Low.</div>
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">🛡️</div>
+      <div class="insight-body">
+        <div class="insight-text">"Votre fonds d'urgence est à 67% de l'objectif. Encore 3 mois à ce rythme !"</div>
+        <div class="insight-meta"><span class="insight-tag t-milestone">Progression</span> Trigger: emergency_progress crosses 25%, 50%, 67%, 75%, 90% thresholds. One-time per threshold.</div>
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">📊</div>
+      <div class="insight-body">
+        <div class="insight-text">"À ce rythme, vous dépasserez votre budget global le 24 janvier. Réduisez vos dépenses de 340 MAD."</div>
+        <div class="insight-meta"><span class="insight-tag t-alert">Projection</span> Trigger: Burn_Rate projects Total_Spent > Total_Available before period end. Priority: Critical.</div>
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">🎯</div>
+      <div class="insight-body">
+        <div class="insight-text">"Il vous manque 1,200 MAD pour financer votre objectif Voyage ce mois-ci."</div>
+        <div class="insight-meta"><span class="insight-tag t-tip">Conseil</span> Trigger: goal.monthlyTarget not met by current allocation. Priority: Medium.</div>
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">✅</div>
+      <div class="insight-body">
+        <div class="insight-text">"Félicitations ! Vous avez terminé le mois avec un excédent de 620 MAD."</div>
+        <div class="insight-meta"><span class="insight-tag t-praise">Fin de mois</span> Trigger: End-of-month summary. Net_Monthly_Balance > 0. Priority: Low.</div>
+      </div>
+    </div>
+    <div class="insight-card">
+      <div class="insight-icon">💳</div>
+      <div class="insight-body">
+        <div class="insight-text">"Votre ratio d'endettement de 38% dépasse la limite recommandée de 30%. Envisagez la méthode Snowball."</div>
+        <div class="insight-meta"><span class="insight-tag t-alert">Risque</span> Trigger: Debt_Ratio > 30%. Priority: High. Shown once per month max.</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Insight Display Rules</h3>
+  <ul>
+    <li>Maximum <strong>3 insights visible simultaneously</strong> in the main UI. Full list accessible via "Voir tout".</li>
+    <li>Insights are ordered by priority: Critical → High → Medium → Low → Praise.</li>
+    <li>Praise/milestone insights are shown for 48 hours maximum, then archived.</li>
+    <li>The same insight is never shown twice in the same period unless the underlying value changes.</li>
+    <li>Insights are written in the user's app language (FR/AR/EN). Values are formatted in the user's currency.</li>
+    <li>Each insight includes a tappable action when applicable (e.g., "Voir la catégorie" or "Ajuster le budget").</li>
+  </ul>
+</section>
+
+<hr class="divider">
+
+<!-- ══ 10 ARCHIVES ═══════════════════════════════════════════════ -->
+<section class="section" id="archives">
+  <div class="section-number">10</div>
+  <h2 class="section-title">Monthly Archives</h2>
+
+  <h3>Archive Trigger Conditions</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Trigger</th><th>Condition</th><th>User Confirmation</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Automatic</strong></td><td>System date reaches next <code>salaryPaymentDay</code>. Triggers on first app open after that date.</td><td>Not required. User is notified via banner: "Votre mois de décembre a été archivé."</td></tr>
+        <tr><td><strong>Manual</strong></td><td>User taps "Clôturer ce mois" in salary screen options.</td><td>Required. Confirmation dialog with summary stats.</td></tr>
+        <tr><td><strong>Salary entry</strong></td><td>User enters salary for a new period when previous period is still open.</td><td>System archives previous period automatically, then opens new one.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Archive Snapshot Contents</h3>
+  <p>An archive is a complete, immutable snapshot. It is never modified after creation. It contains:</p>
+
+  <div class="spec-block">
+    <div class="spec-row"><div class="spec-key">period</div><div class="spec-val">Start date + end date of the budget period</div></div>
+    <div class="spec-row"><div class="spec-key">income</div><div class="spec-val">Primary salary + all income sources with amounts and types</div></div>
+    <div class="spec-row"><div class="spec-key">total_available</div><div class="spec-val">Total income + carry-over at time of archive</div></div>
+    <div class="spec-row"><div class="spec-key">categories</div><div class="spec-val">Full category list: name, icon, color, allocation method, computedAmount, spent, remaining</div></div>
+    <div class="spec-row"><div class="spec-key">transactions</div><div class="spec-val">All transactions in the period (description, amount, category, date). Read-only reference.</div></div>
+    <div class="spec-row"><div class="spec-key">credits</div><div class="spec-val">Snapshot of all credits at period end: names, amounts, payments made</div></div>
+    <div class="spec-row"><div class="spec-key">emergency_fund</div><div class="spec-val">Balance at end of period, contributions made during period</div></div>
+    <div class="spec-row"><div class="spec-key">goals</div><div class="spec-val">Each goal's progress at period end + contributions made during period</div></div>
+    <div class="spec-row"><div class="spec-key">health_score</div><div class="spec-val">Final health score at archive time + component breakdown</div></div>
+    <div class="spec-row"><div class="spec-key">carry_over</div><div class="spec-val">Unspent balance carried forward to next period (if applicable)</div></div>
+    <div class="spec-row"><div class="spec-key">user_note</div><div class="spec-val">Optional user-written note for the month (e.g., "Ramadan month"). Added before or at archive time.</div></div>
+    <div class="spec-row"><div class="spec-key">archived_at</div><div class="spec-val">Timestamp of archive creation. UTC.</div></div>
+    <div class="spec-row"><div class="spec-key">tags</div><div class="spec-val">User-added tags for the month (e.g., "vacances", "rentrée", "prime")</div></div>
+  </div>
+
+  <h3>Archive Storage Architecture</h3>
+  <p>Archives are stored locally in SQLite as a <code>monthly_archives</code> table with a <code>snapshot JSON</code> column. The JSON snapshot is the entire budget state — no relational joins required to reconstruct any historical month. This makes history retrieval O(1) and resistant to future schema changes: the archive is a point-in-time export, not a live database view.</p>
+
+  <div class="callout c-rule">
+    <div class="callout-icon">📐</div>
+    <div class="callout-body">
+      <div class="callout-title">Immutability Rule</div>
+      <p class="callout-text">Archives are never modified after creation. If a user discovers an error in a past month, they cannot edit the archive. They can add a correction note. Financial history must be an accurate record, not a revisionist one. This is especially important if tax or audit features are added in the future.</p>
+    </div>
+  </div>
+
+  <h3>Retention Policy</h3>
+  <p>Archives are retained indefinitely on the device. There is no expiration. For v1.0 (local-only storage), the SQLite database on-device is the sole repository. When cloud sync is introduced, archives will be replicated server-side with the same indefinite retention policy.</p>
+</section>
+
+<!-- ══ 11 SEARCH & HISTORY ═══════════════════════════════════════ -->
+<section class="section" id="search">
+  <div class="section-number">11</div>
+  <h2 class="section-title">Search &amp; History</h2>
+
+  <h3>Archive Browser</h3>
+  <p>The history screen presents archives in reverse chronological order (newest first) as a scrollable list. Each archive card shows: period label, health score grade, total income, total spent, and the top 3 categories by spending.</p>
+
+  <h3>Search Dimensions</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Dimension</th><th>Input Type</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Month / Year</strong></td><td>Date picker (month/year only)</td><td>Décembre 2025</td></tr>
+        <tr><td><strong>Health score grade</strong></td><td>Multi-select chips (A/B/C/D/F)</td><td>Show all months with grade A</td></tr>
+        <tr><td><strong>Income range</strong></td><td>Slider or min/max input</td><td>Months where income > 8,000 MAD</td></tr>
+        <tr><td><strong>Tags</strong></td><td>Tag chip selector</td><td>Months tagged "prime"</td></tr>
+        <tr><td><strong>User note keyword</strong></td><td>Text search</td><td>Months with "Ramadan" in note</td></tr>
+        <tr><td><strong>Category spending</strong></td><td>Category selector + amount range</td><td>Months where Loisirs > 1,500 MAD</td></tr>
+        <tr><td><strong>Year overview</strong></td><td>Year selector → shows all 12 months</td><td>All of 2025 at a glance</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Performance Requirements</h3>
+  <ul>
+    <li>Archive list load: &lt; 100ms for up to 36 months of history.</li>
+    <li>Search results: &lt; 50ms for keyword or filter queries against local SQLite.</li>
+    <li>Individual archive open: &lt; 30ms (JSON parse from snapshot column).</li>
+    <li>Search is performed entirely on-device. No server required.</li>
+  </ul>
+</section>
+
+<!-- ══ 12 MONTH COMPARISON ══════════════════════════════════════ -->
+<section class="section" id="comparison">
+  <div class="section-number">12</div>
+  <h2 class="section-title">Month Comparison</h2>
+
+  <h3>Comparison Modes</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Mode</th><th>Description</th><th>Trigger</th></tr></thead>
+      <tbody>
+        <tr><td><strong>vs Previous Month</strong></td><td>Current or any selected month vs the immediately preceding month</td><td>Default when viewing an archive; also a quick-action button on dashboard</td></tr>
+        <tr><td><strong>vs Same Month Last Year</strong></td><td>Selected month vs same month 12 months prior (e.g., Dec 2025 vs Dec 2024)</td><td>Available when 12+ months of history exist</td></tr>
+        <tr><td><strong>Custom Selection</strong></td><td>User selects any two archived months to compare</td><td>Available from history screen → "Comparer" mode</td></tr>
+        <tr><td><strong>Annual Summary</strong></td><td>Aggregates all 12 months of a year. Shows averages and totals.</td><td>Available from year overview in history</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Metrics Compared</h3>
+  <div class="rule-grid">
+    <div class="rule-card">
+      <div class="rule-label">Income Evolution</div>
+      <div class="rule-value">+5.2% vs mois précédent</div>
+      <div class="rule-why">Shows salary and total income change. Identifies bonus months.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-label">Savings Rate Δ</div>
+      <div class="rule-value">18% → 22% (+4pts)</div>
+      <div class="rule-why">Most important trend indicator. Direction matters more than absolute value.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-label">Debt Ratio Δ</div>
+      <div class="rule-value">35% → 32% (−3pts)</div>
+      <div class="rule-why">Downward trend = progress on debt repayment.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-label">Category Deltas</div>
+      <div class="rule-value">Per-category comparison</div>
+      <div class="rule-why">Show which categories increased or decreased. Enables spending pattern recognition.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-label">Health Score Δ</div>
+      <div class="rule-value">68 → 74 (+6 pts)</div>
+      <div class="rule-why">Single-number summary of overall financial improvement.</div>
+    </div>
+    <div class="rule-card">
+      <div class="rule-label">Net Balance Δ</div>
+      <div class="rule-value">−120 → +380 MAD</div>
+      <div class="rule-why">Did the user end the month with more or less money than the previous month?</div>
+    </div>
+  </div>
+
+  <h3>Trend Indicators</h3>
+  <p>All comparison metrics display a directional indicator (↑ green / ↓ red / → neutral) with the delta value. For metrics where lower is better (e.g., debt ratio, over-budget count), the color logic is inverted: ↓ debt ratio = green, not red.</p>
+</section>
+
+<!-- ══ 13 MONTHLY REPORT ═════════════════════════════════════════ -->
+<section class="section" id="report">
+  <div class="section-number">13</div>
+  <h2 class="section-title">Monthly Report</h2>
+
+  <h3>Report Structure</h3>
+  <p>The monthly report is generated automatically 3 days before the budget period ends and finalized at archive time. It is a structured summary accessible from the archive view of any completed month.</p>
+
+  <div class="flow">
+    <div class="flow-title">Monthly Report Sections (in order)</div>
+    <ol class="flow-steps">
+      <li class="flow-step"><div class="step-num">1</div><div class="step-body"><div class="step-label">Header: Period Summary</div><div class="step-detail">Period label, total income, total spent, net balance, and the month's health score grade. The "at a glance" section.</div></div></li>
+      <li class="flow-step"><div class="step-num">2</div><div class="step-body"><div class="step-label">Income Breakdown</div><div class="step-detail">Primary salary + each income source with amount and type. Total Available Income.</div></div></li>
+      <li class="flow-step"><div class="step-num">3</div><div class="step-body"><div class="step-label">Budget vs Actual (by category)</div><div class="step-detail">For each category: Allocated · Spent · Remaining · Utilization %. Color-coded (green = under, red = over). Sorted by spent amount descending.</div></div></li>
+      <li class="flow-step"><div class="step-num">4</div><div class="step-body"><div class="step-label">Savings Summary</div><div class="step-detail">Savings rate, savings categories totals, comparison to previous month and personal goal.</div></div></li>
+      <li class="flow-step"><div class="step-num">5</div><div class="step-body"><div class="step-label">Debt Payments</div><div class="step-detail">Total monthly payments made, debt ratio, credits remaining amounts.</div></div></li>
+      <li class="flow-step"><div class="step-num">6</div><div class="step-body"><div class="step-label">Emergency Fund Progress</div><div class="step-detail">Contributions this month, current balance, progress toward target, months to completion at current rate.</div></div></li>
+      <li class="flow-step"><div class="step-num">7</div><div class="step-body"><div class="step-label">Goals Progress</div><div class="step-detail">Each active goal: contributions this month, total progress, completion date projection.</div></div></li>
+      <li class="flow-step"><div class="step-num">8</div><div class="step-body"><div class="step-label">Financial Health Score</div><div class="step-detail">Final score with component breakdown. Comparison to previous month. Grade badge.</div></div></li>
+      <li class="flow-step"><div class="step-num">9</div><div class="step-body"><div class="step-label">Month's Achievements</div><div class="step-detail">Triggered milestones: new savings record, first month under budget, emergency fund milestone, goal completed, etc.</div></div></li>
+      <li class="flow-step"><div class="step-num">10</div><div class="step-body"><div class="step-label">Recommendations for Next Month</div><div class="step-detail">3 specific, actionable suggestions derived from this month's data. E.g., "Réduisez Loisirs de 200 MAD" or "Augmentez votre contribution fonds d'urgence de 100 MAD".</div></div></li>
+    </ol>
+  </div>
+
+  <h3>Report Export</h3>
+  <p>Users can export the monthly report as a <strong>PDF</strong> (generated on-device using a React Native PDF library). The exported PDF is shareable (e.g., to a financial advisor or family member). Export triggered from the report screen with a share icon.</p>
+</section>
+
+<hr class="divider">
+
+<!-- ══ 14 SCALABILITY ════════════════════════════════════════════ -->
+<section class="section" id="scalability">
+  <div class="section-number">14</div>
+  <h2 class="section-title">Scalability Design</h2>
+
+  <p>The module is architected to support the following future features without a core redesign:</p>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Future Feature</th><th>Architecture Hook</th><th>Breaking Change?</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Multiple salaries / dual income households</strong></td><td>Income sources are already a typed collection. Primary salary becomes just another typed source with <code>type: primary</code>. Total_Income formula is unchanged.</td><td class="td-good">No</td></tr>
+        <tr><td><strong>Weekly / bi-weekly budgets</strong></td><td>Budget period model accepts any start/end date. <code>periodType</code> field added to budget: <code>monthly | weekly | biweekly</code>. Salary divided by period count.</td><td class="td-good">No — additive change</td></tr>
+        <tr><td><strong>Shared family budgets</strong></td><td>Budget becomes a shared entity with multiple <code>contributors</code>. Each contributor has their own income sources. Allocation and spending tracking remain category-level.</td><td class="td-warn">Schema change — new <code>contributors</code> relation</td></tr>
+        <tr><td><strong>Variable income (freelancers)</strong></td><td>Income sources support <code>recurrence: variable</code>. Budget amount for variable income can be declared as an estimate at period start, then adjusted when actual income arrives. Unconfirmed income tracked separately.</td><td class="td-good">No — additive</td></tr>
+        <tr><td><strong>Investments tracking</strong></td><td>New category type: <code>investment</code>. Integrates with a future Investment module. Investment amounts treated as allocated but tracked separately from spending.</td><td class="td-good">No — new category type</td></tr>
+        <tr><td><strong>Business income separation</strong></td><td>Income source <code>type: business</code> can be flagged. Future tax module uses this flag to separate personal vs business flows.</td><td class="td-good">No — type already extensible</td></tr>
+        <tr><td><strong>Cloud sync</strong></td><td>Archive snapshots are self-contained JSON. Sync engine pushes/pulls snapshots. Conflict resolution: server timestamp wins for closed archives; last-write wins for current budget.</td><td class="td-good">No schema change — transport layer</td></tr>
+        <tr><td><strong>ML-based insights</strong></td><td>Insight engine is pluggable. Rule-based insights and ML insights both produce the same <code>Insight</code> data structure. ML insights can be layered on top without replacing rules.</td><td class="td-good">No</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ 15 EDGE CASES ═════════════════════════════════════════════ -->
+<section class="section" id="edge-cases">
+  <div class="section-number">15</div>
+  <h2 class="section-title">Edge Cases</h2>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Edge Case</th><th>Detection</th><th>Behavior</th><th>User Message</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Salary edited after allocations exist</strong></td>
+          <td>User edits salary when categories already have amounts</td>
+          <td>Percentage-based categories recompute automatically. Fixed-amount categories remain unchanged. Unallocated remainder updates. User sees a diff: "3 catégories ont été recalculées."</td>
+          <td>Banner: "Votre salaire a été mis à jour. Vérifiez vos allocations."</td>
+        </tr>
+        <tr>
+          <td><strong>Negative balance (over-allocation)</strong></td>
+          <td>Total_Allocated > Total_Available</td>
+          <td>Allowed. Unallocated field shows negative value in red. Health score reduces. No blocking. User must self-correct.</td>
+          <td>"Budget dépassé de X MAD. Réduisez vos allocations."</td>
+        </tr>
+        <tr>
+          <td><strong>Category deleted with active transactions</strong></td>
+          <td>category.spent > 0 in current period</td>
+          <td>Block deletion. Show how many transactions are in the category. Prompt user to reassign transactions to another category first.</td>
+          <td>"Cette catégorie contient 5 transactions ce mois-ci. Réaffectez-les avant de supprimer."</td>
+        </tr>
+        <tr>
+          <td><strong>Missing salary (no income entered)</strong></td>
+          <td>salary = 0 AND income_sources = empty</td>
+          <td>Zero-income state. All percentage allocations = 0. Fixed amounts remain. Health score = 0. Prompt to add salary displayed prominently.</td>
+          <td>"Aucun revenu enregistré pour ce mois. Ajoutez votre salaire pour commencer."</td>
+        </tr>
+        <tr>
+          <td><strong>Duplicate month (archive already exists)</strong></td>
+          <td>User tries to create budget for a period that's already archived</td>
+          <td>Prevent creation. Show the existing archive. Offer to view it. Explain that a period can only have one budget.</td>
+          <td>"Un budget existe déjà pour cette période. Consultez l'historique."</td>
+        </tr>
+        <tr>
+          <td><strong>Skipped month (gap in history)</strong></td>
+          <td>New budget period start is more than 1 period after last archived period</td>
+          <td>Auto-archive the skipped months as empty placeholders with the last known salary and zero spending. Gaps in history are marked as "Mois sans données".</td>
+          <td>"2 mois ont été manqués. Ils ont été archivés avec votre dernier salaire connu."</td>
+        </tr>
+        <tr>
+          <td><strong>Late salary</strong></td>
+          <td>salaryPaymentDay passed but user has not confirmed salary for new month</td>
+          <td>Push notification after 2 days. Previous month remains "active" until user manually starts new month or 7 days pass (then auto-archive + auto-start).</td>
+          <td>Notification: "N'oubliez pas de renseigner votre salaire de janvier."</td>
+        </tr>
+        <tr>
+          <td><strong>Partial salary</strong></td>
+          <td>User knows they will receive only part of their salary (e.g., mid-month start)</td>
+          <td>User enters the actual received amount. No system override. Health score calculated against this amount.</td>
+          <td>None — user manages this manually.</td>
+        </tr>
+        <tr>
+          <td><strong>Unexpected income (bonus received mid-month)</strong></td>
+          <td>User adds an income source after budget is active</td>
+          <td>Total_Available recalculates immediately. Percentage allocations adjust. Fixed allocations unchanged. Unallocated increases to show available windfall.</td>
+          <td>Banner: "Revenu supplémentaire de X MAD ajouté. Votre budget a été mis à jour."</td>
+        </tr>
+        <tr>
+          <td><strong>Allocation percentages don't sum to 100%</strong></td>
+          <td>Percentage categories sum to ≠ 100%</td>
+          <td>Allowed. Unallocated shown. Never auto-redistribute — that would override user intent. A nudge suggests closing the gap.</td>
+          <td>"Vos allocations représentent 88% de votre revenu. Il reste 12% non alloués."</td>
+        </tr>
+        <tr>
+          <td><strong>All categories deleted</strong></td>
+          <td>categories array = empty</td>
+          <td>Empty state shown on salary screen. CTA to add categories or apply a template. Default categories can be restored from settings.</td>
+          <td>"Aucune catégorie. Ajoutez des catégories ou appliquez un modèle."</td>
+        </tr>
+        <tr>
+          <td><strong>Currency change mid-month</strong></td>
+          <td>User changes currency in profile during an active budget month</td>
+          <td>All amounts in the current budget are displayed in the new currency using the declared exchange rate at time of change. Historical archives remain in their original currency with a currency label.</td>
+          <td>"Votre devise a changé. Les montants de ce mois sont maintenant affichés en EUR."</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ══ 16 BUSINESS RULES ═════════════════════════════════════════ -->
+<section class="section" id="business-rules">
+  <div class="section-number">16</div>
+  <h2 class="section-title">Business Rules Summary</h2>
+
+  <div class="callout c-rule">
+    <div class="callout-icon">BR-01</div>
+    <div class="callout-body">
+      <div class="callout-title">One Active Budget Per Period</div>
+      <p class="callout-text">A user can have exactly one active budget at any time. A period is defined by its start date. No two budgets may have overlapping periods.</p>
+    </div>
+  </div>
+  <div class="callout c-rule">
+    <div class="callout-icon">BR-02</div>
+    <div class="callout-body">
+      <div class="callout-title">Amounts in Integer Centimes</div>
+      <p class="callout-text">All monetary amounts are stored as integers (×100 of the currency unit) to prevent floating-point rounding errors. Display layer converts back to decimals. This rule applies to all modules.</p>
+    </div>
+  </div>
+  <div class="callout c-rule">
+    <div class="callout-icon">BR-03</div>
+    <div class="callout-body">
+      <div class="callout-title">Archives Are Immutable</div>
+      <p class="callout-text">Once a month is archived, its snapshot cannot be modified. Only annotation fields (user_note, tags) can be updated post-archive. Financial history is an accurate record.</p>
+    </div>
+  </div>
+  <div class="callout c-rule">
+    <div class="callout-icon">BR-04</div>
+    <div class="callout-body">
+      <div class="callout-title">Computed Amounts Are Never Stored</div>
+      <p class="callout-text"><code>computedAmount</code>, <code>spent</code>, <code>remaining</code>, <code>Total_Allocated</code>, <code>Unallocated</code>, and all ratios are derived fields. They are never written to the database — they are always calculated at read time. The only persisted allocation values are <code>percentage</code> and <code>fixedAmount</code>. This prevents stale data bugs.</p>
+    </div>
+  </div>
+  <div class="callout c-rule">
+    <div class="callout-icon">BR-05</div>
+    <div class="callout-body">
+      <div class="callout-title">Soft Deletes Only</div>
+      <p class="callout-text">Categories and income sources are never hard-deleted. They are soft-deleted with a <code>deleted_at</code> timestamp. This ensures that past archives referencing deleted categories remain coherent.</p>
+    </div>
+  </div>
+  <div class="callout c-rule">
+    <div class="callout-icon">BR-06</div>
+    <div class="callout-body">
+      <div class="callout-title">Negative Balances Are Never Blocked</div>
+      <p class="callout-text">The app surfaces over-budget states prominently but never prevents the user from saving or continuing. Users are adults. The app informs; it does not gatekeep.</p>
+    </div>
+  </div>
+  <div class="callout c-rule">
+    <div class="callout-icon">BR-07</div>
+    <div class="callout-body">
+      <div class="callout-title">Net Salary Only</div>
+      <p class="callout-text">The app works exclusively with net (take-home) amounts. Gross salary, tax rates, and social contributions are not modeled. We allocate what arrives in the bank account.</p>
+    </div>
+  </div>
+  <div class="callout c-rule">
+    <div class="callout-icon">BR-08</div>
+    <div class="callout-body">
+      <div class="callout-title">Salary Payment Day Capped at 28</div>
+      <p class="callout-text">To handle February and all months uniformly, <code>salaryPaymentDay</code> is capped at 28. Days 29, 30, 31 are mapped to the last day of the month for months where they don't exist.</p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer style="padding: 32px 0 0; border-top: 1px solid var(--border); color: var(--ink-3); font-size: 12px; display: flex; justify-content: space-between; align-items: center; margin-top: 40px;">
+    <span>Finance Bag · Salary Module Specification · SPEC-SAL-001 · v1.0.0</span>
+    <span>July 2026 · Confidential</span>
+  </footer>
+</section>
+
+</main>
+</div>
+
+<script>
+const navLinks = document.querySelectorAll('.nav-link');
+const sections = document.querySelectorAll('.section');
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navLinks.forEach(l => l.classList.remove('active'));
+      const active = document.querySelector(`.nav-link[href="#${entry.target.id}"]`);
+      if (active) active.classList.add('active');
+    }
+  });
+}, { rootMargin: '-10% 0px -70% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>

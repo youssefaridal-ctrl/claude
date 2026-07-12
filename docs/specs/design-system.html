@@ -1,0 +1,1725 @@
+<title>Finance Bag — Design System v1.0</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg0:#080C18;--bg1:#0F1322;--bg2:#141829;--bg3:#1A1F36;--bg4:#1E2340;
+  --t1:#F1F4FF;--t2:#8892B0;--t3:#4A5578;--t4:#2A3050;
+  --p:#6366F1;--p-l:#A5B4FC;--p-d:#4338CA;
+  --v:#8B5CF6;--v-l:#C4B5FD;
+  --ok:#10B981;--ok-l:#6EE7B7;--ok-bg:rgba(16,185,129,.1);
+  --wa:#F59E0B;--wa-l:#FCD34D;--wa-bg:rgba(245,158,11,.1);
+  --er:#EF4444;--er-l:#FCA5A5;--er-bg:rgba(239,68,68,.1);
+  --cy:#06B6D4;--cy-bg:rgba(6,182,212,.1);
+  --bd:rgba(255,255,255,.07);--bd-a:rgba(99,102,241,.3);
+  --sb:240px;
+  --fd:-apple-system,'SF Pro Display','Segoe UI Variable Display',system-ui,sans-serif;
+  --fb:-apple-system,'SF Pro Text','Segoe UI',system-ui,sans-serif;
+  --fm:'SF Mono','Cascadia Code','Fira Code',monospace;
+  --fa:'Noto Sans Arabic','SF Arabic','Tajawal',system-ui,sans-serif;
+}
+@media(prefers-color-scheme:light){:root{
+  --bg0:#F5F7FF;--bg1:#ECEEFF;--bg2:#FFFFFF;--bg3:#F0F2FF;--bg4:#E8EBFF;
+  --t1:#0C0F1E;--t2:#4A5578;--t3:#8892B0;--t4:#C5CAE0;
+  --bd:rgba(0,0,0,.08);--bd-a:rgba(99,102,241,.25);
+}}
+:root[data-theme="dark"]{
+  --bg0:#080C18;--bg1:#0F1322;--bg2:#141829;--bg3:#1A1F36;--bg4:#1E2340;
+  --t1:#F1F4FF;--t2:#8892B0;--t3:#4A5578;--t4:#2A3050;
+  --bd:rgba(255,255,255,.07);--bd-a:rgba(99,102,241,.3);
+}
+:root[data-theme="light"]{
+  --bg0:#F5F7FF;--bg1:#ECEEFF;--bg2:#FFFFFF;--bg3:#F0F2FF;--bg4:#E8EBFF;
+  --t1:#0C0F1E;--t2:#4A5578;--t3:#8892B0;--t4:#C5CAE0;
+  --bd:rgba(0,0,0,.08);--bd-a:rgba(99,102,241,.25);
+}
+
+html{scroll-behavior:smooth}
+body{font-family:var(--fb);background:var(--bg0);color:var(--t1);min-height:100vh;line-height:1.6;font-size:15px}
+
+/* LAYOUT */
+.wrap{display:flex;min-height:100vh}
+.sidebar{width:var(--sb);flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--bg1);border-right:1px solid var(--bd);display:flex;flex-direction:column;padding:24px 0 24px}
+.sb-logo{padding:0 20px 20px;border-bottom:1px solid var(--bd);margin-bottom:16px}
+.sb-brand{font-family:var(--fd);font-size:17px;font-weight:700;color:var(--t1);letter-spacing:-.3px}
+.sb-ver{font-size:11px;color:var(--t3);margin-top:2px;font-family:var(--fm)}
+.toc{list-style:none;padding:0 12px;flex:1}
+.toc li a{display:flex;align-items:center;gap:10px;padding:8px 8px;border-radius:8px;text-decoration:none;color:var(--t2);font-size:13px;font-weight:500;transition:all .15s;line-height:1.3}
+.toc li a:hover{background:var(--bg3);color:var(--t1)}
+.toc li a.active{background:rgba(99,102,241,.12);color:var(--p-l)}
+.toc-num{font-family:var(--fm);font-size:11px;color:var(--t3);width:22px;flex-shrink:0;font-weight:600}
+.toc li a.active .toc-num{color:var(--p)}
+.sb-foot{padding:16px 20px 0;border-top:1px solid var(--bd);margin-top:16px}
+.theme-btn{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px;color:var(--t2);width:100%;font-family:var(--fb)}
+.theme-btn:hover{color:var(--t1);border-color:var(--bd-a)}
+
+.main{flex:1;min-width:0;padding:48px clamp(24px,4vw,64px) 120px}
+
+/* SECTIONS */
+.section{margin-bottom:80px;padding-top:8px}
+.sec-eyebrow{font-family:var(--fm);font-size:11px;color:var(--p);letter-spacing:.12em;text-transform:uppercase;font-weight:600;margin-bottom:8px}
+.sec-num{font-family:var(--fm);font-size:11px;color:var(--t3);letter-spacing:.06em;font-weight:600}
+.sec-title{font-family:var(--fd);font-size:clamp(26px,3vw,36px);font-weight:700;color:var(--t1);letter-spacing:-.5px;line-height:1.2;text-wrap:balance;margin-bottom:8px}
+.sec-desc{font-size:15px;color:var(--t2);max-width:640px;line-height:1.7;margin-bottom:36px}
+.sec-divider{height:1px;background:var(--bd);margin-bottom:48px}
+
+/* SUBSECTIONS */
+.sub{margin-bottom:40px}
+.sub-title{font-size:13px;font-weight:600;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--bd)}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:20px;margin-bottom:16px}
+.card-sm{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:16px}
+
+/* GRIDS */
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.grid-4{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.grid-5{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+
+/* ========================
+   SECTION 01 — BRAND
+   ======================== */
+.brand-hero{background:linear-gradient(135deg,rgba(99,102,241,.12) 0%,rgba(139,92,246,.08) 50%,transparent 100%);border:1px solid var(--bd-a);border-radius:18px;padding:40px;margin-bottom:32px;position:relative;overflow:hidden}
+.brand-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 80% 50%,rgba(99,102,241,.08),transparent 60%);pointer-events:none}
+.brand-monogram{width:56px;height:56px;background:linear-gradient(135deg,var(--p),var(--v));border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:22px;font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:20px}
+.brand-name{font-family:var(--fd);font-size:32px;font-weight:800;color:var(--t1);letter-spacing:-1px;margin-bottom:4px}
+.brand-tagline{font-size:16px;color:var(--t2);font-style:italic}
+
+.pillar-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:32px}
+.pillar{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:20px}
+.pillar-icon{font-size:24px;margin-bottom:10px}
+.pillar-name{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:6px}
+.pillar-desc{font-size:13px;color:var(--t2);line-height:1.5}
+
+.persona-strip{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px;margin-bottom:32px}
+.persona{flex-shrink:0;background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:16px 20px;min-width:190px}
+.persona-avatar{width:40px;height:40px;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:10px}
+.persona-name{font-size:14px;font-weight:700;color:var(--t1);margin-bottom:2px}
+.persona-role{font-size:12px;color:var(--t3)}
+.persona-lang{display:flex;gap:4px;margin-top:10px;flex-wrap:wrap}
+.lang-pill{background:var(--bg3);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:600;color:var(--t2);font-family:var(--fm)}
+
+.voice-table{width:100%;border-collapse:collapse;font-size:14px}
+.voice-table th{text-align:left;padding:10px 14px;font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bd)}
+.voice-table td{padding:12px 14px;border-bottom:1px solid var(--bd);vertical-align:top}
+.voice-table td:first-child{color:var(--t1);font-weight:500;white-space:nowrap}
+.voice-table td:nth-child(2){color:var(--ok);font-size:13px;line-height:1.5}
+.voice-table td:nth-child(3){color:var(--er);font-size:13px;line-height:1.5}
+.voice-table tr:last-child td{border-bottom:none}
+
+/* ========================
+   SECTION 02 — COLORS
+   ======================== */
+.color-token{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;overflow:hidden}
+.color-swatch{height:80px;width:100%;position:relative}
+.color-meta{padding:12px 14px}
+.color-name{font-size:13px;font-weight:700;color:var(--t1);margin-bottom:2px}
+.color-role{font-size:11px;color:var(--t2);margin-bottom:6px}
+.color-hex{font-family:var(--fm);font-size:12px;color:var(--t3)}
+.color-usage{font-size:11px;color:var(--t3);margin-top:4px;line-height:1.4}
+
+.palette-strip{display:flex;gap:0;border-radius:12px;overflow:hidden;height:48px;margin-bottom:8px}
+.ps-seg{flex:1}
+
+.contrast-table{width:100%;border-collapse:collapse;font-size:13px}
+.contrast-table th{padding:8px 12px;font-size:11px;color:var(--t3);text-align:left;border-bottom:1px solid var(--bd);font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.contrast-table td{padding:10px 12px;border-bottom:1px solid var(--bd)}
+.contrast-table tr:last-child td{border-bottom:none}
+.cr-pass{background:var(--ok-bg);color:var(--ok);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;font-family:var(--fm)}
+.cr-fail{background:var(--er-bg);color:var(--er);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;font-family:var(--fm)}
+.cr-warn{background:var(--wa-bg);color:var(--wa);border-radius:5px;padding:2px 8px;font-size:11px;font-weight:700;font-family:var(--fm)}
+
+.semantic-row{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--bg2);border:1px solid var(--bd);border-radius:10px;margin-bottom:8px}
+.sem-dot{width:12px;height:12px;border-radius:6px;flex-shrink:0}
+.sem-name{font-size:13px;font-weight:600;color:var(--t1);width:80px;flex-shrink:0}
+.sem-hex{font-family:var(--fm);font-size:12px;color:var(--t3);width:80px;flex-shrink:0}
+.sem-use{font-size:12px;color:var(--t2)}
+.sem-sample{margin-left:auto;font-size:12px;font-weight:600;border-radius:20px;padding:3px 12px}
+
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.cat-chip{border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px}
+.cat-icon{font-size:18px}
+.cat-label{font-size:13px;font-weight:600;color:var(--t1)}
+.cat-hex{font-family:var(--fm);font-size:11px;color:rgba(255,255,255,.6);margin-top:1px}
+
+.token-table{width:100%;border-collapse:collapse;font-size:13px}
+.token-table th{padding:8px 12px;font-size:11px;color:var(--t3);text-align:left;border-bottom:1px solid var(--bd);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.token-table td{padding:10px 12px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.token-table tr:last-child td{border-bottom:none}
+.tok-name{font-family:var(--fm);font-size:12px;color:var(--p-l)}
+.tok-swatch{width:20px;height:20px;border-radius:5px;display:inline-block;vertical-align:middle;border:1px solid rgba(255,255,255,.1)}
+
+/* ========================
+   SECTION 03 — TYPOGRAPHY
+   ======================== */
+.type-specimen{padding:20px;background:var(--bg2);border:1px solid var(--bd);border-radius:12px;margin-bottom:12px}
+.type-meta{font-family:var(--fm);font-size:11px;color:var(--t3);margin-bottom:10px;display:flex;gap:16px}
+.type-example{color:var(--t1)}
+
+.type-scale-row{display:flex;align-items:baseline;gap:16px;padding:14px 0;border-bottom:1px solid var(--bd)}
+.type-scale-row:last-child{border-bottom:none}
+.ts-label{font-family:var(--fm);font-size:11px;color:var(--t3);width:60px;flex-shrink:0}
+.ts-px{font-family:var(--fm);font-size:11px;color:var(--t4);width:40px;flex-shrink:0}
+.ts-lh{font-family:var(--fm);font-size:11px;color:var(--t4);width:40px;flex-shrink:0}
+.ts-sample{color:var(--t1);flex:1}
+
+.font-family-card{background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:24px;margin-bottom:12px}
+.ff-role{font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px}
+.ff-name{font-size:15px;font-weight:700;color:var(--t1);margin-bottom:4px}
+.ff-stack{font-family:var(--fm);font-size:11px;color:var(--t3);margin-bottom:16px;line-height:1.6}
+.ff-specimen{font-size:32px;font-weight:300;color:var(--t1);line-height:1.2;letter-spacing:-.5px;margin-bottom:8px}
+.ff-chars{font-size:13px;color:var(--t2);letter-spacing:.05em;font-weight:400}
+
+.rtl-demo{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:20px;margin-bottom:12px;direction:rtl;text-align:right;font-family:var(--fa)}
+.rtl-label{font-size:11px;color:var(--t3);font-family:var(--fm);direction:ltr;text-align:left;margin-bottom:12px}
+.rtl-h1{font-size:28px;font-weight:700;color:var(--t1);margin-bottom:6px}
+.rtl-body{font-size:15px;color:var(--t2);line-height:1.8;margin-bottom:12px}
+.rtl-amount{font-size:36px;font-weight:800;color:var(--ok);font-variant-numeric:tabular-nums}
+
+.fin-numbers{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:20px;margin-bottom:12px}
+.fin-row{display:flex;align-items:baseline;gap:20px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.fin-row:last-child{border-bottom:none}
+.fin-label{font-size:12px;color:var(--t3);width:120px;flex-shrink:0}
+.fin-val{font-variant-numeric:tabular-nums;font-feature-settings:'tnum';font-weight:700;color:var(--t1)}
+.fin-pos{color:var(--ok)}
+.fin-neg{color:var(--er)}
+.fin-neutral{color:var(--t2)}
+.fin-meta{font-family:var(--fm);font-size:11px;color:var(--t3);margin-left:auto}
+
+.heading-hier .h-row{padding:12px 0;border-bottom:1px solid var(--bd);display:flex;align-items:baseline;gap:16px}
+.heading-hier .h-row:last-child{border-bottom:none}
+.h-tag{font-family:var(--fm);font-size:11px;color:var(--t3);width:30px;flex-shrink:0}
+.h-use{font-size:11px;color:var(--t3);margin-left:16px;align-self:center}
+</style>
+
+<!-- HEADER -->
+<header style="background:var(--bg1);border-bottom:1px solid var(--bd);padding:16px clamp(20px,4vw,64px);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100">
+  <div style="display:flex;align-items:center;gap:14px">
+    <div style="width:36px;height:36px;background:linear-gradient(135deg,#6366F1,#8B5CF6);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:var(--fd);font-size:14px;font-weight:800;color:#fff">FB</div>
+    <div>
+      <div style="font-family:var(--fd);font-size:15px;font-weight:700;color:var(--t1);letter-spacing:-.2px">Finance Bag</div>
+      <div style="font-size:11px;color:var(--t3);font-family:var(--fm)">Design System · v1.0 · 2026</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span style="font-size:12px;color:var(--t3)">Sections 01–10</span>
+    <button onclick="toggleTheme()" style="background:var(--bg3);border:1px solid var(--bd);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:12px;color:var(--t2);font-family:var(--fb)">☀ / ☾ Thème</button>
+  </div>
+</header>
+
+<div class="wrap">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-brand">Design System</div>
+    <div class="sb-ver">Finance Bag · v1.0</div>
+  </div>
+  <ol class="toc">
+    <li><a href="#brand" class="active"><span class="toc-num">01</span>Brand Identity</a></li>
+    <li><a href="#colors"><span class="toc-num">02</span>Color System</a></li>
+    <li><a href="#type"><span class="toc-num">03</span>Typography</a></li>
+    <li><a href="#spacing"><span class="toc-num">04</span>Spacing &amp; Grid</a></li>
+    <li><a href="#icons"><span class="toc-num">05</span>Iconography</a></li>
+    <li><a href="#buttons"><span class="toc-num">06</span>Buttons</a></li>
+    <li><a href="#inputs"><span class="toc-num">07</span>Inputs</a></li>
+    <li><a href="#cards"><span class="toc-num">08</span>Cards</a></li>
+    <li><a href="#dataviz"><span class="toc-num">09</span>Data Viz</a></li>
+    <li><a href="#motion"><span class="toc-num">10</span>Animation</a></li>
+  </ol>
+  <div class="sb-foot">
+    <button class="theme-btn" onclick="toggleTheme()">☀ / ☾ &nbsp;Basculer le thème</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ══════════════════════════════════════
+     01 — BRAND IDENTITY
+     ══════════════════════════════════════ -->
+<section class="section" id="brand">
+  <div class="sec-eyebrow">01 — Brand Identity</div>
+  <h1 class="sec-title">Identité &amp; Personnalité</h1>
+  <p class="sec-desc">Finance Bag est une application de gestion financière personnelle dédiée aux marchés francophones, arabophones et anglophones du Maghreb et du Moyen-Orient. Son identité visuelle doit transmettre la clarté, la maîtrise et la sérénité — pas l'austérité bancaire.</p>
+  <div class="sec-divider"></div>
+
+  <!-- Brand Hero -->
+  <div class="brand-hero">
+    <div class="brand-monogram">FB</div>
+    <div class="brand-name">Finance Bag</div>
+    <div class="brand-tagline">Votre argent. Votre clarté.</div>
+    <div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">
+      <span style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--p-l)">Moderne</span>
+      <span style="background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.3);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--v-l)">Élégant</span>
+      <span style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.3);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--ok-l)">Fiable</span>
+      <span style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.3);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:#67E8F9">Serein</span>
+    </div>
+  </div>
+
+  <!-- Brand Pillars -->
+  <div class="sub">
+    <div class="sub-title">Quatre piliers de la marque</div>
+    <div class="pillar-grid">
+      <div class="pillar">
+        <div class="pillar-icon">🔍</div>
+        <div class="pillar-name">Clarté</div>
+        <div class="pillar-desc">Chaque chiffre est immédiatement lisible. Pas d'ambiguïté sur la situation financière de l'utilisateur.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🛡️</div>
+        <div class="pillar-name">Confiance</div>
+        <div class="pillar-desc">Les données restent locales. L'interface inspire la fiabilité par sa rigueur visuelle et sa précision.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">⚡</div>
+        <div class="pillar-name">Puissance</div>
+        <div class="pillar-desc">Des outils complets — budget, crédits, épargne, objectifs — sans complexité superflue.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🧘</div>
+        <div class="pillar-name">Sérénité</div>
+        <div class="pillar-desc">L'argent est une source d'anxiété. Finance Bag transforme la gestion en rituel calme et contrôlé.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personas -->
+  <div class="sub">
+    <div class="sub-title">Utilisateurs cibles</div>
+    <div class="persona-strip">
+      <div class="persona">
+        <div class="persona-avatar" style="background:rgba(99,102,241,.15)">👨‍💼</div>
+        <div class="persona-name">Youssef, 28 ans</div>
+        <div class="persona-role">Salarié, Casablanca</div>
+        <div class="persona-lang">
+          <span class="lang-pill">FR</span>
+          <span class="lang-pill">AR</span>
+          <span style="font-size:11px;color:var(--t3);align-self:center;padding:3px 4px">MAD</span>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar" style="background:rgba(16,185,129,.15)">👩‍🎓</div>
+        <div class="persona-name">Fatima, 34 ans</div>
+        <div class="persona-role">Entrepreneur, Tunis</div>
+        <div class="persona-lang">
+          <span class="lang-pill">AR</span>
+          <span class="lang-pill">FR</span>
+          <span style="font-size:11px;color:var(--t3);align-self:center;padding:3px 4px">TND</span>
+        </div>
+      </div>
+      <div class="persona">
+        <div class="persona-avatar" style="background:rgba(245,158,11,.15)">👨‍💻</div>
+        <div class="persona-name">Karim, 31 ans</div>
+        <div class="persona-role">Freelance, Dubaï</div>
+        <div class="persona-lang">
+          <span class="lang-pill">EN</span>
+          <span class="lang-pill">AR</span>
+          <span style="font-size:11px;color:var(--t3);align-self:center;padding:3px 4px">AED</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Voice & Tone -->
+  <div class="sub">
+    <div class="sub-title">Voix &amp; Ton</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="voice-table" style="width:100%">
+        <thead>
+          <tr>
+            <th>Contexte</th>
+            <th>✓ Dire</th>
+            <th>✗ Éviter</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Salutation</td>
+            <td>Bonjour Youssef, voici votre mois.</td>
+            <td>Bienvenue dans votre espace personnel !</td>
+          </tr>
+          <tr>
+            <td>Dépassement</td>
+            <td>Budget Transport dépassé. +320 MAD.</td>
+            <td>Oups ! Vous avez trop dépensé 😅</td>
+          </tr>
+          <tr>
+            <td>Succès</td>
+            <td>Objectif atteint. Épargne: 5 000 MAD.</td>
+            <td>Félicitations !!! 🎉🎉🎉</td>
+          </tr>
+          <tr>
+            <td>Vide</td>
+            <td>Aucune transaction ce mois-ci.</td>
+            <td>Il n'y a rien ici pour l'instant !</td>
+          </tr>
+          <tr>
+            <td>Erreur</td>
+            <td>Montant invalide. Utilisez un chiffre positif.</td>
+            <td>Quelque chose a mal tourné 😕</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     02 — COLOR SYSTEM
+     ══════════════════════════════════════ -->
+<section class="section" id="colors">
+  <div class="sec-eyebrow">02 — Color System</div>
+  <h1 class="sec-title">Système de couleurs</h1>
+  <p class="sec-desc">Un système de tokens à deux niveaux : couleurs de fondation (valeurs brutes) et tokens sémantiques (rôles). Les composants n'utilisent jamais les valeurs brutes directement.</p>
+  <div class="sec-divider"></div>
+
+  <!-- Dark Palette Strip -->
+  <div class="sub">
+    <div class="sub-title">Palette — Mode Sombre (défaut)</div>
+    <div class="palette-strip">
+      <div class="ps-seg" style="background:#080C18"></div>
+      <div class="ps-seg" style="background:#0F1322"></div>
+      <div class="ps-seg" style="background:#141829"></div>
+      <div class="ps-seg" style="background:#1A1F36"></div>
+      <div class="ps-seg" style="background:#1E2340"></div>
+      <div class="ps-seg" style="background:#6366F1"></div>
+      <div class="ps-seg" style="background:#8B5CF6"></div>
+      <div class="ps-seg" style="background:#10B981"></div>
+      <div class="ps-seg" style="background:#F59E0B"></div>
+      <div class="ps-seg" style="background:#EF4444"></div>
+      <div class="ps-seg" style="background:#06B6D4"></div>
+    </div>
+    <div class="grid-5">
+      <div class="color-token">
+        <div class="color-swatch" style="background:#080C18;border-bottom:1px solid rgba(255,255,255,.1)"></div>
+        <div class="color-meta">
+          <div class="color-name">Bg Primary</div>
+          <div class="color-role">Fond principal</div>
+          <div class="color-hex">#080C18</div>
+          <div class="color-usage">Arrière-plan de tous les écrans</div>
+        </div>
+      </div>
+      <div class="color-token">
+        <div class="color-swatch" style="background:#0F1322;border-bottom:1px solid rgba(255,255,255,.1)"></div>
+        <div class="color-meta">
+          <div class="color-name">Bg Secondary</div>
+          <div class="color-role">Fond secondaire</div>
+          <div class="color-hex">#0F1322</div>
+          <div class="color-usage">Tab bar, sidebar, header</div>
+        </div>
+      </div>
+      <div class="color-token">
+        <div class="color-swatch" style="background:#141829;border-bottom:1px solid rgba(255,255,255,.1)"></div>
+        <div class="color-meta">
+          <div class="color-name">Bg Card</div>
+          <div class="color-role">Surface carte</div>
+          <div class="color-hex">#141829</div>
+          <div class="color-usage">Toutes les cartes de contenu</div>
+        </div>
+      </div>
+      <div class="color-token">
+        <div class="color-swatch" style="background:#1A1F36;border-bottom:1px solid rgba(255,255,255,.1)"></div>
+        <div class="color-meta">
+          <div class="color-name">Bg Elevated</div>
+          <div class="color-role">Surface élevée</div>
+          <div class="color-hex">#1A1F36</div>
+          <div class="color-usage">Inputs, chips, états hover</div>
+        </div>
+      </div>
+      <div class="color-token">
+        <div class="color-swatch" style="background:#1E2340;border-bottom:1px solid rgba(255,255,255,.1)"></div>
+        <div class="color-meta">
+          <div class="color-name">Bg Overlay</div>
+          <div class="color-role">Superposition</div>
+          <div class="color-hex">#1E2340</div>
+          <div class="color-usage">Modals, bottom sheets</div>
+        </div>
+      </div>
+      <div class="color-token">
+        <div class="color-swatch" style="background:linear-gradient(135deg,#6366F1,#4F46E5)"></div>
+        <div class="color-meta">
+          <div class="color-name">Primary</div>
+          <div class="color-role">Accent principal</div>
+          <div class="color-hex">#6366F1</div>
+          <div class="color-usage">CTA, liens actifs, focus</div>
+        </div>
+      </div>
+      <div class="color-token">
+        <div class="color-swatch" style="background:linear-gradient(135deg,#8B5CF6,#7C3AED)"></div>
+        <div class="color-meta">
+          <div class="color-name">Secondary</div>
+          <div class="color-role">Accent secondaire</div>
+          <div class="color-hex">#8B5CF6</div>
+          <div class="color-usage">Gradients, highlights</div>
+        </div>
+      </div>
+      <div class="color-token">
+        <div class="color-swatch" style="background:#10B981"></div>
+        <div class="color-meta">
+          <div class="color-name">Success</div>
+          <div class="color-role">Positif / Gain</div>
+          <div class="color-hex">#10B981</div>
+          <div class="color-usage">Revenus, progression, OK</div>
+        </div>
+      </div>
+      <div class="color-token">
+        <div class="color-swatch" style="background:#F59E0B"></div>
+        <div class="color-meta">
+          <div class="color-name">Warning</div>
+          <div class="color-role">Attention</div>
+          <div class="color-hex">#F59E0B</div>
+          <div class="color-usage">Alertes, objectifs, seuils</div>
+        </div>
+      </div>
+      <div class="color-token">
+        <div class="color-swatch" style="background:#EF4444"></div>
+        <div class="color-meta">
+          <div class="color-name">Danger</div>
+          <div class="color-role">Négatif / Erreur</div>
+          <div class="color-hex">#EF4444</div>
+          <div class="color-usage">Dépenses, erreurs, suppression</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Light Palette -->
+  <div class="sub">
+    <div class="sub-title">Palette — Mode Clair</div>
+    <div class="palette-strip" style="border-radius:12px;border:1px solid var(--bd)">
+      <div class="ps-seg" style="background:#F5F7FF"></div>
+      <div class="ps-seg" style="background:#ECEEFF"></div>
+      <div class="ps-seg" style="background:#FFFFFF"></div>
+      <div class="ps-seg" style="background:#F0F2FF"></div>
+      <div class="ps-seg" style="background:#E8EBFF"></div>
+      <div class="ps-seg" style="background:#6366F1"></div>
+      <div class="ps-seg" style="background:#8B5CF6"></div>
+      <div class="ps-seg" style="background:#059669"></div>
+      <div class="ps-seg" style="background:#D97706"></div>
+      <div class="ps-seg" style="background:#DC2626"></div>
+      <div class="ps-seg" style="background:#0891B2"></div>
+    </div>
+    <div style="margin-top:12px;padding:14px 16px;background:var(--bg2);border:1px solid var(--bd);border-radius:10px;font-size:13px;color:var(--t2);line-height:1.6">
+      En mode clair, les accents <strong style="color:var(--t1)">#6366F1</strong> et <strong style="color:var(--t1)">#8B5CF6</strong> restent identiques. Les sémantiques passent à <strong style="color:var(--ok)">#059669</strong> (success), <strong style="color:var(--wa)">#D97706</strong> (warning) et <strong style="color:var(--er)">#DC2626</strong> (danger) pour maintenir le contraste WCAG AA sur fond clair.
+    </div>
+  </div>
+
+  <!-- Semantic Colors -->
+  <div class="sub">
+    <div class="sub-title">Couleurs sémantiques</div>
+    <div class="semantic-row">
+      <div class="sem-dot" style="background:#10B981"></div>
+      <div class="sem-name">Success</div>
+      <div class="sem-hex">#10B981</div>
+      <div class="sem-use">Revenus, contributions, objectifs atteints, validation</div>
+      <div class="sem-sample" style="background:var(--ok-bg);color:var(--ok)">+1 500 MAD</div>
+    </div>
+    <div class="semantic-row">
+      <div class="sem-dot" style="background:#F59E0B"></div>
+      <div class="sem-name">Warning</div>
+      <div class="sem-hex">#F59E0B</div>
+      <div class="sem-use">Alertes, seuils proches, taux d'endettement modéré</div>
+      <div class="sem-sample" style="background:var(--wa-bg);color:var(--wa)">⚠ 33%</div>
+    </div>
+    <div class="semantic-row">
+      <div class="sem-dot" style="background:#EF4444"></div>
+      <div class="sem-name">Danger</div>
+      <div class="sem-hex">#EF4444</div>
+      <div class="sem-use">Dépenses, dépassements, suppressions, erreurs</div>
+      <div class="sem-sample" style="background:var(--er-bg);color:var(--er)">-850 MAD</div>
+    </div>
+    <div class="semantic-row">
+      <div class="sem-dot" style="background:#06B6D4"></div>
+      <div class="sem-name">Info</div>
+      <div class="sem-hex">#06B6D4</div>
+      <div class="sem-use">Informations neutres, conseils, notifications système</div>
+      <div class="sem-sample" style="background:var(--cy-bg);color:var(--cy)">ℹ Conseil</div>
+    </div>
+  </div>
+
+  <!-- Category Colors -->
+  <div class="sub">
+    <div class="sub-title">Couleurs de catégories (transactions)</div>
+    <div class="cat-grid">
+      <div class="cat-chip" style="background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.2)">
+        <div class="cat-icon">🏠</div>
+        <div><div class="cat-label">Logement</div><div class="cat-hex">#6366F1</div></div>
+      </div>
+      <div class="cat-chip" style="background:rgba(16,185,129,.15);border:1px solid rgba(16,185,129,.2)">
+        <div class="cat-icon">🛒</div>
+        <div><div class="cat-label">Alimentation</div><div class="cat-hex">#10B981</div></div>
+      </div>
+      <div class="cat-chip" style="background:rgba(245,158,11,.15);border:1px solid rgba(245,158,11,.2)">
+        <div class="cat-icon">🚗</div>
+        <div><div class="cat-label">Transport</div><div class="cat-hex">#F59E0B</div></div>
+      </div>
+      <div class="cat-chip" style="background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.2)">
+        <div class="cat-icon">❤️</div>
+        <div><div class="cat-label">Santé</div><div class="cat-hex">#EF4444</div></div>
+      </div>
+      <div class="cat-chip" style="background:rgba(139,92,246,.15);border:1px solid rgba(139,92,246,.2)">
+        <div class="cat-icon">🎮</div>
+        <div><div class="cat-label">Loisirs</div><div class="cat-hex">#8B5CF6</div></div>
+      </div>
+      <div class="cat-chip" style="background:rgba(6,182,212,.15);border:1px solid rgba(6,182,212,.2)">
+        <div class="cat-icon">💰</div>
+        <div><div class="cat-label">Épargne</div><div class="cat-hex">#06B6D4</div></div>
+      </div>
+      <div class="cat-chip" style="background:rgba(236,72,153,.15);border:1px solid rgba(236,72,153,.2)">
+        <div class="cat-icon">⚡</div>
+        <div><div class="cat-label">Factures</div><div class="cat-hex">#EC4899</div></div>
+      </div>
+      <div class="cat-chip" style="background:rgba(249,115,22,.15);border:1px solid rgba(249,115,22,.2)">
+        <div class="cat-icon">👔</div>
+        <div><div class="cat-label">Vêtements</div><div class="cat-hex">#F97316</div></div>
+      </div>
+      <div class="cat-chip" style="background:rgba(20,184,166,.15);border:1px solid rgba(20,184,166,.2)">
+        <div class="cat-icon">📚</div>
+        <div><div class="cat-label">Éducation</div><div class="cat-hex">#14B8A6</div></div>
+      </div>
+      <div class="cat-chip" style="background:rgba(132,204,22,.15);border:1px solid rgba(132,204,22,.2)">
+        <div class="cat-icon">🍽️</div>
+        <div><div class="cat-label">Restaurant</div><div class="cat-hex">#84CC16</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Accessibility -->
+  <div class="sub">
+    <div class="sub-title">Accessibilité — Ratios de contraste WCAG 2.1</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="contrast-table" style="width:100%">
+        <thead>
+          <tr>
+            <th>Combinaison</th>
+            <th>Ratio</th>
+            <th>AA Texte</th>
+            <th>AA Grand</th>
+            <th>AAA</th>
+            <th>Usage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:16px;height:16px;background:#F1F4FF;border-radius:3px;border:1px solid rgba(255,255,255,.1)"></span>
+              <span style="font-size:12px;color:var(--t2)">#F1F4FF sur #080C18</span>
+            </td>
+            <td style="font-family:var(--fm);font-weight:700;color:var(--t1)">17.8:1</td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td style="font-size:12px;color:var(--t2)">Texte principal</td>
+          </tr>
+          <tr>
+            <td style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:16px;height:16px;background:#8892B0;border-radius:3px"></span>
+              <span style="font-size:12px;color:var(--t2)">#8892B0 sur #080C18</span>
+            </td>
+            <td style="font-family:var(--fm);font-weight:700;color:var(--t1)">5.2:1</td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-warn">WARN</span></td>
+            <td style="font-size:12px;color:var(--t2)">Texte secondaire</td>
+          </tr>
+          <tr>
+            <td style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:16px;height:16px;background:#A5B4FC;border-radius:3px"></span>
+              <span style="font-size:12px;color:var(--t2)">#A5B4FC sur #141829</span>
+            </td>
+            <td style="font-family:var(--fm);font-weight:700;color:var(--t1)">7.1:1</td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td style="font-size:12px;color:var(--t2)">Accent sur card</td>
+          </tr>
+          <tr>
+            <td style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:16px;height:16px;background:#6EE7B7;border-radius:3px"></span>
+              <span style="font-size:12px;color:var(--t2)">#6EE7B7 sur #141829</span>
+            </td>
+            <td style="font-family:var(--fm);font-weight:700;color:var(--t1)">9.3:1</td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td style="font-size:12px;color:var(--t2)">Montants positifs</td>
+          </tr>
+          <tr>
+            <td style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:16px;height:16px;background:#FCA5A5;border-radius:3px"></span>
+              <span style="font-size:12px;color:var(--t2)">#FCA5A5 sur #141829</span>
+            </td>
+            <td style="font-family:var(--fm);font-weight:700;color:var(--t1)">8.1:1</td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td style="font-size:12px;color:var(--t2)">Montants négatifs</td>
+          </tr>
+          <tr>
+            <td style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:16px;height:16px;background:#6366F1;border-radius:3px"></span>
+              <span style="font-size:12px;color:var(--t2)">#fff sur #6366F1</span>
+            </td>
+            <td style="font-family:var(--fm);font-weight:700;color:var(--t1)">4.6:1</td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-pass">PASS</span></td>
+            <td><span class="cr-fail">FAIL</span></td>
+            <td style="font-size:12px;color:var(--t2)">Bouton primaire</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Token Map -->
+  <div class="sub">
+    <div class="sub-title">Tokens sémantiques — Mapping complet</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table class="token-table" style="width:100%">
+        <thead>
+          <tr><th>Token</th><th>Dark</th><th>Light</th><th>Usage</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="tok-name">--color-bg-primary</td><td><span class="tok-swatch" style="background:#080C18"></span> #080C18</td><td><span class="tok-swatch" style="background:#F5F7FF;border-color:rgba(0,0,0,.15)"></span> #F5F7FF</td><td style="font-size:12px;color:var(--t2)">Fond de l'app</td></tr>
+          <tr><td class="tok-name">--color-bg-card</td><td><span class="tok-swatch" style="background:#141829"></span> #141829</td><td><span class="tok-swatch" style="background:#FFFFFF;border-color:rgba(0,0,0,.15)"></span> #FFFFFF</td><td style="font-size:12px;color:var(--t2)">Surface carte</td></tr>
+          <tr><td class="tok-name">--color-text-primary</td><td><span class="tok-swatch" style="background:#F1F4FF"></span> #F1F4FF</td><td><span class="tok-swatch" style="background:#0C0F1E"></span> #0C0F1E</td><td style="font-size:12px;color:var(--t2)">Texte principal</td></tr>
+          <tr><td class="tok-name">--color-text-secondary</td><td><span class="tok-swatch" style="background:#8892B0"></span> #8892B0</td><td><span class="tok-swatch" style="background:#4A5578"></span> #4A5578</td><td style="font-size:12px;color:var(--t2)">Texte secondaire</td></tr>
+          <tr><td class="tok-name">--color-accent</td><td><span class="tok-swatch" style="background:#6366F1"></span> #6366F1</td><td><span class="tok-swatch" style="background:#6366F1"></span> #6366F1</td><td style="font-size:12px;color:var(--t2)">Invariant</td></tr>
+          <tr><td class="tok-name">--color-border</td><td><span class="tok-swatch" style="background:rgba(255,255,255,.07)"></span> rgba(fff,.07)</td><td><span class="tok-swatch" style="background:rgba(0,0,0,.08);border-color:rgba(0,0,0,.2)"></span> rgba(0,0,.08)</td><td style="font-size:12px;color:var(--t2)">Contours</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     03 — TYPOGRAPHY
+     ══════════════════════════════════════ -->
+<section class="section" id="type">
+  <div class="sec-eyebrow">03 — Typography</div>
+  <h1 class="sec-title">Typographie</h1>
+  <p class="sec-desc">Un système typographique trilingue — français, arabe, anglais — avec support RTL natif. Les polices système garantissent un rendu optimal sur chaque plateforme sans téléchargement.</p>
+  <div class="sec-divider"></div>
+
+  <!-- Font Families -->
+  <div class="sub">
+    <div class="sub-title">Familles typographiques</div>
+    <div class="grid-2">
+      <div class="font-family-card">
+        <div class="ff-role">Display / Titres</div>
+        <div class="ff-name">SF Pro Display · Segoe UI Variable</div>
+        <div class="ff-stack">-apple-system, 'SF Pro Display', 'Segoe UI Variable Display', system-ui</div>
+        <div class="ff-specimen" style="font-family:var(--fd)">Votre argent,<br>maîtrisé.</div>
+        <div class="ff-chars" style="font-family:var(--fd)">ABCDEFGHIJKLMNOPQRSTUVWXYZ<br>0123456789 €$£¥+−×÷</div>
+      </div>
+      <div class="font-family-card">
+        <div class="ff-role">Corps / Interface</div>
+        <div class="ff-name">SF Pro Text · Segoe UI</div>
+        <div class="ff-stack">-apple-system, 'SF Pro Text', 'Segoe UI', system-ui</div>
+        <div class="ff-specimen" style="font-family:var(--fb);font-weight:400;font-size:20px;letter-spacing:0">Votre fonds d'urgence devrait représenter 3 à 6 mois de dépenses mensuelles.</div>
+        <div class="ff-chars" style="font-family:var(--fb)">Regular · Medium · Semibold · Bold<br>abcdefghijklmnopqrstuvwxyz</div>
+      </div>
+      <div class="font-family-card">
+        <div class="ff-role">Arabe / RTL</div>
+        <div class="ff-name">SF Arabic · Noto Sans Arabic</div>
+        <div class="ff-stack">'SF Arabic', 'Noto Sans Arabic', 'Tajawal', system-ui</div>
+        <div class="ff-specimen" style="font-family:var(--fa);font-size:28px;direction:rtl;text-align:right;font-weight:700">إدارة أموالك بثقة</div>
+        <div class="ff-chars" style="font-family:var(--fa);direction:rtl;text-align:right;font-size:15px">أبجدهوزحطيكلمنسعفصقرشتثخذضظغ</div>
+      </div>
+      <div class="font-family-card">
+        <div class="ff-role">Monospace / Code / Montants clés</div>
+        <div class="ff-name">SF Mono · Cascadia Code</div>
+        <div class="ff-stack">'SF Mono', 'Cascadia Code', 'Fira Code', monospace</div>
+        <div class="ff-specimen" style="font-family:var(--fm);font-size:26px;font-weight:600;letter-spacing:-.5px;color:var(--ok)">12 450,00 MAD</div>
+        <div class="ff-chars" style="font-family:var(--fm);font-size:12px;color:var(--t3)">Tokens · Hex codes · IDs · Horodatages<br>0123456789 . , % + −</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Type Scale -->
+  <div class="sub">
+    <div class="sub-title">Échelle typographique (base 4px)</div>
+    <div class="card" style="padding:16px 20px">
+      <div style="display:grid;grid-template-columns:60px 50px 50px 80px 1fr;gap:0;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--bd)">
+        <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Token</div>
+        <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">px</div>
+        <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">rem</div>
+        <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Line-H</div>
+        <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Exemple</div>
+      </div>
+      <div class="type-scale-row">
+        <div class="ts-label">5xl</div><div class="ts-px">48</div><div class="ts-lh">3rem</div><div class="ts-px">1.1</div>
+        <div class="ts-sample" style="font-family:var(--fd);font-size:48px;font-weight:800;letter-spacing:-2px;line-height:1.1;color:var(--t1)">24 000</div>
+      </div>
+      <div class="type-scale-row">
+        <div class="ts-label">4xl</div><div class="ts-px">36</div><div class="ts-lh">2.25rem</div><div class="ts-px">1.15</div>
+        <div class="ts-sample" style="font-family:var(--fd);font-size:36px;font-weight:700;letter-spacing:-1.5px;line-height:1.15">Bonne journée</div>
+      </div>
+      <div class="type-scale-row">
+        <div class="ts-label">3xl</div><div class="ts-px">30</div><div class="ts-lh">1.875rem</div><div class="ts-px">1.2</div>
+        <div class="ts-sample" style="font-family:var(--fd);font-size:30px;font-weight:700;letter-spacing:-1px;line-height:1.2">Santé budgétaire</div>
+      </div>
+      <div class="type-scale-row">
+        <div class="ts-label">2xl</div><div class="ts-px">24</div><div class="ts-lh">1.5rem</div><div class="ts-px">1.25</div>
+        <div class="ts-sample" style="font-family:var(--fd);font-size:24px;font-weight:700;letter-spacing:-.5px;line-height:1.25">Mes crédits</div>
+      </div>
+      <div class="type-scale-row">
+        <div class="ts-label">xl</div><div class="ts-px">20</div><div class="ts-lh">1.25rem</div><div class="ts-px">1.3</div>
+        <div class="ts-sample" style="font-size:20px;font-weight:600;line-height:1.3">Répartition du salaire</div>
+      </div>
+      <div class="type-scale-row">
+        <div class="ts-label">lg</div><div class="ts-px">18</div><div class="ts-lh">1.125rem</div><div class="ts-px">1.4</div>
+        <div class="ts-sample" style="font-size:18px;font-weight:600;line-height:1.4">Crédit immobilier</div>
+      </div>
+      <div class="type-scale-row">
+        <div class="ts-label">base</div><div class="ts-px">16</div><div class="ts-lh">1rem</div><div class="ts-px">1.5</div>
+        <div class="ts-sample" style="font-size:16px;font-weight:400;line-height:1.5">Votre taux d'endettement est de 28%. Continuez ainsi.</div>
+      </div>
+      <div class="type-scale-row">
+        <div class="ts-label">sm</div><div class="ts-px">14</div><div class="ts-lh">0.875rem</div><div class="ts-px">1.5</div>
+        <div class="ts-sample" style="font-size:14px;color:var(--t2);line-height:1.5">Loyer · 15 jan. 2026 · Catégorie : Logement</div>
+      </div>
+      <div class="type-scale-row">
+        <div class="ts-label">xs</div><div class="ts-px">12</div><div class="ts-lh">0.75rem</div><div class="ts-px">1.4</div>
+        <div class="ts-sample" style="font-size:12px;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;font-weight:600">CATÉGORIE · TRANSPORT</div>
+      </div>
+      <div class="type-scale-row">
+        <div class="ts-label">2xs</div><div class="ts-px">10</div><div class="ts-lh">0.625rem</div><div class="ts-px">1.4</div>
+        <div class="ts-sample" style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.08em;font-weight:600">BADGE · STATUT</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Heading Hierarchy -->
+  <div class="sub">
+    <div class="sub-title">Hiérarchie des titres — Écrans mobiles</div>
+    <div class="card">
+      <div class="heading-hier">
+        <div class="h-row">
+          <div class="h-tag">H1</div>
+          <div style="font-family:var(--fd);font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1.2;flex:1">Tableau de bord</div>
+          <div class="h-use">30px · 800 · Titre d'écran</div>
+        </div>
+        <div class="h-row">
+          <div class="h-tag">H2</div>
+          <div style="font-family:var(--fd);font-size:24px;font-weight:700;letter-spacing:-.5px;line-height:1.25;flex:1">Mes crédits actifs</div>
+          <div class="h-use">24px · 700 · Section principale</div>
+        </div>
+        <div class="h-row">
+          <div class="h-tag">H3</div>
+          <div style="font-family:var(--fd);font-size:20px;font-weight:600;line-height:1.3;flex:1">Crédit immobilier BCP</div>
+          <div class="h-use">20px · 600 · Titre de carte</div>
+        </div>
+        <div class="h-row">
+          <div class="h-tag">H4</div>
+          <div style="font-size:17px;font-weight:600;line-height:1.4;flex:1">Répartition mensuelle</div>
+          <div class="h-use">17px · 600 · Sous-section</div>
+        </div>
+        <div class="h-row">
+          <div class="h-tag">H5</div>
+          <div style="font-size:15px;font-weight:600;line-height:1.5;flex:1">Détail de la transaction</div>
+          <div class="h-use">15px · 600 · Label groupe</div>
+        </div>
+        <div class="h-row">
+          <div class="h-tag">H6</div>
+          <div style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--t3);flex:1">CATÉGORIES</div>
+          <div class="h-use">12px · 600 · Eyebrow / overline</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Financial Numbers -->
+  <div class="sub">
+    <div class="sub-title">Chiffres financiers — Règles de formatage</div>
+    <div class="fin-numbers">
+      <div class="fin-row">
+        <div class="fin-label">Solde principal</div>
+        <div class="fin-val" style="font-family:var(--fd);font-size:48px;font-weight:800;letter-spacing:-2px;color:var(--t1)">24 850<span style="font-size:24px;color:var(--t3)">,00</span></div>
+        <div class="fin-meta">48px · 800 · Display · Invariant tabular-nums</div>
+      </div>
+      <div class="fin-row">
+        <div class="fin-label">Montant revenu</div>
+        <div class="fin-val fin-pos" style="font-size:24px;font-weight:700">+12 450,00 MAD</div>
+        <div class="fin-meta">24px · 700 · Vert success</div>
+      </div>
+      <div class="fin-row">
+        <div class="fin-label">Montant dépense</div>
+        <div class="fin-val fin-neg" style="font-size:24px;font-weight:700">−3 200,00 MAD</div>
+        <div class="fin-meta">24px · 700 · Rouge danger</div>
+      </div>
+      <div class="fin-row">
+        <div class="fin-label">Taux / pourcentage</div>
+        <div class="fin-val" style="font-size:20px;font-weight:700;color:var(--wa)">4,75<span style="font-size:14px;color:var(--t3)">% / an</span></div>
+        <div class="fin-meta">20px · 700 · Amber pour taux</div>
+      </div>
+      <div class="fin-row">
+        <div class="fin-label">Transaction liste</div>
+        <div class="fin-val fin-neg" style="font-size:15px;font-weight:600">−850 MAD</div>
+        <div class="fin-meta">15px · 600 · Inline</div>
+      </div>
+      <div class="fin-row">
+        <div class="fin-label">Progrès objectif</div>
+        <div class="fin-val fin-neutral" style="font-size:13px;font-weight:500">3 200 <span style="color:var(--t3)">/ 10 000 MAD</span></div>
+        <div class="fin-meta">13px · 500 · Secondaire</div>
+      </div>
+    </div>
+    <div style="background:var(--bg2);border:1px solid var(--bd-a);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--t2);margin-top:8px;line-height:1.6">
+      <strong style="color:var(--p-l)">Règle :</strong> Tous les montants financiers utilisent <code style="font-family:var(--fm);background:var(--bg3);padding:1px 6px;border-radius:4px;font-size:12px">font-variant-numeric: tabular-nums</code> pour aligner les colonnes. Le séparateur décimal est la virgule (FR/AR) ou le point (EN). Le séparateur de milliers est l'espace insécable.
+    </div>
+  </div>
+
+  <!-- RTL / Arabic -->
+  <div class="sub">
+    <div class="sub-title">Support RTL — Arabe</div>
+    <div class="rtl-demo">
+      <div class="rtl-label">Exemple — Écran tableau de bord (Arabe)</div>
+      <div class="rtl-h1">مرحباً يوسف</div>
+      <div class="rtl-body">إليك وضعك المالي لهذا الشهر. ميزانيتك في حالة جيدة — استمر على هذا النهج.</div>
+      <div style="display:flex;align-items:baseline;gap:8px;margin-top:8px">
+        <div class="rtl-amount">24 850,00</div>
+        <div style="font-size:18px;color:var(--t2);font-family:var(--fa)">درهم مغربي</div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="font-size:13px;font-weight:700;color:var(--t1);margin-bottom:12px">Règles RTL dans React Native</div>
+      <div style="display:grid;gap:8px">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg3);border-radius:8px">
+          <span style="color:var(--ok);font-size:14px">✓</span>
+          <code style="font-family:var(--fm);font-size:12px;color:var(--p-l)">I18nManager.forceRTL(true)</code>
+          <span style="font-size:12px;color:var(--t2)">pour basculer l'app entière en RTL</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg3);border-radius:8px">
+          <span style="color:var(--ok);font-size:14px">✓</span>
+          <code style="font-family:var(--fm);font-size:12px;color:var(--p-l)">writingDirection: 'rtl'</code>
+          <span style="font-size:12px;color:var(--t2)">sur les composants Text arabes</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg3);border-radius:8px">
+          <span style="color:var(--ok);font-size:14px">✓</span>
+          <span style="font-size:12px;color:var(--t2)">Icônes directionnelles miroir automatique via <code style="font-family:var(--fm);color:var(--p-l)">accessibilityRole</code></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--bg3);border-radius:8px">
+          <span style="color:var(--ok);font-size:14px">✓</span>
+          <span style="font-size:12px;color:var(--t2)">Chiffres toujours en sens LTR même dans un contexte RTL — les montants ne s'inversent pas</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--er-bg);border:1px solid rgba(239,68,68,.15);border-radius:8px">
+          <span style="color:var(--er);font-size:14px">✗</span>
+          <span style="font-size:12px;color:var(--t2)">Ne pas utiliser <code style="font-family:var(--fm);color:var(--er-l)">marginLeft/marginRight</code> absolus — utiliser <code style="font-family:var(--fm);color:var(--p-l)">marginStart/marginEnd</code></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     04 — SPACING & GRID
+     ══════════════════════════════════════ -->
+<section class="section" id="spacing">
+  <div class="sec-eyebrow">04 — Spacing &amp; Grid</div>
+  <h1 class="sec-title">Espacement &amp; Grille</h1>
+  <p class="sec-desc">Un système d'espacement basé sur une unité de 4px. Tous les marges, paddings et gaps sont des multiples de 4. La grille mobile est à 4 colonnes avec des marges de 20px.</p>
+  <div class="sec-divider"></div>
+
+  <div class="sub">
+    <div class="sub-title">Échelle d'espacement</div>
+    <div class="card">
+      <div style="display:grid;grid-template-columns:60px 40px 1fr 200px;gap:0;margin-bottom:10px;padding-bottom:10px;border-bottom:1px solid var(--bd)">
+        <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Token</div>
+        <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">px</div>
+        <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Visuel</div>
+        <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Usage</div>
+      </div>
+      <style>.sp-row{display:grid;grid-template-columns:60px 40px 1fr 200px;gap:0;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd)}.sp-row:last-child{border-bottom:none}.sp-tok{font-family:var(--fm);font-size:12px;color:var(--p-l)}.sp-px{font-family:var(--fm);font-size:12px;color:var(--t3)}.sp-bar{height:8px;background:linear-gradient(90deg,var(--p),var(--v));border-radius:4px;opacity:.7}.sp-use{font-size:12px;color:var(--t2)}</style>
+      <div class="sp-row"><div class="sp-tok">2xs</div><div class="sp-px">4</div><div><div class="sp-bar" style="width:4px"></div></div><div class="sp-use">Séparateur, gap interne icône</div></div>
+      <div class="sp-row"><div class="sp-tok">xs</div><div class="sp-px">8</div><div><div class="sp-bar" style="width:8px"></div></div><div class="sp-use">Gap entre éléments inline</div></div>
+      <div class="sp-row"><div class="sp-tok">sm</div><div class="sp-px">12</div><div><div class="sp-bar" style="width:12px"></div></div><div class="sp-use">Padding interne chip/badge</div></div>
+      <div class="sp-row"><div class="sp-tok">md</div><div class="sp-px">16</div><div><div class="sp-bar" style="width:16px"></div></div><div class="sp-use">Padding card, gap liste</div></div>
+      <div class="sp-row"><div class="sp-tok">lg</div><div class="sp-px">20</div><div><div class="sp-bar" style="width:20px"></div></div><div class="sp-use">Marge écran, padding section</div></div>
+      <div class="sp-row"><div class="sp-tok">xl</div><div class="sp-px">24</div><div><div class="sp-bar" style="width:24px"></div></div><div class="sp-use">Gap entre cards, padding sheet</div></div>
+      <div class="sp-row"><div class="sp-tok">2xl</div><div class="sp-px">32</div><div><div class="sp-bar" style="width:32px"></div></div><div class="sp-use">Section padding vertical</div></div>
+      <div class="sp-row"><div class="sp-tok">3xl</div><div class="sp-px">40</div><div><div class="sp-bar" style="width:40px"></div></div><div class="sp-use">Hero padding, onboarding</div></div>
+      <div class="sp-row"><div class="sp-tok">4xl</div><div class="sp-px">48</div><div><div class="sp-bar" style="width:48px"></div></div><div class="sp-use">Espacement entre sections</div></div>
+      <div class="sp-row"><div class="sp-tok">5xl</div><div class="sp-px">64</div><div><div class="sp-bar" style="width:64px"></div></div><div class="sp-use">Espacement héro/modal</div></div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Grille — Mobile (défaut 390px)</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+      <div style="flex:1;min-width:260px">
+        <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:16px;margin-bottom:12px">
+          <div style="font-size:12px;font-weight:600;color:var(--t3);margin-bottom:12px;text-transform:uppercase;letter-spacing:.06em">Mobile · 4 colonnes</div>
+          <div style="display:flex;gap:4px;margin-bottom:8px">
+            <div style="flex:1;height:60px;background:rgba(99,102,241,.1);border:1px dashed rgba(99,102,241,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--fm);color:var(--p)">C1</div>
+            <div style="flex:1;height:60px;background:rgba(99,102,241,.1);border:1px dashed rgba(99,102,241,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--fm);color:var(--p)">C2</div>
+            <div style="flex:1;height:60px;background:rgba(99,102,241,.1);border:1px dashed rgba(99,102,241,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--fm);color:var(--p)">C3</div>
+            <div style="flex:1;height:60px;background:rgba(99,102,241,.1);border:1px dashed rgba(99,102,241,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-family:var(--fm);color:var(--p)">C4</div>
+          </div>
+          <div style="font-size:11px;color:var(--t3)">Marge : 20px · Gutter : 12px · Colonnes : 4</div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:16px">
+          <div style="font-size:12px;font-weight:600;color:var(--t3);margin-bottom:12px;text-transform:uppercase;letter-spacing:.06em">Tablette · 8 colonnes</div>
+          <div style="display:flex;gap:4px;margin-bottom:8px">
+            <div style="flex:1;height:40px;background:rgba(139,92,246,.1);border:1px dashed rgba(139,92,246,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--fm);color:var(--v)">1</div>
+            <div style="flex:1;height:40px;background:rgba(139,92,246,.1);border:1px dashed rgba(139,92,246,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--fm);color:var(--v)">2</div>
+            <div style="flex:1;height:40px;background:rgba(139,92,246,.1);border:1px dashed rgba(139,92,246,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--fm);color:var(--v)">3</div>
+            <div style="flex:1;height:40px;background:rgba(139,92,246,.1);border:1px dashed rgba(139,92,246,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--fm);color:var(--v)">4</div>
+            <div style="flex:1;height:40px;background:rgba(139,92,246,.1);border:1px dashed rgba(139,92,246,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--fm);color:var(--v)">5</div>
+            <div style="flex:1;height:40px;background:rgba(139,92,246,.1);border:1px dashed rgba(139,92,246,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--fm);color:var(--v)">6</div>
+            <div style="flex:1;height:40px;background:rgba(139,92,246,.1);border:1px dashed rgba(139,92,246,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--fm);color:var(--v)">7</div>
+            <div style="flex:1;height:40px;background:rgba(139,92,246,.1);border:1px dashed rgba(139,92,246,.3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:var(--fm);color:var(--v)">8</div>
+          </div>
+          <div style="font-size:11px;color:var(--t3)">Marge : 32px · Gutter : 16px · Colonnes : 8</div>
+        </div>
+      </div>
+      <div style="flex:1;min-width:240px">
+        <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:16px">
+          <div style="font-size:12px;font-weight:600;color:var(--t3);margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em">Zones de sécurité iOS</div>
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--t2)">Status bar (notch)</span>
+            <code style="font-family:var(--fm);font-size:11px;color:var(--ok)">safeAreaInsets.top</code>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--t2)">Home indicator</span>
+            <code style="font-family:var(--fm);font-size:11px;color:var(--ok)">safeAreaInsets.bottom</code>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--t2)">Tab bar height iOS</span>
+            <code style="font-family:var(--fm);font-size:11px;color:var(--p-l)">88px</code>
+          </div>
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:12px;color:var(--t2)">Tab bar height Android</span>
+            <code style="font-family:var(--fm);font-size:11px;color:var(--p-l)">72px</code>
+          </div>
+          <div style="margin-top:14px;padding:12px;background:var(--ok-bg);border-radius:8px;border:1px solid rgba(16,185,129,.2)">
+            <div style="font-size:12px;color:var(--ok);font-weight:600;margin-bottom:4px">Taille minimum touch target</div>
+            <div style="font-size:12px;color:var(--t2)">44×44dp — conformité WCAG 2.5.5</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Border Radius</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div style="background:var(--bg2);border:1px solid var(--bd);padding:16px;border-radius:4px;text-align:center;min-width:100px"><div style="font-family:var(--fm);font-size:11px;color:var(--t3)">sm · 4px</div></div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);padding:16px;border-radius:8px;text-align:center;min-width:100px"><div style="font-family:var(--fm);font-size:11px;color:var(--t3)">md · 8px</div></div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);padding:16px;border-radius:12px;text-align:center;min-width:100px"><div style="font-family:var(--fm);font-size:11px;color:var(--t3)">lg · 12px</div></div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);padding:16px;border-radius:16px;text-align:center;min-width:100px"><div style="font-family:var(--fm);font-size:11px;color:var(--t3)">xl · 16px</div></div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);padding:16px;border-radius:20px;text-align:center;min-width:100px"><div style="font-family:var(--fm);font-size:11px;color:var(--t3)">2xl · 20px</div></div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);padding:16px;border-radius:9999px;text-align:center;min-width:100px"><div style="font-family:var(--fm);font-size:11px;color:var(--t3)">full · pill</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     05 — ICONOGRAPHY
+     ══════════════════════════════════════ -->
+<section class="section" id="icons">
+  <div class="sec-eyebrow">05 — Iconography</div>
+  <h1 class="sec-title">Iconographie</h1>
+  <p class="sec-desc">Icônes vectorielles à trait continu, strokeWidth 2px, caps arrondis. Style cohérent avec l'identité — ni trop géométrique ni illustratif.</p>
+  <div class="sec-divider"></div>
+
+  <div class="sub">
+    <div class="sub-title">Spécifications &amp; Tailles</div>
+    <div style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;margin-bottom:20px">
+      <div style="text-align:center">
+        <div style="width:16px;height:16px;background:var(--t2);mask:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Ccircle cx='12' cy='12' r='8'/%3E%3C/svg%3E\") center/contain no-repeat;margin:0 auto 8px"></div>
+        <div style="width:32px;height:32px;border-radius:8px;background:rgba(99,102,241,.12);border:1.5px solid rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:14px">💼</div>
+        <div style="font-family:var(--fm);font-size:10px;color:var(--t3)">16px</div>
+      </div>
+      <div style="text-align:center">
+        <div style="width:40px;height:40px;border-radius:10px;background:rgba(99,102,241,.12);border:1.5px solid rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:18px">💼</div>
+        <div style="font-family:var(--fm);font-size:10px;color:var(--t3)">20px</div>
+      </div>
+      <div style="text-align:center">
+        <div style="width:48px;height:48px;border-radius:12px;background:rgba(99,102,241,.12);border:1.5px solid rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:22px">💼</div>
+        <div style="font-family:var(--fm);font-size:10px;color:var(--t3)">24px ✦ défaut</div>
+      </div>
+      <div style="text-align:center">
+        <div style="width:56px;height:56px;border-radius:14px;background:rgba(99,102,241,.12);border:1.5px solid rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:26px">💼</div>
+        <div style="font-family:var(--fm);font-size:10px;color:var(--t3)">32px</div>
+      </div>
+      <div style="text-align:center">
+        <div style="width:64px;height:64px;border-radius:16px;background:rgba(99,102,241,.12);border:1.5px solid rgba(99,102,241,.3);display:flex;align-items:center;justify-content:center;margin:0 auto 6px;font-size:32px">💼</div>
+        <div style="font-family:var(--fm);font-size:10px;color:var(--t3)">40px</div>
+      </div>
+    </div>
+    <div class="card" style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+      <div style="padding:14px;border-right:1px solid var(--bd)">
+        <div style="font-size:12px;font-weight:700;color:var(--ok);margin-bottom:10px">✓ À faire</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="font-size:12px;color:var(--t2)">✓ Stroke 2px uniforme</div>
+          <div style="font-size:12px;color:var(--t2)">✓ Coins arrondis (linecap: round)</div>
+          <div style="font-size:12px;color:var(--t2)">✓ Grille 24×24 viewBox</div>
+          <div style="font-size:12px;color:var(--t2)">✓ Couleur via currentColor</div>
+          <div style="font-size:12px;color:var(--t2)">✓ Icônes directionnelles miroir en RTL</div>
+        </div>
+      </div>
+      <div style="padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--er);margin-bottom:10px">✗ À éviter</div>
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <div style="font-size:12px;color:var(--t2)">✗ Mélanger filled et outlined dans un même écran</div>
+          <div style="font-size:12px;color:var(--t2)">✗ Stroke variable (1px ici, 3px là)</div>
+          <div style="font-size:12px;color:var(--t2)">✗ Icônes inférieures à 16px (illisibles)</div>
+          <div style="font-size:12px;color:var(--t2)">✗ Couleurs hardcodées dans le SVG</div>
+          <div style="font-size:12px;color:var(--t2)">✗ Icônes culturellement ambiguës pour AR/FR</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Catégories d'icônes</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">
+      <style>.icon-cat{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:12px;text-align:center}.icon-cat-icons{font-size:18px;letter-spacing:4px;margin-bottom:6px}.icon-cat-name{font-size:11px;font-weight:600;color:var(--t2)}</style>
+      <div class="icon-cat"><div class="icon-cat-icons">🏠🏢🏪</div><div class="icon-cat-name">Navigation</div></div>
+      <div class="icon-cat"><div class="icon-cat-icons">💰💳💸</div><div class="icon-cat-name">Finance</div></div>
+      <div class="icon-cat"><div class="icon-cat-icons">➕✏️🗑️</div><div class="icon-cat-name">Actions</div></div>
+      <div class="icon-cat"><div class="icon-cat-icons">📊📈📉</div><div class="icon-cat-name">Graphiques</div></div>
+      <div class="icon-cat"><div class="icon-cat-icons">✅⚠️❌</div><div class="icon-cat-name">États</div></div>
+      <div class="icon-cat"><div class="icon-cat-icons">🎯🏆🔔</div><div class="icon-cat-name">Objectifs</div></div>
+      <div class="icon-cat"><div class="icon-cat-icons">⚙️🔒👤</div><div class="icon-cat-name">Paramètres</div></div>
+      <div class="icon-cat"><div class="icon-cat-icons">🛡️🚨🔐</div><div class="icon-cat-name">Sécurité</div></div>
+    </div>
+    <div style="margin-top:12px;padding:12px 16px;background:var(--bg2);border:1px solid var(--bd-a);border-radius:10px;font-size:13px;color:var(--t2)">
+      <strong style="color:var(--p-l)">Librairie recommandée :</strong> <code style="font-family:var(--fm);background:var(--bg3);padding:1px 6px;border-radius:4px">@expo/vector-icons</code> (Feather Icons) · Style outline · 24px default · currentColor
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     06 — BUTTON SYSTEM
+     ══════════════════════════════════════ -->
+<section class="section" id="buttons">
+  <div class="sec-eyebrow">06 — Button System</div>
+  <h1 class="sec-title">Système de boutons</h1>
+  <p class="sec-desc">Cinq variantes principales + FAB + bouton icône. Chaque variante possède 6 états. Les boutons primaires sont les seuls à utiliser la couleur d'accent pleine.</p>
+  <div class="sec-divider"></div>
+
+  <style>
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;align-items:center}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--fb);border:none;padding:0 20px;height:48px;transition:all .15s;white-space:nowrap}
+  .btn-sm{height:36px;padding:0 14px;font-size:13px;border-radius:9px}
+  .btn-lg{height:56px;padding:0 28px;font-size:17px;border-radius:14px}
+  .btn-full{width:100%}
+  .btn-primary{background:linear-gradient(135deg,#6366F1,#5558DD);color:#fff}
+  .btn-secondary{background:rgba(99,102,241,.12);color:var(--p-l);border:1px solid rgba(99,102,241,.25)}
+  .btn-outlined{background:transparent;color:var(--t1);border:1.5px solid var(--bd)}
+  .btn-ghost{background:transparent;color:var(--t2);border:none;padding:0 12px}
+  .btn-destructive{background:var(--er-bg);color:var(--er);border:1px solid rgba(239,68,68,.25)}
+  .btn-success{background:var(--ok-bg);color:var(--ok);border:1px solid rgba(16,185,129,.25)}
+  .btn-disabled{opacity:.38;cursor:not-allowed}
+  .btn-loading{opacity:.7}
+  .btn-icon{width:48px;height:48px;padding:0;border-radius:12px}
+  .btn-fab{width:56px;height:56px;padding:0;border-radius:18px;background:linear-gradient(135deg,#6366F1,#8B5CF6);color:#fff;box-shadow:0 4px 20px rgba(99,102,241,.4);font-size:22px}
+  .btn-fab-sm{width:44px;height:44px;border-radius:14px;font-size:18px}
+  .state-label{font-family:var(--fm);font-size:10px;color:var(--t3);text-align:center;margin-top:6px}
+  </style>
+
+  <div class="sub">
+    <div class="sub-title">Variantes principales</div>
+    <div class="card">
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Primary — Action principale</div>
+        <div class="btn-row">
+          <div style="text-align:center"><button class="btn btn-primary">Ajouter</button><div class="state-label">Default</div></div>
+          <div style="text-align:center"><button class="btn btn-primary" style="opacity:.85;transform:scale(.98)">Ajouter</button><div class="state-label">Pressed</div></div>
+          <div style="text-align:center"><button class="btn btn-primary btn-disabled" disabled>Ajouter</button><div class="state-label">Disabled</div></div>
+          <div style="text-align:center"><button class="btn btn-primary btn-loading">⟳ Chargement…</button><div class="state-label">Loading</div></div>
+          <div style="text-align:center"><button class="btn btn-success">✓ Ajouté</button><div class="state-label">Success</div></div>
+          <div style="text-align:center"><button class="btn btn-destructive" style="background:var(--er);color:#fff;border:none">✕ Erreur</button><div class="state-label">Error</div></div>
+        </div>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Secondary — Action secondaire</div>
+        <div class="btn-row">
+          <button class="btn btn-secondary">Voir détails</button>
+          <button class="btn btn-secondary btn-disabled" disabled>Voir détails</button>
+          <button class="btn btn-secondary" style="background:rgba(99,102,241,.2);border-color:rgba(99,102,241,.4)">Voir détails</button>
+        </div>
+      </div>
+      <div style="margin-bottom:20px">
+        <div style="font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px">Outlined · Ghost · Destructive</div>
+        <div class="btn-row">
+          <button class="btn btn-outlined">Annuler</button>
+          <button class="btn btn-ghost">Ignorer</button>
+          <button class="btn btn-destructive">🗑 Supprimer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Tailles</div>
+    <div class="card">
+      <div class="btn-row" style="align-items:center">
+        <div style="text-align:center"><button class="btn btn-primary btn-sm">Petit</button><div class="state-label">Small · 36px</div></div>
+        <div style="text-align:center"><button class="btn btn-primary">Moyen</button><div class="state-label">Medium · 48px ✦</div></div>
+        <div style="text-align:center"><button class="btn btn-primary btn-lg">Grand</button><div class="state-label">Large · 56px</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">FAB &amp; Boutons icône</div>
+    <div class="card">
+      <div class="btn-row" style="align-items:flex-start">
+        <div style="text-align:center"><button class="btn btn-fab">＋</button><div class="state-label">FAB 56px</div></div>
+        <div style="text-align:center"><button class="btn btn-fab btn-fab-sm">＋</button><div class="state-label">FAB mini 44px</div></div>
+        <div style="text-align:center"><button class="btn btn-icon btn-secondary">📊</button><div class="state-label">Icon · secondary</div></div>
+        <div style="text-align:center"><button class="btn btn-icon btn-outlined">⚙️</button><div class="state-label">Icon · outlined</div></div>
+        <div style="text-align:center"><button class="btn btn-icon btn-ghost">‹</button><div class="state-label">Icon · ghost</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Bouton pleine largeur — CTA sheet / modal</div>
+    <div class="card" style="max-width:400px">
+      <button class="btn btn-primary btn-lg btn-full">Confirmer la transaction</button>
+      <div style="height:10px"></div>
+      <button class="btn btn-outlined btn-full" style="height:48px;font-size:15px">Annuler</button>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     07 — INPUT COMPONENTS
+     ══════════════════════════════════════ -->
+<section class="section" id="inputs">
+  <div class="sec-eyebrow">07 — Input Components</div>
+  <h1 class="sec-title">Composants de saisie</h1>
+  <p class="sec-desc">Tous les champs de saisie partagent une hauteur de 52px, un radius de 12px et une bordure qui s'illumine en indigo au focus.</p>
+  <div class="sec-divider"></div>
+
+  <style>
+  .inp-wrap{margin-bottom:6px}
+  .inp-label{font-size:12px;font-weight:600;color:var(--t3);margin-bottom:6px;display:block;text-transform:uppercase;letter-spacing:.05em}
+  .inp{background:var(--bg3);border:1.5px solid var(--bd);border-radius:12px;padding:14px 16px;font-size:15px;color:var(--t1);font-family:var(--fb);width:100%;outline:none;display:block}
+  .inp::placeholder{color:var(--t3)}
+  .inp-focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(99,102,241,.15)}
+  .inp-error{border-color:var(--er);box-shadow:0 0 0 3px rgba(239,68,68,.12)}
+  .inp-success{border-color:var(--ok);box-shadow:0 0 0 3px rgba(16,185,129,.12)}
+  .inp-disabled{opacity:.45;cursor:not-allowed}
+  .inp-hint{font-size:11px;color:var(--t3);margin-top:5px}
+  .inp-err-msg{font-size:11px;color:var(--er);margin-top:5px}
+  .inp-ok-msg{font-size:11px;color:var(--ok);margin-top:5px}
+  .inp-amount{font-size:28px;font-weight:800;font-family:var(--fd);text-align:right;height:72px;border-radius:16px;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+  .inp-amount::placeholder{font-size:24px;font-weight:400;color:var(--t4)}
+  .inp-search{padding-left:44px;background:var(--bg3) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%234A5578' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E") 14px center/20px no-repeat}
+  .switch-wrap{display:flex;align-items:center;gap:12px}
+  .switch{width:50px;height:28px;border-radius:14px;border:none;cursor:pointer;position:relative;flex-shrink:0;transition:background .2s}
+  .switch-on{background:var(--p)}
+  .switch-off{background:var(--bg3);border:1.5px solid var(--bd)}
+  .switch-thumb{position:absolute;top:3px;width:22px;height:22px;border-radius:11px;background:#fff;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+  .switch-on .switch-thumb{left:25px}
+  .switch-off .switch-thumb{left:3px}
+  .check-row{display:flex;align-items:center;gap:10px;padding:8px 0;cursor:pointer}
+  .check-box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--bd);background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff}
+  .check-box-on{background:var(--p);border-color:var(--p)}
+  .radio-circle{width:20px;height:20px;border-radius:10px;border:1.5px solid var(--bd);background:var(--bg3);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .radio-circle-on{border-color:var(--p)}
+  .radio-dot{width:8px;height:8px;border-radius:4px;background:var(--p)}
+  </style>
+
+  <div class="sub">
+    <div class="sub-title">Champ texte — États</div>
+    <div class="grid-2">
+      <div>
+        <div class="inp-wrap"><label class="inp-label">Défaut</label><input class="inp" placeholder="Ex : Loyer mensuel"></div>
+        <div class="inp-wrap" style="margin-top:14px"><label class="inp-label">Focus</label><input class="inp inp-focus" value="Loyer mensuel BCP"></div>
+        <div class="inp-wrap" style="margin-top:14px"><label class="inp-label">Rempli</label><input class="inp" value="Youssef Aridal"></div>
+      </div>
+      <div>
+        <div class="inp-wrap"><label class="inp-label">Erreur</label><input class="inp inp-error" value="abc123"><div class="inp-err-msg">Saisissez un montant valide (ex: 5000)</div></div>
+        <div class="inp-wrap" style="margin-top:14px"><label class="inp-label">Valide</label><input class="inp inp-success" value="youssef@gmail.com"><div class="inp-ok-msg">Email vérifié</div></div>
+        <div class="inp-wrap" style="margin-top:14px"><label class="inp-label">Désactivé</label><input class="inp inp-disabled" disabled value="Lecture seule"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Saisie de montant</div>
+    <div class="card" style="max-width:400px">
+      <label class="inp-label">Montant</label>
+      <div style="position:relative">
+        <input class="inp inp-amount inp-focus" placeholder="0,00" value="12 450">
+        <div style="position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:14px;font-weight:600;color:var(--t3)">MAD</div>
+      </div>
+      <div class="inp-hint">Séparateur décimal : virgule · Séparateur milliers : espace</div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Champ recherche &amp; Select</div>
+    <div class="grid-2">
+      <div>
+        <label class="inp-label">Recherche</label>
+        <input class="inp inp-search" placeholder="Rechercher une transaction…">
+      </div>
+      <div>
+        <label class="inp-label">Catégorie</label>
+        <div style="position:relative">
+          <select class="inp" style="appearance:none;cursor:pointer;padding-right:40px">
+            <option>🏠 Logement</option>
+            <option>🛒 Alimentation</option>
+            <option>🚗 Transport</option>
+          </select>
+          <div style="position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--t3);pointer-events:none">▾</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Contrôles — Switch, Checkbox, Radio</div>
+    <div class="grid-2">
+      <div class="card">
+        <div style="font-size:12px;font-weight:600;color:var(--t3);margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em">Switches</div>
+        <div class="switch-wrap" style="margin-bottom:12px">
+          <button class="switch switch-on"><div class="switch-thumb"></div></button>
+          <span style="font-size:14px;color:var(--t1)">Notifications activées</span>
+        </div>
+        <div class="switch-wrap" style="margin-bottom:12px">
+          <button class="switch switch-off"><div class="switch-thumb"></div></button>
+          <span style="font-size:14px;color:var(--t2)">Verrouillage biométrique</span>
+        </div>
+        <div class="switch-wrap" style="opacity:.4">
+          <button class="switch switch-off" disabled><div class="switch-thumb"></div></button>
+          <span style="font-size:14px;color:var(--t3)">Sync cloud (bientôt)</span>
+        </div>
+      </div>
+      <div class="card">
+        <div style="font-size:12px;font-weight:600;color:var(--t3);margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em">Checkboxes &amp; Radios</div>
+        <div class="check-row"><div class="check-box check-box-on">✓</div><span style="font-size:14px;color:var(--t1)">Inclure les charges fixes</span></div>
+        <div class="check-row"><div class="check-box"></div><span style="font-size:14px;color:var(--t2)">Inclure les crédits</span></div>
+        <div style="height:12px"></div>
+        <div class="check-row"><div class="radio-circle radio-circle-on"><div class="radio-dot"></div></div><span style="font-size:14px;color:var(--t1)">6 mois de dépenses</span></div>
+        <div class="check-row"><div class="radio-circle"></div><span style="font-size:14px;color:var(--t2)">3 mois de dépenses</span></div>
+        <div class="check-row"><div class="radio-circle"></div><span style="font-size:14px;color:var(--t2)">Montant personnalisé</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     08 — CARD SYSTEM
+     ══════════════════════════════════════ -->
+<section class="section" id="cards">
+  <div class="sec-eyebrow">08 — Card System</div>
+  <h1 class="sec-title">Système de cartes</h1>
+  <p class="sec-desc">Chaque pilier de l'application a sa propre carte avec une hiérarchie visuelle cohérente. Toutes les cartes suivent le même schéma : fond bg-card, border 1px bd, radius 16px, padding 20px.</p>
+  <div class="sec-divider"></div>
+
+  <div class="sub">
+    <div class="sub-title">Carte hero — Solde &amp; Santé budget</div>
+    <div style="background:linear-gradient(135deg,#6366F1,#8B5CF6);border-radius:20px;padding:24px;max-width:380px;margin-bottom:16px">
+      <div style="font-size:12px;color:rgba(255,255,255,.7);font-weight:500;margin-bottom:4px">Revenu mensuel</div>
+      <div style="font-family:var(--fd);font-size:40px;font-weight:800;color:#fff;letter-spacing:-2px;margin-bottom:16px;font-variant-numeric:tabular-nums">24 850<span style="font-size:20px;font-weight:400;opacity:.7">,00 MAD</span></div>
+      <div style="display:flex;gap:0;border-top:1px solid rgba(255,255,255,.2);padding-top:14px">
+        <div style="flex:1;text-align:center"><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Dépensé</div><div style="font-size:14px;font-weight:700;color:#fff">−8 200</div></div>
+        <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+        <div style="flex:1;text-align:center"><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Crédits</div><div style="font-size:14px;font-weight:700;color:#fff">−3 500</div></div>
+        <div style="width:1px;background:rgba(255,255,255,.2)"></div>
+        <div style="flex:1;text-align:center"><div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:3px">Disponible</div><div style="font-size:14px;font-weight:700;color:#6EE7B7">+13 150</div></div>
+      </div>
+      <div style="margin-top:14px;height:6px;background:rgba(255,255,255,.2);border-radius:3px"><div style="width:48%;height:100%;background:rgba(255,255,255,.85);border-radius:3px"></div></div>
+      <div style="font-size:10px;color:rgba(255,255,255,.6);text-align:right;margin-top:4px">48% utilisé</div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Cartes de piliers</div>
+    <div class="grid-2">
+      <!-- Credit Card -->
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+          <div>
+            <div style="font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">Crédit immobilier</div>
+            <div style="font-size:18px;font-weight:700;color:var(--t1)">BCP — Prêt logement</div>
+          </div>
+          <div style="background:var(--er-bg);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--er)">4,75%</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+          <div><div style="font-size:11px;color:var(--t3);margin-bottom:2px">Restant</div><div style="font-size:20px;font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums">182 500 MAD</div></div>
+          <div style="text-align:right"><div style="font-size:11px;color:var(--t3);margin-bottom:2px">Mensualité</div><div style="font-size:17px;font-weight:600;color:var(--er)">−3 200 MAD</div></div>
+        </div>
+        <div style="height:6px;background:var(--bg3);border-radius:3px;margin-bottom:6px"><div style="width:65%;height:100%;background:linear-gradient(90deg,var(--er),#F97316);border-radius:3px"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--t3)">
+          <span>65% remboursé</span>
+          <span>Fin: jan. 2031</span>
+        </div>
+      </div>
+
+      <!-- Emergency Fund Card -->
+      <div style="background:var(--bg2);border:1px solid rgba(245,158,11,.2);border-radius:16px;padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+          <div>
+            <div style="font-size:11px;color:var(--wa);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">🛡️ Fonds d'urgence</div>
+            <div style="font-size:18px;font-weight:700;color:var(--t1)">Objectif 6 mois</div>
+          </div>
+          <div style="background:var(--wa-bg);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--wa)">73%</div>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:12px">
+          <div><div style="font-size:11px;color:var(--t3);margin-bottom:2px">Accumulé</div><div style="font-size:20px;font-weight:700;color:var(--t1);font-variant-numeric:tabular-nums">18 250 MAD</div></div>
+          <div style="text-align:right"><div style="font-size:11px;color:var(--t3);margin-bottom:2px">Objectif</div><div style="font-size:17px;font-weight:600;color:var(--t2)">25 000 MAD</div></div>
+        </div>
+        <div style="height:8px;background:var(--bg3);border-radius:4px;margin-bottom:6px"><div style="width:73%;height:100%;background:linear-gradient(90deg,var(--wa),#FCD34D);border-radius:4px"></div></div>
+        <div style="font-size:11px;color:var(--t3)">+500 MAD/mois · Atteinte dans ~13 mois</div>
+      </div>
+
+      <!-- Goal Card -->
+      <div style="background:var(--bg2);border:1px solid rgba(139,92,246,.2);border-radius:16px;padding:20px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+          <div>
+            <div style="font-size:11px;color:var(--v-l);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">🎯 Objectif</div>
+            <div style="font-size:18px;font-weight:700;color:var(--t1)">Voyage Japon</div>
+          </div>
+          <div style="background:rgba(139,92,246,.12);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--v-l)">HAUTE</div>
+        </div>
+        <div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="font-size:13px;color:var(--t2)">3 200 MAD</span><span style="font-size:13px;color:var(--t2)">10 000 MAD</span></div><div style="height:8px;background:var(--bg3);border-radius:4px"><div style="width:32%;height:100%;background:linear-gradient(90deg,var(--v),var(--p));border-radius:4px"></div></div></div>
+        <div style="font-size:11px;color:var(--t3)">Échéance : juin 2027 · 32% atteint</div>
+      </div>
+
+      <!-- Transaction Card -->
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:20px">
+        <div style="font-size:13px;font-weight:600;color:var(--t3);margin-bottom:14px;text-transform:uppercase;letter-spacing:.06em">Transactions récentes</div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd)">
+            <div style="width:38px;height:38px;background:rgba(99,102,241,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🏠</div>
+            <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--t1)">Loyer</div><div style="font-size:11px;color:var(--t3)">15 jan. · Logement</div></div>
+            <div style="font-size:14px;font-weight:700;color:var(--er)">−6 500</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--bd)">
+            <div style="width:38px;height:38px;background:rgba(16,185,129,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">💰</div>
+            <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--t1)">Salaire</div><div style="font-size:11px;color:var(--t3)">1 jan. · Revenu</div></div>
+            <div style="font-size:14px;font-weight:700;color:var(--ok)">+24 850</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 0">
+            <div style="width:38px;height:38px;background:rgba(245,158,11,.12);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">🛒</div>
+            <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--t1)">Supermarché Marjane</div><div style="font-size:11px;color:var(--t3)">12 jan. · Alimentation</div></div>
+            <div style="font-size:14px;font-weight:700;color:var(--er)">−850</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">États des cartes</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:16px;min-width:160px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px;opacity:.4">📋</div>
+        <div style="font-size:13px;font-weight:600;color:var(--t2)">État vide</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:4px">Aucun crédit ajouté</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:14px;padding:16px;min-width:160px;text-align:center;opacity:.5">
+        <div style="width:90%;height:14px;background:var(--bg3);border-radius:4px;margin:0 auto 8px"></div>
+        <div style="width:60%;height:10px;background:var(--bg3);border-radius:4px;margin:0 auto 12px"></div>
+        <div style="width:80%;height:8px;background:var(--bg3);border-radius:4px;margin:0 auto"></div>
+        <div style="font-size:11px;color:var(--t3);margin-top:12px">Skeleton / Chargement</div>
+      </div>
+      <div style="background:var(--ok-bg);border:1px solid rgba(16,185,129,.25);border-radius:14px;padding:16px;min-width:160px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">✅</div>
+        <div style="font-size:13px;font-weight:600;color:var(--ok)">Objectif atteint</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:4px">Félicitations !</div>
+      </div>
+      <div style="background:var(--er-bg);border:1px solid rgba(239,68,68,.25);border-radius:14px;padding:16px;min-width:160px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">⚠️</div>
+        <div style="font-size:13px;font-weight:600;color:var(--er)">Budget dépassé</div>
+        <div style="font-size:11px;color:var(--t3);margin-top:4px">Transport +320 MAD</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     09 — DATA VISUALIZATION
+     ══════════════════════════════════════ -->
+<section class="section" id="dataviz">
+  <div class="sec-eyebrow">09 — Data Visualization</div>
+  <h1 class="sec-title">Visualisation de données</h1>
+  <p class="sec-desc">Graphiques conçus pour la lisibilité à 4 pouces. Pas d'axes inutiles, pas de décorations superflues. La donnée parle d'elle-même.</p>
+  <div class="sec-divider"></div>
+
+  <div class="sub">
+    <div class="sub-title">Graphiques disponibles</div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap">
+
+      <!-- Donut Chart -->
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:20px;flex:1;min-width:220px">
+        <div style="font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px">Donut — Répartition budget</div>
+        <div style="display:flex;align-items:center;gap:16px;justify-content:center">
+          <svg width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0">
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#1A1F36" stroke-width="20"/>
+            <!-- Segments approximatifs -->
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#6366F1" stroke-width="20" stroke-dasharray="84.78 197.92" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#10B981" stroke-width="20" stroke-dasharray="56.52 226.18" stroke-dashoffset="-84.78" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#F59E0B" stroke-width="20" stroke-dasharray="39.56 243.14" stroke-dashoffset="-141.3" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="45" fill="none" stroke="#8B5CF6" stroke-width="20" stroke-dasharray="56.52 226.18" stroke-dashoffset="-180.86" transform="rotate(-90 60 60)"/>
+            <text x="60" y="56" text-anchor="middle" fill="#F1F4FF" font-size="14" font-weight="800" font-family="-apple-system,system-ui,sans-serif">48%</text>
+            <text x="60" y="70" text-anchor="middle" fill="#8892B0" font-size="9" font-family="-apple-system,system-ui,sans-serif">utilisé</text>
+          </svg>
+          <div style="display:flex;flex-direction:column;gap:7px">
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:2px;background:#6366F1;flex-shrink:0"></div><span style="font-size:11px;color:var(--t2)">Logement 30%</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:2px;background:#10B981;flex-shrink:0"></div><span style="font-size:11px;color:var(--t2)">Alimentation 20%</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:2px;background:#F59E0B;flex-shrink:0"></div><span style="font-size:11px;color:var(--t2)">Transport 14%</span></div>
+            <div style="display:flex;align-items:center;gap:6px"><div style="width:8px;height:8px;border-radius:2px;background:#8B5CF6;flex-shrink:0"></div><span style="font-size:11px;color:var(--t2)">Épargne 20%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bar Chart -->
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:20px;flex:1;min-width:260px">
+        <div style="font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px">Barres — Dépenses mensuelles</div>
+        <svg width="100%" height="120" viewBox="0 0 280 120" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="bar-ok" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#10B981"/><stop offset="100%" stop-color="#059669" stop-opacity=".6"/></linearGradient>
+            <linearGradient id="bar-p" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366F1"/><stop offset="100%" stop-color="#4F46E5" stop-opacity=".6"/></linearGradient>
+            <linearGradient id="bar-w" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F59E0B"/><stop offset="100%" stop-color="#D97706" stop-opacity=".6"/></linearGradient>
+          </defs>
+          <!-- Grid lines -->
+          <line x1="0" y1="20" x2="280" y2="20" stroke="#1A1F36" stroke-width="1"/>
+          <line x1="0" y1="60" x2="280" y2="60" stroke="#1A1F36" stroke-width="1"/>
+          <line x1="0" y1="100" x2="280" y2="100" stroke="#1A1F36" stroke-width="1"/>
+          <!-- Bars -->
+          <rect x="4" y="40" width="30" height="60" rx="4" fill="url(#bar-ok)"/>
+          <rect x="44" y="30" width="30" height="70" rx="4" fill="url(#bar-p)"/>
+          <rect x="84" y="50" width="30" height="50" rx="4" fill="url(#bar-p)"/>
+          <rect x="124" y="25" width="30" height="75" rx="4" fill="url(#bar-w)"/>
+          <rect x="164" y="35" width="30" height="65" rx="4" fill="url(#bar-p)"/>
+          <rect x="204" y="20" width="30" height="80" rx="4" fill="url(#bar-w)"/>
+          <rect x="244" y="10" width="30" height="90" rx="4" fill="#EF4444" opacity=".8"/>
+          <!-- Labels -->
+          <text x="19" y="115" text-anchor="middle" fill="#4A5578" font-size="8" font-family="system-ui">Juil</text>
+          <text x="59" y="115" text-anchor="middle" fill="#4A5578" font-size="8" font-family="system-ui">Août</text>
+          <text x="99" y="115" text-anchor="middle" fill="#4A5578" font-size="8" font-family="system-ui">Sep</text>
+          <text x="139" y="115" text-anchor="middle" fill="#4A5578" font-size="8" font-family="system-ui">Oct</text>
+          <text x="179" y="115" text-anchor="middle" fill="#4A5578" font-size="8" font-family="system-ui">Nov</text>
+          <text x="219" y="115" text-anchor="middle" fill="#4A5578" font-size="8" font-family="system-ui">Déc</text>
+          <text x="259" y="115" text-anchor="middle" fill="#EF4444" font-size="8" font-family="system-ui" font-weight="700">Jan</text>
+        </svg>
+      </div>
+
+      <!-- Progress Ring + Trends -->
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:16px;padding:20px;flex:1;min-width:220px">
+        <div style="font-size:12px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:16px">Anneau &amp; Tendances</div>
+        <div style="text-align:center;margin-bottom:16px">
+          <svg width="90" height="90" viewBox="0 0 90 90" style="display:inline-block">
+            <circle cx="45" cy="45" r="36" fill="none" stroke="#1A1F36" stroke-width="8"/>
+            <circle cx="45" cy="45" r="36" fill="none" stroke="#10B981" stroke-width="8" stroke-dasharray="161.4" stroke-dashoffset="43.6" stroke-linecap="round" transform="rotate(-90 45 45)"/>
+            <text x="45" y="41" text-anchor="middle" fill="#F1F4FF" font-size="14" font-weight="800" font-family="system-ui">73%</text>
+            <text x="45" y="53" text-anchor="middle" fill="#10B981" font-size="8" font-family="system-ui">Fonds URG</text>
+          </svg>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg3);border-radius:8px">
+            <span style="font-size:12px;color:var(--t2)">Dépenses / mois</span>
+            <span style="font-size:13px;font-weight:700;color:var(--er)">▲ +12%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg3);border-radius:8px">
+            <span style="font-size:12px;color:var(--t2)">Épargne / mois</span>
+            <span style="font-size:13px;font-weight:700;color:var(--ok)">▲ +8%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--bg3);border-radius:8px">
+            <span style="font-size:12px;color:var(--t2)">Dette restante</span>
+            <span style="font-size:13px;font-weight:700;color:var(--ok)">▼ −3%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Règles de visualisation</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px">
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--p-l);margin-bottom:8px">Couleurs</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6">Utiliser les couleurs de catégories définies. Ne jamais utiliser la même couleur pour deux catégories différentes dans le même graphique. Le rouge est réservé aux valeurs critiques.</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--p-l);margin-bottom:8px">Chiffres</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6">Toujours afficher la valeur absolue + le pourcentage. Police tabular-nums. Pas d'axes Y sur donut — la légende suffit. Axes Y sur barres uniquement si l'échelle aide.</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--p-l);margin-bottom:8px">Animation</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6">Tous les graphiques s'animent au montage (stroke-dasharray reveal, barres qui montent). Durée: 600ms · Easing: ease-out. Respecter prefers-reduced-motion.</div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--p-l);margin-bottom:8px">Accessibilité</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.6">Ne pas dépendre uniquement de la couleur. Toujours accompagner d'une légende textuelle et d'un rôle ARIA descriptif. Contraste minimum 3:1 pour les éléments graphiques.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════
+     10 — ANIMATION SYSTEM
+     ══════════════════════════════════════ -->
+<section class="section" id="motion">
+  <div class="sec-eyebrow">10 — Animation System</div>
+  <h1 class="sec-title">Système d'animation</h1>
+  <p class="sec-desc">Des animations fonctionnelles, subtiles, à 60fps via React Native Reanimated 3. Chaque animation a un but — orienter, confirmer ou récompenser — jamais décorer.</p>
+  <div class="sec-divider"></div>
+
+  <style>
+  @keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes scaleIn{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  @keyframes checkmark{from{stroke-dashoffset:30}to{stroke-dashoffset:0}}
+  @keyframes barGrow{from{transform:scaleY(0);transform-origin:bottom}to{transform:scaleY(1);transform-origin:bottom}}
+  @keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+  @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+  .demo-box{background:var(--bg2);border:1px solid var(--bd);border-radius:12px;padding:20px;display:flex;flex-direction:column;align-items:center;gap:12px;cursor:pointer;min-height:100px;justify-content:center}
+  .demo-label{font-size:11px;color:var(--t3);font-family:var(--fm);text-align:center}
+  .anim-slide{animation:slideUp .5s cubic-bezier(.25,.46,.45,.94) both}
+  .anim-scale{animation:scaleIn .35s cubic-bezier(.34,1.56,.64,1) both}
+  .anim-pulse{animation:pulse 1.5s ease-in-out infinite}
+  .shimmer-box{background:linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;height:14px;border-radius:4px;width:100%}
+  </style>
+
+  <div class="sub">
+    <div class="sub-title">Durées &amp; Courbes</div>
+    <div class="card" style="padding:0;overflow:hidden">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead>
+          <tr style="background:var(--bg3)">
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Token</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Durée</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Easing</th>
+            <th style="padding:10px 16px;text-align:left;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.05em">Usage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom:1px solid var(--bd)"><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--p-l)">instant</td><td style="padding:10px 16px;font-family:var(--fm);color:var(--t1)">100ms</td><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--t2)">easeOut</td><td style="padding:10px 16px;font-size:12px;color:var(--t2)">Ripple, badge update</td></tr>
+          <tr style="border-bottom:1px solid var(--bd)"><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--p-l)">fast</td><td style="padding:10px 16px;font-family:var(--fm);color:var(--t1)">200ms</td><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--t2)">easeOut</td><td style="padding:10px 16px;font-size:12px;color:var(--t2)">Boutons, toggles, chips</td></tr>
+          <tr style="border-bottom:1px solid var(--bd)"><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--p-l)">base</td><td style="padding:10px 16px;font-family:var(--fm);color:var(--t1)">300ms</td><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--t2)">easeInOut</td><td style="padding:10px 16px;font-size:12px;color:var(--t2)">Cards, transitions layout</td></tr>
+          <tr style="border-bottom:1px solid var(--bd)"><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--p-l)">smooth</td><td style="padding:10px 16px;font-family:var(--fm);color:var(--t1)">450ms</td><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--t2)">spring(1,0.8)</td><td style="padding:10px 16px;font-size:12px;color:var(--t2)">Bottom sheets, modals</td></tr>
+          <tr style="border-bottom:1px solid var(--bd)"><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--p-l)">slow</td><td style="padding:10px 16px;font-family:var(--fm);color:var(--t1)">600ms</td><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--t2)">easeOut</td><td style="padding:10px 16px;font-size:12px;color:var(--t2)">Graphiques, progress bars</td></tr>
+          <tr><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--p-l)">enter</td><td style="padding:10px 16px;font-family:var(--fm);color:var(--t1)">800ms</td><td style="padding:10px 16px;font-family:var(--fm);font-size:12px;color:var(--t2)">spring(0.7,1)</td><td style="padding:10px 16px;font-size:12px;color:var(--t2)">Écran d'onboarding</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Démonstrations</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px">
+      <div class="demo-box" onclick="this.querySelector('.anim-el').style.animation='none',setTimeout(()=>this.querySelector('.anim-el').style.animation='',10)">
+        <div class="anim-el anim-slide" style="background:linear-gradient(135deg,var(--p),var(--v));border-radius:10px;width:60px;height:40px"></div>
+        <div class="demo-label">Slide Up · 500ms<br>Screen enter</div>
+      </div>
+      <div class="demo-box" onclick="this.querySelector('.anim-el').style.animation='none',setTimeout(()=>this.querySelector('.anim-el').style.animation='',10)">
+        <div class="anim-el anim-scale" style="background:var(--ok-bg);border:2px solid var(--ok);border-radius:20px;padding:8px 16px;font-size:13px;font-weight:700;color:var(--ok)">✓ Succès</div>
+        <div class="demo-label">Scale Spring · 350ms<br>Confirmation</div>
+      </div>
+      <div class="demo-box">
+        <div style="width:60px;height:60px;border-radius:30px;border:3px solid var(--bg3);border-top-color:var(--p);animation:spin .8s linear infinite"></div>
+        <div class="demo-label">Spinner · ∞<br>Chargement</div>
+      </div>
+      <div class="demo-box">
+        <div class="anim-pulse" style="background:linear-gradient(135deg,var(--er),#F97316);border-radius:10px;width:60px;height:40px"></div>
+        <div class="demo-label">Pulse · 1.5s ∞<br>Alerte critique</div>
+      </div>
+      <div class="demo-box">
+        <div style="width:130px;display:flex;flex-direction:column;gap:8px">
+          <div class="shimmer-box" style="width:80%"></div>
+          <div class="shimmer-box" style="width:100%"></div>
+          <div class="shimmer-box" style="width:60%"></div>
+        </div>
+        <div class="demo-label">Shimmer · 1.5s ∞<br>Skeleton loader</div>
+      </div>
+      <div class="demo-box">
+        <svg width="48" height="48" viewBox="0 0 48 48">
+          <circle cx="24" cy="24" r="20" fill="none" stroke="#1A1F36" stroke-width="4"/>
+          <circle cx="24" cy="24" r="20" fill="none" stroke="#10B981" stroke-width="4" stroke-dasharray="125.6" stroke-dashoffset="31.4" stroke-linecap="round" transform="rotate(-90 24 24)"/>
+          <text x="24" y="28" text-anchor="middle" fill="#10B981" font-size="11" font-weight="700" font-family="system-ui">75%</text>
+        </svg>
+        <div class="demo-label">Progress ring<br>Objectif / fonds</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-title">Principes &amp; Règles</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">
+      <div style="background:var(--ok-bg);border:1px solid rgba(16,185,129,.2);border-radius:10px;padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--ok);margin-bottom:8px">✓ À faire</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.7">
+          ✓ Animer les transitions d'écrans (slide/fade)<br>
+          ✓ Animer les graphiques au montage<br>
+          ✓ Utiliser withSpring() pour les rebonds<br>
+          ✓ Respecter prefers-reduced-motion<br>
+          ✓ Toujours animer sur le UI thread (worklet)
+        </div>
+      </div>
+      <div style="background:var(--er-bg);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--er);margin-bottom:8px">✗ À éviter</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.7">
+          ✗ Animer plus de 3 éléments simultanément<br>
+          ✗ Durées &gt; 800ms (perçu comme lent)<br>
+          ✗ Animations sans but fonctionnel<br>
+          ✗ setState pendant une animation<br>
+          ✗ Animer la couleur de texte de corps
+        </div>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--bd-a);border-radius:10px;padding:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--p-l);margin-bottom:8px">React Native Reanimated 3</div>
+        <div style="font-size:12px;color:var(--t2);line-height:1.7">
+          <code style="font-family:var(--fm);color:var(--p-l)">useSharedValue()</code> — valeur animée<br>
+          <code style="font-family:var(--fm);color:var(--p-l)">withTiming()</code> — durée fixe<br>
+          <code style="font-family:var(--fm);color:var(--p-l)">withSpring()</code> — physique spring<br>
+          <code style="font-family:var(--fm);color:var(--p-l)">withSequence()</code> — enchaînement<br>
+          <code style="font-family:var(--fm);color:var(--p-l)">runOnUI()</code> — thread UI forcé
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="background:linear-gradient(135deg,rgba(99,102,241,.1),rgba(139,92,246,.07));border:1px solid var(--bd-a);border-radius:16px;padding:28px;margin-top:24px;text-align:center">
+    <div style="font-family:var(--fd);font-size:20px;font-weight:700;color:var(--t1);margin-bottom:8px">Finance Bag · Design System v1.0</div>
+    <div style="font-size:13px;color:var(--t2);margin-bottom:16px">10 sections · Brand Identity · Colors · Typography · Spacing · Icons · Buttons · Inputs · Cards · Data Viz · Animation</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+      <span style="background:var(--bg2);border:1px solid var(--bd);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:600;color:var(--t2)">React Native 0.76</span>
+      <span style="background:var(--bg2);border:1px solid var(--bd);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:600;color:var(--t2)">Expo SDK 53</span>
+      <span style="background:var(--bg2);border:1px solid var(--bd);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:600;color:var(--t2)">TypeScript 5.5</span>
+      <span style="background:var(--bg2);border:1px solid var(--bd);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:600;color:var(--t2)">Reanimated 3</span>
+      <span style="background:var(--bg2);border:1px solid var(--bd);border-radius:20px;padding:4px 14px;font-size:11px;font-weight:600;color:var(--t2)">FR · AR · EN</span>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+function toggleTheme(){
+  const r=document.documentElement;
+  const cur=r.getAttribute('data-theme');
+  if(!cur){
+    const isDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+    r.setAttribute('data-theme',isDark?'light':'dark');
+  } else {
+    r.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  }
+}
+
+// Scrollspy
+const sections=document.querySelectorAll('.section');
+const links=document.querySelectorAll('.toc li a');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      links.forEach(l=>l.classList.remove('active'));
+      const a=document.querySelector(`.toc li a[href="#${e.target.id}"]`);
+      if(a)a.classList.add('active');
+    }
+  });
+},{rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s=>obs.observe(s));
+</script>

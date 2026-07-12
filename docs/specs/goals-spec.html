@@ -1,0 +1,1214 @@
+<title>SPEC-GOL-001 — Financial Goals System | Finance Bag</title>
+<style>
+  @import url('data:text/css,');
+  :root {
+    --bg: #18181B;
+    --surface: #27272A;
+    --surface2: #3F3F46;
+    --border: #3F3F46;
+    --text: #F4F4F5;
+    --muted: #A1A1AA;
+    --accent: #F59E0B;
+    --accent-dim: rgba(245,158,11,0.12);
+    --accent-border: rgba(245,158,11,0.3);
+    --primary: #6366F1;
+    --primary-dim: rgba(99,102,241,0.12);
+    --green: #22C55E;
+    --red: #EF4444;
+    --yellow: #EAB308;
+    --blue: #3B82F6;
+    --font-mono: 'SF Mono', 'Fira Code', monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #FAFAFA;
+      --surface: #FFFFFF;
+      --surface2: #F4F4F5;
+      --border: #E4E4E7;
+      --text: #18181B;
+      --muted: #71717A;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #18181B; --surface: #27272A; --surface2: #3F3F46;
+    --border: #3F3F46; --text: #F4F4F5; --muted: #A1A1AA;
+  }
+  :root[data-theme="light"] {
+    --bg: #FAFAFA; --surface: #FFFFFF; --surface2: #F4F4F5;
+    --border: #E4E4E7; --text: #18181B; --muted: #71717A;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+    display: flex;
+    min-height: 100vh;
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 20px 0;
+    z-index: 100;
+  }
+  .sidebar-brand {
+    padding: 0 16px 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .sidebar-brand .app { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--primary); }
+  .sidebar-brand .spec-id { font-size: 13px; font-weight: 600; color: var(--text); margin-top: 2px; }
+  .sidebar-brand .spec-title { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 8px;
+    padding: 6px 16px;
+    font-size: 12px; color: var(--muted);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    transition: all .15s;
+    cursor: pointer;
+  }
+  .nav-item:hover { color: var(--text); background: var(--surface2); }
+  .nav-item.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-dim); }
+  .nav-num {
+    width: 18px; height: 18px; border-radius: 4px;
+    background: var(--accent-dim); color: var(--accent);
+    font-size: 10px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-item.active .nav-num { background: var(--accent); color: #000; }
+
+  /* MAIN */
+  .main { margin-left: 240px; flex: 1; max-width: 900px; padding: 48px 40px; }
+
+  /* HEADER */
+  .page-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+  .meta-row { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .badge {
+    font-size: 11px; font-weight: 700; letter-spacing: .08em;
+    padding: 3px 10px; border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .badge-spec { background: var(--accent-dim); color: var(--accent); border: 1px solid var(--accent-border); }
+  .badge-version { background: var(--primary-dim); color: var(--primary); border: 1px solid rgba(99,102,241,.3); }
+  .badge-status { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+  .page-title { font-size: 28px; font-weight: 800; line-height: 1.2; letter-spacing: -.02em; color: var(--text); }
+  .page-title span { color: var(--accent); }
+  .page-subtitle { font-size: 15px; color: var(--muted); margin-top: 8px; max-width: 600px; }
+  .meta-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 10px; margin-top: 24px;
+  }
+  .meta-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .meta-card .label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .meta-card .value { font-size: 13px; font-weight: 600; color: var(--text); margin-top: 3px; }
+
+  /* SECTIONS */
+  .section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .section-num {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent); color: #000;
+    font-size: 13px; font-weight: 800;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .section-title { font-size: 20px; font-weight: 700; color: var(--text); }
+  .section-desc { font-size: 14px; color: var(--muted); margin-bottom: 20px; }
+
+  /* TABLES */
+  .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th {
+    background: var(--surface2); color: var(--muted);
+    font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+    padding: 10px 14px; text-align: left; white-space: nowrap;
+  }
+  td { padding: 10px 14px; border-top: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+  tr:hover td { background: var(--surface2); }
+  td code, th code { font-family: var(--font-mono); font-size: 12px; background: var(--surface2); padding: 2px 6px; border-radius: 4px; }
+
+  /* CARDS */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px;
+  }
+  .card-title { font-size: 13px; font-weight: 700; color: var(--text); }
+  .card-body { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.5; }
+  .card-accent { border-left: 3px solid var(--accent); }
+  .card-green { border-left: 3px solid var(--green); }
+  .card-red { border-left: 3px solid var(--red); }
+  .card-blue { border-left: 3px solid var(--blue); }
+  .card-yellow { border-left: 3px solid var(--yellow); }
+
+  /* FORMULA BOXES */
+  .formula-box {
+    background: var(--surface); border: 1px solid var(--accent-border);
+    border-radius: 8px; padding: 16px 20px; margin: 12px 0;
+  }
+  .formula-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .formula { font-family: var(--font-mono); font-size: 13px; color: var(--text); line-height: 1.7; }
+
+  /* TAGS */
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 20px; margin: 2px;
+  }
+  .tag-req { background: rgba(239,68,68,.12); color: var(--red); }
+  .tag-opt { background: var(--primary-dim); color: var(--primary); }
+  .tag-comp { background: rgba(34,197,94,.12); color: var(--green); }
+  .tag-v2 { background: var(--surface2); color: var(--muted); }
+
+  /* TIMELINE */
+  .timeline { position: relative; padding-left: 28px; }
+  .timeline::before { content: ''; position: absolute; left: 8px; top: 6px; bottom: 6px; width: 2px; background: var(--border); }
+  .tl-item { position: relative; margin-bottom: 20px; }
+  .tl-dot {
+    position: absolute; left: -24px; top: 4px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--accent); border: 2px solid var(--bg);
+    flex-shrink: 0;
+  }
+  .tl-dot.green { background: var(--green); }
+  .tl-dot.red { background: var(--red); }
+  .tl-dot.muted { background: var(--muted); }
+  .tl-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .tl-body { font-size: 12px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
+
+  /* CALLOUTS */
+  .callout {
+    border-radius: 8px; padding: 14px 16px; margin: 12px 0;
+    font-size: 13px; line-height: 1.6;
+  }
+  .callout-info { background: var(--primary-dim); border-left: 3px solid var(--primary); color: var(--text); }
+  .callout-warn { background: rgba(234,179,8,.1); border-left: 3px solid var(--yellow); color: var(--text); }
+  .callout-success { background: rgba(34,197,94,.1); border-left: 3px solid var(--green); color: var(--text); }
+  .callout-danger { background: rgba(239,68,68,.1); border-left: 3px solid var(--red); color: var(--text); }
+  .callout strong { font-weight: 700; }
+
+  /* SCORE GRID */
+  .score-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+  .score-row {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .score-pts {
+    font-size: 18px; font-weight: 800; color: var(--accent);
+    width: 44px; text-align: right; flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .score-info { flex: 1; }
+  .score-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .score-desc { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* THEME TOGGLE */
+  .theme-toggle {
+    position: fixed; top: 16px; right: 16px; z-index: 200;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 6px 12px;
+    font-size: 12px; font-weight: 600; color: var(--muted);
+    cursor: pointer; transition: all .15s;
+  }
+  .theme-toggle:hover { color: var(--text); border-color: var(--accent); }
+
+  /* LIFECYCLE STATES */
+  .states-flow { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .state-pill {
+    font-size: 12px; font-weight: 700; padding: 5px 14px;
+    border-radius: 20px; letter-spacing: .04em;
+  }
+  .state-arrow { color: var(--muted); font-size: 16px; }
+
+  /* PRIORITY BADGES */
+  .p-critical { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+  .p-high { background: rgba(245,158,11,.15); color: var(--accent); border: 1px solid var(--accent-border); }
+  .p-medium { background: var(--primary-dim); color: var(--primary); border: 1px solid rgba(99,102,241,.3); }
+  .p-low { background: rgba(34,197,94,.12); color: var(--green); border: 1px solid rgba(34,197,94,.3); }
+  .p-optional { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+
+  h3 { font-size: 15px; font-weight: 700; color: var(--text); margin: 20px 0 10px; }
+  h4 { font-size: 13px; font-weight: 700; color: var(--accent); margin: 16px 0 8px; text-transform: uppercase; letter-spacing: .06em; }
+  p { margin-bottom: 10px; color: var(--text); font-size: 14px; }
+  ul { padding-left: 18px; margin-bottom: 10px; }
+  li { font-size: 13px; color: var(--muted); margin-bottom: 4px; line-height: 1.5; }
+  li strong { color: var(--text); }
+  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+</style>
+
+<button class="theme-toggle" onclick="
+  const r=document.documentElement;
+  const cur=r.getAttribute('data-theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');
+  r.setAttribute('data-theme',cur==='dark'?'light':'dark');
+  this.textContent=cur==='dark'?'Dark Mode':'Light Mode';
+">Light Mode</button>
+
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <div class="app">Finance Bag</div>
+    <div class="spec-id">SPEC-GOL-001</div>
+    <div class="spec-title">Financial Goals System</div>
+  </div>
+  <a class="nav-item active" href="#s01"><span class="nav-num">01</span>Overview</a>
+  <a class="nav-item" href="#s02"><span class="nav-num">02</span>Data Model</a>
+  <a class="nav-item" href="#s03"><span class="nav-num">03</span>Goal Types</a>
+  <a class="nav-item" href="#s04"><span class="nav-num">04</span>Goal Lifecycle</a>
+  <a class="nav-item" href="#s05"><span class="nav-num">05</span>Priority Management</a>
+  <a class="nav-item" href="#s06"><span class="nav-num">06</span>Saving Plan Engine</a>
+  <a class="nav-item" href="#s07"><span class="nav-num">07</span>Contribution Engine</a>
+  <a class="nav-item" href="#s08"><span class="nav-num">08</span>Goal Dashboard</a>
+  <a class="nav-item" href="#s09"><span class="nav-num">09</span>Visual Progress</a>
+  <a class="nav-item" href="#s10"><span class="nav-num">10</span>Smart Recommendations</a>
+  <a class="nav-item" href="#s11"><span class="nav-num">11</span>Goal Health Score</a>
+  <a class="nav-item" href="#s12"><span class="nav-num">12</span>Analytics</a>
+  <a class="nav-item" href="#s13"><span class="nav-num">13</span>Goal Timeline</a>
+  <a class="nav-item" href="#s14"><span class="nav-num">14</span>Search & Filtering</a>
+  <a class="nav-item" href="#s15"><span class="nav-num">15</span>Notifications</a>
+  <a class="nav-item" href="#s16"><span class="nav-num">16</span>Edge Cases & Rules</a>
+</nav>
+
+<main class="main">
+
+  <!-- HEADER -->
+  <header class="page-header">
+    <div class="meta-row">
+      <span class="badge badge-spec">SPEC-GOL-001</span>
+      <span class="badge badge-version">v1.0</span>
+      <span class="badge badge-status">Draft</span>
+    </div>
+    <div class="page-title">Financial Goals &amp; <span>Goal Planning</span> System</div>
+    <div class="page-subtitle">Complete functional specification for the Goals module of Finance Bag — transforms financial dreams into structured, measurable, achievable plans.</div>
+    <div class="meta-grid">
+      <div class="meta-card"><div class="label">Module</div><div class="value">Goals (GOL)</div></div>
+      <div class="meta-card"><div class="label">Platform</div><div class="value">React Native / Expo 52</div></div>
+      <div class="meta-card"><div class="label">Depends On</div><div class="value">SPEC-SAL-001, SPEC-BUD-001</div></div>
+      <div class="meta-card"><div class="label">Referenced By</div><div class="value">Dashboard, Notifications</div></div>
+      <div class="meta-card"><div class="label">Storage</div><div class="value">expo-sqlite + drizzle-orm</div></div>
+      <div class="meta-card"><div class="label">Amounts</div><div class="value">Integer centimes (×100)</div></div>
+    </div>
+  </header>
+
+  <!-- S01 OVERVIEW -->
+  <section class="section" id="s01">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title">Overview &amp; Core Philosophy</div>
+    </div>
+    <p>The Financial Goals module empowers users to translate financial aspirations into structured, actionable plans. Unlike budgets (controlling spending) or debt management (eliminating liabilities), Goals are forward-looking: they describe a future state worth saving toward.</p>
+
+    <div class="callout callout-success">
+      <strong>Design principle:</strong> Every interaction must feel like progress. The system rewards small wins, never punishes delays, and always offers a constructive next step. Behavioral motivation is built into every calculation and recommendation.
+    </div>
+
+    <h3>Core Pillars</h3>
+    <div class="card-grid">
+      <div class="card card-accent">
+        <div class="card-title">Clarity</div>
+        <div class="card-body">Each goal has a specific target, a concrete timeline, and a known required monthly contribution. Users never wonder "am I on track?"</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Motivation</div>
+        <div class="card-body">Milestone badges, completion animations, streak recognition, and progress visualizations keep users engaged across the full journey.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Realism</div>
+        <div class="card-body">The system calculates feasibility against disposable income and recommends adjustments when goals are mathematically unachievable.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Priority</div>
+        <div class="card-body">Users manage multiple goals simultaneously. Priority ordering ensures limited income is directed where it matters most first.</div>
+      </div>
+    </div>
+
+    <h3>Integration Map</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Module</th><th>Direction</th><th>Data Shared</th></tr></thead>
+        <tbody>
+          <tr><td>SPEC-SAL-001 (Salary)</td><td>Goals ← Salary</td><td>disposableIncome, salaryDay for contribution scheduling</td></tr>
+          <tr><td>SPEC-BUD-001 (Budget)</td><td>Goals ↔ Budget</td><td>budget category linked to goal; goal contributions reduce category balance</td></tr>
+          <tr><td>SPEC-DBT-001 (Debt)</td><td>Goals ← Debt</td><td>DTI used in feasibility score; completed debt frees budget for goals</td></tr>
+          <tr><td>SPEC-EMF-001 (Emergency Fund)</td><td>Goals ← EMF</td><td>EMF health score gate: CRITICAL goals gated if EMF &lt; LEVEL_1</td></tr>
+          <tr><td>Dashboard</td><td>Goals → Dashboard</td><td>activeGoals count, totalSaved, nearestDeadline, highestPriority</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- S02 DATA MODEL -->
+  <section class="section" id="s02">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-title">Data Model</div>
+    </div>
+
+    <h3>Goal Entity</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>uuid</td><td><span class="tag tag-req">Required</span></td><td>expo-crypto generated UUID v4</td></tr>
+          <tr><td><code>name</code></td><td>string(1–100)</td><td><span class="tag tag-req">Required</span></td><td>User-given goal name</td></tr>
+          <tr><td><code>category</code></td><td>GoalCategory enum</td><td><span class="tag tag-req">Required</span></td><td>One of 14 predefined categories + CUSTOM</td></tr>
+          <tr><td><code>customCategoryLabel</code></td><td>string(1–50)</td><td><span class="tag tag-opt">Optional</span></td><td>Required when category = CUSTOM</td></tr>
+          <tr><td><code>targetAmount</code></td><td>integer (centimes)</td><td><span class="tag tag-req">Required</span></td><td>Min 100 (= $1.00). Never stored as float.</td></tr>
+          <tr><td><code>currentSavedAmount</code></td><td>integer (centimes)</td><td><span class="tag tag-comp">Computed</span></td><td>SUM of all non-deleted GoalContributions. Never stored directly — always derived at read time.</td></tr>
+          <tr><td><code>currency</code></td><td>string ISO 4217</td><td><span class="tag tag-req">Required</span></td><td>Default from user profile currency</td></tr>
+          <tr><td><code>priority</code></td><td>GoalPriority enum</td><td><span class="tag tag-req">Required</span></td><td>CRITICAL / HIGH / MEDIUM / LOW / OPTIONAL</td></tr>
+          <tr><td><code>priorityOrder</code></td><td>integer</td><td><span class="tag tag-req">Required</span></td><td>1-based unique integer for manual ordering across all goals</td></tr>
+          <tr><td><code>targetDate</code></td><td>date</td><td><span class="tag tag-opt">Optional</span></td><td>Desired completion date. Enables deadline-based calculations.</td></tr>
+          <tr><td><code>createdAt</code></td><td>timestamp</td><td><span class="tag tag-req">Required</span></td><td>Immutable creation timestamp</td></tr>
+          <tr><td><code>coverImageUri</code></td><td>string</td><td><span class="tag tag-opt">Optional</span></td><td>Local URI of user-chosen cover photo</td></tr>
+          <tr><td><code>iconKey</code></td><td>string</td><td><span class="tag tag-opt">Optional</span></td><td>Emoji or asset key for goal icon. Default per category.</td></tr>
+          <tr><td><code>notes</code></td><td>string(max 2000)</td><td><span class="tag tag-opt">Optional</span></td><td>Free-text notes visible only to user</td></tr>
+          <tr><td><code>status</code></td><td>GoalStatus enum</td><td><span class="tag tag-req">Required</span></td><td>DRAFT / ACTIVE / PAUSED / COMPLETED / CANCELLED / ARCHIVED</td></tr>
+          <tr><td><code>tags</code></td><td>string[] max 10</td><td><span class="tag tag-opt">Optional</span></td><td>User-defined tags for search/filtering</td></tr>
+          <tr><td><code>monthlyContribution</code></td><td>integer (centimes)</td><td><span class="tag tag-opt">Optional</span></td><td>Planned recurring monthly amount. 0 = manual-only.</td></tr>
+          <tr><td><code>isAutoContribute</code></td><td>boolean</td><td><span class="tag tag-req">Required</span></td><td>If true, system auto-fires contribution on contributionDay</td></tr>
+          <tr><td><code>contributionDay</code></td><td>integer (1–28)</td><td><span class="tag tag-opt">Optional</span></td><td>Day of month for auto/reminder. Capped at 28 (BR-GOL-08).</td></tr>
+          <tr><td><code>budgetCategoryId</code></td><td>uuid</td><td><span class="tag tag-opt">Optional</span></td><td>Linked budget category. Contributions reduce this category balance.</td></tr>
+          <tr><td><code>isPaused</code></td><td>boolean</td><td><span class="tag tag-req">Required</span></td><td>Pause flag; suspends auto-contributions and reminders</td></tr>
+          <tr><td><code>pausedAt</code></td><td>timestamp</td><td><span class="tag tag-opt">Optional</span></td><td>Set when isPaused → true</td></tr>
+          <tr><td><code>pauseReason</code></td><td>string</td><td><span class="tag tag-opt">Optional</span></td><td>User-provided pause reason</td></tr>
+          <tr><td><code>completedAt</code></td><td>timestamp</td><td><span class="tag tag-opt">Optional</span></td><td>Set when status → COMPLETED. Immutable thereafter.</td></tr>
+          <tr><td><code>cancelledAt</code></td><td>timestamp</td><td><span class="tag tag-opt">Optional</span></td><td>Set when status → CANCELLED</td></tr>
+          <tr><td><code>cancelReason</code></td><td>string</td><td><span class="tag tag-opt">Optional</span></td><td>Required when cancelling (UI enforced)</td></tr>
+          <tr><td><code>updatedAt</code></td><td>timestamp</td><td><span class="tag tag-req">Required</span></td><td>Updated on every field change</td></tr>
+          <tr><td><code>deletedAt</code></td><td>timestamp</td><td><span class="tag tag-opt">Optional</span></td><td>Soft delete. Never hard-delete goals.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>GoalContribution Entity</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>uuid</td><td>UUID v4</td></tr>
+          <tr><td><code>goalId</code></td><td>uuid FK → Goal</td><td>Parent goal</td></tr>
+          <tr><td><code>type</code></td><td>ContributionType enum</td><td>MANUAL / AUTO_MONTHLY / SALARY_ALLOCATION / ONE_TIME / RECURRING / ADJUSTMENT / REVERSAL</td></tr>
+          <tr><td><code>amount</code></td><td>integer (centimes)</td><td>Positive = deposit, negative = withdrawal. Cannot make total go below 0.</td></tr>
+          <tr><td><code>date</code></td><td>date</td><td>Date the contribution applies (may differ from createdAt)</td></tr>
+          <tr><td><code>note</code></td><td>string</td><td>Required for REVERSAL and negative amounts</td></tr>
+          <tr><td><code>source</code></td><td>string</td><td>e.g. "Salary bonus", "Birthday gift" — free text</td></tr>
+          <tr><td><code>balanceAfter</code></td><td>integer (centimes)</td><td>Snapshot of currentSavedAmount after this contribution. Denormalized for audit trail.</td></tr>
+          <tr><td><code>milestoneReached</code></td><td>MilestonePct?</td><td>Set when this contribution crossed a milestone threshold</td></tr>
+          <tr><td><code>isRecurring</code></td><td>boolean</td><td>Part of a recurring series</td></tr>
+          <tr><td><code>recurringId</code></td><td>uuid?</td><td>Groups contributions in same recurring series</td></tr>
+          <tr><td><code>createdAt</code></td><td>timestamp</td><td>Record creation time</td></tr>
+          <tr><td><code>deletedAt</code></td><td>timestamp?</td><td>Soft delete only</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>GoalMilestone Entity</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>uuid</td><td>UUID v4</td></tr>
+          <tr><td><code>goalId</code></td><td>uuid FK</td><td>Parent goal</td></tr>
+          <tr><td><code>milestoneType</code></td><td>enum</td><td>PCT_10 / PCT_25 / PCT_50 / PCT_75 / PCT_90 / PCT_100</td></tr>
+          <tr><td><code>reachedAt</code></td><td>timestamp</td><td>When the threshold was first crossed</td></tr>
+          <tr><td><code>balanceAtReach</code></td><td>integer</td><td>currentSavedAmount at the moment of crossing</td></tr>
+          <tr><td><code>badgeKey</code></td><td>string</td><td>Asset key for the earned badge graphic</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>Computed fields (never stored):</strong> completionPct, remainingAmount, estimatedCompletionDate, requiredMonthlyContribution, requiredWeeklyContribution, requiredDailyContribution, feasibilityScore, monthsToCompletion, averageMonthlyContribution, consistencyScore. All derived at read time from stored contributions and goal metadata.
+    </div>
+  </section>
+
+  <!-- S03 GOAL TYPES -->
+  <section class="section" id="s03">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title">Goal Types &amp; Categories</div>
+    </div>
+    <p>The system ships with 14 predefined categories covering the most common financial goals. The CUSTOM type allows unlimited user-defined categories without schema changes.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Category Key</th><th>Label</th><th>Default Icon</th><th>Typical Timeline</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td><code>HOME_PURCHASE</code></td><td>Home Purchase</td><td>🏠</td><td>2–10 years</td><td>Often largest single goal. May co-exist with mortgage.</td></tr>
+          <tr><td><code>CAR_PURCHASE</code></td><td>Car Purchase</td><td>🚗</td><td>1–5 years</td><td>May be down payment, not full amount.</td></tr>
+          <tr><td><code>VACATION</code></td><td>Vacation</td><td>✈️</td><td>3–18 months</td><td>High frequency; users often have multiple active.</td></tr>
+          <tr><td><code>WEDDING</code></td><td>Wedding</td><td>💍</td><td>1–3 years</td><td>Fixed date drives strong deadline motivation.</td></tr>
+          <tr><td><code>EDUCATION</code></td><td>Education</td><td>🎓</td><td>1–5 years</td><td>Tuition, certifications, courses.</td></tr>
+          <tr><td><code>BUSINESS</code></td><td>Business</td><td>💼</td><td>1–5 years</td><td>Startup capital, equipment, licensing.</td></tr>
+          <tr><td><code>RETIREMENT</code></td><td>Retirement</td><td>🌅</td><td>10–40 years</td><td>Long-horizon; monthly contribution critical.</td></tr>
+          <tr><td><code>INVESTMENT</code></td><td>Investment</td><td>📈</td><td>Variable</td><td>v2.0: links to investment account.</td></tr>
+          <tr><td><code>TECHNOLOGY</code></td><td>Technology</td><td>💻</td><td>1–24 months</td><td>Laptop, phone, equipment, gadgets.</td></tr>
+          <tr><td><code>EMERGENCY_PURCHASE</code></td><td>Emergency Purchase</td><td>🔧</td><td>1–6 months</td><td>Known upcoming expense (car repair, appliance).</td></tr>
+          <tr><td><code>LUXURY_PURCHASE</code></td><td>Luxury</td><td>✨</td><td>6–36 months</td><td>Watches, jewelry, designer items.</td></tr>
+          <tr><td><code>FAMILY</code></td><td>Family</td><td>👨‍👩‍👧</td><td>Variable</td><td>Baby, adoption, childcare, family events.</td></tr>
+          <tr><td><code>HEALTH</code></td><td>Health</td><td>❤️</td><td>1–24 months</td><td>Medical procedures, dental, wellness.</td></tr>
+          <tr><td><code>CUSTOM</code></td><td>Custom Goal</td><td>🎯</td><td>Any</td><td>Requires customCategoryLabel (1–50 chars).</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>Extensibility:</strong> New categories are added by inserting a new enum value and a default icon mapping. No data migration required — existing goals with <code>CUSTOM</code> continue to work unchanged. Categories are never deleted; deprecated categories become hidden from the creation UI but remain valid for existing goals.
+    </div>
+  </section>
+
+  <!-- S04 LIFECYCLE -->
+  <section class="section" id="s04">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-title">Goal Lifecycle</div>
+    </div>
+
+    <h3>Status State Machine</h3>
+    <div class="states-flow" style="margin-bottom:20px;">
+      <span class="state-pill" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border);">DRAFT</span>
+      <span class="state-arrow">→</span>
+      <span class="state-pill" style="background:rgba(99,102,241,.15);color:var(--primary);border:1px solid rgba(99,102,241,.3);">ACTIVE</span>
+      <span class="state-arrow">→</span>
+      <span class="state-pill" style="background:rgba(245,158,11,.15);color:var(--accent);border:1px solid var(--accent-border);">PAUSED</span>
+      <span class="state-arrow">↔</span>
+      <span class="state-pill" style="background:rgba(99,102,241,.15);color:var(--primary);border:1px solid rgba(99,102,241,.3);">ACTIVE</span>
+    </div>
+    <div class="states-flow">
+      <span class="state-pill" style="background:rgba(99,102,241,.15);color:var(--primary);border:1px solid rgba(99,102,241,.3);">ACTIVE</span>
+      <span class="state-arrow">→</span>
+      <span class="state-pill" style="background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.3);">COMPLETED</span>
+      <span class="state-arrow">→</span>
+      <span class="state-pill" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border);">ARCHIVED</span>
+    </div>
+    <div class="states-flow" style="margin-top:8px;">
+      <span class="state-pill" style="background:rgba(99,102,241,.15);color:var(--primary);border:1px solid rgba(99,102,241,.3);">ACTIVE</span>
+      <span class="state-arrow">→</span>
+      <span class="state-pill" style="background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);">CANCELLED</span>
+      <span class="state-arrow">→</span>
+      <span class="state-pill" style="background:var(--surface2);color:var(--muted);border:1px solid var(--border);">ARCHIVED</span>
+    </div>
+
+    <div class="table-wrap" style="margin-top:20px;">
+      <table>
+        <thead><tr><th>Status</th><th>Entry Condition</th><th>Exit Conditions</th><th>Dashboard Visible</th><th>Auto-Contribute</th></tr></thead>
+        <tbody>
+          <tr><td><code>DRAFT</code></td><td>Goal created without activation</td><td>User activates → ACTIVE</td><td>No</td><td>No</td></tr>
+          <tr><td><code>ACTIVE</code></td><td>First contribution OR explicit activate</td><td>Completed / Paused / Cancelled</td><td>Yes</td><td>Yes</td></tr>
+          <tr><td><code>PAUSED</code></td><td>User pauses (reason stored)</td><td>User resumes → ACTIVE</td><td>Yes (greyed)</td><td>No</td></tr>
+          <tr><td><code>COMPLETED</code></td><td>currentSavedAmount ≥ targetAmount</td><td>Archive (30-day prompt OR explicit)</td><td>Yes (celebration banner)</td><td>No</td></tr>
+          <tr><td><code>CANCELLED</code></td><td>User cancels (cancelReason required)</td><td>Archive (immediate or 30-day)</td><td>No</td><td>No</td></tr>
+          <tr><td><code>ARCHIVED</code></td><td>30 days after COMPLETED/CANCELLED, or explicit</td><td>Terminal state (no exit)</td><td>No (visible in History)</td><td>No</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>COMPLETED Transition Flow</h3>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-dot green"></div><div class="tl-title">Trigger detection</div><div class="tl-body">After any contribution is recorded, system checks: currentSavedAmount ≥ targetAmount. If true, status → COMPLETED, completedAt = now().</div></div>
+      <div class="tl-item"><div class="tl-dot green"></div><div class="tl-title">Celebration sequence</div><div class="tl-body">Full-screen confetti animation + achievement sound + PCT_100 milestone badge unlocked. Push notification: "🎉 Goal achieved!" fires within 5 seconds.</div></div>
+      <div class="tl-item"><div class="tl-dot green"></div><div class="tl-title">Budget cleanup prompt</div><div class="tl-body">If goal was linked to a budget category: "Your [Category] budget allocation is now free. Would you like to redirect it?" — suggest highest-priority active goal or Emergency Fund.</div></div>
+      <div class="tl-item"><div class="tl-dot green"></div><div class="tl-title">30-day archive prompt</div><div class="tl-body">30 days after completion, push: "Archive [Goal Name]?" Archived goals move to History. If user does nothing, auto-archive at day 30.</div></div>
+      <div class="tl-item"><div class="tl-dot muted"></div><div class="tl-title">ARCHIVED</div><div class="tl-body">Contribution history preserved. Milestone badges remain in user's badge collection. Counts toward achievementRate in analytics.</div></div>
+    </div>
+
+    <h3>CANCELLED Transition Flow</h3>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-dot red"></div><div class="tl-title">Cancellation initiated</div><div class="tl-body">User taps Cancel Goal. Must provide cancelReason (required, 1–200 chars). Confirmation dialog: "Your contribution history will be preserved."</div></div>
+      <div class="tl-item"><div class="tl-dot red"></div><div class="tl-title">Budget redirect</div><div class="tl-body">Same prompt as COMPLETED: freed monthly allocation offered for redirection to another goal.</div></div>
+      <div class="tl-item"><div class="tl-dot muted"></div><div class="tl-title">Immediate archive</div><div class="tl-body">CANCELLED → ARCHIVED with no 30-day grace period. Contributions preserved. Does NOT count toward achievementRate numerator (only denominator).</div></div>
+    </div>
+  </section>
+
+  <!-- S05 PRIORITY -->
+  <section class="section" id="s05">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div class="section-title">Priority Management</div>
+    </div>
+
+    <h3>Priority Levels</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Level</th><th>Key</th><th>Income Allocation</th><th>Recommendation Weight</th><th>Dashboard Position</th></tr></thead>
+        <tbody>
+          <tr><td><span class="state-pill p-critical">CRITICAL</span></td><td><code>CRITICAL</code></td><td>First slice of disposable income</td><td>5× weight</td><td>Always pinned top</td></tr>
+          <tr><td><span class="state-pill p-high">HIGH</span></td><td><code>HIGH</code></td><td>Second allocation round</td><td>3× weight</td><td>Below CRITICAL</td></tr>
+          <tr><td><span class="state-pill p-medium">MEDIUM</span></td><td><code>MEDIUM</code></td><td>Third allocation round</td><td>2× weight</td><td>Default position</td></tr>
+          <tr><td><span class="state-pill p-low">LOW</span></td><td><code>LOW</code></td><td>Remainder after higher priorities</td><td>1× weight</td><td>Below MEDIUM</td></tr>
+          <tr><td><span class="state-pill p-optional">OPTIONAL</span></td><td><code>OPTIONAL</code></td><td>Only if surplus exists</td><td>0.5× weight</td><td>Collapsed by default</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Priority Ordering Rules</h3>
+    <ul>
+      <li>Each goal has a <code>priorityOrder</code> integer unique across all goals (not per-priority-level).</li>
+      <li>Lower number = higher order (goal #1 is the most important).</li>
+      <li>Users reorder via drag-and-drop in the Goals list; system re-integers orders compactly (1, 2, 3 …) on each reorder.</li>
+      <li>Changing priority level (e.g. MEDIUM → HIGH) moves the goal to position 1 within the new priority level group without changing other goals' relative order.</li>
+      <li>A priority reorder event is logged in GoalTimeline but does NOT create a GoalContribution record.</li>
+    </ul>
+
+    <h3>Priority-Weighted Contribution Recommendation</h3>
+    <div class="formula-box">
+      <div class="formula-label">Multi-Goal Allocation</div>
+      <div class="formula">
+        totalDisposable = salary.disposableIncome − debt.totalMonthlyPayments − emf.monthlyContribution<br><br>
+        For each ACTIVE goal, sorted by priorityOrder:<br>
+        &nbsp;&nbsp;allocate MIN(goal.requiredMonthlyContribution, remainingDisposable)<br>
+        &nbsp;&nbsp;remainingDisposable -= allocated<br>
+        &nbsp;&nbsp;if remainingDisposable ≤ 0: lower-priority goals get 0 recommendation<br><br>
+        Goals that received 0 allocation → flag as "constrained" in recommendations
+      </div>
+    </div>
+
+    <div class="callout callout-warn">
+      <strong>EMF Gate (BR-GOL-01):</strong> If emergencyFund.currentMilestoneLevel = LEVEL_0 and the user attempts to set a goal as CRITICAL, show advisory: "Consider reaching your 1-month Emergency Fund before marking goals as Critical." The action is not blocked — it is advisory only.
+    </div>
+  </section>
+
+  <!-- S06 SAVING PLAN ENGINE -->
+  <section class="section" id="s06">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div class="section-title">Saving Plan Engine</div>
+    </div>
+    <p>All plan calculations are derived at read time. No plan values are stored — they are always computed from the current goal state and current date.</p>
+
+    <h3>Core Computed Values</h3>
+    <div class="formula-box">
+      <div class="formula-label">Base Metrics</div>
+      <div class="formula">
+        currentSavedAmount  = SUM(contribution.amount) for all non-deleted contributions<br>
+        remainingAmount     = MAX(0, targetAmount − currentSavedAmount)<br>
+        completionPct       = currentSavedAmount / targetAmount × 100<br><br>
+        daysToTarget        = targetDate − TODAY  (null if no targetDate)<br>
+        weeksToTarget       = daysToTarget / 7<br>
+        monthsToTarget      = daysToTarget / 30.4375
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">Required Contribution Rates</div>
+      <div class="formula">
+        requiredDailyContribution   = CEIL(remainingAmount / daysToTarget)  [if daysToTarget > 0]<br>
+        requiredWeeklyContribution  = CEIL(remainingAmount / weeksToTarget)<br>
+        requiredMonthlyContribution = CEIL(remainingAmount / monthsToTarget)<br><br>
+        If targetDate is null: these values are null (shown as "—" in UI)
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">Average Contribution &amp; Estimated Completion</div>
+      <div class="formula">
+        monthsActive = FLOOR(days since createdAt / 30.4375) + 1<br><br>
+        avgMonthlyContribution = SUM(deposits in last 3 calendar months) / 3<br>
+        &nbsp;&nbsp;where deposits = contributions with amount > 0<br><br>
+        monthsToCompletion  = CEIL(remainingAmount / avgMonthlyContribution)  [if avg > 0]<br>
+        estimatedCompletionDate = TODAY + monthsToCompletion months
+      </div>
+    </div>
+
+    <div class="formula-box">
+      <div class="formula-label">Feasibility Score</div>
+      <div class="formula">
+        feasibilityRatio = disposableIncome / requiredMonthlyContribution<br><br>
+        FULLY_FEASIBLE    → feasibilityRatio ≥ 1.00   (required ≤ 100% disposable)<br>
+        ACHIEVABLE        → 0.70 ≤ ratio &lt; 1.00    (requires 70–100% — challenging)<br>
+        CHALLENGING       → 0.40 ≤ ratio &lt; 0.70    (requires more than available)<br>
+        UNREALISTIC       → ratio &lt; 0.40            (required &gt; 2.5× available)<br><br>
+        If targetDate is null: feasibilityScore = null (goal has open timeline)
+      </div>
+    </div>
+
+    <h3>Plan Update Triggers</h3>
+    <p>The plan recalculates instantly whenever any of the following change:</p>
+    <div class="card-grid">
+      <div class="card"><div class="card-title">Contribution Added / Removed</div><div class="card-body">currentSavedAmount changes → all derived metrics update</div></div>
+      <div class="card"><div class="card-title">targetAmount Changed</div><div class="card-body">remainingAmount and all rate calculations update</div></div>
+      <div class="card"><div class="card-title">targetDate Changed</div><div class="card-body">Required contribution rates and feasibility recalculate</div></div>
+      <div class="card"><div class="card-title">Date Advances (Daily)</div><div class="card-body">daysToTarget decrements; requiredDailyContribution increases; estimatedCompletion shifts</div></div>
+      <div class="card"><div class="card-title">Salary / Income Changes</div><div class="card-body">disposableIncome updates → feasibilityScore and multi-goal allocation recalculate</div></div>
+    </div>
+
+    <h3>Plan Display Priority</h3>
+    <p>The UI displays contribution rates in the following priority order, showing the most actionable view first:</p>
+    <ol style="padding-left:20px;font-size:13px;color:var(--muted);line-height:2;">
+      <li><strong style="color:var(--text)">Required Monthly</strong> — always shown (even if targetDate is null, shows "no deadline set")</li>
+      <li><strong style="color:var(--text)">Estimated Completion</strong> — shown below required monthly with current avg rate</li>
+      <li><strong style="color:var(--text)">Required Daily / Weekly</strong> — shown in expanded plan view or when goal deadline &lt; 90 days</li>
+      <li><strong style="color:var(--text)">Feasibility label</strong> — color-coded badge shown alongside required monthly</li>
+    </ol>
+  </section>
+
+  <!-- S07 CONTRIBUTION ENGINE -->
+  <section class="section" id="s07">
+    <div class="section-header">
+      <div class="section-num">07</div>
+      <div class="section-title">Contribution Engine</div>
+    </div>
+
+    <h3>Contribution Types</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Trigger</th><th>Note Required?</th><th>Reversible?</th></tr></thead>
+        <tbody>
+          <tr><td><code>MANUAL</code></td><td>User taps "Add Contribution" and enters amount</td><td>Optional</td><td>Yes (30-day window)</td></tr>
+          <tr><td><code>AUTO_MONTHLY</code></td><td>System fires on contributionDay when isAutoContribute = true</td><td>No (system note auto-generated)</td><td>Yes (same day only)</td></tr>
+          <tr><td><code>SALARY_ALLOCATION</code></td><td>Salary recorded → % allocated to goal via SPEC-SAL-001</td><td>No</td><td>Yes (same salary period)</td></tr>
+          <tr><td><code>ONE_TIME</code></td><td>User records a single non-recurring deposit</td><td>Optional (source field encouraged)</td><td>Yes (30-day)</td></tr>
+          <tr><td><code>RECURRING</code></td><td>User sets a custom recurring schedule (weekly, bi-weekly, etc.)</td><td>Optional</td><td>Yes per-instance</td></tr>
+          <tr><td><code>ADJUSTMENT</code></td><td>Admin correction or balance sync; requires note</td><td>Required</td><td>No</td></tr>
+          <tr><td><code>REVERSAL</code></td><td>Reversal of a prior contribution; negative amount</td><td>Required</td><td>No (reversals are final)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Contribution Recording Flow</h3>
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">1. Input validation</div><div class="tl-body">amount must be integer > 0 (or < 0 for withdrawal). amount + currentSavedAmount must be ≥ 0 (no negative balance). Note required if amount &lt; 0.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">2. Balance snapshot</div><div class="tl-body">Compute balanceAfter = currentSavedAmount + amount. Store on the contribution record for audit trail.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">3. Milestone check</div><div class="tl-body">Check if completionPct crossed any new milestone (10/25/50/75/90/100%). If yes: insert GoalMilestone record, set contribution.milestoneReached.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">4. Budget category sync</div><div class="tl-body">If goal.budgetCategoryId is set: create a corresponding expense in that budget category for the same amount (type: GOAL_CONTRIBUTION).</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">5. Completion check</div><div class="tl-body">If balanceAfter ≥ targetAmount: trigger COMPLETED transition (Section 04 flow).</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">6. Timeline event</div><div class="tl-body">Append GoalTimeline event: CONTRIBUTION_ADDED with amount, type, balanceAfter, milestoneReached.</div></div>
+      <div class="tl-item"><div class="tl-dot"></div><div class="tl-title">7. UI update</div><div class="tl-body">Recalculate all plan metrics, update progress ring, refresh dashboard KPIs. If milestone crossed: show badge animation.</div></div>
+    </div>
+
+    <h3>Auto-Contribution Flow (isAutoContribute = true)</h3>
+    <div class="formula-box">
+      <div class="formula-label">Daily system check on contributionDay</div>
+      <div class="formula">
+        if goal.status ≠ ACTIVE: skip<br>
+        if goal.isPaused = true: skip<br>
+        if today = goal.contributionDay (day of month):<br>
+        &nbsp;&nbsp;if goal.budgetCategoryId is set:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;available = budgetCategory.remaining − budgetCategory.reservedForOtherGoals<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;amount = MIN(goal.monthlyContribution, available)<br>
+        &nbsp;&nbsp;else:<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;amount = goal.monthlyContribution<br>
+        &nbsp;&nbsp;if amount > 0: record AUTO_MONTHLY contribution<br>
+        &nbsp;&nbsp;if amount = 0: send CONTRIBUTION_INSUFFICIENT notification
+      </div>
+    </div>
+
+    <h3>Withdrawal Rules</h3>
+    <ul>
+      <li>Withdrawals are allowed at any time from ACTIVE or PAUSED goals.</li>
+      <li><strong>Balance floor:</strong> currentSavedAmount cannot go below 0. System rejects any withdrawal that would cause a negative balance.</li>
+      <li>Note is required for all withdrawals.</li>
+      <li>A withdrawal does NOT change goal status — the goal remains ACTIVE.</li>
+      <li>If a withdrawal reduces currentSavedAmount below a previously reached milestone, the milestone badge is NOT revoked (BR-GOL-04).</li>
+      <li>Withdrawals count against contribution consistency score (they don't count as a "contribution month").</li>
+    </ul>
+  </section>
+
+  <!-- S08 DASHBOARD -->
+  <section class="section" id="s08">
+    <div class="section-header">
+      <div class="section-num">08</div>
+      <div class="section-title">Goal Dashboard</div>
+    </div>
+    <p>The dashboard provides a real-time summary of the user's entire goals portfolio. All values are computed at render time — none are persisted.</p>
+
+    <h3>Dashboard KPIs</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>KPI</th><th>Formula</th><th>Displayed As</th></tr></thead>
+        <tbody>
+          <tr><td>Active Goals</td><td>COUNT(goals WHERE status = ACTIVE)</td><td>Integer count with goal count badge</td></tr>
+          <tr><td>Completed Goals</td><td>COUNT(goals WHERE status = COMPLETED OR ARCHIVED AND completedAt IS NOT NULL)</td><td>Integer + trophy icon</td></tr>
+          <tr><td>Total Target Value</td><td>SUM(targetAmount) WHERE status = ACTIVE</td><td>Currency formatted</td></tr>
+          <tr><td>Total Saved</td><td>SUM(currentSavedAmount) WHERE status = ACTIVE</td><td>Currency formatted with % of total</td></tr>
+          <tr><td>Overall Completion %</td><td>totalSaved / totalTargetValue × 100</td><td>Progress ring, 1 decimal place</td></tr>
+          <tr><td>Highest Priority Goal</td><td>First goal ordered by priorityOrder WHERE status = ACTIVE</td><td>Goal card with mini progress bar</td></tr>
+          <tr><td>Nearest Deadline</td><td>ACTIVE goal with MIN(targetDate) WHERE targetDate IS NOT NULL</td><td>Goal name + days remaining</td></tr>
+          <tr><td>Avg Monthly Contribution</td><td>SUM(deposits all ACTIVE goals, last 3 months) / 3</td><td>Currency per month</td></tr>
+          <tr><td>Achievement Rate</td><td>COMPLETED / (COMPLETED + CANCELLED) × 100</td><td>Percentage with color label</td></tr>
+          <tr><td>Monthly Budget for Goals</td><td>SUM(monthlyContribution) WHERE status = ACTIVE</td><td>Currency; % of disposable income</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Dashboard Layout</h3>
+    <div class="card-grid">
+      <div class="card card-accent">
+        <div class="card-title">Summary Row</div>
+        <div class="card-body">4-tile row: Active Goals / Total Saved / Overall % / Achievement Rate. Tap any tile to navigate to filtered goals list.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Priority Spotlight</div>
+        <div class="card-body">Full-width card: highest-priority ACTIVE goal with its progress ring, required monthly, and deadline countdown. Direct "Contribute" CTA.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Deadline Alert Banner</div>
+        <div class="card-body">Shows when any ACTIVE goal's targetDate is within 30 days AND goal is off-track. Amber color. Dismiss-able per goal.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Goals List</div>
+        <div class="card-body">Horizontally-scrollable cards sorted by priorityOrder. Each card: icon, name, progress bar, % complete, next contribution date.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Quick Add</div>
+        <div class="card-body">Floating action button opens contribution sheet. Defaults to highest-priority goal but allows switching.</div>
+      </div>
+      <div class="card card-accent">
+        <div class="card-title">Insights Strip</div>
+        <div class="card-body">1–2 smart recommendations as horizontally-scrollable chips (e.g. "🎯 You're 7 days ahead on Vacation goal").</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- S09 VISUAL PROGRESS -->
+  <section class="section" id="s09">
+    <div class="section-header">
+      <div class="section-num">09</div>
+      <div class="section-title">Visual Progress &amp; Milestones</div>
+    </div>
+
+    <h3>Progress Components</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Component</th><th>Location</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>Progress Ring</td><td>Goal detail card, Dashboard spotlight</td><td>Circular progress ring; animates to current completionPct on mount. Amber fill. Shows % in center. Full ring = 100%.</td></tr>
+          <tr><td>Linear Progress Bar</td><td>Goals list cards</td><td>Thin horizontal bar. Segments colored by milestone zones (0–25 muted, 25–50 yellow, 50–75 amber, 75–100 green).</td></tr>
+          <tr><td>Milestone Track</td><td>Goal detail view</td><td>Horizontal track with 6 markers (10/25/50/75/90/100%). Reached markers filled with badge icon; unreached outlined.</td></tr>
+          <tr><td>Contribution Heatmap</td><td>Analytics tab</td><td>Calendar heatmap of contribution activity. Darker = higher contribution. Gaps highlight missing months.</td></tr>
+          <tr><td>Savings Growth Chart</td><td>Goal detail → History tab</td><td>Line chart of currentSavedAmount over time, anchored at createdAt=0. Shows targetAmount as dashed line.</td></tr>
+          <tr><td>Countdown</td><td>Goal detail header</td><td>Days remaining to targetDate. Color: green &gt;90 days, amber 30–90, red &lt;30. Hidden if no targetDate.</td></tr>
+          <tr><td>Estimated Completion</td><td>Saving Plan section</td><td>"At your current rate: [Month Year]". Styled amber if before deadline, red if after.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Milestone System</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Milestone</th><th>Threshold</th><th>Badge Name</th><th>Badge Color</th><th>Celebration</th></tr></thead>
+        <tbody>
+          <tr><td>PCT_10</td><td>≥ 10% complete</td><td>First Step</td><td>Silver</td><td>Small confetti burst + toast</td></tr>
+          <tr><td>PCT_25</td><td>≥ 25% complete</td><td>Quarter Way</td><td>Bronze</td><td>Confetti + badge card pop-up</td></tr>
+          <tr><td>PCT_50</td><td>≥ 50% complete</td><td>Halfway There</td><td>Gold</td><td>Confetti + badge + push notification</td></tr>
+          <tr><td>PCT_75</td><td>≥ 75% complete</td><td>Almost There</td><td>Gold</td><td>Confetti + badge + motivational message</td></tr>
+          <tr><td>PCT_90</td><td>≥ 90% complete</td><td>Final Sprint</td><td>Platinum</td><td>Animated count-down to completion</td></tr>
+          <tr><td>PCT_100</td><td>≥ 100% complete</td><td>Goal Achieved</td><td>Diamond</td><td>Full-screen celebration + trophy animation</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-success">
+      <strong>Milestone permanence (BR-GOL-04):</strong> Once a milestone badge is earned, it is never revoked — even if a withdrawal reduces the balance below the threshold. The GoalMilestone record and badge are permanent. Badge collection is visible in user profile.
+    </div>
+
+    <h3>Completion Animation Spec</h3>
+    <ul>
+      <li>Full-screen overlay with radial burst animation (Canvas-based, 1.5s duration)</li>
+      <li>Goal icon centered and enlarged with scale animation (1.0 → 1.4 → 1.2)</li>
+      <li>Trophy badge drops from top with spring physics</li>
+      <li>Haptic feedback: success pattern</li>
+      <li>Share card auto-generated: "[Goal Name] achieved! 🎉 [amount] saved in [N] months" — user can share to social or save</li>
+      <li>Respects <code>prefers-reduced-motion</code>: replaces animation with static success screen</li>
+    </ul>
+  </section>
+
+  <!-- S10 SMART RECOMMENDATIONS -->
+  <section class="section" id="s10">
+    <div class="section-header">
+      <div class="section-num">10</div>
+      <div class="section-title">Smart Recommendations</div>
+    </div>
+    <p>Recommendations are generated at read time by evaluating each ACTIVE goal against a rule set. At most 3 recommendations are shown on the dashboard at once, ranked by priority. All recommendations must be constructive and action-oriented — never punitive.</p>
+
+    <h3>Recommendation Rules</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Trigger Condition</th><th>Priority</th><th>Recommendation Text</th><th>CTA</th></tr></thead>
+        <tbody>
+          <tr><td>REC-01</td><td>estimatedCompletionDate &gt; targetDate + 30 days</td><td>Critical</td><td>"[Goal] will be ready [N] months late. Increase by [Δ/month] to hit your deadline."</td><td>Adjust Plan</td></tr>
+          <tr><td>REC-02</td><td>feasibilityScore = UNREALISTIC</td><td>High</td><td>"[Goal] requires [amount]/mo — more than your current income allows. Extend deadline to [date] instead."</td><td>Extend Deadline</td></tr>
+          <tr><td>REC-03</td><td>No contribution in 60+ days (ACTIVE goal)</td><td>High</td><td>"[Goal] hasn't received a contribution in 2 months. A small deposit keeps it moving."</td><td>Contribute Now</td></tr>
+          <tr><td>REC-04</td><td>completionPct ≥ 90%</td><td>High</td><td>"Final sprint! [Amount] to go on [Goal]. You could finish this month."</td><td>Contribute Final</td></tr>
+          <tr><td>REC-05</td><td>A goal was just COMPLETED</td><td>Critical</td><td>"[Goal] complete! Redirect the [amount]/mo to [next-priority goal]?"</td><td>Redirect Funds</td></tr>
+          <tr><td>REC-06</td><td>2+ CRITICAL goals, both off-track</td><td>High</td><td>"Two critical goals need attention. Focus on [nearest deadline] first."</td><td>View Goals</td></tr>
+          <tr><td>REC-07</td><td>Goal has no targetDate</td><td>Medium</td><td>"Add a target date to [Goal] — it makes the savings plan 3× more effective."</td><td>Set Deadline</td></tr>
+          <tr><td>REC-08</td><td>Contribution streak ≥ 3 consecutive months</td><td>Opportunity</td><td>"3 months strong on [Goal]! You're on track to finish [N] months early."</td><td>View Progress</td></tr>
+          <tr><td>REC-09</td><td>disposableIncome increased ≥ 20% vs last month</td><td>Medium</td><td>"Your available income is up. Boost [Goal] by [Δ/month] to finish sooner."</td><td>Increase Contribution</td></tr>
+          <tr><td>REC-10</td><td>Goal paused for &gt; 30 days</td><td>Medium</td><td>"[Goal] has been paused for [N] days. Resume when ready — your progress is saved."</td><td>Resume Goal</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Suggested Contribution Formula</h3>
+    <div class="formula-box">
+      <div class="formula-label">Per-Goal Contribution Suggestion</div>
+      <div class="formula">
+        base = requiredMonthlyContribution (from Saving Plan Engine)<br><br>
+        if base > 0.5 × disposableIncome:<br>
+        &nbsp;&nbsp;suggest = 0.5 × disposableIncome  (cap at 50% of disposable)<br>
+        elif base > 0.3 × disposableIncome AND goal.priority = OPTIONAL:<br>
+        &nbsp;&nbsp;suggest = 0.2 × disposableIncome  (reduce for low-priority goals)<br>
+        else:<br>
+        &nbsp;&nbsp;suggest = base<br><br>
+        finalSuggestion = MAX(100, suggest)  // minimum $1 suggestion
+      </div>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>Tone guidelines:</strong> Recommendations use second person, present tense, and specific numbers. Never "you should" — always "you could" or direct action verbs. Frame delay as an opportunity, never a failure. Example: "Extend to March 2026" not "You're behind schedule."
+    </div>
+  </section>
+
+  <!-- S11 HEALTH SCORE -->
+  <section class="section" id="s11">
+    <div class="section-header">
+      <div class="section-num">11</div>
+      <div class="section-title">Goal Health Score</div>
+    </div>
+    <p>A single 0–100 score summarizing how well the user's overall goal portfolio is performing. Computed across all ACTIVE goals, refreshed at each screen load.</p>
+
+    <h3>Score Components</h3>
+    <div class="score-grid">
+      <div class="score-row">
+        <div class="score-pts">35</div>
+        <div class="score-info">
+          <div class="score-name">Progress Rate</div>
+          <div class="score-desc">Weighted avg of actual vs expected progress across all ACTIVE goals.<br>
+          On track or ahead = 35 pts. 1–10% behind = 25 pts. 11–25% behind = 15 pts. 26–50% behind = 8 pts. &gt;50% behind or no date = 0 pts.</div>
+        </div>
+      </div>
+      <div class="score-row">
+        <div class="score-pts">25</div>
+        <div class="score-info">
+          <div class="score-name">Contribution Consistency</div>
+          <div class="score-desc">monthsWithContribution / monthsActive × 100, scaled to 25 pts.<br>
+          Averaged across all ACTIVE goals. A month counts if any positive contribution was recorded.</div>
+        </div>
+      </div>
+      <div class="score-row">
+        <div class="score-pts">20</div>
+        <div class="score-info">
+          <div class="score-name">Goal Realism</div>
+          <div class="score-desc">For each goal: requiredMonthly vs disposableIncome.<br>
+          ≤15% disposable = 20 pts. 16–25% = 15 pts. 26–35% = 10 pts. 36–50% = 5 pts. &gt;50% = 0.<br>
+          Averaged across all goals (goals without targetDate treated as 15 pts neutral).</div>
+        </div>
+      </div>
+      <div class="score-row">
+        <div class="score-pts">10</div>
+        <div class="score-info">
+          <div class="score-name">Priority Balance</div>
+          <div class="score-desc">No CRITICAL goals off-track = 10 pts. 1 CRITICAL goal off-track = 5 pts. 2+ CRITICAL off-track = 0 pts. No CRITICAL goals = 8 pts (neutral).</div>
+        </div>
+      </div>
+      <div class="score-row">
+        <div class="score-pts">10</div>
+        <div class="score-info">
+          <div class="score-name">Timeline Clarity</div>
+          <div class="score-desc">% of ACTIVE goals with a targetDate set, scaled to 10 pts.<br>
+          All goals have dates = 10. No goals have dates = 0. Fraction = proportional.</div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Score Labels</h3>
+    <div class="table-wrap" style="margin-top:12px;">
+      <table>
+        <thead><tr><th>Score Range</th><th>Label</th><th>Color</th><th>Summary Message</th></tr></thead>
+        <tbody>
+          <tr><td>80–100</td><td>Excellent</td><td style="color:var(--green)">Green</td><td>"Your goals are well-funded and on track. Keep the momentum!"</td></tr>
+          <tr><td>60–79</td><td>Good</td><td style="color:#6EE7B7">Teal</td><td>"Solid progress. A few tweaks could get you to excellent."</td></tr>
+          <tr><td>40–59</td><td>Building</td><td style="color:var(--accent)">Amber</td><td>"You're moving forward — consistency will accelerate your progress."</td></tr>
+          <tr><td>20–39</td><td>At Risk</td><td style="color:#F97316">Orange</td><td>"Some goals need attention. See recommendations to get back on track."</td></tr>
+          <tr><td>0–19</td><td>Vulnerable</td><td style="color:var(--red)">Red</td><td>"Your goals need a reset. Start with your highest-priority goal."</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>Score context:</strong> The score is always accompanied by the 1–2 most impactful recommendations to improve it. Each component score is shown in an expandable breakdown so users understand exactly which areas to address.
+    </div>
+  </section>
+
+  <!-- S12 ANALYTICS -->
+  <section class="section" id="s12">
+    <div class="section-header">
+      <div class="section-num">12</div>
+      <div class="section-title">Goal Analytics</div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Report</th><th>Data Source</th><th>Visualization</th><th>Time Range</th></tr></thead>
+        <tbody>
+          <tr><td>Contribution Trends</td><td>GoalContribution grouped by month and goal</td><td>Stacked bar chart (one stack per goal color)</td><td>Last 12 months</td></tr>
+          <tr><td>Goal Completion Rate</td><td>COMPLETED vs CANCELLED goals by month</td><td>Line chart + % badge</td><td>All time</td></tr>
+          <tr><td>Average Completion Time</td><td>completedAt − createdAt for COMPLETED goals</td><td>KPI tile + sparkline</td><td>All time</td></tr>
+          <tr><td>Most Successful Goal</td><td>Fastest pct-per-month among COMPLETED goals</td><td>Highlight card with trophy</td><td>All time</td></tr>
+          <tr><td>Savings Growth</td><td>SUM(currentSavedAmount) all ACTIVE goals by month</td><td>Area chart with shaded fill</td><td>Last 12 months</td></tr>
+          <tr><td>Priority Distribution</td><td>COUNT(goals) grouped by priority</td><td>Donut chart</td><td>Current ACTIVE</td></tr>
+          <tr><td>Category Distribution</td><td>COUNT(goals) grouped by category</td><td>Donut chart</td><td>Current ACTIVE</td></tr>
+          <tr><td>Contribution Consistency</td><td>GoalContribution calendar by day</td><td>Heatmap calendar (GitHub-style)</td><td>Last 12 months</td></tr>
+          <tr><td>Goal Velocity</td><td>(currentSavedAmount at end of month − start of month) per goal</td><td>Bar chart per goal, all months</td><td>Last 6 months</td></tr>
+          <tr><td>Projected Portfolio</td><td>IF avg contribution continues: estimatedTotalSaved by month</td><td>Line chart with goal target lines</td><td>Next 24 months</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Analytics KPI Tiles</h3>
+    <div class="card-grid">
+      <div class="card"><div class="card-title">Total Contributed (All Time)</div><div class="card-body">SUM of all positive contributions across all goals ever created. Includes completed and archived.</div></div>
+      <div class="card"><div class="card-title">Goals Completed</div><div class="card-body">COUNT of COMPLETED goals (including archived). With average time-to-complete.</div></div>
+      <div class="card"><div class="card-title">Best Streak</div><div class="card-body">Longest consecutive months with at least one contribution across any goal.</div></div>
+      <div class="card"><div class="card-title">Largest Single Contribution</div><div class="card-body">The maximum amount contributed in a single transaction, with date and goal name.</div></div>
+    </div>
+  </section>
+
+  <!-- S13 TIMELINE -->
+  <section class="section" id="s13">
+    <div class="section-header">
+      <div class="section-num">13</div>
+      <div class="section-title">Goal Timeline</div>
+    </div>
+    <p>Every goal maintains a complete, immutable event history. Events are never deleted — soft-deleted contributions appear as CONTRIBUTION_REVERSED events in the timeline.</p>
+
+    <h3>GoalTimelineEvent Entity</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>id</code></td><td>uuid</td><td>UUID v4</td></tr>
+          <tr><td><code>goalId</code></td><td>uuid FK</td><td>Parent goal</td></tr>
+          <tr><td><code>eventType</code></td><td>TimelineEventType enum</td><td>See event type table below</td></tr>
+          <tr><td><code>occurredAt</code></td><td>timestamp</td><td>When the event happened. Immutable.</td></tr>
+          <tr><td><code>metadata</code></td><td>JSON blob</td><td>Event-specific payload (amounts, old/new values, etc.)</td></tr>
+          <tr><td><code>actorType</code></td><td>enum</td><td>USER / SYSTEM / AUTO</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Timeline Event Types</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Event Type</th><th>Trigger</th><th>Metadata Fields</th></tr></thead>
+        <tbody>
+          <tr><td><code>GOAL_CREATED</code></td><td>Goal first saved</td><td>name, category, targetAmount, targetDate</td></tr>
+          <tr><td><code>GOAL_ACTIVATED</code></td><td>Status → ACTIVE</td><td>activatedBy (user/first contribution)</td></tr>
+          <tr><td><code>CONTRIBUTION_ADDED</code></td><td>Any contribution recorded</td><td>amount, type, balanceAfter, milestoneReached?</td></tr>
+          <tr><td><code>CONTRIBUTION_REVERSED</code></td><td>Contribution soft-deleted</td><td>originalAmount, originalDate, reason</td></tr>
+          <tr><td><code>TARGET_CHANGED</code></td><td>targetAmount edited</td><td>oldAmount, newAmount, delta</td></tr>
+          <tr><td><code>DATE_CHANGED</code></td><td>targetDate edited</td><td>oldDate, newDate, direction (extended/shortened)</td></tr>
+          <tr><td><code>PRIORITY_CHANGED</code></td><td>priority or priorityOrder changed</td><td>oldPriority, newPriority, oldOrder, newOrder</td></tr>
+          <tr><td><code>MILESTONE_REACHED</code></td><td>Milestone threshold crossed</td><td>milestoneType, balanceAtReach, badgeKey</td></tr>
+          <tr><td><code>GOAL_PAUSED</code></td><td>isPaused → true</td><td>pauseReason</td></tr>
+          <tr><td><code>GOAL_RESUMED</code></td><td>isPaused → false</td><td>pausedDurationDays</td></tr>
+          <tr><td><code>GOAL_COMPLETED</code></td><td>status → COMPLETED</td><td>finalBalance, daysToComplete</td></tr>
+          <tr><td><code>GOAL_CANCELLED</code></td><td>status → CANCELLED</td><td>cancelReason, balanceAtCancel</td></tr>
+          <tr><td><code>GOAL_ARCHIVED</code></td><td>status → ARCHIVED</td><td>archiveReason (auto/manual)</td></tr>
+          <tr><td><code>BUDGET_LINKED</code></td><td>budgetCategoryId set</td><td>categoryId, categoryName</td></tr>
+          <tr><td><code>CURRENCY_CHANGED</code></td><td>currency field updated</td><td>oldCurrency, newCurrency, conversionRate</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-info">
+      <strong>Immutability guarantee:</strong> GoalTimelineEvent records are insert-only. No update or delete operations are permitted. The timeline is the authoritative audit log for every goal.
+    </div>
+  </section>
+
+  <!-- S14 SEARCH -->
+  <section class="section" id="s14">
+    <div class="section-header">
+      <div class="section-num">14</div>
+      <div class="section-title">Search &amp; Filtering</div>
+    </div>
+
+    <h3>Search Dimensions</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Dimension</th><th>Type</th><th>Operators</th></tr></thead>
+        <tbody>
+          <tr><td>Name</td><td>Text</td><td>Contains (case-insensitive substring)</td></tr>
+          <tr><td>Category</td><td>Enum (multi-select)</td><td>Is any of [selected categories]</td></tr>
+          <tr><td>Priority</td><td>Enum (multi-select)</td><td>Is any of [CRITICAL, HIGH, MEDIUM, LOW, OPTIONAL]</td></tr>
+          <tr><td>Status</td><td>Enum (multi-select)</td><td>Is any of [ACTIVE, PAUSED, COMPLETED, CANCELLED, ARCHIVED]</td></tr>
+          <tr><td>Target Amount</td><td>Range (centimes)</td><td>Between [min] and [max]</td></tr>
+          <tr><td>Target Date</td><td>Date range</td><td>Before / After / Between dates</td></tr>
+          <tr><td>Completion %</td><td>Range</td><td>Between [0–100]%; quick filters: "Under 25%", "Over 50%", "90%+"</td></tr>
+          <tr><td>Creation Date</td><td>Date range</td><td>Before / After / Between</td></tr>
+          <tr><td>Tags</td><td>Tag list (multi-select)</td><td>Contains any of / Contains all of selected tags</td></tr>
+          <tr><td>Currency</td><td>Enum</td><td>Is (single selection)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Sort Options</h3>
+    <ul>
+      <li><strong>Priority Order</strong> (default) — by priorityOrder ASC</li>
+      <li><strong>Nearest Deadline</strong> — by targetDate ASC (nulls last)</li>
+      <li><strong>Furthest Deadline</strong> — by targetDate DESC</li>
+      <li><strong>Completion % Highest</strong> — by completionPct DESC</li>
+      <li><strong>Completion % Lowest</strong> — by completionPct ASC</li>
+      <li><strong>Most Recently Updated</strong> — by updatedAt DESC</li>
+      <li><strong>Largest Target</strong> — by targetAmount DESC</li>
+      <li><strong>Smallest Target</strong> — by targetAmount ASC</li>
+      <li><strong>Alphabetical</strong> — by name ASC</li>
+    </ul>
+
+    <h3>Quick Filter Chips</h3>
+    <p>Single-tap chips for the most common filter combinations:</p>
+    <div class="card-grid">
+      <div class="card"><div class="card-title">🔴 Off Track</div><div class="card-body">estimatedCompletion &gt; targetDate + 30 days AND status = ACTIVE</div></div>
+      <div class="card"><div class="card-title">⚡ Critical</div><div class="card-body">priority = CRITICAL AND status = ACTIVE</div></div>
+      <div class="card"><div class="card-title">📅 Due Soon</div><div class="card-body">targetDate within 90 days AND status = ACTIVE</div></div>
+      <div class="card"><div class="card-title">😴 Inactive</div><div class="card-body">No contribution in 60+ days AND status = ACTIVE</div></div>
+      <div class="card"><div class="card-title">✅ Completed</div><div class="card-body">status = COMPLETED OR (ARCHIVED AND completedAt NOT NULL)</div></div>
+      <div class="card"><div class="card-title">⏸ Paused</div><div class="card-body">status = PAUSED</div></div>
+    </div>
+  </section>
+
+  <!-- S15 NOTIFICATIONS -->
+  <section class="section" id="s15">
+    <div class="section-header">
+      <div class="section-num">15</div>
+      <div class="section-title">Notifications</div>
+    </div>
+    <p>Notifications must always be motivating, never guilt-inducing. Frequency is capped to prevent fatigue.</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Type</th><th>Trigger</th><th>Timing</th><th>Message Template</th></tr></thead>
+        <tbody>
+          <tr><td>NOT-01</td><td>CONTRIBUTION_REMINDER</td><td>contributionDay arrives; no contribution this month for ACTIVE goal</td><td>9:00 AM on contributionDay</td><td>"Time to save for [Goal] 🎯 — [amount]/mo keeps you on track."</td></tr>
+          <tr><td>NOT-02</td><td>MILESTONE_REACHED</td><td>completionPct crosses 25/50/75/90%</td><td>Within 5s of contribution recorded</td><td>"You're [N]% of the way to [Goal]! [Badge Name] badge earned 🏅"</td></tr>
+          <tr><td>NOT-03</td><td>GOAL_COMPLETED</td><td>status → COMPLETED</td><td>Immediate (in-app) + push within 5s</td><td>"🎉 You did it! [Goal] is complete. [amount] saved."</td></tr>
+          <tr><td>NOT-04</td><td>DEADLINE_APPROACHING</td><td>targetDate is 30, 7, or 1 day(s) away AND completionPct &lt; 100%</td><td>8:00 AM on trigger day</td><td>"[Goal] deadline in [N] day(s). [amount] still to go — you've got this."</td></tr>
+          <tr><td>NOT-05</td><td>GOAL_INACTIVE</td><td>60 days since last contribution AND status = ACTIVE</td><td>10:00 AM on day 60</td><td>"[Goal] misses you 💙 — even a small deposit keeps the momentum alive."</td></tr>
+          <tr><td>NOT-06</td><td>MONTHLY_PROGRESS</td><td>1st of each month</td><td>9:00 AM, 1st of month</td><td>"[Month] Goals Update: You saved [amount] across [N] goals. [Emoji by score]"</td></tr>
+          <tr><td>NOT-07</td><td>OFF_TRACK_ALERT</td><td>estimatedCompletionDate &gt; targetDate by &gt;30 days</td><td>Recalculated daily; fires once per 14-day period max</td><td>"[Goal] is running behind. Add [Δ/month] to get back on schedule."</td></tr>
+          <tr><td>NOT-08</td><td>ENCOURAGEMENT</td><td>3, 6, or 12 consecutive months with contribution to any goal</td><td>On the day the streak is detected</td><td>"[N]-month savings streak! 🔥 Your consistency is building real wealth."</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Notification Frequency Rules</h3>
+    <ul>
+      <li>Maximum 2 notifications per goal per day.</li>
+      <li>Maximum 5 notifications total per day across all goals.</li>
+      <li>NOT-07 (Off Track Alert) fires at most once per 14 days per goal.</li>
+      <li>NOT-05 (Inactive) fires once on day 60; re-arms 30 days later if still inactive.</li>
+      <li>All notifications respect system-level Do Not Disturb settings.</li>
+      <li>Users can disable individual notification types per goal in settings.</li>
+    </ul>
+  </section>
+
+  <!-- S16 EDGE CASES, RULES, SCALABILITY -->
+  <section class="section" id="s16">
+    <div class="section-header">
+      <div class="section-num">16</div>
+      <div class="section-title">Edge Cases, Business Rules &amp; Scalability</div>
+    </div>
+
+    <h3>Edge Cases</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Scenario</th><th>Expected Behavior</th></tr></thead>
+        <tbody>
+          <tr><td>EC-01</td><td>targetAmount increased</td><td>Recalculate plan (remainingAmount increases). If now off-track, fire REC-01 recommendation. Timeline: TARGET_CHANGED event.</td></tr>
+          <tr><td>EC-02</td><td>targetAmount decreased to ≤ currentSavedAmount</td><td>Immediately trigger COMPLETED transition. Celebration sequence fires. Timeline: TARGET_CHANGED + GOAL_COMPLETED.</td></tr>
+          <tr><td>EC-03</td><td>targetDate extended</td><td>Recalculate: requiredMonthlyContribution decreases. Feasibility may improve. Timeline: DATE_CHANGED (direction: extended).</td></tr>
+          <tr><td>EC-04</td><td>targetDate shortened</td><td>Recalculate: requiredMonthly may jump significantly. If jump &gt;25%, show warning: "Required monthly increased by [Δ]." Fire REC-02 if now UNREALISTIC. Timeline: DATE_CHANGED (shortened).</td></tr>
+          <tr><td>EC-05</td><td>Contribution soft-deleted</td><td>currentSavedAmount decreases. Recalculate all plan metrics. Timeline: CONTRIBUTION_REVERSED. Milestone badges already earned are NOT revoked (BR-GOL-04). If balance drops below 100% and goal was COMPLETED, status reverts to ACTIVE.</td></tr>
+          <tr><td>EC-06</td><td>Contribution amount edited</td><td>Treat as delete + re-insert: soft-delete original, create new with corrected amount. Note required. Two timeline events: CONTRIBUTION_REVERSED + CONTRIBUTION_ADDED.</td></tr>
+          <tr><td>EC-07</td><td>Goal paused</td><td>Auto-contributions suspended immediately. Contribution reminders silenced. Estimated completion pauses (timeline frozen). Other goals unaffected.</td></tr>
+          <tr><td>EC-08</td><td>Goal resumed after pause</td><td>Recalculate estimatedCompletionDate from today with current balance. If now significantly off-track, fire REC-01. Propose updated monthlyContribution to compensate for paused period.</td></tr>
+          <tr><td>EC-09</td><td>Goal cancelled</td><td>Soft-delete goal. All contributions preserved. If linked budget category: prompt to redirect freed allocation. achievementRate denominator increases. Timeline: GOAL_CANCELLED → GOAL_ARCHIVED.</td></tr>
+          <tr><td>EC-10</td><td>Duplicate goal detected</td><td>On save: if another ACTIVE goal has same name + category + targetAmount within 10%: show advisory "Looks similar to [existing goal]." User can proceed or merge. Not blocked.</td></tr>
+          <tr><td>EC-11</td><td>Currency changed</td><td>Convert currentSavedAmount using exchange rate at time of change. Log rate used in CURRENCY_CHANGED timeline event. All historical contributions remain in original amounts for audit; display in new currency.</td></tr>
+          <tr><td>EC-12</td><td>Withdrawal makes balance = 0</td><td>Allowed. Goal status remains ACTIVE. System fires REC-03 (inactive-like). If goal was previously at PCT_50+, show empathetic message: "Starting fresh — your plan is ready."</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Business Rules</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>ID</th><th>Rule</th></tr></thead>
+        <tbody>
+          <tr><td>BR-GOL-01</td><td>targetAmount minimum is 100 centimes (≥ 1.00 in base currency).</td></tr>
+          <tr><td>BR-GOL-02</td><td>priorityOrder integers must be unique across all goals (ACTIVE + PAUSED). Gaps are allowed. Archived/Cancelled goals are excluded from ordering.</td></tr>
+          <tr><td>BR-GOL-03</td><td>COMPLETED status is irreversible EXCEPT when a contribution deletion reduces currentSavedAmount below targetAmount (EC-05). In that case, status reverts to ACTIVE automatically.</td></tr>
+          <tr><td>BR-GOL-04</td><td>GoalMilestone badges are never revoked, even if balance drops below the milestone threshold after a withdrawal.</td></tr>
+          <tr><td>BR-GOL-05</td><td>DRAFT goals are excluded from all dashboard KPIs, health score calculations, analytics, and notification triggers.</td></tr>
+          <tr><td>BR-GOL-06</td><td>Hard deletion of goals and contributions is prohibited. All deletions are soft (deletedAt timestamp). Audit trail must remain permanently intact.</td></tr>
+          <tr><td>BR-GOL-07</td><td>balanceAfter on each GoalContribution must equal the running sum of all non-deleted contributions for that goal as of that contribution's date. Verified on insert.</td></tr>
+          <tr><td>BR-GOL-08</td><td>contributionDay is capped at 28 to handle all month lengths. Days 29–31 are not allowed.</td></tr>
+          <tr><td>BR-GOL-09</td><td>Auto-contributions (AUTO_MONTHLY) fire only for ACTIVE goals where isPaused = false. PAUSED, COMPLETED, CANCELLED, and ARCHIVED goals receive no auto-contributions.</td></tr>
+          <tr><td>BR-GOL-10</td><td>Priority reordering does not create a GoalContribution record. It creates a PRIORITY_CHANGED GoalTimelineEvent only.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Performance Targets</h3>
+    <div class="card-grid">
+      <div class="card"><div class="card-title">Goal list render</div><div class="card-body">&lt;100ms for up to 50 active goals on mid-range device</div></div>
+      <div class="card"><div class="card-title">Plan recalculation</div><div class="card-body">&lt;16ms (single frame) — pure math, no I/O</div></div>
+      <div class="card"><div class="card-title">Contribution recording</div><div class="card-body">&lt;200ms end-to-end including DB write and UI update</div></div>
+      <div class="card"><div class="card-title">Analytics page load</div><div class="card-body">&lt;500ms for all charts including data aggregation</div></div>
+      <div class="card"><div class="card-title">Contribution history</div><div class="card-body">Paginated at 50 records/page; total count shown immediately</div></div>
+    </div>
+
+    <h3>Future Scalability</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Feature</th><th>Version</th><th>Architecture Note</th></tr></thead>
+        <tbody>
+          <tr><td>AI Financial Coaching</td><td>v2.0</td><td>GoalTimelineEvent + GoalContribution history provides training data. Health score components become feature inputs.</td></tr>
+          <tr><td>Shared / Family Goals</td><td>v2.0</td><td>Add <code>ownerId[]</code> array to Goal. GoalContribution gains <code>contributorId</code>. UI shows per-member contribution breakdown.</td></tr>
+          <tr><td>Investment Goals</td><td>v2.0</td><td>Add <code>expectedReturnRate</code> field. Saving plan engine: <code>FV = PV × (1+r)^n + PMT × ((1+r)^n − 1)/r</code>. Linked to INVESTMENT category.</td></tr>
+          <tr><td>Bank Synchronization</td><td>v2.0</td><td>GoalContribution.type = BANK_SYNC already reserved. <code>source</code> field stores transaction reference.</td></tr>
+          <tr><td>Automatic Transfers</td><td>v2.0</td><td>isAutoContribute=true architecture already in place. Add <code>bankAccountId</code> field for transfer target.</td></tr>
+          <tr><td>Multiple Currencies</td><td>v2.0</td><td>Currency field already per-goal. Add exchange rate table. Dashboard KPIs convert to user's base currency using stored rates.</td></tr>
+          <tr><td>Goal Templates</td><td>v1.1</td><td>Add <code>GoalTemplate</code> table: name, category, suggestedAmount, suggestedTimeline, iconKey. Users instantiate templates; no schema change to Goal itself.</td></tr>
+          <tr><td>Scenario Simulation</td><td>v2.0</td><td>What-if engine: same formulas as Saving Plan Engine, run with parameter overrides. No new schema — pure computation.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout callout-success" style="margin-top:24px;">
+      <strong>SPEC-GOL-001 v1.0 — Complete.</strong> This document is the authoritative specification for the Finance Bag Financial Goals module. All implementation decisions must be validated against these business rules and data model definitions. Computed fields must never be stored. All money amounts are integer centimes. Soft deletes only.
+    </div>
+  </section>
+
+</main>
+
+<script>
+  // Scrollspy
+  const sections = document.querySelectorAll('.section');
+  const navItems = document.querySelectorAll('.nav-item');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navItems.forEach(n => n.classList.remove('active'));
+        const active = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>

@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SPEC-DSH-001 — Dashboard & Financial Command Center</title>
+<style>
+  :root {
+    --bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;
+    --text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;
+    --accent:#0EA5E9;--accent-dim:rgba(14,165,233,0.15);--accent-glow:rgba(14,165,233,0.07);
+    --sidebar-w:260px;
+  }
+  @media(prefers-color-scheme:light){:root{
+    --bg:#F4F4F5;--surface:#FFFFFF;--surface2:#F1F5F9;--border:#E4E4E7;
+    --text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;
+    --accent-dim:rgba(14,165,233,0.10);--accent-glow:rgba(14,165,233,0.05);
+  }}
+  :root[data-theme="dark"]{--bg:#09090B;--surface:#18181B;--surface2:#27272A;--border:#3F3F46;--text:#FAFAFA;--text-muted:#A1A1AA;--text-dim:#71717A;--accent-dim:rgba(14,165,233,0.15);--accent-glow:rgba(14,165,233,0.07);}
+  :root[data-theme="light"]{--bg:#F4F4F5;--surface:#FFFFFF;--surface2:#F1F5F9;--border:#E4E4E7;--text:#09090B;--text-muted:#52525B;--text-dim:#A1A1AA;--accent-dim:rgba(14,165,233,0.10);--accent-glow:rgba(14,165,233,0.05);}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:15px;line-height:1.6;}
+  /* SIDEBAR */
+  .sidebar{width:var(--sidebar-w);min-width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);position:fixed;top:0;left:0;bottom:0;overflow-y:auto;display:flex;flex-direction:column;z-index:100;}
+  .sb-head{padding:20px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:1;}
+  .mod-badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid rgba(14,165,233,0.3);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:8px;}
+  .sb-title{font-size:13px;font-weight:600;color:var(--text);line-height:1.3;}
+  .sb-sub{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  .nav-list{list-style:none;padding:10px 8px;flex:1;}
+  .nav-item a{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:12.5px;color:var(--text-muted);text-decoration:none;transition:all .15s;}
+  .nav-item a:hover{background:var(--surface2);color:var(--text);}
+  .nav-item a.active{background:var(--accent-dim);color:var(--accent);font-weight:600;}
+  .nav-num{font-size:10px;font-weight:700;color:var(--accent);min-width:18px;font-variant-numeric:tabular-nums;}
+  .theme-area{padding:12px 16px;border-top:1px solid var(--border);}
+  .theme-btn{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:8px;color:var(--text-muted);font-size:12px;cursor:pointer;}
+  .theme-btn:hover{color:var(--text);}
+  /* MAIN */
+  .main{margin-left:var(--sidebar-w);flex:1;max-width:900px;padding:48px 48px 100px;}
+  /* DOC HEADER */
+  .doc-header{border-bottom:2px solid var(--border);padding-bottom:32px;margin-bottom:52px;}
+  .doc-eyebrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .spec-id{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);}
+  .spec-ver{font-size:11px;color:var(--text-dim);background:var(--surface2);border-radius:4px;padding:2px 8px;}
+  .status-pill{font-size:11px;font-weight:600;border-radius:20px;padding:3px 10px;background:rgba(245,158,11,.15);color:#F59E0B;border:1px solid rgba(245,158,11,.3);}
+  .doc-title{font-size:31px;font-weight:800;letter-spacing:-.02em;line-height:1.15;color:var(--text);text-wrap:balance;margin-bottom:10px;}
+  .doc-sub{font-size:16px;color:var(--text-muted);text-wrap:balance;max-width:600px;margin-bottom:20px;}
+  .meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;}
+  .meta-item{background:var(--surface2);border-radius:8px;padding:10px 14px;}
+  .meta-label{font-size:10px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--text-dim);margin-bottom:3px;}
+  .meta-val{font-size:13px;font-weight:600;color:var(--text);}
+  /* SECTIONS */
+  section{margin-bottom:60px;scroll-margin-top:28px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+  .sec-num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:var(--accent);color:#fff;font-size:12px;font-weight:800;border-radius:6px;flex-shrink:0;}
+  .sec-title{font-size:20px;font-weight:700;letter-spacing:-.01em;color:var(--text);}
+  h3{font-size:15px;font-weight:700;color:var(--text);margin:24px 0 10px;letter-spacing:-.01em;}
+  h4{font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.06em;margin:20px 0 8px;}
+  p{color:var(--text-muted);margin-bottom:12px;}
+  strong{color:var(--text);font-weight:600;}
+  /* TABLES */
+  .tw{overflow-x:auto;margin:14px 0;border-radius:8px;border:1px solid var(--border);}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  thead{background:var(--surface2);}
+  th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--text-dim);border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:10px 14px;color:var(--text-muted);border-bottom:1px solid var(--border);vertical-align:top;}
+  tr:last-child td{border-bottom:none;}
+  tr:hover td{background:var(--accent-glow);}
+  td strong{color:var(--text);}
+  td code,code{font-family:'JetBrains Mono','Fira Code',monospace;font-size:12px;color:var(--accent);background:var(--accent-dim);padding:1px 5px;border-radius:4px;}
+  /* CODE */
+  .cb{background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:8px;padding:16px 20px;margin:14px 0;font-family:'JetBrains Mono','Fira Code',monospace;font-size:12.5px;color:var(--text);overflow-x:auto;white-space:pre;line-height:1.75;}
+  .c{color:var(--text-dim);}
+  .kw{color:var(--accent);}
+  .fn{color:#A78BFA;}
+  .num{color:#34D399;}
+  .str{color:#FCD34D;}
+  /* CALLOUTS */
+  .callout{border-radius:8px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;align-items:flex-start;}
+  .c-info{background:var(--accent-dim);border:1px solid rgba(14,165,233,.25);}
+  .c-warn{background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.25);}
+  .c-err{background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.25);}
+  .c-ok{background:rgba(34,197,94,.10);border:1px solid rgba(34,197,94,.25);}
+  .ci{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .cb2{font-size:13.5px;color:var(--text-muted);line-height:1.55;}
+  /* CHIPS */
+  .chip{display:inline-flex;align-items:center;font-size:11px;font-weight:600;border-radius:20px;padding:2px 9px;border:1px solid;white-space:nowrap;margin:2px 2px;}
+  .ch-sky{background:var(--accent-dim);color:var(--accent);border-color:rgba(14,165,233,.3);}
+  .ch-grn{background:rgba(34,197,94,.12);color:#22C55E;border-color:rgba(34,197,94,.3);}
+  .ch-red{background:rgba(239,68,68,.12);color:#EF4444;border-color:rgba(239,68,68,.3);}
+  .ch-amb{background:rgba(245,158,11,.12);color:#F59E0B;border-color:rgba(245,158,11,.3);}
+  .ch-pur{background:rgba(139,92,246,.12);color:#8B5CF6;border-color:rgba(139,92,246,.3);}
+  .ch-ind{background:rgba(99,102,241,.12);color:#6366F1;border-color:rgba(99,102,241,.3);}
+  .ch-grey{background:var(--surface2);color:var(--text-muted);border-color:var(--border);}
+  /* MODULE REFS */
+  .mr{font-size:11px;font-weight:700;border-radius:4px;padding:1px 6px;}
+  .mr-bud{background:rgba(99,102,241,.15);color:#6366F1;}
+  .mr-dbt{background:rgba(239,68,68,.15);color:#EF4444;}
+  .mr-emf{background:rgba(34,197,94,.15);color:#22C55E;}
+  .mr-gol{background:rgba(245,158,11,.15);color:#F59E0B;}
+  .mr-rmp{background:rgba(139,92,246,.15);color:#8B5CF6;}
+  .mr-dsh{background:rgba(14,165,233,.15);color:#0EA5E9;}
+  /* CROSS-REF BAR */
+  .xref{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:12px 16px;margin:20px 0;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+  .xref-label{font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:.07em;margin-right:4px;}
+  /* LISTS */
+  ul.sl{list-style:none;padding:0;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+  ul.sl li{display:flex;gap:8px;align-items:flex-start;font-size:13.5px;color:var(--text-muted);}
+  ul.sl li::before{content:'—';color:var(--accent);font-weight:700;flex-shrink:0;margin-top:1px;}
+  ol.sl{padding:0 0 0 20px;margin:10px 0;display:flex;flex-direction:column;gap:6px;}
+  ol.sl li{font-size:13.5px;color:var(--text-muted);padding-left:4px;}
+  /* RULE CARDS */
+  .rc{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px 16px;margin-bottom:10px;}
+  .rc-id{font-size:10.5px;font-weight:800;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;}
+  .rc-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px;}
+  .rc-body{font-size:13px;color:var(--text-muted);line-height:1.55;}
+  /* WIDGET GRID */
+  .wg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0;}
+  .wcard{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;}
+  .wcard-id{font-size:10px;font-weight:800;letter-spacing:.08em;color:var(--accent);text-transform:uppercase;margin-bottom:3px;}
+  .wcard-name{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .wcard-desc{font-size:12px;color:var(--text-muted);line-height:1.45;}
+  /* SCORE BARS */
+  .sbar{display:grid;grid-template-columns:200px 1fr 56px;align-items:center;gap:12px;margin-bottom:9px;font-size:13px;}
+  .sbar-label{color:var(--text-muted);}
+  .sbar-track{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+  .sbar-fill{height:100%;border-radius:3px;background:var(--accent);}
+  .sbar-pts{color:var(--accent);font-weight:700;font-size:12px;font-variant-numeric:tabular-nums;text-align:right;}
+  /* GRADE GRID */
+  .gg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0;}
+  .gc{text-align:center;padding:12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);}
+  .gc-range{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums;}
+  .gc-label{font-size:11.5px;font-weight:700;margin-top:3px;}
+  .gc-desc{font-size:11px;color:var(--text-dim);margin-top:2px;}
+  /* DEF LIST */
+  .dl{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+  .di{display:grid;grid-template-columns:180px 1fr;gap:12px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font-size:13px;}
+  .dk{font-weight:700;color:var(--text);font-size:12px;align-self:start;padding-top:1px;}
+  .dv{color:var(--text-muted);}
+  @media(max-width:700px){
+    .sidebar{display:none;}.main{margin-left:0;padding:24px 18px 60px;}
+    .wg,.gg,.meta-grid{grid-template-columns:1fr;}.di{grid-template-columns:1fr;}.sbar{grid-template-columns:1fr 1fr 48px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sb-head">
+    <div class="mod-badge">📊 SPEC-DSH-001</div>
+    <div class="sb-title">Dashboard & Financial Command Center</div>
+    <div class="sb-sub">Finance Bag · v1.0.0</div>
+  </div>
+  <ul class="nav-list" id="nav-list">
+    <li class="nav-item"><a href="#s1"><span class="nav-num">01</span>Overview</a></li>
+    <li class="nav-item"><a href="#s2"><span class="nav-num">02</span>Data Architecture</a></li>
+    <li class="nav-item"><a href="#s3"><span class="nav-num">03</span>Information Hierarchy</a></li>
+    <li class="nav-item"><a href="#s4"><span class="nav-num">04</span>Financial Health Score</a></li>
+    <li class="nav-item"><a href="#s5"><span class="nav-num">05</span>Available Money Engine</a></li>
+    <li class="nav-item"><a href="#s6"><span class="nav-num">06</span>Widget System</a></li>
+    <li class="nav-item"><a href="#s7"><span class="nav-num">07</span>Smart Insights Engine</a></li>
+    <li class="nav-item"><a href="#s8"><span class="nav-num">08</span>Alert Center</a></li>
+    <li class="nav-item"><a href="#s9"><span class="nav-num">09</span>Quick Actions</a></li>
+    <li class="nav-item"><a href="#s10"><span class="nav-num">10</span>Charts &amp; Visualizations</a></li>
+    <li class="nav-item"><a href="#s11"><span class="nav-num">11</span>Personalization</a></li>
+    <li class="nav-item"><a href="#s12"><span class="nav-num">12</span>Global Search</a></li>
+    <li class="nav-item"><a href="#s13"><span class="nav-num">13</span>Performance</a></li>
+    <li class="nav-item"><a href="#s14"><span class="nav-num">14</span>Edge Cases</a></li>
+    <li class="nav-item"><a href="#s15"><span class="nav-num">15</span>Business Rules</a></li>
+    <li class="nav-item"><a href="#s16"><span class="nav-num">16</span>Future Scalability</a></li>
+  </ul>
+  <div class="theme-area">
+    <button class="theme-btn" id="theme-btn">Toggle Light / Dark</button>
+  </div>
+</nav>
+
+<main class="main">
+
+  <div class="doc-header">
+    <div class="doc-eyebrow">
+      <span class="spec-id">SPEC-DSH-001</span>
+      <span class="spec-ver">Version 1.0.0</span>
+      <span class="status-pill">Draft</span>
+    </div>
+    <h1 class="doc-title">Dashboard &amp; Financial Command Center</h1>
+    <p class="doc-sub">Defines the architecture, information hierarchy, computation engine, widget system, and UX logic for the Finance Bag home dashboard — designed to deliver complete financial awareness within 5–10 seconds of opening the app.</p>
+    <div class="meta-grid">
+      <div class="meta-item"><div class="meta-label">Module ID</div><div class="meta-val">DSH</div></div>
+      <div class="meta-item"><div class="meta-label">Part</div><div class="meta-val">12 of 12</div></div>
+      <div class="meta-item"><div class="meta-label">Accent</div><div class="meta-val" style="color:#0EA5E9">#0EA5E9 Sky</div></div>
+      <div class="meta-item"><div class="meta-label">Stack</div><div class="meta-val">RN 0.76 / Expo 52</div></div>
+      <div class="meta-item"><div class="meta-label">State</div><div class="meta-val">Zustand 5</div></div>
+      <div class="meta-item"><div class="meta-label">DB</div><div class="meta-val">expo-sqlite</div></div>
+    </div>
+  </div>
+
+  <!-- S1: OVERVIEW -->
+  <section id="s1">
+    <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-title">Overview &amp; Module Identity</h2></div>
+
+    <div class="xref">
+      <span class="xref-label">Depends on</span>
+      <span class="mr mr-bud">SPEC-BUD-001</span>
+      <span class="mr mr-dbt">SPEC-DBT-001</span>
+      <span class="mr mr-emf">SPEC-EMF-001</span>
+      <span class="mr mr-gol">SPEC-GOL-001</span>
+      <span class="mr mr-rmp">SPEC-RMP-001</span>
+    </div>
+
+    <p>The Dashboard is the single entry point for Finance Bag. It is a <strong>read-only aggregation surface</strong> — it owns no data, persists no computed state, and writes nothing to the database. Every figure it shows is derived in real time from the five upstream modules. Its purpose is to answer six questions within one glance:</p>
+
+    <div class="dl">
+      <div class="di"><span class="dk">How much is available?</span><span class="dv">Available Money — net disposable after all allocations, debts, and contributions</span></div>
+      <div class="di"><span class="dk">How much is allocated?</span><span class="dv">Sum of all active budget category allocations for the current salary period</span></div>
+      <div class="di"><span class="dk">What is the debt status?</span><span class="dv">Total outstanding balance, next due payment, Debt-to-Income ratio</span></div>
+      <div class="di"><span class="dk">How is the emergency fund?</span><span class="dv">Current milestone level, completion percentage toward next milestone</span></div>
+      <div class="di"><span class="dk">How are goals progressing?</span><span class="dv">Active goal count, aggregate completion %, roadmap on-track status</span></div>
+      <div class="di"><span class="dk">What needs attention?</span><span class="dv">Prioritized alerts ordered by urgency and financial impact</span></div>
+    </div>
+
+    <h3>Design Principle: 5-Second Rule</h3>
+    <p>The user must be able to answer all six questions above within 5–10 seconds of opening the app, without scrolling. This is a hard constraint governing which widgets appear above the fold, what information density the layout uses, and how much cognitive parsing the UI demands. All decisions in this spec are filtered through this constraint.</p>
+
+    <h3>Module Scope</h3>
+    <ul class="sl">
+      <li>Financial Health Score (FHS) computation — 6-component formula, grades, and trend deltas</li>
+      <li>Available Money Engine — the canonical financial position calculation</li>
+      <li>Configurable widget system — 15 widget types, ordered and hideable</li>
+      <li>Smart Insights engine — contextual, actionable, non-repetitive financial nudges</li>
+      <li>Alert Center — prioritized notification surface aggregated from all modules</li>
+      <li>Quick Actions — 10 one-tap shortcuts to high-frequency operations</li>
+      <li>10 chart types for financial trend visualization</li>
+      <li>Dashboard personalization and 3 layout presets</li>
+      <li>Global search across all financial entities</li>
+      <li>Performance targets: critical path &lt; 200 ms</li>
+    </ul>
+
+    <div class="callout c-info"><span class="ci">ℹ️</span><div class="cb2"><strong>No writes from the dashboard.</strong> The dashboard never modifies module data. Quick Actions navigate to the correct module screen to complete the action. The sole exception is alert dismissal, which updates a local UI-state store only — never the module databases.</div></div>
+  </section>
+
+  <!-- S2: DATA ARCHITECTURE -->
+  <section id="s2">
+    <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">Data Architecture &amp; Schema</h2></div>
+
+    <p>The dashboard maintains no persistent database tables. It operates through two layers: a <strong>computed snapshot</strong> assembled at mount and refreshed on a defined schedule, and a <strong>UI state store</strong> for alert dismissal and personalization preferences.</p>
+
+    <h3>2.1 DashboardSnapshot (In-Memory, Never Persisted)</h3>
+    <div class="cb"><span class="kw">type</span> DashboardSnapshot = {
+  generatedAt:          <span class="fn">number</span>          <span class="c">// Unix ms</span>
+  periodId:             <span class="fn">string</span>          <span class="c">// Current budget period ID</span>
+  periodStart:          <span class="fn">string</span>          <span class="c">// ISO date</span>
+  periodEnd:            <span class="fn">string</span>          <span class="c">// ISO date</span>
+
+  <span class="c">// Core Financial Position</span>
+  availableMoney:       <span class="fn">number</span>          <span class="c">// centimes — the single most important number</span>
+  grossIncome:          <span class="fn">number</span>          <span class="c">// centimes — current period income</span>
+  totalAllocated:       <span class="fn">number</span>          <span class="c">// centimes — sum of active allocations</span>
+  totalSpent:           <span class="fn">number</span>          <span class="c">// centimes — recorded expenses this period</span>
+  totalDebtPayments:    <span class="fn">number</span>          <span class="c">// centimes — scheduled payments this period</span>
+  totalGoalContribs:    <span class="fn">number</span>          <span class="c">// centimes — committed goal contributions</span>
+  totalEMFContribs:     <span class="fn">number</span>          <span class="c">// centimes — committed EMF contributions</span>
+  unallocatedIncome:    <span class="fn">number</span>          <span class="c">// grossIncome − totalAllocated</span>
+
+  <span class="c">// Financial Health Score</span>
+  fhsTotal:             <span class="fn">number</span>          <span class="c">// 0–100</span>
+  fhsComponents:        FHSComponents
+  fhsLabel:             FHSLabel
+  fhsDelta7d:           <span class="fn">number</span>          <span class="c">// score change vs 7 days ago</span>
+  fhsDelta30d:          <span class="fn">number</span>          <span class="c">// score change vs 30 days ago</span>
+
+  <span class="c">// Budget Summary</span>
+  budgetUtilizationPct: <span class="fn">number</span>          <span class="c">// totalSpent / totalAllocated × 100</span>
+  overspentCategories:  <span class="fn">number</span>          <span class="c">// count where spent > allocated</span>
+  topSpendCategory:     <span class="fn">string</span> | <span class="kw">null</span>   <span class="c">// highest-spend category name</span>
+
+  <span class="c">// Debt Summary</span>
+  totalDebtBalance:     <span class="fn">number</span>          <span class="c">// centimes — sum of all active debt balances</span>
+  debtCount:            <span class="fn">number</span>
+  nextDueDebt:          NextDueDebt | <span class="kw">null</span>
+  dtiRatio:             <span class="fn">number</span>          <span class="c">// 0–1</span>
+  dtiLabel:             DTILabel
+
+  <span class="c">// EMF Summary</span>
+  emfCurrentAmount:     <span class="fn">number</span>          <span class="c">// centimes</span>
+  emfTargetAmount:      <span class="fn">number</span>          <span class="c">// centimes — current milestone target</span>
+  emfCompletionPct:     <span class="fn">number</span>          <span class="c">// 0–100</span>
+  emfMilestoneLevel:    MilestoneLevel
+  emfHealthScore:       <span class="fn">number</span>          <span class="c">// 0–100 from SPEC-EMF-001 §14</span>
+  emfMonthsToNext:      <span class="fn">number</span> | <span class="kw">null</span>
+
+  <span class="c">// Goals Summary</span>
+  activeGoalCount:      <span class="fn">number</span>
+  avgGoalCompletionPct: <span class="fn">number</span>          <span class="c">// mean completionPct across ACTIVE goals</span>
+  roadmapStatus:        RoadmapStatus
+  nextRecommendedGoal:  <span class="fn">string</span> | <span class="kw">null</span>   <span class="c">// per RREC-01 from SPEC-RMP-001</span>
+  urgentGoalCount:      <span class="fn">number</span>          <span class="c">// goals with deadline ≤ 30 days</span>
+
+  <span class="c">// Alerts &amp; Insights</span>
+  alerts:               DashboardAlert[]
+  criticalAlertCount:   <span class="fn">number</span>
+  activeInsights:       Insight[]        <span class="c">// max 3 displayed at once</span>
+}</div>
+
+    <h3>2.2 Supporting Types</h3>
+    <div class="cb"><span class="kw">type</span> FHSComponents = {
+  savingsRate:      <span class="fn">number</span>  <span class="c">// 0–20</span>
+  debtBurden:       <span class="fn">number</span>  <span class="c">// 0–20</span>
+  emfReadiness:     <span class="fn">number</span>  <span class="c">// 0–20</span>
+  budgetBalance:    <span class="fn">number</span>  <span class="c">// 0–15</span>
+  goalProgress:     <span class="fn">number</span>  <span class="c">// 0–15</span>
+  monthlyStability: <span class="fn">number</span>  <span class="c">// 0–10</span>
+}
+<span class="kw">type</span> FHSLabel = <span class="str">'EXCELLENT'</span> | <span class="str">'GOOD'</span> | <span class="str">'FAIR'</span> | <span class="str">'NEEDS_ATTENTION'</span> | <span class="str">'AT_RISK'</span> | <span class="str">'CRITICAL'</span>
+<span class="kw">type</span> DTILabel = <span class="str">'HEALTHY'</span> | <span class="str">'MODERATE'</span> | <span class="str">'ELEVATED'</span> | <span class="str">'HIGH'</span>
+<span class="kw">type</span> RoadmapStatus = <span class="str">'ON_TRACK'</span> | <span class="str">'BEHIND'</span> | <span class="str">'BLOCKED'</span> | <span class="str">'AHEAD'</span> | <span class="str">'NOT_STARTED'</span>
+<span class="kw">type</span> NextDueDebt = { debtId: <span class="fn">string</span>; debtName: <span class="fn">string</span>; daysUntil: <span class="fn">number</span>; amount: <span class="fn">number</span> }</div>
+
+    <h3>2.3 DashboardUIState (AsyncStorage — persisted)</h3>
+    <div class="cb"><span class="kw">type</span> DashboardUIState = {
+  layoutPreset:      LayoutPreset         <span class="c">// 'FOCUS' | 'BALANCED' | 'FULL'</span>
+  widgetOrder:       <span class="fn">string</span>[]            <span class="c">// ordered WIDGET-IDs</span>
+  hiddenWidgets:     <span class="fn">string</span>[]            <span class="c">// WIDGET-IDs the user has hidden</span>
+  dismissedAlerts:   <span class="fn">string</span>[]            <span class="c">// alert IDs dismissed (cleared on app restart)</span>
+  snoozedAlerts:     { id: <span class="fn">string</span>; until: <span class="fn">number</span> }[]
+  showCents:         <span class="fn">boolean</span>             <span class="c">// show .XX or round to nearest unit</span>
+  compactNumbers:    <span class="fn">boolean</span>             <span class="c">// 12 500 → 12.5K</span>
+  currencySymbol:    <span class="fn">string</span>              <span class="c">// e.g. 'MAD', '$', '€'</span>
+  lastOpenedAt:      <span class="fn">number</span>              <span class="c">// Unix ms — for refresh staleness check</span>
+}</div>
+
+    <h3>2.4 Snapshot Refresh Policy</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Trigger</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><strong>App foreground</strong></td><td>Full snapshot rebuild if lastOpenedAt > 5 minutes ago</td></tr>
+        <tr><td><strong>Module write</strong> (budget, debt, goal, EMF)</td><td>Partial rebuild of the affected summary fields only</td></tr>
+        <tr><td><strong>Period rollover</strong></td><td>Full snapshot rebuild; previous period snapshot discarded</td></tr>
+        <tr><td><strong>Pull-to-refresh</strong></td><td>Full snapshot rebuild, ignore staleness threshold</td></tr>
+        <tr><td><strong>Auto-refresh timer</strong></td><td>Every 15 minutes while app is in foreground</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- S3: INFORMATION HIERARCHY -->
+  <section id="s3">
+    <div class="sec-head"><span class="sec-num">03</span><h2 class="sec-title">Information Hierarchy</h2></div>
+
+    <p>The dashboard is structured in three tiers. Content at a higher tier is always visible without interaction. Content at lower tiers requires scrolling or a tap.</p>
+
+    <h3>Tier 1 — Immediate View (above the fold, visible on open)</h3>
+    <p>These are non-negotiable above-the-fold positions. No layout preset may move them below the fold.</p>
+    <ul class="sl">
+      <li><strong>Available Money</strong> — large typographic treatment, the first thing eyes land on</li>
+      <li><strong>Financial Health Score</strong> — displayed as a score badge and grade label directly below Available Money</li>
+      <li><strong>Budget ring / period bar</strong> — compact visual showing allocated vs. spent vs. remaining for the current period</li>
+      <li><strong>Critical alert count</strong> — if criticalAlertCount > 0, a red banner appears immediately below the FHS badge</li>
+    </ul>
+
+    <h3>Tier 2 — Primary Context (visible with minimal scroll)</h3>
+    <ul class="sl">
+      <li>Debt summary card — total balance, DTI label, next payment</li>
+      <li>Emergency fund progress bar — current level, completion %, months-to-next</li>
+      <li>Goals summary card — active count, aggregate progress, roadmap status chip</li>
+      <li>Top 3 alerts from Alert Center</li>
+    </ul>
+
+    <h3>Tier 3 — Detail &amp; Exploration (full scroll or dedicated screen)</h3>
+    <ul class="sl">
+      <li>Smart Insights carousel (up to 3 insights)</li>
+      <li>Quick Actions row</li>
+      <li>Individual goal cards (if Goals widget is expanded)</li>
+      <li>Charts (accessed via widget expand or dedicated chart screen)</li>
+      <li>Full alert list</li>
+    </ul>
+
+    <h3>Layout Density Rules</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Element</th><th>Max Height</th><th>Behavior at Overflow</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Available Money</strong></td><td>72 px</td><td>Compact number format (K/M suffix) triggered if digits &gt; 7</td></tr>
+        <tr><td><strong>FHS Badge</strong></td><td>36 px</td><td>Score + label always on one line</td></tr>
+        <tr><td><strong>Budget Ring</strong></td><td>120 px</td><td>Ring shrinks to 80 px in FOCUS preset</td></tr>
+        <tr><td><strong>Module Cards</strong></td><td>96 px each</td><td>Collapse to 48 px summary strip in FOCUS preset</td></tr>
+        <tr><td><strong>Alert Banner</strong></td><td>48 px</td><td>Shows count only when &gt; 1 critical; tap to expand full alert list</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- S4: FINANCIAL HEALTH SCORE -->
+  <section id="s4">
+    <div class="sec-head"><span class="sec-num">04</span><h2 class="sec-title">Financial Health Score (FHS)</h2></div>
+
+    <p>The Financial Health Score is a composite 0–100 index representing the user's overall financial wellness at a given moment. It aggregates the six core dimensions of personal finance into a single, instantly readable number. The score is computed on every snapshot rebuild and is <strong>never stored in the database</strong>.</p>
+
+    <div class="callout c-info"><span class="ci">ℹ️</span><div class="cb2"><strong>Total: 100 points</strong> across 6 components. Each component score is floored to 0 — negative values are not possible. The total is also clamped to [0, 100].</div></div>
+
+    <h3>4.1 Component 1 — Savings Rate (0–20 pts)</h3>
+    <p><strong>Definition:</strong> The fraction of gross income being saved or invested each period, including goal contributions and EMF contributions but excluding debt repayment.</p>
+    <div class="cb">savingsAmount  = totalGoalContribs + totalEMFContribs
+savingsRatePct = savingsAmount / grossIncome × <span class="num">100</span>
+
+savingsRatePts =
+  savingsRatePct >= <span class="num">20</span> → <span class="num">20</span>
+  savingsRatePct >= <span class="num">15</span> → <span class="num">16</span>
+  savingsRatePct >= <span class="num">10</span> → <span class="num">12</span>
+  savingsRatePct >=  <span class="num">5</span> →  <span class="num">8</span>
+  savingsRatePct >=  <span class="num">1</span> →  <span class="num">4</span>
+  savingsRatePct ==  <span class="num">0</span> →  <span class="num">0</span>
+
+<span class="c">// If grossIncome == 0: savingsRatePts = 0</span></div>
+
+    <h3>4.2 Component 2 — Debt Burden (0–20 pts)</h3>
+    <p><strong>Definition:</strong> The Debt-to-Income ratio (DTI) — monthly debt payments as a percentage of gross monthly income. Uses the same DTI definition as <span class="mr mr-dbt">SPEC-DBT-001</span>.</p>
+    <div class="cb">dtiPct = (totalDebtPayments / grossIncome) × <span class="num">100</span>
+
+debtBurdenPts =
+  dtiPct &lt;  <span class="num">15</span> → <span class="num">20</span>   <span class="c">// HEALTHY</span>
+  dtiPct &lt;  <span class="num">20</span> → <span class="num">17</span>
+  dtiPct &lt;  <span class="num">28</span> → <span class="num">13</span>   <span class="c">// MODERATE</span>
+  dtiPct &lt;  <span class="num">36</span> →  <span class="num">8</span>   <span class="c">// ELEVATED</span>
+  dtiPct &lt;  <span class="num">44</span> →  <span class="num">4</span>   <span class="c">// HIGH</span>
+  dtiPct >= <span class="num">44</span> →  <span class="num">0</span>
+
+<span class="c">// If grossIncome == 0 and totalDebtPayments == 0: debtBurdenPts = 20
+// If grossIncome == 0 and totalDebtPayments > 0: debtBurdenPts = 0</span></div>
+
+    <h3>4.3 Component 3 — EMF Readiness (0–20 pts)</h3>
+    <p><strong>Definition:</strong> Emergency Fund milestone level from <span class="mr mr-emf">SPEC-EMF-001</span>. Rewards having a meaningful financial safety net.</p>
+    <div class="cb">emfReadinessPts =
+  emfMilestoneLevel == LEVEL_3 (6 months) → <span class="num">20</span>
+  emfMilestoneLevel == LEVEL_2 (3 months) → <span class="num">15</span>
+  emfMilestoneLevel == LEVEL_1 (1 month)  →  <span class="num">9</span>
+  emfMilestoneLevel == LEVEL_0 (started)  →  <span class="num">3</span>
+  no EMF record exists                    →  <span class="num">0</span>
+
+<span class="c">// LEVEL_4 (custom) uses the emfHealthScore component instead:
+// emfReadinessPts = ROUND(emfHealthScore / 100 × 20)</span></div>
+
+    <h3>4.4 Component 4 — Budget Balance (0–15 pts)</h3>
+    <p><strong>Definition:</strong> How well actual spending aligns with the budget plan. Rewards staying within budget; penalizes overruns; also penalizes significantly under-spending (plan accuracy).</p>
+    <div class="cb">utilizationPct = totalSpent / totalAllocated × <span class="num">100</span>
+
+budgetBalancePts =
+  utilizationPct == <span class="num">0</span>        → <span class="num">0</span>   <span class="c">// No allocations or no spending data</span>
+  utilizationPct &lt;= <span class="num">80</span>      → <span class="num">12</span>  <span class="c">// Under-utilizing budget (plan inaccurate)</span>
+  utilizationPct &lt;= <span class="num">95</span>      → <span class="num">15</span>  <span class="c">// Optimal zone: 80–95%</span>
+  utilizationPct &lt;= <span class="num">100</span>     → <span class="num">11</span>  <span class="c">// 96–100%: technically in budget</span>
+  utilizationPct &lt;= <span class="num">110</span>     →  <span class="num">5</span>  <span class="c">// 101–110%: moderate overrun</span>
+  utilizationPct >  <span class="num">110</span>     →  <span class="num">0</span>  <span class="c">// &gt;110%: significant overrun</span>
+
+<span class="c">// Additional penalty: if overspentCategories > 0, subtract MIN(overspentCategories, 3)
+// Final: budgetBalancePts = MAX(0, budgetBalancePts − overspentCategories penalty)</span></div>
+
+    <h3>4.5 Component 5 — Goal Progress (0–15 pts)</h3>
+    <p><strong>Definition:</strong> Composite goal health, weighted by roadmap dependency leverage from <span class="mr mr-rmp">SPEC-RMP-001</span>.</p>
+    <div class="cb">avgGoalHealth = mean of goalHealthScore across all ACTIVE goals   <span class="c">// from SPEC-GOL-001 §13</span>
+goalProgressBase = ROUND(avgGoalHealth / <span class="num">100</span> × <span class="num">12</span>)
+
+<span class="c">// Dependency Leverage Bonus (0–3 pts)</span>
+blockedGoalCount = count of goals with roadmapStatus == BLOCKED
+onTrackCount     = count of goals with roadmapStatus ∈ {IN_PROGRESS, RECOMMENDED_NEXT}
+leverageBonus =
+  blockedGoalCount == <span class="num">0</span> AND onTrackCount >= <span class="num">2</span> → <span class="num">3</span>
+  blockedGoalCount == <span class="num">0</span> AND onTrackCount == <span class="num">1</span> → <span class="num">2</span>
+  blockedGoalCount == <span class="num">0</span>                       → <span class="num">1</span>
+  blockedGoalCount >= <span class="num">1</span>                       → <span class="num">0</span>
+
+goalProgressPts = MIN(<span class="num">15</span>, goalProgressBase + leverageBonus)
+
+<span class="c">// If no ACTIVE goals: goalProgressPts = 0</span></div>
+
+    <h3>4.6 Component 6 — Monthly Stability (0–10 pts)</h3>
+    <p><strong>Definition:</strong> Behavioural consistency signals from the current period: salary recorded on time, no category overruns, contributions made.</p>
+    <div class="cb">stabilityPts = 0
+
+<span class="c">// Sub-component A: Salary recorded on time (0–4 pts)</span>
+IF currentPeriod.salaryRecordedAt IS NOT NULL:
+  salaryDelay = salaryRecordedAt − periodStart (in days)
+  stabilityPts += salaryDelay &lt;= <span class="num">2</span> → <span class="num">4</span>
+               | salaryDelay &lt;= <span class="num">5</span> → <span class="num">2</span>
+               | ELSE              → <span class="num">1</span>
+
+<span class="c">// Sub-component B: No budget overruns (0–3 pts)</span>
+IF overspentCategories == <span class="num">0</span>: stabilityPts += <span class="num">3</span>
+IF overspentCategories == <span class="num">1</span>: stabilityPts += <span class="num">1</span>
+
+<span class="c">// Sub-component C: Contributions made (0–3 pts)</span>
+IF totalGoalContribs > <span class="num">0</span> OR totalEMFContribs > <span class="num">0</span>: stabilityPts += <span class="num">3</span>
+
+monthlyStabilityPts = MIN(<span class="num">10</span>, stabilityPts)</div>
+
+    <h3>4.7 Total Score &amp; Grade Labels</h3>
+    <div class="cb">fhsTotal = savingsRatePts + debtBurdenPts + emfReadinessPts
+         + budgetBalancePts + goalProgressPts + monthlyStabilityPts
+
+fhsTotal = CLAMP(fhsTotal, <span class="num">0</span>, <span class="num">100</span>)</div>
+
+    <div class="gg">
+      <div class="gc"><div class="gc-range" style="color:#22C55E">85–100</div><div class="gc-label" style="color:#22C55E">Excellent</div><div class="gc-desc">Financial goals are well-funded and on track</div></div>
+      <div class="gc"><div class="gc-range" style="color:#0EA5E9">70–84</div><div class="gc-label" style="color:#0EA5E9">Good</div><div class="gc-desc">Healthy position with room to improve</div></div>
+      <div class="gc"><div class="gc-range" style="color:#F59E0B">55–69</div><div class="gc-label" style="color:#F59E0B">Fair</div><div class="gc-desc">Managing adequately; a few areas need attention</div></div>
+      <div class="gc"><div class="gc-range" style="color:#F97316">40–54</div><div class="gc-label" style="color:#F97316">Needs Attention</div><div class="gc-desc">Multiple dimensions are underperforming</div></div>
+      <div class="gc"><div class="gc-range" style="color:#EF4444">25–39</div><div class="gc-label" style="color:#EF4444">At Risk</div><div class="gc-desc">Debt or savings situation requires urgent action</div></div>
+      <div class="gc"><div class="gc-range" style="color:#DC2626">0–24</div><div class="gc-label" style="color:#DC2626">Critical</div><div class="gc-desc">Immediate corrective action required</div></div>
+    </div>
+
+    <h3>4.8 Score Trend Deltas</h3>
+    <div class="cb">fhsDelta7d  = fhsTotal_today − fhsTotal_7_days_ago
+fhsDelta30d = fhsTotal_today − fhsTotal_30_days_ago
+
+<span class="c">// Historical snapshots for delta computation:
+// Store one FHS snapshot per day in a ring buffer of 31 entries.
+// Each entry: { date: string (ISO), total: number, components: FHSComponents }
+// This ring buffer IS persisted to AsyncStorage (keyed 'fhs_history').
+// Oldest entry is evicted when buffer exceeds 31 entries.</span></div>
+  </section>
+
+  <!-- S5: AVAILABLE MONEY ENGINE -->
+  <section id="s5">
+    <div class="sec-head"><span class="sec-num">05</span><h2 class="sec-title">Available Money Engine</h2></div>
+
+    <p>Available Money is the single most important number in the app. It answers "how much can I actually spend right now?" — accounting for every financial commitment. It must be computed consistently, transparently, and displayed prominently.</p>
+
+    <h3>5.1 Core Formula</h3>
+    <div class="cb">availableMoney =
+  grossIncome
+  − totalAllocated        <span class="c">// sum of PeriodCategoryAllocation.allocatedAmount (SPEC-BUD-001)</span>
+  − totalDebtPayments     <span class="c">// sum of scheduled Credit.minimumPayment for this period (SPEC-DBT-001)</span>
+  − totalGoalContribs     <span class="c">// sum of Goal.monthlyContribution for ACTIVE goals (SPEC-GOL-001)</span>
+  − totalEMFContribs      <span class="c">// EmergencyFund.monthlyContribution if fund is ACTIVE (SPEC-EMF-001)</span>
+
+<span class="c">// All terms are in integer centimes. Result may be negative.
+// Negative availableMoney is displayed in red with a warning icon.</span></div>
+
+    <div class="callout c-warn"><span class="ci">⚠️</span><div class="cb2"><strong>Budget allocations vs. spending.</strong> <code>totalAllocated</code> uses the <em>planned allocation</em> for the period, not actual spending. This reflects commitments, not reality. Actual spending is shown separately as <code>totalSpent</code>. The Available Money number intentionally represents the plan so users can evaluate budget discipline.</div></div>
+
+    <h3>5.2 Allocation Waterfall Breakdown</h3>
+    <p>Below the Available Money figure, the dashboard displays a breakdown showing how gross income is consumed. These are always displayed as centimes amounts, not percentages, so users see exact figures.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Line Item</th><th>Source</th><th>Display Label</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Gross Income</strong></td><td>currentPeriod.totalIncome</td><td>"This period's income"</td></tr>
+        <tr><td>− Budget Allocations</td><td>Sum of PeriodCategoryAllocation.allocatedAmount</td><td>"Budgeted spending"</td></tr>
+        <tr><td>− Debt Payments</td><td>Sum of active Credit.minimumPayment</td><td>"Debt payments"</td></tr>
+        <tr><td>− Goal Contributions</td><td>Sum of active Goal.monthlyContribution</td><td>"Goal savings"</td></tr>
+        <tr><td>− EMF Contributions</td><td>EmergencyFund.monthlyContribution</td><td>"Emergency fund"</td></tr>
+        <tr><td><strong>= Available Money</strong></td><td>Computed result</td><td>"Available to spend"</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>5.3 Spending Remaining</h3>
+    <p>A secondary figure, distinct from Available Money, shows how much of the current budget allocations has not yet been spent:</p>
+    <div class="cb">remainingBudget = totalAllocated − totalSpent
+
+<span class="c">// If remainingBudget < 0: user has overspent their budget plan.
+// Displayed in amber (0 to -10%) or red (&lt; -10%).</span></div>
+
+    <h3>5.4 Edge Cases</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Condition</th><th>Behavior</th></tr></thead>
+      <tbody>
+        <tr><td>grossIncome == 0 (no salary recorded yet)</td><td>Show "— Income not recorded yet" placeholder; all derived figures are "—"</td></tr>
+        <tr><td>availableMoney &lt; 0</td><td>Display in red; show "Over-committed by X" below the figure; trigger ALERT-007</td></tr>
+        <tr><td>totalAllocated == 0 (no budget set up)</td><td>Show "No budget plan" chip; Available Money = grossIncome; trigger ALERT-009</td></tr>
+        <tr><td>All contributions = 0</td><td>No warning here — the FHS Savings Rate component will penalise this naturally</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- S6: WIDGET SYSTEM -->
+  <section id="s6">
+    <div class="sec-head"><span class="sec-num">06</span><h2 class="sec-title">Widget System</h2></div>
+
+    <p>The dashboard is composed of discrete, independently configurable widgets. Each widget renders a focused slice of financial data. Users can reorder, hide, and pin widgets; layout presets define sensible defaults.</p>
+
+    <h3>6.1 Widget Catalogue</h3>
+    <div class="wg">
+      <div class="wcard"><div class="wcard-id">WIDGET-FHS</div><div class="wcard-name">Financial Health Score</div><div class="wcard-desc">Score ring (0–100), grade label, 30-day trend delta, and drill-down to component breakdown. Always pinned — cannot be hidden.</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-AM</div><div class="wcard-name">Available Money</div><div class="wcard-desc">Hero number display of availableMoney. Always pinned. Tapping expands the full allocation waterfall (Section 5.2).</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-BP</div><div class="wcard-name">Budget Period Ring</div><div class="wcard-desc">Donut ring showing allocated vs. spent vs. remaining for the current period. Period date range and days remaining shown below ring.</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-DS</div><div class="wcard-name">Debt Summary</div><div class="wcard-desc">Total debt balance, DTI label chip, next due payment with countdown, and a mini progress bar showing total paydown since tracking began.</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-EMF</div><div class="wcard-name">Emergency Fund</div><div class="wcard-desc">Milestone level badge, progress bar to next milestone, current amount vs. target, and months-to-completion estimate.</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-GS</div><div class="wcard-name">Goals Summary</div><div class="wcard-desc">Active goal count, aggregate progress bar, roadmap status chip (ON_TRACK / BEHIND / BLOCKED), and next recommended goal name.</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-GL</div><div class="wcard-name">Goal List</div><div class="wcard-desc">Compact list of top 3 active goals by roadmap priority score, each with a mini progress ring and deadline chip.</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-AL</div><div class="wcard-name">Alert Center</div><div class="wcard-desc">Top 3 alerts ordered by severity. Tapping any alert navigates to the relevant module screen. A "See all" link opens full alert list.</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-IN</div><div class="wcard-name">Insights</div><div class="wcard-desc">Horizontally scrollable carousel of up to 3 Smart Insights cards (Section 7). Each card is actionable with a tap-to-navigate CTA.</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-QA</div><div class="wcard-name">Quick Actions</div><div class="wcard-desc">Horizontal scrollable row of icon+label tiles for the 10 Quick Actions (Section 9).</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-SC</div><div class="wcard-name">Spending Chart</div><div class="wcard-desc">Compact 7-day spending bar chart with category breakdown legend. Tapping opens the full chart screen (Section 10).</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-NP</div><div class="wcard-name">Net Position</div><div class="wcard-desc">Running total of assets (EMF + goal savings) minus total debt. Displayed as a single signed figure with a 90-day sparkline trend.</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-PC</div><div class="wcard-name">Period Countdown</div><div class="wcard-desc">Days remaining in the current budget period, with a subtle horizontal progress bar. Reminds users to record expenses before rollover.</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-RM</div><div class="wcard-name">Roadmap Snapshot</div><div class="wcard-desc">Linear roadmap strip showing the next 3 goals in sequence: completed, in-progress (with ring %), and next-up. Tap to open full roadmap.</div></div>
+      <div class="wcard"><div class="wcard-id">WIDGET-CF</div><div class="wcard-name">Cash Flow</div><div class="wcard-desc">Income vs. total outflows for the current period as a horizontal bar comparison. Shows surplus or deficit in large type.</div></div>
+    </div>
+
+    <h3>6.2 Widget States</h3>
+    <div class="tw"><table>
+      <thead><tr><th>State</th><th>Condition</th><th>Rendering</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Loading</strong></td><td>Snapshot being built</td><td>Skeleton shimmer — same card dimensions as loaded state</td></tr>
+        <tr><td><strong>Populated</strong></td><td>Data available</td><td>Full content render</td></tr>
+        <tr><td><strong>Empty</strong></td><td>No relevant data exists yet</td><td>Illustrated empty state with a "Set up" CTA button</td></tr>
+        <tr><td><strong>Error</strong></td><td>Data query threw an exception</td><td>"Could not load" with retry icon — never shows partial data</td></tr>
+        <tr><td><strong>Stale</strong></td><td>Snapshot older than 15 min</td><td>Subtle "Updated X min ago" badge on affected widget</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>6.3 Widget Size Classes</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Size</th><th>Grid Span</th><th>Widgets</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Hero</strong></td><td>Full width</td><td>WIDGET-AM, WIDGET-FHS</td></tr>
+        <tr><td><strong>Standard</strong></td><td>Full width</td><td>WIDGET-BP, WIDGET-DS, WIDGET-EMF, WIDGET-GS, WIDGET-CF, WIDGET-NP</td></tr>
+        <tr><td><strong>Compact</strong></td><td>Half width</td><td>WIDGET-PC, WIDGET-GL (can stack 2-up)</td></tr>
+        <tr><td><strong>Scroll</strong></td><td>Full width, variable height</td><td>WIDGET-AL, WIDGET-IN, WIDGET-QA, WIDGET-SC, WIDGET-RM</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- S7: SMART INSIGHTS -->
+  <section id="s7">
+    <div class="sec-head"><span class="sec-num">07</span><h2 class="sec-title">Smart Insights Engine</h2></div>
+
+    <p>Insights are short, contextual, and actionable messages surfaced on the dashboard to help users improve their financial position. The engine evaluates a set of rules against the current snapshot and selects the highest-priority insights that have not been recently shown.</p>
+
+    <h3>7.1 Insight Structure</h3>
+    <div class="cb"><span class="kw">type</span> Insight = {
+  id:          <span class="fn">string</span>        <span class="c">// deterministic: e.g. 'INS-003-2026-07'</span>
+  code:        InsightCode
+  priority:    <span class="fn">number</span>        <span class="c">// 1 (highest) – 100 (lowest)</span>
+  title:       <span class="fn">string</span>        <span class="c">// max 48 chars</span>
+  body:        <span class="fn">string</span>        <span class="c">// max 120 chars</span>
+  ctaLabel:    <span class="fn">string</span>        <span class="c">// e.g. "Adjust budget", "View debt plan"</span>
+  ctaRoute:    <span class="fn">string</span>        <span class="c">// Expo Router path</span>
+  suppressedUntil: <span class="fn">number</span>  <span class="c">// Unix ms — do not show before this time</span>
+}</div>
+
+    <h3>7.2 Insight Selection Algorithm</h3>
+    <ol class="sl">
+      <li>Evaluate all 30 insight rules against the current DashboardSnapshot</li>
+      <li>Filter out any insight whose <code>suppressedUntil &gt; now</code></li>
+      <li>Sort remaining candidates by <code>priority</code> ascending (lower = higher priority)</li>
+      <li>Select top 3; if fewer than 3 qualify, show fewer (never show a placeholder)</li>
+      <li>After display: set <code>suppressedUntil = now + suppressionPeriod</code> for each shown insight</li>
+    </ol>
+
+    <h3>7.3 Insight Catalogue (30 Rules)</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Code</th><th>Title</th><th>Trigger Condition</th><th>Priority</th><th>Suppression</th></tr></thead>
+      <tbody>
+        <tr><td><strong>INS-001</strong></td><td>Savings rate too low</td><td>savingsRatePct &lt; 5%</td><td>1</td><td>7 days</td></tr>
+        <tr><td><strong>INS-002</strong></td><td>High debt burden</td><td>dtiPct &gt;= 36%</td><td>2</td><td>7 days</td></tr>
+        <tr><td><strong>INS-003</strong></td><td>No emergency fund</td><td>emfMilestoneLevel == null</td><td>3</td><td>14 days</td></tr>
+        <tr><td><strong>INS-004</strong></td><td>Budget overrun</td><td>overspentCategories &gt;= 2</td><td>4</td><td>3 days</td></tr>
+        <tr><td><strong>INS-005</strong></td><td>Debt payment due soon</td><td>nextDueDebt.daysUntil &lt;= 5</td><td>5</td><td>1 day</td></tr>
+        <tr><td><strong>INS-006</strong></td><td>Goal deadline approaching</td><td>urgentGoalCount &gt;= 1</td><td>6</td><td>3 days</td></tr>
+        <tr><td><strong>INS-007</strong></td><td>FHS dropped this month</td><td>fhsDelta30d &lt;= -10</td><td>7</td><td>14 days</td></tr>
+        <tr><td><strong>INS-008</strong></td><td>EMF milestone almost reached</td><td>emfCompletionPct &gt;= 90%</td><td>8</td><td>7 days</td></tr>
+        <tr><td><strong>INS-009</strong></td><td>No budget plan set up</td><td>totalAllocated == 0</td><td>9</td><td>14 days</td></tr>
+        <tr><td><strong>INS-010</strong></td><td>Unallocated income</td><td>unallocatedIncome &gt; grossIncome × 20%</td><td>10</td><td>7 days</td></tr>
+        <tr><td><strong>INS-011</strong></td><td>Over-committed income</td><td>availableMoney &lt; 0</td><td>11</td><td>3 days</td></tr>
+        <tr><td><strong>INS-012</strong></td><td>No active goals</td><td>activeGoalCount == 0</td><td>12</td><td>30 days</td></tr>
+        <tr><td><strong>INS-013</strong></td><td>Roadmap is blocked</td><td>roadmapStatus == BLOCKED</td><td>13</td><td>7 days</td></tr>
+        <tr><td><strong>INS-014</strong></td><td>FHS improved this week</td><td>fhsDelta7d &gt;= 5 (positive)</td><td>20</td><td>14 days</td></tr>
+        <tr><td><strong>INS-015</strong></td><td>Savings rate milestone</td><td>savingsRatePct crossed 10%, 15%, or 20% threshold</td><td>21</td><td>30 days</td></tr>
+        <tr><td><strong>INS-016</strong></td><td>Under-utilizing budget</td><td>utilizationPct &lt; 50% with &gt;= 5 days left in period</td><td>22</td><td>7 days</td></tr>
+        <tr><td><strong>INS-017</strong></td><td>Period ending soon</td><td>periodEnd − today &lt;= 3 days</td><td>23</td><td>1 day</td></tr>
+        <tr><td><strong>INS-018</strong></td><td>Goal contribution skipped</td><td>totalGoalContribs == 0 with ACTIVE goals</td><td>24</td><td>7 days</td></tr>
+        <tr><td><strong>INS-019</strong></td><td>Debt payoff approaching</td><td>any debt: remainingPayments &lt;= 3</td><td>25</td><td>14 days</td></tr>
+        <tr><td><strong>INS-020</strong></td><td>Net position positive milestone</td><td>netPosition crossed 0 (from negative)</td><td>26</td><td>30 days</td></tr>
+        <tr><td><strong>INS-021</strong></td><td>High-interest debt present</td><td>any debt: annualRate &gt; 20%</td><td>27</td><td>14 days</td></tr>
+        <tr><td><strong>INS-022</strong></td><td>EMF milestone just achieved</td><td>emfMilestoneLevel changed this period</td><td>28</td><td>30 days</td></tr>
+        <tr><td><strong>INS-023</strong></td><td>Goal completed</td><td>any goal status → COMPLETED this period</td><td>29</td><td>30 days</td></tr>
+        <tr><td><strong>INS-024</strong></td><td>First salary recorded</td><td>totalPeriods == 1</td><td>30</td><td>Never again</td></tr>
+        <tr><td><strong>INS-025</strong></td><td>Consistent contributor streak</td><td>consecutiveMonthsWithContribs &gt;= 3</td><td>31</td><td>30 days</td></tr>
+        <tr><td><strong>INS-026</strong></td><td>Budget balance score perfect</td><td>budgetBalancePts == 15 two periods in a row</td><td>32</td><td>30 days</td></tr>
+        <tr><td><strong>INS-027</strong></td><td>Top spend category alert</td><td>topSpendCategory spending &gt; 40% of totalAllocated</td><td>33</td><td>7 days</td></tr>
+        <tr><td><strong>INS-028</strong></td><td>No salary recorded</td><td>grossIncome == 0 and periodStart &gt; 3 days ago</td><td>34</td><td>2 days</td></tr>
+        <tr><td><strong>INS-029</strong></td><td>Excellent FHS achieved</td><td>fhsTotal &gt;= 85 for first time</td><td>35</td><td>Never again</td></tr>
+        <tr><td><strong>INS-030</strong></td><td>Debt-free milestone</td><td>debtCount dropped to 0</td><td>36</td><td>Never again</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout c-warn"><span class="ci">⚠️</span><div class="cb2"><strong>Insight tone policy.</strong> Negative insights (INS-001 through INS-013) must be framed constructively — always include an action, never shame. Positive insights (INS-022 through INS-030) must be celebratory and specific. Insight copy is not finalised in this spec — UX copywriting is a separate deliverable.</div></div>
+  </section>
+
+  <!-- S8: ALERT CENTER -->
+  <section id="s8">
+    <div class="sec-head"><span class="sec-num">08</span><h2 class="sec-title">Alert Center</h2></div>
+
+    <p>Alerts are time-sensitive notifications that require user awareness or action. Unlike Insights (which are nudges), alerts are triggered by specific threshold violations or system events across all modules. They are aggregated onto the dashboard and ordered by a computed urgency score.</p>
+
+    <h3>8.1 Alert Structure</h3>
+    <div class="cb"><span class="kw">type</span> DashboardAlert = {
+  id:          <span class="fn">string</span>          <span class="c">// deterministic: source module + event key</span>
+  code:        AlertCode
+  severity:    AlertSeverity   <span class="c">// 'CRITICAL' | 'WARNING' | 'INFO'</span>
+  title:       <span class="fn">string</span>          <span class="c">// max 60 chars</span>
+  body:        <span class="fn">string</span>          <span class="c">// max 140 chars</span>
+  sourceModule: <span class="fn">string</span>         <span class="c">// 'BUD' | 'DBT' | 'EMF' | 'GOL' | 'RMP'</span>
+  ctaRoute:    <span class="fn">string</span>
+  urgencyScore: <span class="fn">number</span>         <span class="c">// 0–100; used for sort order</span>
+  generatedAt: <span class="fn">number</span>          <span class="c">// Unix ms</span>
+  dismissable: <span class="fn">boolean</span>
+}</div>
+
+    <h3>8.2 Urgency Score Formula</h3>
+    <div class="cb">urgencyScore =
+  (severityWeight × 50)          <span class="c">// CRITICAL=50, WARNING=30, INFO=10</span>
+  + (timelinessWeight × 30)      <span class="c">// daysUntil==0 → 30, ==1 → 25, ==2 → 20, &gt;7 → 0</span>
+  + (financialImpactWeight × 20) <span class="c">// fraction of grossIncome affected × 20, capped at 20</span>
+
+<span class="c">// Alerts with urgencyScore >= 70 are CRITICAL and trigger the red banner (Tier 1)</span></div>
+
+    <h3>8.3 Alert Catalogue (12 Types)</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Code</th><th>Severity</th><th>Source</th><th>Trigger</th><th>Dismissable</th></tr></thead>
+      <tbody>
+        <tr><td><strong>ALERT-001</strong></td><td><span class="chip ch-red">CRITICAL</span></td><td><span class="mr mr-dbt">DBT</span></td><td>Debt payment overdue (daysUntil &lt; 0)</td><td>No</td></tr>
+        <tr><td><strong>ALERT-002</strong></td><td><span class="chip ch-red">CRITICAL</span></td><td><span class="mr mr-bud">BUD</span></td><td>Budget overrun &gt; 110% in any category</td><td>No</td></tr>
+        <tr><td><strong>ALERT-003</strong></td><td><span class="chip ch-red">CRITICAL</span></td><td><span class="mr mr-dsh">DSH</span></td><td>availableMoney &lt; 0 (over-committed income)</td><td>No</td></tr>
+        <tr><td><strong>ALERT-004</strong></td><td><span class="chip ch-red">CRITICAL</span></td><td><span class="mr mr-gol">GOL</span></td><td>Goal with hard deadline missed</td><td>No</td></tr>
+        <tr><td><strong>ALERT-005</strong></td><td><span class="chip ch-amb">WARNING</span></td><td><span class="mr mr-dbt">DBT</span></td><td>Debt payment due in 1–5 days</td><td>Yes</td></tr>
+        <tr><td><strong>ALERT-006</strong></td><td><span class="chip ch-amb">WARNING</span></td><td><span class="mr mr-bud">BUD</span></td><td>Budget utilization &gt; 90% with &gt; 5 days remaining</td><td>Yes</td></tr>
+        <tr><td><strong>ALERT-007</strong></td><td><span class="chip ch-amb">WARNING</span></td><td><span class="mr mr-dsh">DSH</span></td><td>availableMoney &lt; grossIncome × 5%</td><td>Yes</td></tr>
+        <tr><td><strong>ALERT-008</strong></td><td><span class="chip ch-amb">WARNING</span></td><td><span class="mr mr-gol">GOL</span></td><td>Goal deadline within 30 days with completionPct &lt; 80%</td><td>Yes</td></tr>
+        <tr><td><strong>ALERT-009</strong></td><td><span class="chip ch-amb">WARNING</span></td><td><span class="mr mr-bud">BUD</span></td><td>No budget allocations set for current period</td><td>Yes</td></tr>
+        <tr><td><strong>ALERT-010</strong></td><td><span class="chip ch-amb">WARNING</span></td><td><span class="mr mr-rmp">RMP</span></td><td>Circular dependency detected in roadmap</td><td>No</td></tr>
+        <tr><td><strong>ALERT-011</strong></td><td><span class="chip ch-sky">INFO</span></td><td><span class="mr mr-emf">EMF</span></td><td>EMF milestone reached</td><td>Yes</td></tr>
+        <tr><td><strong>ALERT-012</strong></td><td><span class="chip ch-sky">INFO</span></td><td><span class="mr mr-dsh">DSH</span></td><td>Period rollover completed — new period started</td><td>Yes</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>8.4 Alert Dismissal Rules</h3>
+    <ul class="sl">
+      <li>CRITICAL alerts (ALERT-001 through ALERT-004) are <strong>never dismissable</strong> until the underlying condition resolves</li>
+      <li>Dismissed alert IDs are stored in DashboardUIState.dismissedAlerts (cleared on app restart, not persisted across sessions)</li>
+      <li>Snoozing: WARNING alerts can be snoozed for 24 hours; they re-appear automatically after the snooze expires</li>
+      <li>An alert re-appears on the next snapshot rebuild if the triggering condition still holds, even if previously dismissed</li>
+    </ul>
+  </section>
+
+  <!-- S9: QUICK ACTIONS -->
+  <section id="s9">
+    <div class="sec-head"><span class="sec-num">09</span><h2 class="sec-title">Quick Actions</h2></div>
+
+    <p>Quick Actions are one-tap navigations to the most common operations across all modules. They are displayed in a horizontally scrollable row in WIDGET-QA and are always available via a floating action button (FAB) in the bottom navigation bar.</p>
+
+    <div class="tw"><table>
+      <thead><tr><th>ID</th><th>Label</th><th>Module</th><th>Navigates To</th><th>Default Visible</th></tr></thead>
+      <tbody>
+        <tr><td><strong>QA-001</strong></td><td>Add Expense</td><td><span class="mr mr-bud">BUD</span></td><td>Expense entry screen, pre-populated with current period</td><td>Yes</td></tr>
+        <tr><td><strong>QA-002</strong></td><td>Record Income</td><td><span class="mr mr-bud">BUD</span></td><td>Salary record screen for current period</td><td>Yes</td></tr>
+        <tr><td><strong>QA-003</strong></td><td>Add Debt Payment</td><td><span class="mr mr-dbt">DBT</span></td><td>Payment entry for next-due debt (pre-selected)</td><td>Yes</td></tr>
+        <tr><td><strong>QA-004</strong></td><td>Fund Goal</td><td><span class="mr mr-gol">GOL</span></td><td>Contribution screen for highest-priority active goal</td><td>Yes</td></tr>
+        <tr><td><strong>QA-005</strong></td><td>Top Up EMF</td><td><span class="mr mr-emf">EMF</span></td><td>EMF contribution entry screen</td><td>Yes</td></tr>
+        <tr><td><strong>QA-006</strong></td><td>View Budget</td><td><span class="mr mr-bud">BUD</span></td><td>Budget period detail screen</td><td>Yes</td></tr>
+        <tr><td><strong>QA-007</strong></td><td>View Roadmap</td><td><span class="mr mr-rmp">RMP</span></td><td>Full roadmap visualization screen</td><td>Yes</td></tr>
+        <tr><td><strong>QA-008</strong></td><td>What-If</td><td><span class="mr mr-rmp">RMP</span></td><td>What-If scenario builder (SPEC-RMP-001 §8)</td><td>No</td></tr>
+        <tr><td><strong>QA-009</strong></td><td>Add New Debt</td><td><span class="mr mr-dbt">DBT</span></td><td>New Credit entry form</td><td>No</td></tr>
+        <tr><td><strong>QA-010</strong></td><td>New Goal</td><td><span class="mr mr-gol">GOL</span></td><td>Goal creation wizard</td><td>No</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="callout c-info"><span class="ci">ℹ️</span><div class="cb2">QA-001 through QA-007 are shown by default. QA-008 through QA-010 are hidden and accessible via "More actions". Users can reorder and show/hide all 10 actions in personalization settings.</div></div>
+  </section>
+
+  <!-- S10: CHARTS -->
+  <section id="s10">
+    <div class="sec-head"><span class="sec-num">10</span><h2 class="sec-title">Charts &amp; Visualizations</h2></div>
+
+    <p>Charts are rendered via an in-app chart screen accessible from any widget that supports expansion. No third-party chart library is mandated by this spec; only the data contract and visual requirements are defined here.</p>
+
+    <div class="tw"><table>
+      <thead><tr><th>ID</th><th>Chart Name</th><th>Type</th><th>X-Axis</th><th>Y-Axis</th><th>Data Source</th></tr></thead>
+      <tbody>
+        <tr><td><strong>CHART-001</strong></td><td>Spending vs Budget</td><td>Grouped bar</td><td>Category names</td><td>Amount (centimes)</td><td>Current period allocations + expenses</td></tr>
+        <tr><td><strong>CHART-002</strong></td><td>Income vs Outflows</td><td>Stacked bar</td><td>Last 6 periods</td><td>Amount (centimes)</td><td>Income, total allocated, total spent per period</td></tr>
+        <tr><td><strong>CHART-003</strong></td><td>Debt Reduction</td><td>Area line</td><td>Time (months)</td><td>Total debt balance</td><td>Sum of Credit.currentBalance per month</td></tr>
+        <tr><td><strong>CHART-004</strong></td><td>EMF Growth</td><td>Area line</td><td>Time (months)</td><td>Amount (centimes)</td><td>EmergencyFund.currentAmount snapshots</td></tr>
+        <tr><td><strong>CHART-005</strong></td><td>Goal Progress</td><td>Horizontal bars</td><td>Goals</td><td>Completion %</td><td>Goal.completionPct for ACTIVE goals</td></tr>
+        <tr><td><strong>CHART-006</strong></td><td>FHS History</td><td>Line chart</td><td>Last 31 days</td><td>Score 0–100</td><td>FHS ring buffer (Section 4.8)</td></tr>
+        <tr><td><strong>CHART-007</strong></td><td>Savings Rate Trend</td><td>Line chart</td><td>Last 6 periods</td><td>Rate %</td><td>Computed savingsRatePct per period</td></tr>
+        <tr><td><strong>CHART-008</strong></td><td>Category Breakdown</td><td>Donut / Pie</td><td>—</td><td>Proportion %</td><td>totalSpent per category, current period</td></tr>
+        <tr><td><strong>CHART-009</strong></td><td>Net Position</td><td>Area line</td><td>Time (months)</td><td>Amount (centimes)</td><td>EMF + goal savings − total debt per month</td></tr>
+        <tr><td><strong>CHART-010</strong></td><td>DTI Trend</td><td>Line chart with bands</td><td>Last 6 periods</td><td>DTI %</td><td>Computed dtiPct per period; colored bands at 20/36/44%</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>10.1 Chart Data Rules</h3>
+    <ul class="sl">
+      <li>All amounts shown in charts use the same centimes-to-display conversion as the rest of the app (compactNumbers setting respected)</li>
+      <li>Charts that span multiple periods use <strong>salary-period alignment</strong>, not calendar months, consistent with SPEC-BUD-001 BR-01</li>
+      <li>A minimum of 2 data points is required to render a line chart; otherwise show an empty state with "Not enough data yet"</li>
+      <li>All line charts include a tooltip on tap/hold showing exact values for that data point</li>
+      <li>Color encoding: income / positive = <code>#22C55E</code>; spending / negative = <code>#EF4444</code>; neutral / goal = <code>#0EA5E9</code>; debt = <code>#F59E0B</code></li>
+    </ul>
+  </section>
+
+  <!-- S11: PERSONALIZATION -->
+  <section id="s11">
+    <div class="sec-head"><span class="sec-num">11</span><h2 class="sec-title">Personalization</h2></div>
+
+    <h3>11.1 Layout Presets</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Preset</th><th>Description</th><th>Widgets Above Fold</th><th>Use Case</th></tr></thead>
+      <tbody>
+        <tr><td><strong>FOCUS</strong></td><td>Minimal — only the most critical figures</td><td>WIDGET-AM, WIDGET-FHS, WIDGET-AL</td><td>Users who want a quick daily check-in</td></tr>
+        <tr><td><strong>BALANCED</strong> (default)</td><td>Standard overview with primary module summaries</td><td>WIDGET-AM, WIDGET-FHS, WIDGET-BP, WIDGET-DS, WIDGET-EMF, WIDGET-GS</td><td>Most users — full picture without overwhelming detail</td></tr>
+        <tr><td><strong>FULL</strong></td><td>Everything visible, dense layout</td><td>All 15 widgets in default order</td><td>Power users and finance enthusiasts</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>11.2 Widget Customization Rules</h3>
+    <ul class="sl">
+      <li><strong>WIDGET-AM and WIDGET-FHS are pinned</strong> — they cannot be hidden or moved below position 3</li>
+      <li>All other widgets can be reordered by drag-and-drop; the new order is saved to DashboardUIState.widgetOrder</li>
+      <li>Hiding a widget does not affect the underlying module data or any computations</li>
+      <li>Preset selection resets widgetOrder and hiddenWidgets to the preset defaults</li>
+      <li>Custom widget order overrides the preset if any widget was manually moved after selecting a preset</li>
+    </ul>
+
+    <h3>11.3 Display Preferences</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Setting</th><th>Options</th><th>Default</th><th>Effect</th></tr></thead>
+      <tbody>
+        <tr><td><strong>showCents</strong></td><td>true / false</td><td>false</td><td>false: amounts rounded to nearest unit; true: show .XX</td></tr>
+        <tr><td><strong>compactNumbers</strong></td><td>true / false</td><td>false</td><td>true: 12 500 → 12.5K; false: always show full number</td></tr>
+        <tr><td><strong>currencySymbol</strong></td><td>String (e.g. "MAD", "$")</td><td>"MAD"</td><td>Prepended or appended to all monetary displays</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- S12: GLOBAL SEARCH -->
+  <section id="s12">
+    <div class="sec-head"><span class="sec-num">12</span><h2 class="sec-title">Global Search &amp; Overview</h2></div>
+
+    <p>Global Search allows users to find any financial entity across all modules from a single search bar accessible from the dashboard header. It does not query any external service — all search is local, against the SQLite database.</p>
+
+    <h3>12.1 Searchable Entity Types</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Entity</th><th>Fields Searched</th><th>Result Preview</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Budget Category</strong></td><td>name, description, parentCategoryName</td><td>Name + current utilization %</td></tr>
+        <tr><td><strong>Debt (Credit)</strong></td><td>name, lenderName, notes</td><td>Name + current balance + next payment date</td></tr>
+        <tr><td><strong>Goal</strong></td><td>name, description, category</td><td>Name + completion % + target amount</td></tr>
+        <tr><td><strong>Emergency Fund</strong></td><td>fundName</td><td>Current level + completion %</td></tr>
+        <tr><td><strong>Expense</strong></td><td>description, notes, categoryName</td><td>Description + amount + date</td></tr>
+        <tr><td><strong>Budget Period</strong></td><td>dateRange</td><td>Period range + total income</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>12.2 Search Algorithm</h3>
+    <ul class="sl">
+      <li>Minimum query length: 2 characters</li>
+      <li>Case-insensitive substring match across all indexed fields</li>
+      <li>Results are grouped by entity type with a section header per group</li>
+      <li>Maximum 5 results per entity type (20 total); a "View all [N]" link navigates to a filtered module screen</li>
+      <li>Search executes on every keystroke after 300 ms debounce; runs on a background thread to avoid blocking the UI</li>
+      <li>Soft-deleted records (<code>deleted_at IS NOT NULL</code>) are excluded from all search results</li>
+      <li>Recently viewed entities are shown as suggestions before the user types</li>
+    </ul>
+  </section>
+
+  <!-- S13: PERFORMANCE -->
+  <section id="s13">
+    <div class="sec-head"><span class="sec-num">13</span><h2 class="sec-title">Performance Architecture</h2></div>
+
+    <h3>13.1 Performance Targets</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Operation</th><th>Target</th><th>Measurement Point</th></tr></thead>
+      <tbody>
+        <tr><td>Critical path (FHS + Available Money)</td><td>&lt; 200 ms</td><td>DB query start → first meaningful paint of Tier 1 widgets</td></tr>
+        <tr><td>Full snapshot build</td><td>&lt; 500 ms</td><td>DB query start → all widgets populated</td></tr>
+        <tr><td>Partial snapshot rebuild (single module)</td><td>&lt; 100 ms</td><td>Module write → affected widget re-renders</td></tr>
+        <tr><td>Global search query</td><td>&lt; 150 ms</td><td>Keystroke debounce end → results displayed</td></tr>
+        <tr><td>Chart data computation (6 periods)</td><td>&lt; 300 ms</td><td>Chart screen open → data rendered</td></tr>
+        <tr><td>App cold start to Tier 1 visible</td><td>&lt; 800 ms</td><td>JS bundle ready → WIDGET-AM and WIDGET-FHS populated</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>13.2 Caching Strategy</h3>
+    <ul class="sl">
+      <li><strong>Critical path pre-computation:</strong> On every budget period write, pre-compute and cache the Available Money and FHS totals in Zustand. Dashboard reads from cache, not from DB, for these two values</li>
+      <li><strong>Snapshot fields are computed in parallel</strong> where queries have no dependency on each other (budget summary, debt summary, EMF summary, goals summary are independent — run concurrently)</li>
+      <li><strong>FHS ring buffer</strong> (Section 4.8) is read from AsyncStorage on mount; never requires a DB query for trend delta computation</li>
+      <li><strong>Stale-while-revalidate:</strong> Dashboard shows the previous snapshot immediately on mount, then silently rebuilds in the background; updated values replace stale ones without a loading spinner</li>
+      <li><strong>Module partial invalidation:</strong> Each module's Zustand slice tracks a <code>lastModifiedAt</code> timestamp; dashboard compares this against snapshot's <code>generatedAt</code> to determine which module summaries are stale</li>
+    </ul>
+
+    <h3>13.3 Database Query Optimization</h3>
+    <ul class="sl">
+      <li>All aggregate queries use SQLite <code>SUM()</code>, <code>COUNT()</code>, and <code>MAX()</code> — no in-JS aggregation of raw rows</li>
+      <li>Dashboard queries filter by <code>deleted_at IS NULL</code> and <code>period_id = ?</code> as the first two WHERE conditions — these columns must be indexed</li>
+      <li>The budget summary query joins categories with allocations and expenses in a single query, not three separate queries</li>
+      <li>Debt summary uses a single query with a sub-select for next-due payment rather than loading all debt records</li>
+      <li>No N+1 queries: goal health scores are not computed on the dashboard — only the <code>avgGoalCompletionPct</code> aggregate is fetched</li>
+    </ul>
+  </section>
+
+  <!-- S14: EDGE CASES -->
+  <section id="s14">
+    <div class="sec-head"><span class="sec-num">14</span><h2 class="sec-title">Edge Cases</h2></div>
+
+    <div class="rc"><div class="rc-id">EC-DSH-01</div><div class="rc-title">First App Open — No Data</div><div class="rc-body">When no budget period, no salary, no goals, no debts, and no EMF exist: display a welcoming onboarding state, not a dashboard full of zeros. Each widget shows its own empty state with a "Get started" CTA. FHS is not computed or shown. Available Money widget shows "Set up your budget to get started." ALERT-009 is the only active alert.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-DSH-02</div><div class="rc-title">No Salary Recorded for Current Period</div><div class="rc-body">grossIncome = 0. Available Money = 0. Do not attempt to compute FHS Savings Rate or Debt Burden components — they become 0 pts. Display "Income not recorded" placeholder in WIDGET-AM. Trigger ALERT-028 (from INS-028 equivalent). FHS is computed with 0 pts for those two components; all other components use available data.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-DSH-03</div><div class="rc-title">Negative Available Money</div><div class="rc-body">Show the negative amount in red with a "−" prefix and a warning icon. ALERT-003 fires. The FHS Monthly Stability component's Sub-component B is penalised. The insight INS-011 fires. The allocation waterfall breakdown remains visible so the user can identify which commitment is causing the over-commitment.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-DSH-04</div><div class="rc-title">All Goals Completed or Archived</div><div class="rc-body">WIDGET-GS shows "All goals completed 🎉" with activeGoalCount = 0. goalProgressPts = 0 (no active goals to score). INS-012 triggers to encourage creating a new goal. WIDGET-GL shows an empty state. roadmapStatus = NOT_STARTED.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-DSH-05</div><div class="rc-title">Snapshot Build Failure (Partial Data)</div><div class="rc-body">If any module's DB query throws an error during snapshot build: that module's summary fields are set to null; the affected widgets render in the ERROR state (Section 6.2). The remaining modules' widgets render normally. The error is logged with the module name and query. A retry button appears on each errored widget; the global pull-to-refresh re-triggers the full snapshot build.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-DSH-06</div><div class="rc-title">Budget Period Rollover During Session</div><div class="rc-body">If the current period's end date passes while the app is in the foreground: detect this on the 15-minute auto-refresh tick, trigger a full snapshot rebuild, and display ALERT-012 (period rollover). The new period's allocations may be 0 until the user sets up the new budget — ALERT-009 fires to prompt action.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-DSH-07</div><div class="rc-title">FHS History Gap</div><div class="rc-body">If the FHS ring buffer has no entry for 7 or 30 days ago (app was not opened those days): fhsDelta7d and fhsDelta30d are set to null and the trend indicator is hidden rather than showing a misleading 0. "Trend data unavailable" tooltip is shown on tap.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-DSH-08</div><div class="rc-title">Very Large Numbers</div><div class="rc-body">For grossIncome or totalDebtBalance above 1 000 000 centimes (10 000 in currency units): compactNumbers mode is automatically enabled for those specific values regardless of user setting. The full number remains accessible via tap-to-expand tooltip. This prevents layout overflow in the hero widget.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-DSH-09</div><div class="rc-title">All Debts Paid Off</div><div class="rc-body">totalDebtBalance = 0, debtCount = 0. WIDGET-DS shows "Debt free 🎉" state. debtBurdenPts = 20 (maximum). DTI label = HEALTHY. INS-030 fires. nextDueDebt = null.</div></div>
+
+    <div class="rc"><div class="rc-id">EC-DSH-10</div><div class="rc-title">Insight Engine Returns Zero Insights</div><div class="rc-body">When all 30 insight rules fail their trigger conditions (or all are suppressed): WIDGET-IN is not shown (it does not render a placeholder). This prevents an empty carousel from appearing. The widget slot is collapsed and the next widget moves up.</div></div>
+  </section>
+
+  <!-- S15: BUSINESS RULES -->
+  <section id="s15">
+    <div class="sec-head"><span class="sec-num">15</span><h2 class="sec-title">Business Rules</h2></div>
+
+    <div class="rc"><div class="rc-id">BR-DSH-01</div><div class="rc-title">Dashboard Owns No Data</div><div class="rc-body">The dashboard module may only READ from other modules' tables. No INSERT, UPDATE, or DELETE may originate from any dashboard code path. The only exception is writing to the DashboardUIState in AsyncStorage (alert dismissals, layout preferences). This is enforced architecturally — dashboard Zustand slices have no write methods for module data.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-DSH-02</div><div class="rc-title">Computed Fields Never Stored</div><div class="rc-body">availableMoney, fhsTotal, fhsComponents, budgetUtilizationPct, dtiRatio, emfCompletionPct, avgGoalCompletionPct — and all other fields in DashboardSnapshot — are never written to the database. Every snapshot rebuild re-derives all values from stored primitives. Consistency is guaranteed by this invariant.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-DSH-03</div><div class="rc-title">Centimes Throughout</div><div class="rc-body">All monetary values in DashboardSnapshot are stored and computed as integer centimes. Division is performed only at display time, using ROUND(centimes / 100, showCents ? 2 : 0). No floating-point arithmetic is performed on monetary values during computation.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-DSH-04</div><div class="rc-title">Soft Deletes Always Excluded</div><div class="rc-body">Any record with deleted_at IS NOT NULL is excluded from all dashboard computations, regardless of module. This applies to categories, debts, goals, contributions, and expenses. A soft-deleted goal's contributions do not count toward totalGoalContribs.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-DSH-05</div><div class="rc-title">FHS Ring Buffer Limit</div><div class="rc-body">The FHS history ring buffer holds exactly 31 entries (one per day). When a 32nd entry would be written, the oldest is evicted first. The ring buffer is keyed by calendar date (ISO string), not by period — it accumulates daily even within a single salary period. Writing occurs at most once per calendar day, on the first snapshot build of each day.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-DSH-06</div><div class="rc-title">Alert Priority Ordering</div><div class="rc-body">Alerts on the dashboard are always sorted by urgencyScore descending. CRITICAL alerts (ALERT-001 through ALERT-004) must always appear before WARNING alerts, regardless of their urgencyScore numeric value. In case of a tie in urgencyScore, sort by generatedAt descending (most recent first).</div></div>
+
+    <div class="rc"><div class="rc-id">BR-DSH-07</div><div class="rc-title">Insight Suppression Persistence</div><div class="rc-body">Insight suppressedUntil timestamps survive app restarts — they are persisted in AsyncStorage alongside DashboardUIState. The exception is "Never again" insights (INS-024, INS-029, INS-030) — their seen status is stored as a permanent boolean flag, not a timestamp.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-DSH-08</div><div class="rc-title">Maximum 3 Insights Displayed</div><div class="rc-body">Even if more than 3 insights qualify simultaneously, only the top 3 by priority are displayed. There is no "Show more insights" affordance on the dashboard widget — the full insights list is accessible via a dedicated screen in the future AI compatibility layer.</div></div>
+
+    <div class="rc"><div class="rc-id">BR-DSH-09</div><div class="rc-title">Quick Action Navigation Is Stateless</div><div class="rc-body">Quick Actions navigate to module screens using Expo Router's push() — they do not pass pre-filled form state. The target screen is responsible for determining sensible defaults (e.g., QA-003 opens the payment screen; the debt screen selects the next-due debt itself, not the dashboard).</div></div>
+
+    <div class="rc"><div class="rc-id">BR-DSH-10</div><div class="rc-title">Period Alignment</div><div class="rc-body">All "current period" computations use the salary-period boundaries from SPEC-BUD-001 BR-01, not calendar month boundaries. If a calendar month contains two partial salary periods, only the active (current) period's data is shown in Tier 1. Prior period data is accessible through charts and the budget history screen.</div></div>
+  </section>
+
+  <!-- S16: FUTURE SCALABILITY -->
+  <section id="s16">
+    <div class="sec-head"><span class="sec-num">16</span><h2 class="sec-title">Future Scalability &amp; AI Compatibility</h2></div>
+
+    <p>The dashboard architecture is designed to accommodate the following future capabilities without requiring schema changes or breaking existing snapshot contracts.</p>
+
+    <h3>16.1 AI Insights Layer</h3>
+    <ul class="sl">
+      <li>The Insight structure (Section 7.1) is already AI-ready: <code>code</code>, <code>priority</code>, <code>title</code>, <code>body</code>, and <code>ctaRoute</code> can all be generated by an LLM using DashboardSnapshot as the input context</li>
+      <li>Future: a background AI agent receives the snapshot as a JSON payload and returns a ranked list of Insight objects — these are merged with the rule-based insights list and deduplicated by code</li>
+      <li>The suppression system (suppressedUntil) applies equally to AI-generated and rule-based insights</li>
+    </ul>
+
+    <h3>16.2 Multi-Currency Support</h3>
+    <ul class="sl">
+      <li>The centimes representation is currency-agnostic — all arithmetic is correct regardless of currency</li>
+      <li>The <code>currencySymbol</code> display setting is the only currency-aware field today</li>
+      <li>Future: add a <code>currencyCode</code> field (ISO 4217) and an exchange rate store for multi-currency goal tracking — DashboardSnapshot gains a <code>baseCurrencyCode</code> field and all amounts are normalized to base currency at read time</li>
+    </ul>
+
+    <h3>16.3 Widget Ecosystem</h3>
+    <ul class="sl">
+      <li>The widget catalogue (Section 6.1) uses a plugin architecture: each widget is a self-contained component that receives only the DashboardSnapshot slice it needs</li>
+      <li>Future third-party or user-created widgets receive only a typed read-only snapshot slice — they cannot access the database or other module stores directly</li>
+      <li>Widget size classes (Section 6.3) are fixed — new widgets must declare one of the four existing size classes</li>
+    </ul>
+
+    <h3>16.4 Predictive Analytics Hooks</h3>
+    <ul class="sl">
+      <li>The FHS ring buffer (Section 4.8) is the foundation for trend prediction — 31 data points support short-term linear extrapolation</li>
+      <li>Future: a <code>fhsForecast30d</code> field is added to DashboardSnapshot, computed by a simple linear regression over the ring buffer</li>
+      <li>The Available Money Engine formula (Section 5.1) is suitable for "what if my salary changes" simulations — same architecture as SPEC-RMP-001 What-If engine</li>
+    </ul>
+
+    <h3>16.5 Cloud Sync Readiness</h3>
+    <ul class="sl">
+      <li>DashboardUIState (layout, widget order, alert dismissals) is the only dashboard-owned data that would need cloud sync — it is already isolated in AsyncStorage</li>
+      <li>All financial data is owned by module stores — dashboard never duplicates data, so no sync conflicts can arise from dashboard state</li>
+      <li>FHS ring buffer should be included in cloud backup as it contains irreplaceable historical trend data</li>
+    </ul>
+
+    <h3>16.6 Notification System Integration</h3>
+    <ul class="sl">
+      <li>CRITICAL alerts (Section 8.3, ALERT-001 through ALERT-004) are candidates for push notifications when the app is backgrounded</li>
+      <li>The DashboardAlert structure maps 1:1 to a push notification payload — <code>title</code>, <code>body</code>, and <code>ctaRoute</code> translate directly</li>
+      <li>Future: a background task (Expo TaskManager) checks for critical alerts every 4 hours and delivers push notifications for any unread CRITICAL alerts</li>
+    </ul>
+  </section>
+
+</main>
+
+<script>
+  // Theme toggle
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const current = root.getAttribute('data-theme');
+    const next = current === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('fb-theme', next);
+  });
+
+  // Scrollspy
+  const navLinks = document.querySelectorAll('#nav-list a');
+  const sections = document.querySelectorAll('section[id]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
