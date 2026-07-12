@@ -1,0 +1,1663 @@
+<!doctype html>
+<title>SPEC-DSN-001 — Design System & UX Specification | Finance Bag</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+  :root {
+    --acc: #4338CA; --acc-dim: #A5B4FC; --acc-bg: rgba(67,56,202,.08);
+    --bg: #18181B; --surf: #27272A; --surf2: #3F3F46;
+    --bd: #3F3F46; --txt: #F4F4F5; --txt2: #A1A1AA; --txt3: #71717A;
+    --green: #22C55E; --amber: #F59E0B; --red: #EF4444; --blue: #3B82F6;
+    --code-bg: #1A1A1F;
+  }
+  @media (prefers-color-scheme: light) {
+    :root {
+      --bg: #F8FAFC; --surf: #FFFFFF; --surf2: #F1F5F9;
+      --bd: #E2E8F0; --txt: #0F172A; --txt2: #475569; --txt3: #94A3B8;
+      --acc-bg: rgba(67,56,202,.06); --code-bg: #F1F5F9;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #18181B; --surf: #27272A; --surf2: #3F3F46;
+    --bd: #3F3F46; --txt: #F4F4F5; --txt2: #A1A1AA; --txt3: #71717A;
+    --acc-bg: rgba(67,56,202,.08); --code-bg: #1A1A1F;
+  }
+  :root[data-theme="light"] {
+    --bg: #F8FAFC; --surf: #FFFFFF; --surf2: #F1F5F9;
+    --bd: #E2E8F0; --txt: #0F172A; --txt2: #475569; --txt3: #94A3B8;
+    --acc-bg: rgba(67,56,202,.06); --code-bg: #F1F5F9;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body { background: var(--bg); color: var(--txt); font-family: 'Inter', system-ui, -apple-system, sans-serif; display: flex; min-height: 100vh; }
+  a { color: var(--acc); text-decoration: none; }
+
+  nav { width: 240px; min-width: 240px; background: var(--surf); border-right: 1px solid var(--bd); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .nav-brand { padding: 20px 16px 12px; border-bottom: 1px solid var(--bd); }
+  .nav-logo { font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); }
+  .nav-title { font-size: .82rem; color: var(--txt2); margin-top: 2px; }
+  .nav-list { list-style: none; padding: 10px 8px; flex: 1; }
+  .nav-item a { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; font-size: .78rem; color: var(--txt2); transition: background .15s, color .15s; }
+  .nav-item a:hover, .nav-item a.active { background: var(--acc-bg); color: var(--acc); }
+  .nav-num { font-size: .66rem; font-weight: 700; letter-spacing: .04em; color: var(--acc); min-width: 20px; font-variant-numeric: tabular-nums; }
+  .theme-area { padding: 12px; border-top: 1px solid var(--bd); }
+  .theme-btn { width: 100%; padding: 7px; border-radius: 6px; background: var(--surf2); border: 1px solid var(--bd); color: var(--txt2); font-size: .73rem; cursor: pointer; }
+
+  .main { flex: 1; min-width: 0; padding: 40px 48px 80px; max-width: 960px; }
+  .doc-header { border-bottom: 1px solid var(--bd); padding-bottom: 28px; margin-bottom: 48px; }
+  .doc-eyebrow { display: flex; gap: 12px; align-items: center; margin-bottom: 14px; }
+  .spec-id { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--acc); }
+  .spec-ver { font-size: .7rem; color: var(--txt3); }
+  .status-pill { font-size: .65rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: var(--acc-bg); color: var(--acc); border: 1px solid var(--acc); }
+  .doc-title { font-size: 2rem; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; text-wrap: balance; }
+  .doc-sub { margin-top: 10px; font-size: .92rem; color: var(--txt2); line-height: 1.6; max-width: 640px; }
+  .meta-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; margin-top: 24px; }
+  .meta-item { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: 10px 14px; }
+  .meta-label { font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--txt3); margin-bottom: 4px; }
+  .meta-val { font-size: .88rem; font-weight: 600; color: var(--txt); }
+
+  section { margin-bottom: 56px; scroll-margin-top: 24px; }
+  h2 { font-size: 1.3rem; font-weight: 700; letter-spacing: -.01em; border-bottom: 2px solid var(--acc); padding-bottom: 12px; margin-bottom: 20px; }
+  h3 { font-size: 1rem; font-weight: 700; margin: 24px 0 10px; color: var(--txt); }
+  h4 { font-size: .88rem; font-weight: 700; margin: 18px 0 8px; color: var(--txt2); text-transform: uppercase; letter-spacing: .05em; }
+  p { font-size: .88rem; line-height: 1.7; color: var(--txt2); margin-bottom: 10px; }
+  ul, ol { padding-left: 20px; margin-bottom: 10px; }
+  li { font-size: .88rem; line-height: 1.7; color: var(--txt2); margin-bottom: 3px; }
+  code { font-family: 'SF Mono', 'Fira Code', monospace; font-size: .79rem; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; color: var(--acc-dim); }
+  strong { color: var(--txt); font-weight: 600; }
+
+  .tw { overflow-x: auto; margin: 14px 0; border-radius: 8px; border: 1px solid var(--bd); }
+  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
+  thead { background: var(--surf2); }
+  th { padding: 10px 14px; text-align: left; font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--txt3); white-space: nowrap; }
+  td { padding: 9px 14px; border-top: 1px solid var(--bd); color: var(--txt2); vertical-align: top; }
+  tr:hover td { background: var(--acc-bg); }
+
+  .spec-block { background: var(--surf); border: 1px solid var(--bd); border-left: 3px solid var(--acc); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .spec-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--acc); margin-bottom: 10px; }
+  .warn-block { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.3); border-left: 3px solid var(--amber); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .warn-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; }
+  .ok-block { background: rgba(34,197,94,.07); border: 1px solid rgba(34,197,94,.25); border-left: 3px solid var(--green); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .ok-block-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--green); margin-bottom: 10px; }
+  .mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: .78rem; font-weight: 700; color: var(--acc); white-space: nowrap; }
+
+  /* swatch strip */
+  .swatch-row { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0; }
+  .swatch { width: 36px; height: 36px; border-radius: 6px; border: 1px solid var(--bd); display: inline-block; }
+
+  /* type specimen rows */
+  .type-specimen { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; overflow: hidden; margin: 14px 0; }
+  .type-row { display: grid; grid-template-columns: 140px 1fr; border-bottom: 1px solid var(--bd); align-items: center; }
+  .type-row:last-child { border-bottom: none; }
+  .type-meta { padding: 10px 14px; border-right: 1px solid var(--bd); background: var(--surf2); }
+  .type-name { font-size: .7rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--txt3); }
+  .type-spec { font-size: .65rem; color: var(--txt3); margin-top: 2px; }
+  .type-preview { padding: 12px 20px; }
+
+  /* spacing scale */
+  .sp-row { display: flex; align-items: center; gap: 16px; padding: 8px 0; border-bottom: 1px solid var(--bd); }
+  .sp-row:last-child { border-bottom: none; }
+  .sp-bar-wrap { flex: 1; }
+  .sp-bar { background: var(--acc); height: 10px; border-radius: 2px; opacity: .7; }
+  .sp-label { font-size: .78rem; font-weight: 700; color: var(--txt); min-width: 40px; font-variant-numeric: tabular-nums; }
+  .sp-px { font-size: .72rem; color: var(--txt3); min-width: 36px; }
+  .sp-token { font-family: 'SF Mono', 'Fira Code', monospace; font-size: .7rem; color: var(--acc-dim); min-width: 60px; }
+  .sp-usage { font-size: .72rem; color: var(--txt3); }
+
+  /* component anatomy blocks */
+  .anatomy-block { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: 16px 20px; margin: 14px 0; }
+  .anatomy-title { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--txt3); margin-bottom: 12px; }
+
+  /* status chips */
+  .chip-g { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(34,197,94,.12); color: var(--green); }
+  .chip-a { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(245,158,11,.12); color: var(--amber); }
+  .chip-r { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(239,68,68,.12); color: var(--red); }
+  .chip-b { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(59,130,246,.12); color: #93C5FD; }
+  .chip-n { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: rgba(161,161,170,.12); color: var(--txt3); }
+  .chip-i { display: inline-block; font-size: .65rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; background: var(--acc-bg); color: var(--acc-dim); }
+
+  @media (max-width: 800px) { nav { display: none; } .main { padding: 24px 20px 60px; } }
+</style>
+
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">Finance Bag</div>
+    <div class="nav-title">SPEC-DSN-001 · Design System</div>
+  </div>
+  <ul class="nav-list" id="nav-list">
+    <li class="nav-item"><a href="#s1"><span class="nav-num">01</span>Overview &amp; Philosophy</a></li>
+    <li class="nav-item"><a href="#s2"><span class="nav-num">02</span>Visual Identity &amp; Color</a></li>
+    <li class="nav-item"><a href="#s3"><span class="nav-num">03</span>Typography System</a></li>
+    <li class="nav-item"><a href="#s4"><span class="nav-num">04</span>Spacing System</a></li>
+    <li class="nav-item"><a href="#s5"><span class="nav-num">05</span>Iconography</a></li>
+    <li class="nav-item"><a href="#s6"><span class="nav-num">06</span>Core Components</a></li>
+    <li class="nav-item"><a href="#s7"><span class="nav-num">07</span>Overlay &amp; Input Components</a></li>
+    <li class="nav-item"><a href="#s8"><span class="nav-num">08</span>Data Display Components</a></li>
+    <li class="nav-item"><a href="#s9"><span class="nav-num">09</span>Feedback Components</a></li>
+    <li class="nav-item"><a href="#s10"><span class="nav-num">10</span>Navigation System</a></li>
+    <li class="nav-item"><a href="#s11"><span class="nav-num">11</span>Forms &amp; Input Guidelines</a></li>
+    <li class="nav-item"><a href="#s12"><span class="nav-num">12</span>Data Visualization</a></li>
+    <li class="nav-item"><a href="#s13"><span class="nav-num">13</span>Motion &amp; Animation</a></li>
+    <li class="nav-item"><a href="#s14"><span class="nav-num">14</span>Accessibility Framework</a></li>
+    <li class="nav-item"><a href="#s15"><span class="nav-num">15</span>Localization</a></li>
+    <li class="nav-item"><a href="#s16"><span class="nav-num">16</span>UX Standards</a></li>
+    <li class="nav-item"><a href="#s17"><span class="nav-num">17</span>Responsive Behavior</a></li>
+    <li class="nav-item"><a href="#s18"><span class="nav-num">18</span>Future Scalability</a></li>
+  </ul>
+  <div class="theme-area"><button class="theme-btn" id="theme-btn">Toggle Light / Dark</button></div>
+</nav>
+
+<main class="main">
+<header class="doc-header">
+  <div class="doc-eyebrow">
+    <span class="spec-id">SPEC-DSN-001</span>
+    <span class="spec-ver">v1.0</span>
+    <span class="status-pill">DRAFT</span>
+  </div>
+  <h1 class="doc-title">Design System, UI Components<br>&amp; User Experience Specification</h1>
+  <p class="doc-sub">The complete Design System for Finance Bag — a set of principles, tokens, components, patterns, and guidelines that govern every visual and interactive decision across the application, ensuring consistency, accessibility, and maintainability as the product scales.</p>
+  <div class="meta-grid">
+    <div class="meta-item"><div class="meta-label">Spec ID</div><div class="meta-val">SPEC-DSN-001</div></div>
+    <div class="meta-item"><div class="meta-label">Module</div><div class="meta-val">DSN</div></div>
+    <div class="meta-item"><div class="meta-label">Accent</div><div class="meta-val" style="color:var(--acc)">#4338CA</div></div>
+    <div class="meta-item"><div class="meta-label">Version</div><div class="meta-val">1.0 — DRAFT</div></div>
+    <div class="meta-item"><div class="meta-label">Date</div><div class="meta-val">2026-07-12</div></div>
+    <div class="meta-item"><div class="meta-label">Sections</div><div class="meta-val">18</div></div>
+  </div>
+</header>
+
+<section id="s1">
+  <h2>1. Overview &amp; Design Philosophy</h2>
+
+  <h3>1.1 Design Values</h3>
+  <p>Every visual and interaction decision in Finance Bag must reinforce the following eight values. These values are not aesthetic preferences — they are functional requirements that translate directly into design decisions.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Value</th><th>What It Means</th><th>Design Implication</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Trust</strong></td><td>Users are sharing their most sensitive financial data. They must feel safe.</td><td>Consistent visual language; no surprises; errors explained honestly; data never misrepresented</td></tr>
+        <tr><td><strong>Clarity</strong></td><td>Financial data is inherently complex. The UI must reduce, not add, complexity.</td><td>Strong visual hierarchy; one primary action per screen; numbers always formatted; labels always present</td></tr>
+        <tr><td><strong>Simplicity</strong></td><td>Power without complexity. Every feature should feel obvious to use.</td><td>Progressive disclosure; hide advanced options behind a tap; default to the most useful view</td></tr>
+        <tr><td><strong>Precision</strong></td><td>Financial values must be exact. Rounding or ambiguity damages trust.</td><td>Monospaced, tabular-nums formatting for all financial values; no approximations in data display; always show currency symbol</td></tr>
+        <tr><td><strong>Calmness</strong></td><td>Financial stress is real. The UI must not amplify anxiety.</td><td>Neutral palette; no aggressive color overuse; errors are informative, not alarming; animations are gentle</td></tr>
+        <tr><td><strong>Professionalism</strong></td><td>Finance Bag handles serious money. It must feel like a premium product.</td><td>High-quality typography; consistent spacing; no clutter; pixel-perfect alignment</td></tr>
+        <tr><td><strong>Modernity</strong></td><td>Users expect contemporary, platform-native experiences.</td><td>Follow iOS/Android design conventions; use native components where possible; stay current with OS design language</td></tr>
+        <tr><td><strong>Financial Confidence</strong></td><td>The UI should help users feel in control of their money.</td><td>Progress is always visible; achievements are celebrated; negative states focus on paths forward, not failure</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>1.2 Design Principles</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Principle</th><th>Explanation</th><th>Prohibited Violation</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Consistency</strong></td><td>The same element looks and behaves identically everywhere it appears. Users build mental models once and apply them everywhere.</td><td>Two buttons with the same intent but different visual treatment. Custom component that duplicates a system component.</td></tr>
+        <tr><td><strong>Visual Hierarchy</strong></td><td>The most important information on each screen is visually dominant. Users know where to look without instruction.</td><td>Multiple elements at equal visual weight competing for attention. Financial value smaller than its label.</td></tr>
+        <tr><td><strong>Minimal Cognitive Load</strong></td><td>Every element on screen must earn its place. Decorative elements that carry no information are prohibited.</td><td>Empty padding used as "whitespace art" with no structural purpose. Decorative illustrations that don't aid comprehension.</td></tr>
+        <tr><td><strong>Progressive Disclosure</strong></td><td>Show what's needed now; reveal complexity on demand. First-time users see essential options; advanced users find depth where they look.</td><td>Showing all settings options on a first visit. Requiring advanced configuration before the core feature is usable.</td></tr>
+        <tr><td><strong>Accessibility</strong></td><td>The design works for users with visual, motor, cognitive, or hearing differences. Accessibility is a baseline, not a feature.</td><td>Touch targets below 44pt. Color as the only indicator of state. Contrast below WCAG AA.</td></tr>
+        <tr><td><strong>Immediate Feedback</strong></td><td>Every user action has an immediate, visible response. Users never wonder if their tap registered.</td><td>A button that looks the same before and after it's tapped. A form submit that shows no loading state.</td></tr>
+        <tr><td><strong>Error Prevention</strong></td><td>The design prevents mistakes before they happen. When mistakes occur, recovery is easy.</td><td>A destructive action with no confirmation. An irreversible operation with no undo. A form that accepts invalid input silently.</td></tr>
+        <tr><td><strong>Efficiency</strong></td><td>Frequent tasks require minimal steps. Power users can move fast. The default path is the optimal path.</td><td>A 5-tap flow for a daily action. A setting buried 4 levels deep that users need weekly.</td></tr>
+        <tr><td><strong>Delight</strong></td><td>Appropriate moments of joy reinforce positive behavior and build emotional attachment. Delight is earned, not forced.</td><td>Confetti animation on every save. Sound effects that can't be disabled. Animation that delays task completion.</td></tr>
+        <tr><td><strong>Platform Respect</strong></td><td>iOS and Android have distinct conventions. Users of each platform have strong expectations. Violating platform conventions feels wrong even if users can't name why.</td><td>Using iOS swipe patterns on Android. Using Android bottom sheets where iOS uses action sheets. Non-native navigation patterns.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>1.3 What This Spec Governs</h3>
+  <ul>
+    <li><strong>Governs</strong>: Color token system; typography scale and rules; spacing grid; component anatomy, variants, and states; navigation patterns; form guidelines; motion principles; accessibility requirements; localization rules.</li>
+    <li><strong>Does not govern</strong>: Specific implementation library choices (React Native, Expo); code architecture for components; animation library selection; specific icon SVG files (icon style is governed; specific artwork is not).</li>
+    <li><strong>Authority</strong>: This spec takes precedence over individual module design decisions in all matters of visual consistency, accessibility, and platform convention. Module-specific adaptations (accent color, module-specific empty state illustration style) are permitted within the bounds defined here.</li>
+  </ul>
+</section>
+
+<section id="s2">
+  <h2>2. Visual Identity &amp; Color System</h2>
+
+  <h3>2.1 Color Philosophy</h3>
+  <p>Finance Bag's color language is <strong>restrained and purposeful</strong>. A dark, neutral base creates a calm, focused environment where financial data can breathe. Module accent colors provide orientation and identity within each domain. Status colors communicate system state — they are functional tools, not decoration.</p>
+  <p>The guiding rule: <strong>color should answer "what does this mean?", not "doesn't this look nice?"</strong>. Every color that appears on screen must communicate something to the user. A decorative color that carries no semantic meaning is a design debt.</p>
+
+  <h3>2.2 Four-Layer Token Architecture</h3>
+  <p>Finance Bag's color system is organized in four layers. Each higher layer builds on the layer below. Design decisions use the highest applicable layer — never raw values in a component definition.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Layer</th><th>Name</th><th>Contains</th><th>Who Uses It</th><th>Example</th></tr></thead>
+      <tbody>
+        <tr><td>L1</td><td><strong>Primitive Tokens</strong></td><td>Named color values (the actual hex/HSL values). The complete palette of available colors.</td><td>System only — never referenced directly in components</td><td><code>--primitive-slate-900: #0F172A</code></td></tr>
+        <tr><td>L2</td><td><strong>Semantic Tokens</strong></td><td>Named slots that describe intent. Mapped to primitives per theme.</td><td>Component definitions; layout styles</td><td><code>--clr-bg-base</code> → references <code>--primitive-zinc-950</code> in dark theme</td></tr>
+        <tr><td>L3</td><td><strong>Component Tokens</strong></td><td>Component-specific overrides of semantic tokens when a component needs a distinct treatment.</td><td>Individual component style definitions</td><td><code>--btn-primary-bg</code> → references <code>--clr-accent</code></td></tr>
+        <tr><td>L4</td><td><strong>State Tokens</strong></td><td>Per-state overrides (hover, pressed, focused, disabled, error) applied on top of component tokens.</td><td>Interaction states</td><td><code>--btn-primary-bg-pressed</code> → <code>--clr-accent</code> at 85% brightness</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>2.3 Semantic Color Slots</h3>
+  <p>These are the semantic token names that components and layouts reference. Actual values are defined per theme (dark/light/high-contrast). Finance Bag ships with dark-primary and light-secondary themes by default.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Token</th><th>Semantic Role</th><th>Used For</th></tr></thead>
+      <tbody>
+        <tr><td><code>--clr-bg-base</code></td><td>App background</td><td>Screen backgrounds, deep surfaces behind all content</td></tr>
+        <tr><td><code>--clr-bg-surface</code></td><td>Primary surface</td><td>Cards, list backgrounds, navigation panels</td></tr>
+        <tr><td><code>--clr-bg-elevated</code></td><td>Elevated surface</td><td>Modals, bottom sheets, dropdowns — surfaces above the primary surface</td></tr>
+        <tr><td><code>--clr-bg-recessed</code></td><td>Recessed surface</td><td>Input field backgrounds, code blocks — surfaces below the primary surface</td></tr>
+        <tr><td><code>--clr-txt-primary</code></td><td>Primary text</td><td>All primary readable content; headings; financial values</td></tr>
+        <tr><td><code>--clr-txt-secondary</code></td><td>Secondary text</td><td>Labels, supporting text, metadata</td></tr>
+        <tr><td><code>--clr-txt-tertiary</code></td><td>Tertiary text</td><td>Placeholder text, timestamps, footnotes</td></tr>
+        <tr><td><code>--clr-txt-disabled</code></td><td>Disabled text</td><td>Text in disabled form fields and buttons</td></tr>
+        <tr><td><code>--clr-txt-inverse</code></td><td>Inverse text</td><td>Text on accent-colored or status-colored backgrounds</td></tr>
+        <tr><td><code>--clr-border-default</code></td><td>Default border</td><td>Card borders, dividers, input borders in resting state</td></tr>
+        <tr><td><code>--clr-border-strong</code></td><td>Strong border</td><td>Focused input borders, selected states</td></tr>
+        <tr><td><code>--clr-border-subtle</code></td><td>Subtle border</td><td>Section separators, hairline rules</td></tr>
+        <tr><td><code>--clr-accent</code></td><td>Module accent</td><td>Primary action color for the current module; overridden per module</td></tr>
+        <tr><td><code>--clr-accent-bg</code></td><td>Accent background</td><td>Tinted background behind accent-colored elements; 8% opacity</td></tr>
+        <tr><td><code>--clr-accent-dim</code></td><td>Accent dim</td><td>Accent text on dark backgrounds; lighter shade of accent</td></tr>
+        <tr><td><code>--clr-status-success</code></td><td>Success</td><td>Positive financial events; completed states; income amounts</td></tr>
+        <tr><td><code>--clr-status-warning</code></td><td>Warning</td><td>At-risk states; budget approaching limit; attention required</td></tr>
+        <tr><td><code>--clr-status-error</code></td><td>Error</td><td>Over-budget; failed states; debt-danger; form validation errors</td></tr>
+        <tr><td><code>--clr-status-info</code></td><td>Information</td><td>Neutral informational messages; sync status; tips</td></tr>
+        <tr><td><code>--clr-status-success-bg</code></td><td>Success background</td><td>Tinted background behind success elements; 8–12% opacity</td></tr>
+        <tr><td><code>--clr-status-warning-bg</code></td><td>Warning background</td><td>Same pattern, warning hue</td></tr>
+        <tr><td><code>--clr-status-error-bg</code></td><td>Error background</td><td>Same pattern, error hue</td></tr>
+        <tr><td><code>--clr-status-info-bg</code></td><td>Info background</td><td>Same pattern, info hue</td></tr>
+        <tr><td><code>--clr-overlay</code></td><td>Overlay</td><td>Modal/sheet backdrop; semi-transparent scrim</td></tr>
+        <tr><td><code>--clr-shadow</code></td><td>Shadow</td><td>Drop shadows for elevated elements</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>2.4 Module Accent System</h3>
+  <p>Each of Finance Bag's 15 modules has a designated accent color that overrides <code>--clr-accent</code> within that module's screens. These are the established accent values from the module specifications:</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Module</th><th>Name</th><th>Accent Color</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td>DSH</td><td>Dashboard</td><td>#0EA5E9 (sky-500)</td><td>Quick stats, overall health indicators</td></tr>
+        <tr><td>BUD</td><td>Budget</td><td>#6366F1 (indigo-500)</td><td>Budget bars, category chips, allocation indicators</td></tr>
+        <tr><td>EMF</td><td>Emergency Fund</td><td>#22C55E (green-500)</td><td>Fund progress rings, contribution badges</td></tr>
+        <tr><td>GOL</td><td>Goals</td><td>#F59E0B (amber-500)</td><td>Goal progress, milestone markers, target dates</td></tr>
+        <tr><td>DBT</td><td>Debt</td><td>#EF4444 (red-500)</td><td>Debt balance, interest cost, payoff timeline</td></tr>
+        <tr><td>RMP</td><td>Rampage (Extra)</td><td>#8B5CF6 (violet-500)</td><td>Surplus allocation, aggressive payoff mode</td></tr>
+        <tr><td>RPT</td><td>Reports</td><td>#10B981 (emerald-500)</td><td>Chart lines, trend indicators, period summaries</td></tr>
+        <tr><td>EVT</td><td>Events</td><td>#FB923C (orange-400)</td><td>Event chips, calendar markers, schedule indicators</td></tr>
+        <tr><td>DB</td><td>Database / Records</td><td>#06B6D4 (cyan-500)</td><td>Record type chips, search highlights</td></tr>
+        <tr><td>SCH</td><td>Search</td><td>#E879F9 (fuchsia-400)</td><td>Search result highlights, FTS match markers</td></tr>
+        <tr><td>SET</td><td>Settings</td><td>#FB7185 (rose-400)</td><td>Setting category headers, toggle accents</td></tr>
+        <tr><td>SEC</td><td>Security</td><td>#DC2626 (red-600)</td><td>Security alerts, threat indicators, auth gates</td></tr>
+        <tr><td>OFL</td><td>Offline</td><td>#3B82F6 (blue-500)</td><td>Sync status, connectivity indicators</td></tr>
+        <tr><td>AIC</td><td>AI Coach</td><td>#A855F7 (purple-500)</td><td>AI insights, recommendations, coaching cards</td></tr>
+        <tr><td>DSN</td><td>Design System</td><td>#4338CA (indigo-700)</td><td>Design tooling, spec annotations</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>Rule</strong>: A module's accent color is used for: primary actions within that module; active state indicators; progress fills; module header accent bar; category chips. The accent is never used for text on a non-accent background (contrast may fail). On text, use <code>--clr-accent-dim</code> which is calibrated for contrast in both themes.</p>
+
+  <h3>2.5 Status Color Usage Rules</h3>
+  <ul>
+    <li><strong>Success (green)</strong>: Income amounts; completed goals; positive FHS change; "saved successfully" confirmations; EMF growth. Never use for neutral positive events (e.g., "loading complete" — that's not a success, it's expected behavior).</li>
+    <li><strong>Warning (amber)</strong>: Budget at 80–99% utilization; goal slightly behind schedule; sync degraded; EMF below recommended. Warning means "attention needed, not yet critical".</li>
+    <li><strong>Error (red)</strong>: Budget over 100%; form validation failure; sync failure; destructive action confirmation; negative financial events. Error means "action required".</li>
+    <li><strong>Information (blue)</strong>: Sync status; tips and educational notes; neutral system messages. Information is the default for "here's something to know".</li>
+    <li><strong>Never use status colors for decoration</strong>: A green border on a card that has nothing to do with success is prohibited. Color must mean something.</li>
+    <li><strong>Never rely on color alone</strong>: Every status must also be communicated with an icon, label, or pattern. Color-blind users must receive the same information.</li>
+  </ul>
+
+  <h3>2.6 Theme Architecture</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Theme</th><th>Character</th><th>Activation</th><th>Primitive Base</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Dark (default)</strong></td><td>Deep zinc base with muted surfaces. Reduces eye strain in low light. Default for Finance Bag — financial apps are often used at night or in low-light environments.</td><td>System dark mode preference or user toggle</td><td>Zinc scale: bg-950/surface-900/elevated-800</td></tr>
+        <tr><td><strong>Light</strong></td><td>Slate-100 base with white surfaces. High contrast for outdoor/daylight use.</td><td>System light mode preference or user toggle</td><td>Slate scale: bg-50/surface-white/elevated-white</td></tr>
+        <tr><td><strong>High Contrast</strong></td><td>Maximum contrast between all elements. Meets WCAG AAA for text. Black/white with accent colors only.</td><td>OS accessibility setting (Increase Contrast) or user toggle in Settings → Accessibility</td><td>Pure black bg, pure white surfaces, maximum opacity borders</td></tr>
+        <tr><td><strong>Future: Custom theme</strong></td><td>User-defined accent override (v3.0). User can choose from a curated palette of accent hues while all modules use the same chosen hue instead of individual module colors.</td><td>Settings → Appearance → Theme (future)</td><td>Same as dark/light base; only --clr-accent group changes</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>2.7 Elevation System</h3>
+  <p>Elevation communicates layer hierarchy. Finance Bag uses five elevation levels, expressed as shadow values and surface tint (in dark theme, higher elevation = slightly lighter surface):</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Level</th><th>Name</th><th>Usage</th><th>Shadow</th><th>Dark Surface Tint</th></tr></thead>
+      <tbody>
+        <tr><td>0</td><td>Base</td><td>Screen background</td><td>None</td><td>0% tint</td></tr>
+        <tr><td>1</td><td>Surface</td><td>Cards, list items, nav sidebar</td><td>0 1px 2px rgba(0,0,0,.3)</td><td>+3% lighter</td></tr>
+        <tr><td>2</td><td>Raised</td><td>Floating action buttons, sticky headers</td><td>0 2px 8px rgba(0,0,0,.4)</td><td>+6% lighter</td></tr>
+        <tr><td>3</td><td>Overlay</td><td>Bottom sheets, popovers, tooltips</td><td>0 4px 16px rgba(0,0,0,.5)</td><td>+9% lighter</td></tr>
+        <tr><td>4</td><td>Modal</td><td>Full dialogs, authentication screens</td><td>0 8px 32px rgba(0,0,0,.6)</td><td>+12% lighter</td></tr>
+        <tr><td>5</td><td>Critical</td><td>Security prompts, destructive confirmations</td><td>0 12px 48px rgba(0,0,0,.7)</td><td>Pure surface — no additional tint</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="s3">
+  <h2>3. Typography System</h2>
+
+  <h3>3.1 Type Scale</h3>
+  <p>Finance Bag uses a custom type scale designed for financial content: large, scannable financial values at the top; precise, readable body text in the middle; dense metadata at the bottom. The scale is not strictly mathematical — it is calibrated for readability and hierarchy at each step.</p>
+  <div class="type-specimen">
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Display</div><div class="type-spec">40/48 · Weight 800 · Tracking −0.02em</div></div>
+      <div class="type-preview" style="font-size:2.2rem;font-weight:800;letter-spacing:-.02em;line-height:1.2;color:var(--txt)">$12,480</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Title L</div><div class="type-spec">28/36 · Weight 700 · Tracking −0.015em</div></div>
+      <div class="type-preview" style="font-size:1.5rem;font-weight:700;letter-spacing:-.015em;line-height:1.28;color:var(--txt)">Monthly Budget</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Title M</div><div class="type-spec">22/30 · Weight 700 · Tracking −0.01em</div></div>
+      <div class="type-preview" style="font-size:1.25rem;font-weight:700;letter-spacing:-.01em;line-height:1.36;color:var(--txt)">Emergency Fund</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Title S</div><div class="type-spec">18/26 · Weight 600 · Tracking −0.005em</div></div>
+      <div class="type-preview" style="font-size:1.1rem;font-weight:600;letter-spacing:-.005em;line-height:1.44;color:var(--txt)">Debt Payoff Timeline</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Body L</div><div class="type-spec">16/24 · Weight 400 · Tracking 0</div></div>
+      <div class="type-preview" style="font-size:1rem;font-weight:400;line-height:1.5;color:var(--txt2)">Your food budget has been 8% over allocation for the last 3 months.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Body M</div><div class="type-spec">15/22 · Weight 400 · Tracking 0</div></div>
+      <div class="type-preview" style="font-size:.94rem;font-weight:400;line-height:1.47;color:var(--txt2)">Transfer the unused amount to your emergency fund.</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Body S</div><div class="type-spec">14/20 · Weight 400 · Tracking 0</div></div>
+      <div class="type-preview" style="font-size:.875rem;font-weight:400;line-height:1.43;color:var(--txt2)">Updated 3 minutes ago · 14 transactions this period</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Caption</div><div class="type-spec">12/16 · Weight 400 · Tracking 0</div></div>
+      <div class="type-preview" style="font-size:.75rem;font-weight:400;line-height:1.33;color:var(--txt3)">Assumes current salary continues · Based on last 3 periods</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Label</div><div class="type-spec">11/14 · Weight 700 · Tracking +0.08em · Uppercase</div></div>
+      <div class="type-preview" style="font-size:.69rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;line-height:1.27;color:var(--txt3)">Budget Category · Last 30 Days</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Financial L</div><div class="type-spec">32/40 · Weight 700 · Mono · Tabular</div></div>
+      <div class="type-preview" style="font-size:1.8rem;font-weight:700;font-family:monospace;font-variant-numeric:tabular-nums;line-height:1.25;color:var(--txt)">€ 4,820.00</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Financial M</div><div class="type-spec">20/28 · Weight 600 · Mono · Tabular</div></div>
+      <div class="type-preview" style="font-size:1.15rem;font-weight:600;font-family:monospace;font-variant-numeric:tabular-nums;line-height:1.4;color:var(--txt)">€ 1,200.00</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Financial S</div><div class="type-spec">15/20 · Weight 500 · Mono · Tabular</div></div>
+      <div class="type-preview" style="font-size:.94rem;font-weight:500;font-family:monospace;font-variant-numeric:tabular-nums;line-height:1.33;color:var(--txt2)">€ 348.50</div>
+    </div>
+    <div class="type-row">
+      <div class="type-meta"><div class="type-name">Financial XS</div><div class="type-spec">12/16 · Weight 500 · Mono · Tabular</div></div>
+      <div class="type-preview" style="font-size:.75rem;font-weight:500;font-family:monospace;font-variant-numeric:tabular-nums;line-height:1.33;color:var(--txt3)">€ 42.00</div>
+    </div>
+  </div>
+
+  <h3>3.2 Font Family Rules</h3>
+  <ul>
+    <li><strong>Primary typeface</strong>: System UI font stack — SF Pro Display/Text (iOS), Roboto (Android). This ensures: native-quality rendering; OS-level accessibility (Dynamic Type on iOS, Font Scale on Android); no custom font download weight.</li>
+    <li><strong>Monospace (financial values)</strong>: SF Mono (iOS), Roboto Mono (Android), with system-ui-monospace as fallback. All financial amounts use this typeface with <code>font-variant-numeric: tabular-nums</code> — amounts column-align perfectly at any size.</li>
+    <li><strong>No decorative typefaces</strong>: Finance Bag does not use display or handwriting fonts. Trust requires legibility, not personality.</li>
+    <li><strong>Font weight guidelines</strong>: 400 (Regular) for body and supporting text; 500 (Medium) for interactive labels and financial values; 600 (Semibold) for titles and card headers; 700 (Bold) for primary headings and large financial values; 800 (ExtraBold) for Display scale only.</li>
+  </ul>
+
+  <h3>3.3 Financial Value Formatting Rules</h3>
+  <ul>
+    <li><strong>Currency symbol always present</strong>: Never show "1,200" — always "€ 1,200.00" or "1 200,00 €" per locale rules. The symbol is part of the data, not decoration.</li>
+    <li><strong>Decimal places</strong>: Always 2 decimal places for displayed amounts. Never round to whole numbers in the UI, even when space is tight (use a smaller type size instead).</li>
+    <li><strong>Thousands separator</strong>: Per locale — comma for en-US, period for fr-FR, space for ar-DZ.</li>
+    <li><strong>Negative amounts</strong>: Displayed with leading minus sign AND in <code>--clr-status-error</code> color. Double encoding for accessibility.</li>
+    <li><strong>Positive amounts</strong>: No leading plus sign by default. Leading "+" only when the context explicitly contrasts positive vs. negative (e.g., a cash flow delta showing "+€120.00" vs "−€45.00").</li>
+    <li><strong>Large amounts</strong>: Never abbreviate financial values in the app (no "€12K" or "€1.2M"). Abbreviation risks trust-damaging precision errors. Use smaller type size to fit large numbers.</li>
+    <li><strong>Amount color coding</strong>: Income, surplus, and credit amounts → <code>--clr-status-success</code>. Expense, deficit, and debit amounts → <code>--clr-txt-primary</code> (neutral, not red — spending is normal). Over-budget amounts → <code>--clr-status-error</code>. Interest costs → <code>--clr-status-warning</code>.</li>
+  </ul>
+
+  <h3>3.4 Dynamic Type &amp; Text Scaling</h3>
+  <ul>
+    <li>All type sizes are specified in scalable units (sp on Android, pt on iOS). Hard-coded pixel sizes are prohibited.</li>
+    <li>iOS: Honor Dynamic Type accessibility categories from xSmall through AX5. The layout must remain usable at AX3 minimum; AX4/AX5 may truncate with ellipsis on secondary text but primary financial values must always be fully visible.</li>
+    <li>Android: Honor user font scale (0.85× – 2.0×). Test at 1.5× and 2.0× font scale; these are common accessibility settings.</li>
+    <li>Line height scales with font size (always specified as a unitless multiplier, never a fixed px value).</li>
+    <li>Minimum touch target size (44pt/48dp) does not scale with text — it remains fixed regardless of font scale setting.</li>
+  </ul>
+
+  <h3>3.5 RTL Typography Rules</h3>
+  <ul>
+    <li>Arabic text uses a system Arabic typeface (San Francisco Arabic on iOS, Noto Naskh Arabic on Android) at the same scale as the primary typeface.</li>
+    <li>Arabic script requires minimum 16sp for body text (legibility at smaller sizes is significantly reduced compared to Latin).</li>
+    <li>Mixed Arabic/number strings: currency amounts are LTR even in RTL contexts (€ 1,200.00 reads left-to-right). Text direction markers (U+200F) are used where bidi algorithm needs assistance.</li>
+    <li>Line height for Arabic must be 1.6× minimum (Arabic script has taller ascenders/descenders than Latin).</li>
+  </ul>
+</section>
+
+<section id="s4">
+  <h2>4. Spacing System</h2>
+
+  <h3>4.1 Base Grid: 4px</h3>
+  <p>All spacing values in Finance Bag are multiples of 4px. This creates the invisible grid that makes layouts feel precise and intentional. A component's padding, margin, gap, border-radius, icon size, and touch target — all are 4px multiples. No 5px, no 7px, no 13px. If the design requires exactly 5px, the answer is 4px or 8px.</p>
+
+  <h3>4.2 Spacing Scale</h3>
+  <div class="spec-block">
+    <div class="spec-block-title">Spacing Tokens</div>
+    <div class="sp-row"><span class="sp-label">2×</span><span class="sp-px">2px</span><span class="sp-token">--sp-1</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:2px"></div></div><span class="sp-usage">Hairlines, indicator dots, border widths</span></div>
+    <div class="sp-row"><span class="sp-label">4×</span><span class="sp-px">4px</span><span class="sp-token">--sp-2</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:4px"></div></div><span class="sp-usage">Icon-to-label gap, chip internal padding (V)</span></div>
+    <div class="sp-row"><span class="sp-label">6×</span><span class="sp-px">6px</span><span class="sp-token">--sp-3</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:6px"></div></div><span class="sp-usage">Dense list item spacing, badge margins</span></div>
+    <div class="sp-row"><span class="sp-label">8×</span><span class="sp-px">8px</span><span class="sp-token">--sp-4</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:8px"></div></div><span class="sp-usage">Card internal padding (compact), list item V padding</span></div>
+    <div class="sp-row"><span class="sp-label">12×</span><span class="sp-px">12px</span><span class="sp-token">--sp-5</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:12px"></div></div><span class="sp-usage">Input field vertical padding, button padding (S size)</span></div>
+    <div class="sp-row"><span class="sp-label">16×</span><span class="sp-px">16px</span><span class="sp-token">--sp-6</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:16px"></div></div><span class="sp-usage">Default card padding, button padding (M), section gap</span></div>
+    <div class="sp-row"><span class="sp-label">20×</span><span class="sp-px">20px</span><span class="sp-token">--sp-7</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:20px"></div></div><span class="sp-usage">Card padding (comfortable), bottom sheet internal</span></div>
+    <div class="sp-row"><span class="sp-label">24×</span><span class="sp-px">24px</span><span class="sp-token">--sp-8</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:24px"></div></div><span class="sp-usage">Section-to-section gap, modal padding, button padding (L)</span></div>
+    <div class="sp-row"><span class="sp-label">32×</span><span class="sp-px">32px</span><span class="sp-token">--sp-9</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:32px"></div></div><span class="sp-usage">Heading-to-content gap, large card padding</span></div>
+    <div class="sp-row"><span class="sp-label">40×</span><span class="sp-px">40px</span><span class="sp-token">--sp-10</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:40px"></div></div><span class="sp-usage">Major section dividers, empty state vertical padding</span></div>
+    <div class="sp-row"><span class="sp-label">48×</span><span class="sp-px">48px</span><span class="sp-token">--sp-11</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:48px"></div></div><span class="sp-usage">Screen-level section spacing, feature intro padding</span></div>
+    <div class="sp-row"><span class="sp-label">64×</span><span class="sp-px">64px</span><span class="sp-token">--sp-12</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:64px"></div></div><span class="sp-usage">Hero value padding, large display area vertical rhythm</span></div>
+  </div>
+
+  <h3>4.3 Layout Margins</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Device Class</th><th>Horizontal Screen Margin</th><th>Content Max Width</th><th>Card Gap</th></tr></thead>
+      <tbody>
+        <tr><td>Small phone (≤360dp width)</td><td>12px</td><td>100%</td><td>8px</td></tr>
+        <tr><td>Standard phone (360–428dp)</td><td>16px</td><td>100%</td><td>12px</td></tr>
+        <tr><td>Large phone (&gt;428dp)</td><td>20px</td><td>100%</td><td>16px</td></tr>
+        <tr><td>Foldable (outer, ~400dp)</td><td>16px</td><td>100%</td><td>12px</td></tr>
+        <tr><td>Foldable (inner, ~600dp+)</td><td>24px</td><td>600px centered</td><td>16px</td></tr>
+        <tr><td>Tablet (≥600dp)</td><td>32px</td><td>680px centered or 2-column</td><td>20px</td></tr>
+        <tr><td>Landscape phone</td><td>24px</td><td>100%</td><td>16px</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>4.4 Border Radius Scale</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Token</th><th>Value</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td><code>--radius-xs</code></td><td>4px</td><td>Chips, badges, status indicators, small tags</td></tr>
+        <tr><td><code>--radius-sm</code></td><td>8px</td><td>Buttons, input fields, compact cards</td></tr>
+        <tr><td><code>--radius-md</code></td><td>12px</td><td>Standard cards, list containers, dropdowns</td></tr>
+        <tr><td><code>--radius-lg</code></td><td>16px</td><td>Bottom sheets (top corners), modals, large cards</td></tr>
+        <tr><td><code>--radius-xl</code></td><td>24px</td><td>Feature cards, hero areas, large UI elements</td></tr>
+        <tr><td><code>--radius-full</code></td><td>9999px</td><td>Pills, toggles, circular avatars/icons, FABs</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>4.5 Safe Area Handling</h3>
+  <ul>
+    <li><strong>iOS safe areas</strong>: Dynamic Island / notch top inset and home indicator bottom inset are respected by all full-screen views. Content never starts above the safe area top. Bottom navigation sits above the home indicator.</li>
+    <li><strong>Android edge-to-edge</strong>: API 35+ enforces edge-to-edge by default. Status bar and navigation bar are transparent; content extends behind them. Padding is applied programmatically via WindowInsets.</li>
+    <li><strong>Bottom sheet safe area</strong>: Bottom sheets always add bottom safe area inset to their handle-to-content padding. A bottom sheet that ignores the home indicator overlaps critical content on iPhone 14/15/16 Pro models.</li>
+    <li><strong>Keyboard avoidance</strong>: All screens with inputs use KeyboardAvoidingView (iOS) / adjustPan (Android) to keep the focused input visible. The active input is never hidden behind the keyboard.</li>
+  </ul>
+</section>
+
+<section id="s5">
+  <h2>5. Iconography</h2>
+
+  <h3>5.1 Icon Style</h3>
+  <p>Finance Bag uses a <strong>line icon style</strong> (outline strokes, not filled silhouettes) for navigation, actions, and informational icons. The line style conveys precision, professionalism, and technical clarity — aligned with the app's financial character. Filled variants are used exclusively for active/selected states, not as a general style.</p>
+  <ul>
+    <li><strong>Stroke weight</strong>: 1.5px at 24px base size (scaled proportionally at other sizes). Heavier strokes at smaller sizes to maintain legibility.</li>
+    <li><strong>Corner style</strong>: Rounded corners (2px radius on line joints). No sharp, hard-angled icon corners — too aggressive for a calm financial app.</li>
+    <li><strong>Grid</strong>: 24×24px artboard. 2px safe area inset (optical area is 20×20px). Icon optical center at artboard center.</li>
+    <li><strong>Pixel-fit</strong>: All lines sit on full or half-pixel boundaries to avoid sub-pixel blur on non-retina displays.</li>
+    <li><strong>Consistent metaphor</strong>: Icons across the app use a consistent level of detail. No ultra-detailed icons next to minimal flat icons in the same context.</li>
+  </ul>
+
+  <h3>5.2 Icon Sizes</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Size</th><th>Usage Context</th><th>Stroke Weight</th></tr></thead>
+      <tbody>
+        <tr><td>16px</td><td>Inline icons within body text, chip icons, small status indicators</td><td>1.25px</td></tr>
+        <tr><td>20px</td><td>Navigation bar icons, action sheet icons, compact list leading icons</td><td>1.5px</td></tr>
+        <tr><td>24px</td><td>Standard icons: buttons, list items, form field icons, toolbar</td><td>1.5px</td></tr>
+        <tr><td>32px</td><td>Section header icons, empty state supporting icons, feature highlight icons</td><td>1.75px</td></tr>
+        <tr><td>48px</td><td>Empty state hero icons, onboarding illustration supplements, large status displays</td><td>2px</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>5.3 Module Icons (Navigation)</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Module</th><th>Icon Concept</th><th>Active State</th></tr></thead>
+      <tbody>
+        <tr><td>Dashboard</td><td>Grid of 4 squares (overview metaphor)</td><td>Filled grid</td></tr>
+        <tr><td>Budget</td><td>Horizontal bars with division lines (allocation)</td><td>Filled bars</td></tr>
+        <tr><td>Emergency Fund</td><td>Shield with a small percentage indicator</td><td>Filled shield</td></tr>
+        <tr><td>Goals</td><td>Target/bullseye circle with center dot</td><td>Filled target</td></tr>
+        <tr><td>Debt</td><td>Downward trending line with a break point</td><td>Filled trend element</td></tr>
+        <tr><td>Reports</td><td>Bar chart with trend line overlay</td><td>Filled bars</td></tr>
+        <tr><td>AI Coach</td><td>Sparkle / four-pointed star (insight)</td><td>Filled sparkle</td></tr>
+        <tr><td>Settings</td><td>Sliders (three horizontal lines with adjustable dots)</td><td>Filled slider track</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>5.4 Action &amp; Status Icons</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Category</th><th>Examples</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>Primary actions</td><td>Plus (add), Check (confirm), X (close/cancel), Pencil (edit), Trash (delete), Upload, Download</td><td>Never use the same icon for two different actions in the same context</td></tr>
+        <tr><td>Navigation</td><td>Chevron right (drill-down), Chevron left (back), Arrow up-right (external), Menu (hamburger)</td><td>Back navigation uses platform-native back icon (iOS: &lt;, Android: ←)</td></tr>
+        <tr><td>Financial</td><td>Coin, Wallet, Card, Bank, Percentage %, Calendar, Clock, Trend up, Trend down, Exchange</td><td>Trend icons must be clearly directional; "up" must be unambiguous</td></tr>
+        <tr><td>Status</td><td>Check circle (success), Alert triangle (warning), X circle (error), Info circle (info), Spinner (loading), Clock (pending), Cloud (sync)</td><td>Status icons are always paired with a status color AND a text label for accessibility</td></tr>
+        <tr><td>Biometric/Security</td><td>Fingerprint, Face (oval with dot points), Lock, Unlock, Shield, Key</td><td>Biometric icons must match the device's actual capability (show fingerprint only when fingerprint is enrolled)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>5.5 Icon Accessibility Rules</h3>
+  <ul>
+    <li><strong>No icon-only interactive elements</strong>: Every icon button must have an accessible label (accessibilityLabel on React Native) even if the label is not visually rendered. Screen readers announce the label.</li>
+    <li><strong>Color-independent icons</strong>: All icons must be legible in single-color (e.g., when the OS is in grayscale mode or for color-blind users). The icon shape must carry the meaning, not the color alone.</li>
+    <li><strong>Minimum size for touch targets</strong>: Icon buttons have a minimum hit area of 44×44pt regardless of icon display size. A 20px icon with 12px padding on all sides satisfies both the visual and touch requirements.</li>
+    <li><strong>Loading state for icon buttons</strong>: When an icon button triggers an async operation, the icon is replaced with a spinner and the button is disabled until the operation completes.</li>
+  </ul>
+</section>
+
+<section id="s6">
+  <h2>6. Core Components</h2>
+
+  <h3>6.1 Button</h3>
+  <p>Buttons are the primary action mechanism. Button hierarchy determines which action the user should take when multiple actions are present.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Variant</th><th>Visual</th><th>Usage</th><th>Max per Screen</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Primary</strong></td><td>Solid fill: <code>--clr-accent</code> background, <code>--clr-txt-inverse</code> text</td><td>The single most important action on the screen (Save, Confirm, Create). The user's eye lands here first.</td><td>1</td></tr>
+        <tr><td><strong>Secondary</strong></td><td>Border: 1px <code>--clr-accent</code> border, <code>--clr-accent</code> text, transparent background</td><td>Important but secondary action (Cancel with a specific meaning, Save Draft, Later). Pairs with Primary.</td><td>2</td></tr>
+        <tr><td><strong>Ghost</strong></td><td>No border, no fill: <code>--clr-txt-secondary</code> text. Pressed state shows subtle background.</td><td>Low-emphasis actions (Learn more, View details, Skip). Never competes with Primary.</td><td>Unlimited</td></tr>
+        <tr><td><strong>Danger</strong></td><td>Solid fill: <code>--clr-status-error</code> background, white text</td><td>Destructive, irreversible actions (Delete Goal, Clear All Data, Factory Reset). Never used for regular navigation.</td><td>1</td></tr>
+        <tr><td><strong>Link</strong></td><td>Text only, underline on focus: <code>--clr-accent</code> text</td><td>Inline text actions, terms/privacy links, footnote actions. Never for primary navigation.</td><td>Unlimited (use sparingly)</td></tr>
+        <tr><td><strong>Icon-only</strong></td><td>Icon in 44pt touch target, optional ghost background on press</td><td>Toolbar actions, list item trailing actions (edit, delete), navigation items</td><td>Unlimited</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Button Sizes</h4>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Size</th><th>Height</th><th>H Padding</th><th>Font</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td>SM</td><td>32px</td><td>12px</td><td>Body S / Weight 600</td><td>In-card actions, compact contexts, secondary actions in tight layouts</td></tr>
+        <tr><td>MD (default)</td><td>44px</td><td>16px</td><td>Body M / Weight 600</td><td>Standard actions — meets minimum touch target without appearing oversized</td></tr>
+        <tr><td>LG</td><td>52px</td><td>24px</td><td>Body L / Weight 600</td><td>Primary CTA at screen bottom (onboarding, form submission, modal confirmation)</td></tr>
+        <tr><td>Full-width</td><td>52px</td><td>24px</td><td>Body L / Weight 600</td><td>Bottom-anchored primary action that spans the content width (most common in forms)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>Button States</h4>
+  <ul>
+    <li><strong>Default</strong>: Base appearance per variant above.</li>
+    <li><strong>Pressed</strong>: 85% brightness of background (Primary/Danger); border deepens (Secondary); subtle background appears (Ghost). Scale: 0.97× for 100ms via spring animation.</li>
+    <li><strong>Focused</strong>: 2px ring in <code>--clr-accent</code> at 2px offset (accessibility keyboard/switch navigation).</li>
+    <li><strong>Disabled</strong>: 40% opacity of default appearance. Cursor changes to not-allowed (future desktop). Disabled state must be communicated with text label when the reason matters ("Complete profile to continue").</li>
+    <li><strong>Loading</strong>: Label replaced by a 16px spinner. Button maintains its size (no layout shift). Button is disabled during loading. Timeout: if loading exceeds 10s, show an error state.</li>
+  </ul>
+
+  <h3>6.2 Card</h3>
+  <p>Cards are the primary content container. They group related information into a visually bounded unit. A card is not just a box with rounded corners — it establishes a bounded interaction context.</p>
+  <div class="anatomy-block">
+    <div class="anatomy-title">Card Anatomy</div>
+    <ul>
+      <li><strong>Container</strong>: Background <code>--clr-bg-surface</code>; border 1px <code>--clr-border-default</code>; border-radius <code>--radius-md</code> (12px); elevation Level 1; padding <code>--sp-6</code> (16px)</li>
+      <li><strong>Header (optional)</strong>: Module label (11px/Label style) + module accent color indicator (3px left border); section title (Title S); secondary action (Ghost button or Icon-only button trailing)</li>
+      <li><strong>Body</strong>: Primary content — financial values, progress bars, lists, charts. The card body has no fixed height — it sizes to content.</li>
+      <li><strong>Footer (optional)</strong>: CTA row (Ghost buttons or Link buttons); "last updated" timestamp in Caption style</li>
+      <li><strong>Accent bar</strong>: 3px left border in <code>--clr-accent</code> for module-identified cards. Applied to the full card height.</li>
+    </ul>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Variant</th><th>Usage</th><th>Interactive</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Default</strong></td><td>Information display — no tap action. Reports, summaries, FHS breakdown.</td><td>No</td></tr>
+        <tr><td><strong>Interactive</strong></td><td>Entire card is tappable. Navigates to detail screen. Pressed state: 95% brightness, 0.98× scale.</td><td>Yes — full card tap</td></tr>
+        <tr><td><strong>Module</strong></td><td>Standard card for a module section (Budget category, Goal item, Debt item). Has accent bar. May be interactive.</td><td>Optional</td></tr>
+        <tr><td><strong>Stat</strong></td><td>Single metric display — large financial value + label + optional trend. Used in dashboard overview row and reporting summaries.</td><td>Optional</td></tr>
+        <tr><td><strong>AI Insight</strong></td><td>AI Coach output card. Has accent bar in AIC purple (#A855F7). Always shows "AI analysis" label. Expandable for ExplainabilityContext detail.</td><td>Expandable</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>6.3 List Item</h3>
+  <p>List items are the fundamental repeating element for expense lists, goal lists, debt lists, settings items, and search results. The list item system provides consistent structure across all these contexts.</p>
+  <div class="anatomy-block">
+    <div class="anatomy-title">List Item Anatomy (Left → Right)</div>
+    <ul>
+      <li><strong>Leading area (optional)</strong>: 40×40 category icon container (background: category accent at 12% opacity, rounded 8px); OR 40×40 avatar/image; OR 20px status icon</li>
+      <li><strong>Content area</strong>: Primary text (Body M, <code>--clr-txt-primary</code>) + optional secondary text (Body S, <code>--clr-txt-secondary</code>). Max 2 lines each. Truncated with ellipsis if overflow.</li>
+      <li><strong>Trailing area (optional)</strong>: Financial value (Financial S, right-aligned, tabular-nums); OR status chip; OR chevron right (for navigation); OR action icon button (delete/edit)</li>
+    </ul>
+    <p style="margin-top:10px;font-size:.82rem;color:var(--txt2)"><strong>Minimum height</strong>: 52px. <strong>Divider</strong>: 1px <code>--clr-border-subtle</code> at left-edge inset (aligned to content area, not leading icon). Divider is suppressed after the last item in a group.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Variant</th><th>Usage</th><th>Swipe Actions</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Simple</strong></td><td>Settings items, notification items — primary text only</td><td>None</td></tr>
+        <tr><td><strong>Detail</strong></td><td>Expense items, goal contributions — primary + secondary text + trailing value</td><td>iOS: leading = edit, trailing = delete; Android: trailing = delete</td></tr>
+        <tr><td><strong>Navigation</strong></td><td>Settings sections, menu items — primary text + chevron trailing</td><td>None</td></tr>
+        <tr><td><strong>Action</strong></td><td>Debt payment history, archive items — primary + secondary + trailing action button</td><td>Optional trailing delete</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p><strong>Swipe actions</strong>: On iOS, list items support swipe-to-delete (trailing red "Delete" action) and optionally swipe-to-edit (leading blue "Edit" action). On Android, swipe-to-delete uses a red background with a trash icon revealed behind the swiping item. Destructive swipe actions always require a confirmation step for irreversible operations.</p>
+</section>
+
+<section id="s7">
+  <h2>7. Overlay &amp; Input Components</h2>
+
+  <h3>7.1 Dialog</h3>
+  <p>Dialogs (also called Alerts on iOS) interrupt the user's flow. They are reserved for situations that genuinely require a decision before the user can continue. Dialogs should be rare — most information can be conveyed in a Toast, Bottom Sheet, or inline.</p>
+  <div class="anatomy-block">
+    <div class="anatomy-title">Dialog Anatomy</div>
+    <ul>
+      <li><strong>Overlay</strong>: Full-screen scrim, <code>--clr-overlay</code> (50–70% dark). Tapping the scrim does NOT dismiss destructive dialogs — user must choose an action.</li>
+      <li><strong>Container</strong>: <code>--clr-bg-elevated</code>, elevation Level 4; <code>--radius-lg</code> (16px); max-width 320pt; centered vertically/horizontally</li>
+      <li><strong>Icon (optional)</strong>: 48px icon in status color. Status icons: check (success), alert (warning), X (error). No icon for informational dialogs.</li>
+      <li><strong>Title</strong>: Title S, center-aligned, max 2 lines.</li>
+      <li><strong>Body</strong>: Body M, center-aligned, <code>--clr-txt-secondary</code>, max 3 lines. If more text is needed, use a bottom sheet instead.</li>
+      <li><strong>Actions</strong>: 1–2 buttons. Stacked vertically (most important on top) on iOS; side by side on Android. Primary action top/right; Cancel/Dismiss bottom/left. Destructive dialogs: Danger button for the destructive action, Ghost for cancel.</li>
+    </ul>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Dialog Type</th><th>Dismissible by Scrim?</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td>Informational</td><td>Yes</td><td>Explaining a feature, system update notification, successful import summary</td></tr>
+        <tr><td>Confirmation</td><td>No</td><td>Confirming an intended action (sign out, apply budget change)</td></tr>
+        <tr><td>Destructive</td><td>No</td><td>Deleting data, factory reset, account deletion. Requires typing a word ("DELETE") for the most severe actions.</td></tr>
+        <tr><td>Error</td><td>Yes (unless blocking)</td><td>Unrecoverable error requiring user awareness. Includes specific error message and suggested action.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>7.2 Bottom Sheet</h3>
+  <p>Bottom sheets are the primary overlay pattern for supplementary content, pickers, and detail views. They are preferable to full dialogs for most flows because they feel less interruptive and support scrolling content.</p>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Variant</th><th>Height</th><th>Dismissible</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Fixed</strong></td><td>Auto (wraps content), max 60% screen height</td><td>Yes — handle drag or tap scrim</td><td>Action menus, sort/filter pickers, simple confirmations, sync status drawer</td></tr>
+        <tr><td><strong>Scrollable</strong></td><td>60–85% screen height</td><td>Yes — handle drag</td><td>Transaction detail, goal detail, long settings options, coaching session content</td></tr>
+        <tr><td><strong>Expanded</strong></td><td>~95% screen height (near-fullscreen)</td><td>Yes — close button required (handle not sufficient for large sheets)</td><td>Import CSV preview, conflict resolution, complex form flows that don't warrant a full navigation push</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <ul>
+    <li><strong>Handle</strong>: 32×4px rounded pill in <code>--clr-border-default</code>; centered at top of sheet; 12px below top edge. Always present on draggable sheets.</li>
+    <li><strong>Header</strong>: Title S + optional close button (Icon-only, X icon, top-right). Present when sheet has a title. Absent for simple action menus.</li>
+    <li><strong>Bottom padding</strong>: Always includes safe area bottom inset + <code>--sp-6</code> (16px) internal padding above home indicator.</li>
+    <li><strong>Keyboard handling</strong>: When a bottom sheet contains input fields, the sheet expands upward as the keyboard appears. The sheet never disappears behind the keyboard.</li>
+  </ul>
+
+  <h3>7.3 Text Field</h3>
+  <div class="anatomy-block">
+    <div class="anatomy-title">Text Field Anatomy (top → bottom)</div>
+    <ul>
+      <li><strong>Label</strong>: Label style (11px, uppercase, tracking), <code>--clr-txt-secondary</code>. Floats above field when populated; sits inside field as placeholder when empty. Animated transition: 150ms ease-out.</li>
+      <li><strong>Container</strong>: Height 52px; background <code>--clr-bg-recessed</code>; border 1px <code>--clr-border-default</code>; <code>--radius-sm</code> (8px); horizontal padding 16px.</li>
+      <li><strong>Input text</strong>: Body L, <code>--clr-txt-primary</code>.</li>
+      <li><strong>Leading icon (optional)</strong>: 20px, <code>--clr-txt-tertiary</code> (currency symbol, search icon, category icon).</li>
+      <li><strong>Trailing (optional)</strong>: Clear button (X) when populated; show/hide toggle for password fields; unit label (%, months).</li>
+      <li><strong>Helper text</strong>: Body S, <code>--clr-txt-tertiary</code>, below field. Replaced by error message when validation fails.</li>
+      <li><strong>Error message</strong>: Body S, <code>--clr-status-error</code>, below field + error icon inline. Animated in: 150ms slide-down.</li>
+    </ul>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>State</th><th>Border</th><th>Label</th><th>Background</th></tr></thead>
+      <tbody>
+        <tr><td>Empty (resting)</td><td>1px <code>--clr-border-default</code></td><td>Inside field as placeholder, <code>--clr-txt-tertiary</code></td><td><code>--clr-bg-recessed</code></td></tr>
+        <tr><td>Focused</td><td>2px <code>--clr-border-strong</code> (accent color)</td><td>Floated above field, <code>--clr-accent</code></td><td><code>--clr-bg-recessed</code></td></tr>
+        <tr><td>Populated</td><td>1px <code>--clr-border-default</code></td><td>Floated above field, <code>--clr-txt-secondary</code></td><td><code>--clr-bg-recessed</code></td></tr>
+        <tr><td>Error</td><td>2px <code>--clr-status-error</code></td><td>Floated above field, <code>--clr-status-error</code></td><td><code>--clr-status-error-bg</code></td></tr>
+        <tr><td>Disabled</td><td>1px <code>--clr-border-subtle</code></td><td>Floated or inline, 40% opacity</td><td><code>--clr-bg-recessed</code> at 40% opacity</td></tr>
+        <tr><td>Read-only</td><td>None (no border)</td><td>Always floated, <code>--clr-txt-tertiary</code></td><td>Transparent</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>7.4 Chips, Badges &amp; Tags</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Component</th><th>Shape</th><th>Usage</th><th>Interactive?</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Status Chip</strong></td><td>Pill (radius-full), height 22px, padding 8px H</td><td>Inline status label (Over Budget, On Track, Completed, Pending)</td><td>No</td></tr>
+        <tr><td><strong>Category Chip</strong></td><td>Pill (radius-full), height 26px, leading 16px icon</td><td>Expense category selector, budget category filter, search filter</td><td>Yes — toggleable (selected/unselected state)</td></tr>
+        <tr><td><strong>Filter Chip</strong></td><td>Rounded rect (radius-sm), height 32px</td><td>Report period selector, transaction filter (date range, type)</td><td>Yes — single or multi-select group</td></tr>
+        <tr><td><strong>Badge</strong></td><td>Circle or pill, min-width 16px, height 16px</td><td>Notification count, unread indicator, pending sync count on nav items</td><td>No</td></tr>
+        <tr><td><strong>Tag</strong></td><td>Rounded rect (radius-xs), height 20px</td><td>Expense tags (user-applied labels), goal tags, search term highlights</td><td>Optional (tappable for filter)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>7.5 Toggle &amp; Selection Controls</h3>
+  <ul>
+    <li><strong>Toggle Switch</strong>: Platform-native (UISwitch on iOS, Material Switch on Android). Accent color when ON. Grayed when OFF. Never use custom toggles that deviate from platform conventions.</li>
+    <li><strong>Checkbox</strong>: 20×20px, <code>--radius-xs</code> (4px) corner. Unchecked: <code>--clr-border-default</code> border. Checked: <code>--clr-accent</code> fill with white checkmark. Indeterminate: accent fill with dash. Used for multi-select in lists.</li>
+    <li><strong>Radio</strong>: 20×20px circle. Single selection from a group. Unchecked: ring in <code>--clr-border-default</code>. Checked: outer ring in <code>--clr-accent</code>, filled center dot in accent. Animated fill expand: 150ms.</li>
+    <li><strong>Segmented Control</strong>: iOS: native UISegmentedControl style. Android: equivalent material chip group. Used for 2–4 mutually exclusive option switches (period selector: This Month / Last Month / Last 3 Months).</li>
+  </ul>
+</section>
+
+<section id="s8">
+  <h2>8. Data Display Components</h2>
+
+  <h3>8.1 Progress Bar</h3>
+  <p>Progress bars communicate how much of a target has been reached. Finance Bag uses progress bars for budget utilization, goal progress, debt payoff progress, and EMF coverage.</p>
+  <div class="anatomy-block">
+    <div class="anatomy-title">Progress Bar Anatomy</div>
+    <ul>
+      <li><strong>Track</strong>: Full-width rectangle; height 8px (standard), 4px (compact), 12px (large); <code>--radius-full</code>; background: <code>--clr-border-subtle</code> or module accent at 12% opacity</li>
+      <li><strong>Fill</strong>: Overlays track from left; <code>--radius-full</code>; color is state-driven (see below)</li>
+      <li><strong>Overflow indicator</strong>: When fill would exceed 100%, the track is replaced with a pulsing error-colored bar at full width + a small overflow extension in a more saturated error color</li>
+      <li><strong>Label row (optional)</strong>: Left: description label; Right: "€ current / € target" or "X%" — Financial XS style</li>
+    </ul>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Fill State</th><th>Color</th><th>Trigger</th></tr></thead>
+      <tbody>
+        <tr><td>Normal</td><td><code>--clr-accent</code> (module accent)</td><td>0–79% of target</td></tr>
+        <tr><td>Warning</td><td><code>--clr-status-warning</code></td><td>80–99% of budget (spending approaching limit)</td></tr>
+        <tr><td>Over target</td><td><code>--clr-status-error</code></td><td>100%+ of budget (over-budget); for goals: never shown red — goals have no "over" state</td></tr>
+        <tr><td>Complete</td><td><code>--clr-status-success</code></td><td>Goal reached 100%; EMF target met</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>8.2 Progress Ring</h3>
+  <p>Progress rings are used where a circular metaphor better suits the context: the Emergency Fund module's main indicator, goal completion percentage, Financial Health Score display. They are never used for budget utilization (progress bars are more intuitive for linear quota tracking).</p>
+  <ul>
+    <li><strong>Anatomy</strong>: Circular track (stroke only) + arc fill that sweeps clockwise from the 12 o'clock position; centered large financial value; centered sub-label below value.</li>
+    <li><strong>Sizes</strong>: Large (120px diameter, 8px stroke — hero display); Medium (80px, 6px stroke — card element); Small (48px, 4px stroke — list item indicator).</li>
+    <li><strong>Animation</strong>: On mount, ring sweeps from 0 to the target value over 600ms with a spring ease. On update, ring transitions from old value to new value over 300ms. Reduced motion: instant jump, no sweep.</li>
+    <li><strong>Color</strong>: Same state-based rules as Progress Bar. Track is always <code>--clr-border-subtle</code>.</li>
+  </ul>
+
+  <h3>8.3 Financial Health Score Display</h3>
+  <p>The FHS display is a specialized compound component used on the Dashboard and in the Reports module:</p>
+  <ul>
+    <li><strong>Large format</strong>: 120px progress ring + score in Display type + "/ 100" suffix in Title M + grade label (Excellent / Good / Fair / Needs Attention) in Label type. Module accent bar at top of containing card in DSH sky blue.</li>
+    <li><strong>Compact format</strong>: 48px ring + score in Financial M + grade chip. Used in reports list items and historical comparison rows.</li>
+    <li><strong>Score color zones</strong>: 85–100 → success green; 70–84 → accent blue; 50–69 → warning amber; 0–49 → error red. The ring fill uses the zone color.</li>
+    <li><strong>Change indicator</strong>: "↑ +8 this period" or "↓ −3 this period" in Caption style with status color. Arrow direction and color independently encode the direction (no single-modality encoding).</li>
+  </ul>
+
+  <h3>8.4 Stat Card</h3>
+  <p>Stat Cards display a single key metric with optional trend context. They are the standard unit for the Dashboard's overview section:</p>
+  <ul>
+    <li><strong>Anatomy</strong>: Module accent bar (3px left) + Label-style metric name (top) + Financial L/M value (center, large) + optional trend pill (bottom-right showing period-over-period change)</li>
+    <li><strong>Trend pill</strong>: Small pill showing "↑ +12.4%" in success color (positive) or "↓ −5.2%" in error color (negative). For neutral metrics, the pill shows the benchmark: "of €3,000 budget".</li>
+    <li><strong>Tap behavior</strong>: Tapping a Stat Card navigates to the full module view. The entire card is the touch target — no separate "See more" button.</li>
+    <li><strong>Grid layout</strong>: Dashboard uses a 2-column grid of Stat Cards on standard phones; 3-column on large phones and tablets.</li>
+  </ul>
+
+  <h3>8.5 Chart Containers</h3>
+  <p>Chart containers are wrapper components that provide consistent framing for data visualizations. Specific chart types are defined in §12 (Data Visualization). Every chart sits within a container that provides:</p>
+  <ul>
+    <li><strong>Header row</strong>: Chart title (Title S) + optional period selector chip + optional "Export" icon button</li>
+    <li><strong>Chart area</strong>: Variable height (minimum 160px, recommended 220–280px for standard charts); accessible via <code>accessibilityRole="image"</code> + descriptive <code>accessibilityLabel</code></li>
+    <li><strong>Legend (if needed)</strong>: Below chart; horizontal chip row; max 5 legend items before a "Show all" collapse</li>
+    <li><strong>Loading state</strong>: Skeleton animation over the chart area (see §9)</li>
+    <li><strong>Empty state</strong>: Centered illustration + "No data yet" message + CTA to add data (see §9)</li>
+    <li><strong>Error state</strong>: Centered error icon + "Couldn't load chart" + "Try again" ghost button</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §9 -->
+<section id="s9">
+  <div class="sec-label">Section 09</div>
+  <h2>Feedback Components</h2>
+  <p>Feedback components communicate system state to the user. Finance Bag must always be transparent about what is loading, empty, failed, or completed. Silence is never an acceptable response to user action.</p>
+
+  <h3>9.1 Empty States</h3>
+  <p>Empty states appear when a module has no data yet. They are never just blank space — every empty state is an opportunity to educate and guide.</p>
+  <div class="spec-block">
+    <strong>Empty State Anatomy:</strong><br>
+    1. Illustration (module-accent-tinted, 120×120px) — geometric/abstract, never figurative<br>
+    2. Title (Title S, --clr-txt-primary): e.g. "No transactions yet"<br>
+    3. Body (Body M, --clr-txt-secondary): one-sentence explanation + what to do<br>
+    4. Primary CTA button (Module-accent Primary variant): e.g. "Add your first transaction"<br>
+    5. Optional secondary link: e.g. "Import from bank" (Ghost variant, below CTA)
+  </div>
+  <div class="tw"><table>
+    <tr><th>Module</th><th>Empty State Title</th><th>CTA Label</th></tr>
+    <tr><td>Dashboard</td><td>Your financial overview starts here</td><td>Set up your profile</td></tr>
+    <tr><td>Budget</td><td>No budgets created yet</td><td>Create your first budget</td></tr>
+    <tr><td>Emergency Fund</td><td>Start building your safety net</td><td>Set your emergency goal</td></tr>
+    <tr><td>Goals</td><td>Dream it. Plan it. Save it.</td><td>Add a goal</td></tr>
+    <tr><td>Debts</td><td>No debts tracked</td><td>Add a debt</td></tr>
+    <tr><td>Reports</td><td>Add transactions to see reports</td><td>Record a transaction</td></tr>
+    <tr><td>Events</td><td>No upcoming financial events</td><td>Add an event</td></tr>
+    <tr><td>AI Coach</td><td>Your coach is ready when you are</td><td>Ask your first question</td></tr>
+  </table></div>
+  <p><strong>Rules:</strong> Empty states must never show error-style language ("Nothing found", "No results"). They must be encouraging. All empty states support both light and dark themes. Illustration colors use the module accent at 15% opacity background.</p>
+
+  <h3>9.2 Skeleton Screens</h3>
+  <p>Skeleton screens replace content areas during initial data load. They eliminate layout shift and convey structural intent before data arrives.</p>
+  <div class="spec-block">
+    <strong>Skeleton Anatomy:</strong><br>
+    • Shimmer animation: left-to-right linear gradient sweep, duration 1.4s, ease-in-out, loops infinitely<br>
+    • Color (dark theme): --clr-bg-surface → --clr-bg-elevated gradient sweep<br>
+    • Color (light theme): #E4E4E7 → #F4F4F5 gradient sweep<br>
+    • Border radius: matches the real component it replaces<br>
+    • Content: must match real layout proportionally (text skeletons at 80% and 60% width, not full-width blocks)
+  </div>
+  <div class="tw"><table>
+    <tr><th>Component</th><th>Skeleton Shape</th><th>Typical Timeout</th></tr>
+    <tr><td>Stat Card</td><td>Full card rectangle with two internal rows</td><td>Replaced at data arrival</td></tr>
+    <tr><td>Transaction List Item</td><td>Circle (40px) + two lines (80%, 50%)</td><td>Replaced at data arrival</td></tr>
+    <tr><td>Chart Container</td><td>Rectangle 220px height + shimmer</td><td>Replaced at data arrival</td></tr>
+    <tr><td>Header Balance</td><td>Two stacked bars (60%, 40%)</td><td>Replaced within 200ms (local data)</td></tr>
+    <tr><td>List (3–5 items)</td><td>3 skeleton list rows</td><td>Replaced at data arrival</td></tr>
+  </table></div>
+  <p><strong>Rules:</strong> Skeleton screens respect <code>prefers-reduced-motion</code> — shimmer animation is disabled; static solid shapes are shown instead. Skeletons are never shown for more than 8 seconds; after 8s, transition to Error State. Local SQLite reads should be near-instantaneous and will not need skeletons in most cases.</p>
+
+  <h3>9.3 Loading States</h3>
+  <p>Loading indicators are used for asynchronous operations with unknown duration (sync, AI generation, export).</p>
+  <div class="tw"><table>
+    <tr><th>Indicator Type</th><th>Use Case</th><th>Spec</th></tr>
+    <tr><td>Inline spinner</td><td>Button loading state; row-level operations</td><td>20px, module accent color, 1.2s rotation</td></tr>
+    <tr><td>Page-level overlay</td><td>Full-screen operations (first launch, account import)</td><td>Semi-transparent --clr-overlay + 36px centered spinner + status label</td></tr>
+    <tr><td>Progress bar (indeterminate)</td><td>Sync operations in progress</td><td>Full-width, 3px height, module accent, sliding animation</td></tr>
+    <tr><td>Progress bar (determinate)</td><td>File export, backup creation</td><td>Full-width, 3px height, fills left-to-right with percentage label</td></tr>
+    <tr><td>AI thinking indicator</td><td>AI Coach generating response</td><td>Three pulsing dots in AI accent (#A855F7), 0.6s staggered pulse</td></tr>
+  </table></div>
+
+  <h3>9.4 Error States</h3>
+  <p>Error states communicate failure clearly and always provide a recovery path. Errors never blame the user.</p>
+  <div class="tw"><table>
+    <tr><th>Error Level</th><th>Trigger</th><th>Component</th><th>User Action</th></tr>
+    <tr><td>Inline field error</td><td>Validation failure on a form field</td><td>Text Field error state + red caption</td><td>Correct the field</td></tr>
+    <tr><td>Section error</td><td>Data failed to load for one card/section</td><td>Error state card with retry button</td><td>"Try again" button</td></tr>
+    <tr><td>Full screen error</td><td>Critical navigation failure, corrupt data</td><td>Full-screen error state with illustration</td><td>"Restart" or "Get Help" CTA</td></tr>
+    <tr><td>Network error</td><td>Sync failed due to connectivity</td><td>Alert Banner (warning) at top of screen</td><td>Automatic retry or manual "Retry now"</td></tr>
+    <tr><td>Permission error</td><td>Biometric/notification permission denied</td><td>Settings redirect bottom sheet</td><td>"Open Settings" button</td></tr>
+  </table></div>
+  <p><strong>Error message tone rules:</strong> (1) State what happened in plain language. (2) Explain why, if known. (3) Tell the user what to do. (4) Never use technical codes in the user-facing message — log them silently. (5) Never use words: "crashed", "broken", "invalid" (prefer "unexpected", "couldn't load", "not recognized").</p>
+
+  <h3>9.5 Toast / Snackbar</h3>
+  <p>Toasts confirm completed actions or surface brief, non-blocking information. They auto-dismiss and require no user action (except undo toasts).</p>
+  <div class="spec-block">
+    <strong>Toast Anatomy:</strong> Left icon (16px) + Message text (Body M, max 2 lines) + optional Action link (right-aligned, accent color)<br><br>
+    <strong>Positioning:</strong> Bottom of screen, 16px above safe area / tab bar. Max width: screen width − 32px (16px each side).<br><br>
+    <strong>Variants:</strong><br>
+    • Success toast: --clr-status-success-bg background, checkmark icon<br>
+    • Warning toast: --clr-status-warning-bg background, warning icon<br>
+    • Error toast: --clr-status-error-bg background, X-circle icon<br>
+    • Info toast: --clr-bg-elevated background, info icon<br>
+    • Undo toast: Info variant + "Undo" action link (persists for 5s, not 3s)
+  </div>
+  <div class="tw"><table>
+    <tr><th>Property</th><th>Value</th></tr>
+    <tr><td>Auto-dismiss duration (standard)</td><td>3 seconds</td></tr>
+    <tr><td>Auto-dismiss duration (undo)</td><td>5 seconds</td></tr>
+    <tr><td>Auto-dismiss duration (error)</td><td>6 seconds</td></tr>
+    <tr><td>Animation in</td><td>Slide up from bottom + fade in, 220ms ease-out</td></tr>
+    <tr><td>Animation out</td><td>Fade out, 180ms ease-in</td></tr>
+    <tr><td>Max simultaneous toasts</td><td>1 (queue, do not stack)</td></tr>
+    <tr><td>Accessibility</td><td>accessibilityRole="alert", announced by screen reader immediately</td></tr>
+  </table></div>
+
+  <h3>9.6 Tooltip</h3>
+  <p>Tooltips surface brief explanatory text for financial terms or UI affordances on long-press or focus.</p>
+  <div class="spec-block">
+    <strong>Tooltip Anatomy:</strong> Small popover bubble (--clr-bg-elevated, 8px radius, elevation L3 shadow) with Caption text (max 2 lines, 200px max width). Pointer arrow (6px) points to target.<br><br>
+    <strong>Trigger:</strong> Long-press (500ms hold) on any element marked with a help-circle (ⓘ) icon, or on financial terms underlined with a dotted underline (--clr-txt-tertiary).<br><br>
+    <strong>Dismiss:</strong> Tap anywhere outside tooltip. Auto-dismisses after 6 seconds.
+  </div>
+
+  <h3>9.7 Alert Banner</h3>
+  <p>Alert banners are persistent, in-context notifications that require user acknowledgment or convey ongoing state.</p>
+  <div class="tw"><table>
+    <tr><th>Variant</th><th>Use</th><th>Color</th><th>Dismissible?</th></tr>
+    <tr><td>Info</td><td>Onboarding tips, feature announcements</td><td>--clr-status-info-bg</td><td>Yes</td></tr>
+    <tr><td>Warning</td><td>Sync delay, budget approaching limit (80%)</td><td>--clr-status-warning-bg</td><td>Yes</td></tr>
+    <tr><td>Error</td><td>Sync failed, backup overdue</td><td>--clr-status-error-bg</td><td>No (persists until resolved)</td></tr>
+    <tr><td>Success</td><td>Goal achieved, budget under limit</td><td>--clr-status-success-bg</td><td>Yes (auto 8s)</td></tr>
+  </table></div>
+  <p>Alert banners appear at the top of the content area, below the navigation bar header. They must not overlap content. Maximum one error banner and one non-error banner may be visible simultaneously.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §10 -->
+<section id="s10">
+  <div class="sec-label">Section 10</div>
+  <h2>Navigation System</h2>
+  <p>Finance Bag uses a hybrid navigation architecture: a persistent bottom tab bar for top-level destinations, and stack-based navigation for detail views within each module. The system is predictable and never surprises the user with unexpected transitions.</p>
+
+  <h3>10.1 Bottom Tab Bar</h3>
+  <div class="spec-block">
+    <strong>Tab Bar Architecture:</strong><br>
+    • Height: 49pt (iOS) / 56dp (Android) + safe area inset<br>
+    • Background: --clr-bg-surface + blur (iOS) / solid (Android)<br>
+    • Top border: 1px --clr-border-subtle<br>
+    • Tab item: Icon (24px) + Label (Label style, 10px on iOS / 12px on Android)<br>
+    • Active state: Icon + label in module accent color; icon filled variant<br>
+    • Inactive state: Icon + label in --clr-txt-tertiary; icon outline variant<br>
+    • Badge: Small pill (module accent background, white text, Caption style) positioned top-right of icon<br>
+    • Touch target: full tab cell (minimum 44×49pt per tab)
+  </div>
+  <div class="tw"><table>
+    <tr><th>Tab</th><th>Icon</th><th>Label</th><th>Module Accent</th><th>Badge source</th></tr>
+    <tr><td>1 — Dashboard</td><td>grid-2x2</td><td>Dashboard</td><td>#0EA5E9</td><td>Unread AI insights</td></tr>
+    <tr><td>2 — Budget</td><td>wallet</td><td>Budget</td><td>#6366F1</td><td>Budgets at/over limit</td></tr>
+    <tr><td>3 — Goals</td><td>target</td><td>Goals</td><td>#F59E0B</td><td>Goals needing attention</td></tr>
+    <tr><td>4 — Reports</td><td>bar-chart-2</td><td>Reports</td><td>#10B981</td><td>None</td></tr>
+    <tr><td>5 — More</td><td>grid</td><td>More</td><td>#FB7185</td><td>Unread notifications total</td></tr>
+  </table></div>
+  <p>The "More" tab opens a module directory screen listing all secondary modules: Emergency Fund, Debt Repayment, Events, Debt Book, School Budget, AI Coach, Settings, Security. This pattern keeps the tab bar uncluttered (5 items max) while providing access to all 15 modules.</p>
+
+  <h3>10.2 Navigation Hierarchy</h3>
+  <div class="tw"><table>
+    <tr><th>Level</th><th>Pattern</th><th>Transition</th><th>Back</th></tr>
+    <tr><td>L1 — Tab root</td><td>Bottom tab switch</td><td>Cross-fade (no slide)</td><td>N/A (tabs are peers)</td></tr>
+    <tr><td>L2 — List / Overview</td><td>Stack push</td><td>Slide left (iOS standard)</td><td>Back chevron + label</td></tr>
+    <tr><td>L3 — Detail / Edit</td><td>Stack push</td><td>Slide left</td><td>Back chevron + parent name</td></tr>
+    <tr><td>Modal — Create/Edit forms</td><td>Bottom sheet or full modal</td><td>Slide up</td><td>Swipe down or Cancel button</td></tr>
+    <tr><td>Modal — Confirmations</td><td>Dialog overlay</td><td>Fade in</td><td>Cancel or dismiss tap</td></tr>
+  </table></div>
+
+  <h3>10.3 Navigation Bar (Stack Header)</h3>
+  <div class="spec-block">
+    <strong>Header Anatomy:</strong><br>
+    • Height: 44pt (iOS) / 56dp (Android) + status bar safe area<br>
+    • Left: Back button (chevron-left 20px + truncated parent label, max 100px) or Close button (X icon, for modals)<br>
+    • Center: Screen title (Title M weight, single line, truncated with ellipsis)<br>
+    • Right: Up to 2 icon buttons (24px, 44pt touch target each). Common: Edit, Search, More (ellipsis menu)<br>
+    • Large title variant (iOS scroll-collapse): displayed for top-level module screens only. Collapses to compact on scroll.
+  </div>
+  <p><strong>Back navigation rules:</strong> (1) The back button always shows the parent screen's title (not the word "Back"). (2) The back button is never hidden — every pushed screen has an escape. (3) Swipe-from-left-edge always works for iOS back gesture. (4) Android physical back button is supported and has identical behavior. (5) Forms with unsaved changes trigger an unsaved-changes dialog before allowing navigation away.</p>
+
+  <h3>10.4 Quick Actions (FAB)</h3>
+  <p>A Floating Action Button (FAB) appears on the primary list screens of Budget, Goals, and Debt modules to accelerate the primary creation action.</p>
+  <div class="spec-block">
+    <strong>FAB Spec:</strong><br>
+    • Size: 56×56dp, radius-full (circular)<br>
+    • Background: module accent color<br>
+    • Icon: plus (24px, white)<br>
+    • Position: bottom-right, 16dp above tab bar, 16dp from screen edge<br>
+    • Shadow: elevation L3<br>
+    • Behavior: hides on scroll-down (reduces occlusion of list content); reappears on scroll-up<br>
+    • Animation: scale + fade in on reappear (120ms ease-out)<br>
+    • Tap: opens the creation bottom sheet for that module
+  </div>
+
+  <h3>10.5 Deep Linking</h3>
+  <div class="tw"><table>
+    <tr><th>Deep Link Pattern</th><th>Destination</th></tr>
+    <tr><td><code>financebag://dashboard</code></td><td>Dashboard tab root</td></tr>
+    <tr><td><code>financebag://budget/{id}</code></td><td>Specific budget detail</td></tr>
+    <tr><td><code>financebag://goal/{id}</code></td><td>Specific goal detail</td></tr>
+    <tr><td><code>financebag://debt/{id}</code></td><td>Specific debt detail</td></tr>
+    <tr><td><code>financebag://transaction/{id}</code></td><td>Transaction detail (Reports module)</td></tr>
+    <tr><td><code>financebag://ai-coach</code></td><td>AI Coach module root</td></tr>
+    <tr><td><code>financebag://settings</code></td><td>Settings root</td></tr>
+    <tr><td><code>financebag://notification/{id}</code></td><td>Notification-specific destination (resolved server-side)</td></tr>
+  </table></div>
+
+  <h3>10.6 Search Navigation</h3>
+  <p>Global search is accessible via the search icon in the Dashboard header. Module-level search exists in Reports and Debt Book.</p>
+  <div class="spec-block">
+    <strong>Search behavior:</strong><br>
+    • Search bar animates into view from right (replacing the title area) on tap<br>
+    • Results appear in a categorized list below: Transactions, Budgets, Goals, Debts, Events — each in a labeled section<br>
+    • Empty search query: shows "Recent searches" (last 5, stored locally)<br>
+    • No results: shows empty state with suggestion ("Try a different spelling or search by amount")<br>
+    • Results highlight matching query text in accent color<br>
+    • Keyboard: "Search" return key submits; Cancel dismisses and restores previous navigation state
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §11 -->
+<section id="s11">
+  <div class="sec-label">Section 11</div>
+  <h2>Forms &amp; Input Guidelines</h2>
+  <p>Finance Bag forms handle sensitive financial data. Every input must be precise, validated, and forgiving of correction. The form experience must never frustrate the user into abandoning data entry.</p>
+
+  <h3>11.1 Form Layout Principles</h3>
+  <ul>
+    <li>Single-column layout only — no multi-column forms on mobile</li>
+    <li>Fields are grouped semantically, with section headers (Label style, uppercase) separating groups</li>
+    <li>Required fields are not marked with asterisks — instead, optional fields are labeled "(optional)" in Caption style after the field label</li>
+    <li>Group spacing: --sp-8 (32px) between semantic groups; --sp-4 (16px) between fields within a group</li>
+    <li>Submit button is always at the bottom of the form, Full-width Primary variant, with a meaningful label (not "Submit" — use "Save budget", "Add transaction", "Create goal")</li>
+    <li>Sticky submit area: on long forms, the submit button sticks to the bottom above the safe area</li>
+  </ul>
+
+  <h3>11.2 Validation Timing</h3>
+  <div class="tw"><table>
+    <tr><th>Validation Type</th><th>Trigger</th><th>Display</th></tr>
+    <tr><td>Format validation (amount, date)</td><td>On blur (field loses focus)</td><td>Inline error below field</td></tr>
+    <tr><td>Required field empty</td><td>On form submit attempt</td><td>Scroll to first error; inline error on field</td></tr>
+    <tr><td>Business rule validation (amount > 0)</td><td>On blur</td><td>Inline error below field</td></tr>
+    <tr><td>Cross-field validation (end > start date)</td><td>On second field blur</td><td>Error on second field</td></tr>
+    <tr><td>Real-time format hint</td><td>During typing</td><td>Caption helper text below field (not error style)</td></tr>
+  </table></div>
+  <p><strong>Rule:</strong> Inline errors appear in --clr-status-error color (Caption style, 12/16). They describe the problem and how to fix it. On error, the field border transitions to --clr-status-error. Error text replaces the helper text (they occupy the same space — no layout shift).</p>
+
+  <h3>11.3 Financial Amount Input</h3>
+  <div class="spec-block">
+    <strong>Amount Field Behavior:</strong><br>
+    • Keyboard type: <code>decimal-pad</code> (iOS) / <code>number</code> with decimal (Android)<br>
+    • Display format: currency symbol prefix (left-aligned inside field) + amount in Financial M typography<br>
+    • Decimal separator: locale-aware (period or comma — see §15)<br>
+    • Thousands separator: auto-inserted as user types (display only, not stored)<br>
+    • Maximum value: 999,999,999.99 (app enforces; display gracefully handles smaller but large numbers)<br>
+    • Minimum value: 0.01 (amounts of 0.00 are rejected with inline error "Amount must be greater than zero")<br>
+    • Pasted values: stripped of non-numeric characters; formatted automatically<br>
+    • Storage: always integer centimes (e.g., €12.50 → stored as 1250)
+  </div>
+
+  <h3>11.4 Currency Selector</h3>
+  <p>The currency selector appears when creating a budget, goal, or transaction in a non-default currency.</p>
+  <div class="spec-block">
+    <strong>Currency Selector:</strong><br>
+    • Opens as a searchable bottom sheet (Scrollable variant)<br>
+    • Default: device locale currency (set in Settings > General > Default Currency)<br>
+    • List: ISO 4217 currencies, sorted alphabetically. Pinned at top: recently used (max 3)<br>
+    • Each row: currency flag emoji + currency code (Body M, bold) + currency name (Body S, secondary)<br>
+    • Search: filters by code or name in real-time<br>
+    • Selection: closes sheet and populates the field; the amount field immediately gains focus
+  </div>
+
+  <h3>11.5 Date Input</h3>
+  <div class="spec-block">
+    <strong>Date Field Behavior:</strong><br>
+    • Tap opens native date picker (iOS DateTimePicker / Android DatePickerDialog)<br>
+    • Display format: locale-aware (DD/MM/YYYY for French, MM/DD/YYYY for US English, etc.)<br>
+    • Range constraints: enforced as min/max in the picker (e.g., transaction date cannot be in the future; goal target date must be in the future)<br>
+    • Quick-select chips appear above picker for common values: "Today", "This month", "Custom"<br>
+    • Storage: ISO 8601 date string (YYYY-MM-DD) regardless of display locale
+  </div>
+
+  <h3>11.6 Percentage Input</h3>
+  <p>Used for interest rates (debts), savings rate targets, and allocation rules.</p>
+  <div class="spec-block">
+    • Keyboard type: decimal-pad<br>
+    • Suffix label: "%" displayed inside the field (right-aligned)<br>
+    • Range: 0.00 – 100.00 for most fields; 0.00 – 999.99 for interest rates (some countries allow above 100%)<br>
+    • Step hints: for interest rate fields, show Caption: "Typical range: 0.5% – 25.0% APR"
+  </div>
+
+  <h3>11.7 Keyboard Types by Field</h3>
+  <div class="tw"><table>
+    <tr><th>Field Type</th><th>iOS keyboard</th><th>Android inputType</th></tr>
+    <tr><td>Amount (currency)</td><td>decimalPad</td><td>numberDecimal</td></tr>
+    <tr><td>Amount (integer, e.g., months)</td><td>numberPad</td><td>number</td></tr>
+    <tr><td>Interest rate (%)</td><td>decimalPad</td><td>numberDecimal</td></tr>
+    <tr><td>Name / Label</td><td>default (auto-capitalize words)</td><td>textCapWords</td></tr>
+    <tr><td>Notes / Description</td><td>default</td><td>textMultiLine</td></tr>
+    <tr><td>Search</td><td>webSearch (shows Search return)</td><td>textWebSearch</td></tr>
+    <tr><td>PIN (security)</td><td>numberPad (secure)</td><td>numberPassword</td></tr>
+  </table></div>
+
+  <h3>11.8 Multi-Step Forms</h3>
+  <p>Complex creation flows (e.g., adding a new goal with type, amount, deadline, strategy) use a stepped bottom sheet pattern.</p>
+  <div class="spec-block">
+    <strong>Step Form Architecture:</strong><br>
+    • Step indicator: horizontal dots (filled = completed, accent = current, outline = future) at top of sheet<br>
+    • Each step: single semantic group of fields<br>
+    • Navigation: "Next" button advances; swipe-left gesture advances on step completion<br>
+    • Back: "Back" ghost button or swipe-right<br>
+    • Progress: shown as "Step 2 of 4" in Caption above the step indicator<br>
+    • Cancellation: tapping the sheet drag handle or swiping fully down triggers unsaved-changes dialog if any field is populated
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §12 -->
+<section id="s12">
+  <div class="sec-label">Section 12</div>
+  <h2>Data Visualization Standards</h2>
+  <p>Charts and graphs are core to Finance Bag's value proposition. They transform numbers into insight. All charts must be accessible, culturally neutral in color choice, and never misleading in scale or proportion.</p>
+
+  <h3>12.1 Chart Type Selection Guide</h3>
+  <div class="tw"><table>
+    <tr><th>Data Question</th><th>Chart Type</th><th>Primary Use</th></tr>
+    <tr><td>How is spending trending over time?</td><td>Area chart</td><td>Reports: Spending trend</td></tr>
+    <tr><td>How does spending break down by category?</td><td>Donut chart</td><td>Budget: Category breakdown</td></tr>
+    <tr><td>How do values compare across categories?</td><td>Horizontal bar chart</td><td>Budget: Per-budget comparison</td></tr>
+    <tr><td>How is my net worth growing?</td><td>Line chart</td><td>Dashboard: Net worth trend</td></tr>
+    <tr><td>How am I tracking against a goal?</td><td>Progress ring (radial)</td><td>Goals: Progress display</td></tr>
+    <tr><td>How is debt decreasing over time?</td><td>Stacked area chart</td><td>Debt: Payoff projection</td></tr>
+    <tr><td>What does savings look like monthly?</td><td>Grouped bar chart</td><td>Reports: Income vs expense</td></tr>
+    <tr><td>How does emergency fund coverage compare?</td><td>Bullet chart (linear)</td><td>Emergency Fund module</td></tr>
+  </table></div>
+
+  <h3>12.2 Chart Anatomy</h3>
+  <div class="spec-block">
+    <strong>Standard Chart Elements:</strong><br>
+    1. <strong>Title</strong> (Title S): identifies the chart. Always present.<br>
+    2. <strong>Period selector</strong> (Chip group): Week / Month / Quarter / Year / All — context-dependent availability<br>
+    3. <strong>Chart area</strong>: min 160px, recommended 220–280px height. Responsive width = 100% of container.<br>
+    4. <strong>X-axis</strong>: sparse labels (maximum 6 labels); Label style; --clr-txt-tertiary<br>
+    5. <strong>Y-axis</strong>: 3–5 gridlines; dashed, --clr-border-subtle, 1px; Y labels right-aligned in Body S, --clr-txt-tertiary<br>
+    6. <strong>Data series</strong>: uses module accent color for primary series; muted tones (60% opacity) for secondary<br>
+    7. <strong>Data point highlight</strong>: tap/touch activates; shows vertical guideline + data callout bubble (--clr-bg-elevated, elevation L2)<br>
+    8. <strong>Legend</strong>: below chart, horizontal chip row; only when 2+ series present<br>
+    9. <strong>Accessibility description</strong>: always provided via accessibilityLabel (see §12.4)
+  </div>
+
+  <h3>12.3 Color in Charts</h3>
+  <p>Charts must never rely solely on color to encode information. They must use shape, pattern, or position as co-encoders.</p>
+  <div class="tw"><table>
+    <tr><th>Chart Color Role</th><th>Token / Value</th><th>Purpose</th></tr>
+    <tr><td>Primary series</td><td>Module accent color</td><td>Main data series (spending, balance)</td></tr>
+    <tr><td>Secondary series</td><td>Module accent at 50% opacity</td><td>Comparison or prior-period series</td></tr>
+    <tr><td>Positive change</td><td>--clr-status-success (#22C55E)</td><td>Upward trends that are favorable (savings increase)</td></tr>
+    <tr><td>Negative change</td><td>--clr-status-error (#EF4444)</td><td>Downward trends that are unfavorable (balance decrease)</td></tr>
+    <tr><td>Neutral/forecast</td><td>--clr-txt-tertiary</td><td>Projected future values (dashed line)</td></tr>
+    <tr><td>Grid lines</td><td>--clr-border-subtle</td><td>Reference lines</td></tr>
+    <tr><td>Fill area</td><td>Module accent at 12–15% opacity</td><td>Area chart fill below line</td></tr>
+    <tr><td>Callout bubble</td><td>--clr-bg-elevated</td><td>Data point detail overlay</td></tr>
+  </table></div>
+  <p><strong>Context-sensitive polarity:</strong> For debts, a decreasing line is <em>positive</em> and must use success color. For savings, an increasing line is positive. Polarity must always reflect the user's financial goals, not raw direction.</p>
+
+  <h3>12.4 Accessibility for Charts</h3>
+  <ul>
+    <li>Every chart provides an <code>accessibilityLabel</code> summarizing the key insight in plain language (e.g., "Spending this month: €1,240. Up 8% from last month.")</li>
+    <li>Charts support VoiceOver / TalkBack data-point traversal: swiping right moves focus to next data point; each announces its value and label</li>
+    <li>Color-blind users: never use red + green alone as the only differentiator on the same chart; use shape markers (circle vs square vs diamond) as co-encoder</li>
+    <li>All chart text meets 4.5:1 contrast against the chart background</li>
+    <li>Charts respond to Dynamic Type: labels and callout text scale with system font size setting</li>
+    <li>High-contrast mode: chart fills use solid colors (no opacity); grid lines are solid (no dashes)</li>
+  </ul>
+
+  <h3>12.5 Trend Indicators</h3>
+  <p>Trend indicators appear in Stat Cards, list items, and chart callouts to communicate direction and magnitude at a glance.</p>
+  <div class="spec-block">
+    <strong>Trend Indicator Anatomy:</strong><br>
+    • Direction icon: arrow-up (↑) or arrow-down (↓), 12px, colored per polarity<br>
+    • Percentage label: Financial XS typography<br>
+    • Period label: Caption, --clr-txt-tertiary (e.g., "vs last month")<br><br>
+    <strong>Polarity color mapping:</strong><br>
+    • For income/savings/net-worth metrics: ↑ = success color; ↓ = error color<br>
+    • For expense/debt metrics: ↓ = success color; ↑ = error color<br>
+    • For neutral metrics (transaction count): ↑↓ both in --clr-txt-secondary<br><br>
+    <strong>Magnitude thresholds:</strong><br>
+    • &lt;5% change: Caption "stable" (no arrow, no color)<br>
+    • 5–20%: standard arrow + percentage<br>
+    • &gt;20%: bold arrow + percentage + optional caption "Significant change"
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §13 -->
+<section id="s13">
+  <div class="sec-label">Section 13</div>
+  <h2>Motion &amp; Animation</h2>
+  <p>Motion in Finance Bag serves communication, not decoration. Every animation conveys a relationship, a transition, or a state change. Gratuitous motion is avoided — a financial app must feel stable and trustworthy, not playful.</p>
+
+  <h3>13.1 Motion Principles</h3>
+  <ul>
+    <li><strong>Purposeful:</strong> Every animated element communicates something — hierarchy, relationship, completion, or feedback. Idle animations and ambient loops are prohibited.</li>
+    <li><strong>Swift:</strong> UI transitions complete within 350ms. The app must never feel laggy. Longer animations only for celebratory moments (goal achieved).</li>
+    <li><strong>Natural:</strong> All easing curves mimic physical motion — objects accelerate and decelerate; nothing snaps linearly.</li>
+    <li><strong>Contextual:</strong> Navigation transitions reflect spatial relationships (push = slide; modal = rise; tab switch = cross-fade).</li>
+    <li><strong>Accessible:</strong> All motion respects <code>prefers-reduced-motion</code>. Reduced motion alternatives must be defined for every animated component.</li>
+  </ul>
+
+  <h3>13.2 Duration Scale</h3>
+  <div class="tw"><table>
+    <tr><th>Token</th><th>Duration</th><th>Use</th></tr>
+    <tr><td>--dur-instant</td><td>80ms</td><td>State changes (checkbox toggle, button press feedback)</td></tr>
+    <tr><td>--dur-fast</td><td>150ms</td><td>Micro-interactions (chip selection, icon swap)</td></tr>
+    <tr><td>--dur-standard</td><td>220ms</td><td>Component enter/exit (toast in, dropdown open)</td></tr>
+    <tr><td>--dur-moderate</td><td>300ms</td><td>Sheet presentation, card expand</td></tr>
+    <tr><td>--dur-relaxed</td><td>400ms</td><td>Full-screen page transitions</td></tr>
+    <tr><td>--dur-slow</td><td>600ms</td><td>Celebratory moments, progress fill animations</td></tr>
+    <tr><td>--dur-shimmer</td><td>1400ms</td><td>Skeleton screen shimmer cycle (loops)</td></tr>
+  </table></div>
+
+  <h3>13.3 Easing Library</h3>
+  <div class="tw"><table>
+    <tr><th>Token</th><th>Curve</th><th>Use</th></tr>
+    <tr><td>--ease-standard</td><td>cubic-bezier(0.2, 0, 0, 1)</td><td>Default UI motion — most transitions</td></tr>
+    <tr><td>--ease-decelerate</td><td>cubic-bezier(0, 0, 0.2, 1)</td><td>Elements entering the screen (slide in, sheet rise)</td></tr>
+    <tr><td>--ease-accelerate</td><td>cubic-bezier(0.4, 0, 1, 1)</td><td>Elements leaving the screen (slide out, dismiss)</td></tr>
+    <tr><td>--ease-spring</td><td>spring(1, 80, 12, 0)</td><td>Interactive gestures with natural overshoots (pull-to-refresh, drag)</td></tr>
+    <tr><td>--ease-linear</td><td>linear</td><td>Progress bars (determinate), shimmer (loop)</td></tr>
+  </table></div>
+
+  <h3>13.4 Navigation Transitions</h3>
+  <div class="tw"><table>
+    <tr><th>Transition Type</th><th>Direction</th><th>Duration</th><th>Easing</th><th>Reduced Motion</th></tr>
+    <tr><td>Stack push</td><td>Incoming slides in from right; outgoing shifts left 30%</td><td>350ms</td><td>--ease-decelerate</td><td>Cross-fade only</td></tr>
+    <tr><td>Stack pop</td><td>Incoming slides in from left; outgoing exits right</td><td>300ms</td><td>--ease-accelerate</td><td>Cross-fade only</td></tr>
+    <tr><td>Tab switch</td><td>Cross-fade between tab roots</td><td>200ms</td><td>--ease-standard</td><td>Instant (no animation)</td></tr>
+    <tr><td>Modal present</td><td>Slides up from bottom</td><td>350ms</td><td>--ease-decelerate</td><td>Fade in</td></tr>
+    <tr><td>Modal dismiss</td><td>Slides down, scrim fades</td><td>280ms</td><td>--ease-accelerate</td><td>Fade out</td></tr>
+    <tr><td>Bottom sheet present</td><td>Slides up from bottom edge</td><td>320ms</td><td>--ease-spring</td><td>Fade in</td></tr>
+  </table></div>
+
+  <h3>13.5 Micro-Interaction Catalog</h3>
+  <div class="tw"><table>
+    <tr><th>Interaction</th><th>Animation</th><th>Duration</th></tr>
+    <tr><td>Button press</td><td>Scale 1.0 → 0.97 on press; 0.97 → 1.0 on release</td><td>80ms each</td></tr>
+    <tr><td>Checkbox / toggle check-on</td><td>Checkmark draws in (path animation); background fills</td><td>150ms</td></tr>
+    <tr><td>Chip select</td><td>Background fills accent; label cross-fades to inverse</td><td>120ms</td></tr>
+    <tr><td>Progress fill</td><td>Bar fills left-to-right from 0% to target value</td><td>600ms, --ease-decelerate</td></tr>
+    <tr><td>Goal achieved</td><td>Progress ring fills; checkmark scales in; confetti burst (particle system, 1.5s)</td><td>1500ms total</td></tr>
+    <tr><td>Toast appear</td><td>Slides up + fades in from bottom edge</td><td>220ms</td></tr>
+    <tr><td>List item swipe</td><td>Slides with finger; action icon scales in when threshold reached</td><td>Real-time (gesture-driven)</td></tr>
+    <tr><td>Pull-to-refresh</td><td>Spinner descends with elastic pull; spins during refresh</td><td>Real-time + 400ms release spring</td></tr>
+    <tr><td>AI coach thinking</td><td>Three dots pulse (staggered scale 0.6→1.0, 0.6s delay between)</td><td>Loops until response arrives</td></tr>
+    <tr><td>Balance number update</td><td>Digits roll vertically (slot-machine style) to new value</td><td>500ms, --ease-decelerate</td></tr>
+  </table></div>
+
+  <h3>13.6 Reduced Motion Policy</h3>
+  <p>When <code>prefers-reduced-motion: reduce</code> is detected, the following rules apply:</p>
+  <ul>
+    <li>All slide/transform transitions replaced with opacity-only cross-fades at 60% of the original duration</li>
+    <li>Shimmer animation: disabled; static skeleton shapes shown instead</li>
+    <li>Progress fill animation: disabled; fills instantly to final value</li>
+    <li>Goal achieved celebration: confetti disabled; only the checkmark icon appears (no scale animation)</li>
+    <li>Balance digit roll: disabled; number updates instantly</li>
+    <li>AI thinking dots: single dot fades in/out instead of three-dot pulse</li>
+    <li>Spring easing: replaced with --ease-standard (no overshoots)</li>
+    <li>All loops (shimmer, loading spinners) are exempt from reduced-motion if they are the primary loading indicator — removing them entirely would cause confusion about app state</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §14 -->
+<section id="s14">
+  <div class="sec-label">Section 14</div>
+  <h2>Accessibility Framework</h2>
+  <p>Finance Bag is built accessible from the ground up. Accessibility is not a feature — it is a quality bar. Every component, screen, and interaction must pass accessibility requirements before shipping.</p>
+
+  <h3>14.1 Touch Target Requirements</h3>
+  <div class="spec-block">
+    <strong>Minimum touch target sizes:</strong><br>
+    • iOS: 44×44pt (Apple HIG minimum)<br>
+    • Android: 48×48dp (Material Design minimum)<br>
+    • Recommended: 48×48pt/dp for primary actions<br><br>
+    <strong>Enforcement rules:</strong><br>
+    • Targets smaller than the minimum must use hitSlop (iOS) or TouchDelegate (Android) to extend the interactive area without changing visual size<br>
+    • Targets must not overlap neighboring targets (minimum 8px gap)<br>
+    • Icon-only buttons always have a visible focus ring and a descriptive accessibilityLabel
+  </div>
+
+  <h3>14.2 Color Contrast Requirements</h3>
+  <div class="tw"><table>
+    <tr><th>Content Type</th><th>Minimum Ratio</th><th>Standard (WCAG AA)</th></tr>
+    <tr><td>Body text (18sp and smaller)</td><td>4.5:1</td><td>WCAG 2.1 AA</td></tr>
+    <tr><td>Large text (18sp+ or 14sp bold)</td><td>3.0:1</td><td>WCAG 2.1 AA</td></tr>
+    <tr><td>UI components (buttons, fields, icons)</td><td>3.0:1</td><td>WCAG 2.1 AA</td></tr>
+    <tr><td>Financial values (always critical)</td><td>4.5:1</td><td>Finance Bag requirement</td></tr>
+    <tr><td>Status indicators (error/warning/success)</td><td>4.5:1</td><td>Finance Bag requirement (exceeds AA)</td></tr>
+    <tr><td>Placeholder text</td><td>3.0:1</td><td>WCAG 2.1 AA</td></tr>
+    <tr><td>Disabled text</td><td>Not required</td><td>Disabled state conveys non-interactivity through other means</td></tr>
+  </table></div>
+  <p>The High Contrast theme (3rd theme) targets WCAG AAA (7:1 for body text) for users who need maximum contrast.</p>
+
+  <h3>14.3 Screen Reader Support</h3>
+  <div class="tw"><table>
+    <tr><th>Requirement</th><th>Implementation Rule</th></tr>
+    <tr><td>Every interactive element has an accessibilityLabel</td><td>Labels describe the action, not the icon. "Edit transaction" not "Pencil button".</td></tr>
+    <tr><td>accessibilityRole is always set</td><td>button, link, header, image, adjustable, none — never omit on interactive elements</td></tr>
+    <tr><td>accessibilityHint for non-obvious actions</td><td>Used for swipe actions, long-press: "Double-tap and hold, then swipe left to delete"</td></tr>
+    <tr><td>Financial values announced correctly</td><td>"€1,240.50" announced as "one thousand two hundred forty euros and fifty cents" via accessibilityLabel override</td></tr>
+    <tr><td>Progress conveyed verbally</td><td>Progress rings: "Vacation goal: 68 percent complete, €3,400 of €5,000 saved"</td></tr>
+    <tr><td>Charts announce summary</td><td>accessibilityLabel on chart container provides key insight in one sentence</td></tr>
+    <tr><td>Alerts and toasts announced</td><td>accessibilityRole="alert" ensures VoiceOver/TalkBack announces immediately</td></tr>
+    <tr><td>Focus order is logical</td><td>Reading order follows visual top-to-bottom, left-to-right (RTL-aware in Arabic mode)</td></tr>
+    <tr><td>Modal dialogs trap focus</td><td>Focus cycles within dialog until dismissed</td></tr>
+  </table></div>
+
+  <h3>14.4 Color Blindness Accommodation</h3>
+  <ul>
+    <li>Red/green are never the <em>sole</em> visual differentiators. Status is always co-encoded with an icon (✓ checkmark, ⚠ warning triangle, ✕ X, ℹ info circle).</li>
+    <li>Chart series use shape markers (circle, square, diamond, triangle) alongside color for differentiation</li>
+    <li>Positive/negative trends use directional arrows (↑↓) as co-encoders alongside color</li>
+    <li>High-contrast theme uses maximum saturation and is tested specifically against deuteranopia and protanopia simulations</li>
+  </ul>
+
+  <h3>14.5 Dynamic Type</h3>
+  <p>Finance Bag supports iOS Dynamic Type and Android font scaling up to 200% (the system maximum for Accessibility sizes).</p>
+  <div class="spec-block">
+    <strong>Dynamic Type rules:</strong><br>
+    • All text containers use flexible height — never fixed height that clips large text<br>
+    • Financial values (Display/Financial L) scale with Dynamic Type but cap at 1.5× to preserve chart and card layouts<br>
+    • Single-line truncated labels (navigation bar titles) use ellipsis rather than clipping<br>
+    • Cards reflow: at 150%+ text scale, two-column Stat Card grid collapses to single column<br>
+    • Minimum text size: 12sp/pt (Caption) — text never goes below this even for decorative labels<br>
+    • All spacing tokens scale relative to text size at 125%+ to maintain comfortable breathing room
+  </div>
+
+  <h3>14.6 Motor Impairment Support</h3>
+  <ul>
+    <li>Switch Control (iOS) and Switch Access (Android) are supported: all actions reachable via sequential scanning</li>
+    <li>Voice Control (iOS) labels: every tappable element has a meaningful voiceOver label that matches what Voice Control displays</li>
+    <li>Drag-and-drop is never the <em>only</em> way to perform an action — an alternate tap-based interaction always exists</li>
+    <li>Swipe-to-delete always has an alternative: a "Delete" option accessible via long-press context menu or ellipsis menu</li>
+    <li>Shake-to-undo (iOS) is supported for text input but never for destructive data actions</li>
+    <li>Long press duration: no interaction requires a hold longer than 1 second</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §15 -->
+<section id="s15">
+  <div class="sec-label">Section 15</div>
+  <h2>Localization</h2>
+  <p>Finance Bag v1.0 ships in three locales: French (fr-DZ default, fr-FR, fr-CA), English (en-US, en-GB), and Arabic (ar-DZ). The design system must accommodate all three without visual compromise or content overflow.</p>
+
+  <h3>15.1 Supported Locales</h3>
+  <div class="tw"><table>
+    <tr><th>Locale</th><th>Language</th><th>Script</th><th>Text Direction</th><th>Number Format</th><th>Currency</th></tr>
+    <tr><td>fr-DZ</td><td>French (Algeria)</td><td>Latin</td><td>LTR</td><td>1 234,50</td><td>DZD / DA</td></tr>
+    <tr><td>fr-FR</td><td>French (France)</td><td>Latin</td><td>LTR</td><td>1 234,50</td><td>EUR / €</td></tr>
+    <tr><td>fr-CA</td><td>French (Canada)</td><td>Latin</td><td>LTR</td><td>1 234,50 $</td><td>CAD / $</td></tr>
+    <tr><td>en-US</td><td>English (US)</td><td>Latin</td><td>LTR</td><td>1,234.50</td><td>USD / $</td></tr>
+    <tr><td>en-GB</td><td>English (UK)</td><td>Latin</td><td>LTR</td><td>1,234.50</td><td>GBP / £</td></tr>
+    <tr><td>ar-DZ</td><td>Arabic (Algeria)</td><td>Arabic</td><td>RTL</td><td>١٬٢٣٤٫٥٠ or 1,234.50</td><td>DZD / د.ج</td></tr>
+  </table></div>
+
+  <h3>15.2 RTL Layout Rules</h3>
+  <p>When the active locale is Arabic (ar-DZ), the entire layout mirrors horizontally. The following rules govern RTL adaptation:</p>
+  <ul>
+    <li><strong>Layout mirroring:</strong> All flex rows reverse direction. Start = right, End = left. Icons that communicate directionality (chevrons, arrows, back buttons) are mirrored. Decorative icons (chart types, category icons) are NOT mirrored.</li>
+    <li><strong>Tab bar:</strong> Tab order remains left-to-right (Dashboard first = leftmost) — tab order is content order, not reading order. Tab labels are in Arabic.</li>
+    <li><strong>Navigation bar:</strong> Back button appears on the right (RTL convention). The back chevron points right (→) in Arabic.</li>
+    <li><strong>Text alignment:</strong> Body text is right-aligned. Mixed LTR/RTL content (Arabic label + currency symbol) uses Unicode bidi algorithm without override.</li>
+    <li><strong>Currency position:</strong> Currency symbol follows number in Arabic (١٬٢٣٤٫٥٠ د.ج) — not prefixed.</li>
+    <li><strong>Progress bars:</strong> Fill from right to left in RTL.</li>
+    <li><strong>Swipe actions:</strong> Left swipe reveals actions on the left in RTL (swipe direction mirrors).</li>
+    <li><strong>Charts:</strong> Time axis (X) remains left-to-right (chronological order does not reverse). Only the chart container layout mirrors.</li>
+  </ul>
+
+  <h3>15.3 Number &amp; Currency Formatting</h3>
+  <div class="tw"><table>
+    <tr><th>Format Element</th><th>fr (French)</th><th>en-US</th><th>ar-DZ</th></tr>
+    <tr><td>Thousands separator</td><td>Thin space ( )</td><td>Comma (,)</td><td>Comma (٬) or comma (,)</td></tr>
+    <tr><td>Decimal separator</td><td>Comma (,)</td><td>Period (.)</td><td>Period (٫) or period (.)</td></tr>
+    <tr><td>Currency symbol position</td><td>After amount (€ suffix in fr-FR)</td><td>Before amount ($1,234)</td><td>After amount</td></tr>
+    <tr><td>Negative amounts</td><td>−1 234,50 €</td><td>−$1,234.50</td><td>١٬٢٣٤٫٥٠− د.ج</td></tr>
+    <tr><td>Amount display digits</td><td>Arabic-Indic or Western at user preference</td><td>Western (0–9)</td><td>Western digits (0–9) for financial data in Finance Bag v1.0</td></tr>
+  </table></div>
+  <p><strong>Rule:</strong> Finance Bag always uses Western digits (0–9) for financial amounts in v1.0, even in Arabic locale, to ensure parsing consistency and avoid digit-set confusion in mixed-content screens. A setting to switch to Eastern Arabic-Indic digits (٠١٢٣٤٥٦٧٨٩) will be introduced in v1.1 if user research supports it.</p>
+
+  <h3>15.4 Date &amp; Time Formatting</h3>
+  <div class="tw"><table>
+    <tr><th>Format</th><th>fr</th><th>en-US</th><th>ar-DZ</th></tr>
+    <tr><td>Short date</td><td>12/07/2026</td><td>07/12/2026</td><td>12/07/2026</td></tr>
+    <tr><td>Medium date</td><td>12 juil. 2026</td><td>Jul 12, 2026</td><td>12 يول. 2026</td></tr>
+    <tr><td>Long date</td><td>12 juillet 2026</td><td>July 12, 2026</td><td>12 يوليو 2026</td></tr>
+    <tr><td>Relative (recent)</td><td>Aujourd'hui, Hier, il y a 3 j</td><td>Today, Yesterday, 3 days ago</td><td>اليوم، أمس، منذ 3 أيام</td></tr>
+    <tr><td>Time (12h/24h)</td><td>14:30 (24h default)</td><td>2:30 PM (12h default)</td><td>14:30 (24h)</td></tr>
+  </table></div>
+
+  <h3>15.5 Text Expansion Allowances</h3>
+  <p>Translated strings vary significantly in length. UI layouts must accommodate the longest expected string without truncation or overflow.</p>
+  <div class="tw"><table>
+    <tr><th>Source Language</th><th>Target</th><th>Expansion Factor</th><th>Design Response</th></tr>
+    <tr><td>English</td><td>French</td><td>+20–30%</td><td>Allow text wrapping on labels; test all button labels in French</td></tr>
+    <tr><td>English</td><td>Arabic</td><td>−10–+30% (varies)</td><td>RTL layout; test both shorter and longer strings</td></tr>
+    <tr><td>Any</td><td>Any (tab labels)</td><td>Critical risk</td><td>Tab labels max 10 characters; truncate with ellipsis if needed; test all 6 locales</td></tr>
+    <tr><td>Any</td><td>Any (button labels)</td><td>Critical risk</td><td>Buttons grow to fit text (max 2 lines for full-width); primary actions must never clip</td></tr>
+  </table></div>
+
+  <h3>15.6 Locale-Specific UX Considerations</h3>
+  <ul>
+    <li><strong>First day of week:</strong> Monday (fr, ar); Sunday (en-US). Calendar and weekly report views adapt accordingly.</li>
+    <li><strong>Weekend definition:</strong> Friday–Saturday (ar-DZ); Saturday–Sunday (fr, en). Event module marks weekends correctly per locale.</li>
+    <li><strong>Islamic calendar:</strong> ar-DZ users may optionally view dates in Hijri calendar alongside Gregorian. This is a display preference only — all storage uses Gregorian (ISO 8601).</li>
+    <li><strong>Keyboard layout:</strong> Arabic keyboard is auto-selected for Arabic locale text fields (language fields). Financial input fields always use numeric keypad regardless of locale.</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §16 -->
+<section id="s16">
+  <div class="sec-label">Section 16</div>
+  <h2>UX Standards</h2>
+  <p>UX standards define consistent patterns for how Finance Bag handles common situations across all modules. These patterns ensure predictability — users learn the pattern once and recognize it everywhere.</p>
+
+  <h3>16.1 Loading Behavior Hierarchy</h3>
+  <p>Finance Bag is offline-first. Most data loads instantly from the local database. Remote operations (sync, AI) follow a layered loading strategy:</p>
+  <div class="tw"><table>
+    <tr><th>Data Source</th><th>Expected Latency</th><th>Loading Pattern</th><th>Failure Response</th></tr>
+    <tr><td>Local SQLite (primary)</td><td>&lt;50ms</td><td>No skeleton — renders immediately</td><td>Error state if DB read fails (rare)</td></tr>
+    <tr><td>Derived calculations (aggregates)</td><td>50–200ms</td><td>Skeleton for the specific card only</td><td>Error card with retry</td></tr>
+    <tr><td>Sync (background)</td><td>1–30s</td><td>Sync status banner (non-blocking)</td><td>Warning banner, queued for retry</td></tr>
+    <tr><td>AI Coach generation</td><td>1–10s</td><td>AI thinking indicator in chat bubble</td><td>Error message in chat; "Try again" button</td></tr>
+    <tr><td>Export generation</td><td>2–15s</td><td>Full-screen progress overlay with % bar</td><td>Error dialog with retry option</td></tr>
+  </table></div>
+
+  <h3>16.2 Error Handling Hierarchy</h3>
+  <p>Errors are handled at the closest-possible scope. Global errors are the last resort.</p>
+  <ol>
+    <li><strong>Silent recovery</strong> — retry transparently (e.g., failed background sync retries automatically). No user notification.</li>
+    <li><strong>Inline error</strong> — error shown in the affected component only. Rest of UI remains functional.</li>
+    <li><strong>Alert banner</strong> — for recoverable issues requiring user awareness (sync failed, backup overdue).</li>
+    <li><strong>Full-screen error</strong> — for critical, unrecoverable situations only (data corruption, app crash recovery).</li>
+    <li><strong>Dialog</strong> — for errors requiring an explicit user decision (e.g., "Restore from backup?" after failed migration).</li>
+  </ol>
+
+  <h3>16.3 Confirmation Dialogs</h3>
+  <p>Confirmation dialogs are required before any action that:</p>
+  <ul>
+    <li>Permanently deletes data (even with soft-delete, the confirmation explains "This will be hidden from your records")</li>
+    <li>Resets significant configuration (e.g., "Clear all budgets for this month")</li>
+    <li>Irreversibly sends or exports data</li>
+    <li>Cancels a form with unsaved changes</li>
+  </ul>
+  <div class="spec-block">
+    <strong>Confirmation Dialog standards:</strong><br>
+    • Use the Destructive dialog variant for deletes and resets (red primary button)<br>
+    • Use the Confirmation dialog variant for data exports (standard accent primary button)<br>
+    • The default-focused button is always CANCEL (never the destructive action)<br>
+    • Title states the action: "Delete this transaction?" not "Are you sure?"<br>
+    • Body clarifies consequences: "This transaction will be removed from your records. This cannot be undone."<br>
+    • Destructive button label repeats the action: "Delete" not "Yes" or "OK"<br>
+    • Cancel button: always present, labeled "Cancel"
+  </div>
+
+  <h3>16.4 Destructive Action Guardrails</h3>
+  <div class="tw"><table>
+    <tr><th>Action</th><th>Guardrail Pattern</th></tr>
+    <tr><td>Delete a transaction</td><td>Swipe-to-delete requires confirmation dialog. No instant delete.</td></tr>
+    <tr><td>Delete a budget</td><td>Confirmation dialog + "This will also remove X transactions from this budget" context</td></tr>
+    <tr><td>Delete a goal</td><td>Confirmation dialog + "Your saved progress (€X) will be unallocated"</td></tr>
+    <tr><td>Reset all data</td><td>Confirmation dialog + 6-digit PIN re-entry required + explicit type-to-confirm ("Type DELETE to confirm")</td></tr>
+    <tr><td>Revoke AI memory</td><td>Confirmation dialog: "Your AI coach will forget personalized insights. Start fresh?"</td></tr>
+    <tr><td>Remove a scheduled event</td><td>If recurring: dialog asks "Remove this occurrence" vs "Remove all occurrences"</td></tr>
+  </table></div>
+
+  <h3>16.5 Undo Patterns</h3>
+  <p>Undo is available for actions where reversal is technically feasible without a network round-trip.</p>
+  <div class="tw"><table>
+    <tr><th>Action</th><th>Undo Available?</th><th>Undo Window</th><th>Implementation</th></tr>
+    <tr><td>Delete a transaction</td><td>Yes</td><td>5 seconds</td><td>Undo toast with "Undo" action link</td></tr>
+    <tr><td>Archive a goal</td><td>Yes</td><td>5 seconds</td><td>Undo toast</td></tr>
+    <tr><td>Dismiss an AI recommendation</td><td>Yes</td><td>5 seconds</td><td>Undo toast</td></tr>
+    <tr><td>Clear a notification</td><td>Yes</td><td>5 seconds</td><td>Undo toast</td></tr>
+    <tr><td>Delete a budget</td><td>No</td><td>N/A</td><td>Confirmation dialog only; no undo after confirmation</td></tr>
+    <tr><td>Reset all data</td><td>No</td><td>N/A</td><td>PIN + type-to-confirm; no undo</td></tr>
+  </table></div>
+
+  <h3>16.6 Onboarding Flow</h3>
+  <p>First-launch onboarding establishes the user's initial data and preferences. It is intentionally brief — 4 screens, skippable after screen 1.</p>
+  <div class="tw"><table>
+    <tr><th>Screen</th><th>Content</th><th>Required?</th></tr>
+    <tr><td>1 — Welcome</td><td>App name, tagline, "Get Started" CTA. Locale selection if not auto-detected.</td><td>Yes (cannot skip)</td></tr>
+    <tr><td>2 — Currency &amp; profile</td><td>Default currency selector, name (optional), monthly income (optional, used for budget suggestions)</td><td>No (skip available)</td></tr>
+    <tr><td>3 — Security</td><td>Set app PIN (required for encryption). Biometric toggle. Explanation of local-only storage.</td><td>Yes (PIN is mandatory — encryption requires it)</td></tr>
+    <tr><td>4 — First action</td><td>"What do you want to track first?" — four option cards: Budget / Goal / Debt / Explore on my own. Tapping goes directly to the relevant creation flow.</td><td>No (skip → Dashboard)</td></tr>
+  </table></div>
+  <p><strong>Post-onboarding:</strong> The first time a user opens each new module, a brief inline empty-state tip is shown (see §9.1). Persistent tutorial overlays are never used — Finance Bag discovers features through use, not forced tutorials.</p>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §17 -->
+<section id="s17">
+  <div class="sec-label">Section 17</div>
+  <h2>Responsive Behavior</h2>
+  <p>Finance Bag adapts gracefully across device classes. The app is primarily designed for standard phones but must be fully functional on all supported screen sizes. Tablet and foldable layouts are additive — they reveal more information, never less.</p>
+
+  <h3>17.1 Device Class Matrix</h3>
+  <div class="tw"><table>
+    <tr><th>Device Class</th><th>Example Devices</th><th>Screen Width (pts)</th><th>Columns</th><th>Margin</th><th>Key Adaptation</th></tr>
+    <tr><td>Small phone</td><td>iPhone SE, Galaxy A02</td><td>320–374pt</td><td>4</td><td>12px</td><td>Labels abbreviated; Financial L reduced to Financial M; single-column everywhere</td></tr>
+    <tr><td>Standard phone</td><td>iPhone 15, Pixel 8</td><td>375–414pt</td><td>4</td><td>16px</td><td>Reference layout; all designs optimized for this class</td></tr>
+    <tr><td>Large phone</td><td>iPhone 15 Plus, Galaxy S24+</td><td>415–479pt</td><td>4</td><td>20px</td><td>Stat Card grid: 2 columns → 3 columns; chart height +20%</td></tr>
+    <tr><td>Pro Max / Ultra</td><td>iPhone 15 Pro Max, Galaxy S24 Ultra</td><td>430–480pt</td><td>4</td><td>24px</td><td>Dashboard shows 6 Stat Cards; list items show more detail inline</td></tr>
+    <tr><td>Foldable (folded)</td><td>Galaxy Z Fold6 (cover)</td><td>360–390pt</td><td>4</td><td>12px</td><td>Identical to standard phone layout</td></tr>
+    <tr><td>Foldable (unfolded)</td><td>Galaxy Z Fold6 (main)</td><td>720–900pt</td><td>8</td><td>24px</td><td>Two-panel layout: nav sidebar + detail pane (see 17.3)</td></tr>
+    <tr><td>Tablet</td><td>iPad, Galaxy Tab S9</td><td>768pt+</td><td>12</td><td>32px</td><td>Two-panel layout + sidebar nav replaces bottom tab bar</td></tr>
+  </table></div>
+
+  <h3>17.2 Layout Adaptation Rules</h3>
+  <div class="tw"><table>
+    <tr><th>Component</th><th>Standard Phone</th><th>Large Phone</th><th>Foldable Unfolded / Tablet</th></tr>
+    <tr><td>Dashboard Stat Cards</td><td>2-column grid</td><td>3-column grid</td><td>4-column grid</td></tr>
+    <tr><td>Navigation</td><td>Bottom tab bar (5 tabs)</td><td>Bottom tab bar (5 tabs)</td><td>Persistent left sidebar (all modules listed)</td></tr>
+    <tr><td>Module list + detail</td><td>Stack: list → detail (separate screens)</td><td>Stack (same)</td><td>Side-by-side: list (left panel) + detail (right panel)</td></tr>
+    <tr><td>Creation form</td><td>Bottom sheet (modal)</td><td>Bottom sheet (modal)</td><td>Right panel slide-in (no overlay)</td></tr>
+    <tr><td>Charts</td><td>Full-width, 220–280px height</td><td>Full-width, 260–320px height</td><td>50% panel width, 320–400px height</td></tr>
+    <tr><td>Dialogs</td><td>Full-width bottom sheet</td><td>Full-width bottom sheet</td><td>Centered modal dialog, max 480pt wide</td></tr>
+  </table></div>
+
+  <h3>17.3 Foldable &amp; Tablet Two-Panel Layout</h3>
+  <div class="spec-block">
+    <strong>Two-Panel Architecture (≥ 720pt width):</strong><br>
+    • Left panel: persistent navigation sidebar (240pt fixed width) + module content list<br>
+    • Right panel: detail view for selected item; defaults to "Select an item" empty state on first load<br>
+    • Divider: 1px --clr-border-default vertical separator<br>
+    • Sidebar navigation: replaces bottom tab bar entirely. Shows all 15 modules with icons + labels. Active module highlighted with accent background strip.<br>
+    • Continuity: when a phone user opens the app on a foldable in unfolded state mid-session, the navigation state is preserved — the same screen appears in the detail panel, the list context is restored in the left panel.<br>
+    • Back button: removed for detail views in two-panel mode (the list context is always visible — no concept of "going back")
+  </div>
+
+  <h3>17.4 Landscape Orientation</h3>
+  <p>Portrait is the primary orientation. Landscape is supported but not primary. Landscape adaptations:</p>
+  <ul>
+    <li>Bottom tab bar remains (not replaced by sidebar in landscape on standard phones)</li>
+    <li>Content area widens; layout uses 6-column grid with wider margins</li>
+    <li>Charts benefit significantly — height-constrained charts expand to use horizontal space more efficiently</li>
+    <li>Text input forms: keyboard occupies more of the screen. Forms scroll above the keyboard; field-in-focus is always visible (ScrollView + KeyboardAvoidingView pattern)</li>
+    <li>Landscape lock: if the user locks orientation to portrait, the app respects this setting</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §18 -->
+<section id="s18">
+  <div class="sec-label">Section 18</div>
+  <h2>Future Scalability</h2>
+  <p>The Design System is designed to evolve. This section documents anticipated platform changes and expansion surfaces that the token architecture, component library, and design principles must accommodate without requiring a full redesign.</p>
+
+  <h3>18.1 Platform Evolution Compatibility</h3>
+  <div class="tw"><table>
+    <tr><th>Platform Change</th><th>Current Design Stance</th><th>Preparation Taken</th></tr>
+    <tr><td>iOS dynamic island / live activities</td><td>Not implemented in v1.0</td><td>Sync status and goal progress data are componentized for future live activity export</td></tr>
+    <tr><td>Material Design 3 evolution</td><td>App uses MD3-compatible token names</td><td>Color tokens map to MD3 roles (primary, secondary, surface, etc.)</td></tr>
+    <tr><td>Apple HIG visionOS</td><td>Not targeted in v1.0</td><td>No glass-morphism or depth effects that would conflict with visionOS adaptation</td></tr>
+    <tr><td>Android predictive back gesture</td><td>Supported from v1.0</td><td>Navigation stack provides peek previews of the previous screen on back-gesture initiation</td></tr>
+    <tr><td>Android large screen window resizing</td><td>Foldable layout covers this</td><td>Two-panel layout is already responsive to width breakpoints, not device-class-specific</td></tr>
+  </table></div>
+
+  <h3>18.2 Wearable (Apple Watch / Wear OS)</h3>
+  <p>Wearable support is planned for v2.0. The design system prepares for this by:</p>
+  <ul>
+    <li><strong>Data summary API:</strong> Dashboard Stat Cards expose a structured data model (metric name, value, trend, module accent) that maps directly to watch complication data</li>
+    <li><strong>Complication types planned:</strong> Today's spending (circular), Savings rate (gauge), Next bill due (inline with date), Goal progress (ring)</li>
+    <li><strong>Notification architecture:</strong> Push notification payloads include a <code>watch_summary</code> field with a one-line wearable-length summary (&lt;45 characters)</li>
+    <li><strong>Watch color system:</strong> Module accent colors will be used for complication tint — verified for legibility on OLED watch displays at small sizes</li>
+  </ul>
+
+  <h3>18.3 Home Screen Widgets</h3>
+  <p>Widget support is planned for v1.5 (iOS WidgetKit / Android App Widgets).</p>
+  <div class="tw"><table>
+    <tr><th>Widget</th><th>Size</th><th>Content</th><th>Refresh</th></tr>
+    <tr><td>Budget Summary</td><td>Small (2×2)</td><td>Largest budget: name + remaining + accent ring</td><td>On transaction add</td></tr>
+    <tr><td>Net Worth</td><td>Small (2×2)</td><td>Current net worth + trend arrow</td><td>Daily / on sync</td></tr>
+    <tr><td>Goal Progress</td><td>Medium (4×2)</td><td>Goal name + progress ring + amount + target date</td><td>On transaction add</td></tr>
+    <tr><td>Spending Today</td><td>Small (2×2)</td><td>Today's spend vs daily budget allowance</td><td>On transaction add</td></tr>
+    <tr><td>Finance Dashboard</td><td>Large (4×4)</td><td>3 stat cards + sync status + quick-add button</td><td>On transaction add / hourly</td></tr>
+  </table></div>
+  <p><strong>Widget design constraints:</strong> Widgets use the same color token system. They render with the system dark/light theme (no app override). Widget backgrounds use --clr-bg-surface equivalent. All widget text meets 4.5:1 contrast against the widget background.</p>
+
+  <h3>18.4 Desktop / Web (Future)</h3>
+  <p>A web companion app is anticipated in v3.0. The design system prepares by:</p>
+  <ul>
+    <li>All spacing tokens are in dp-equivalent values that translate directly to CSS px at 1:1</li>
+    <li>The two-panel layout developed for tablets is the foundation of the web layout</li>
+    <li>Color tokens are named and structured identically to CSS custom properties (--clr-*, --sp-*, etc.)</li>
+    <li>Typography roles map to CSS font-size/line-height/weight declarations without loss</li>
+    <li>Hover and focus states: component specs include the hover interaction definition even though mobile has no hover, ensuring web adaptation doesn't introduce undocumented behavior</li>
+  </ul>
+
+  <h3>18.5 Voice UI Considerations</h3>
+  <p>Voice interaction (Siri Shortcuts / Google Assistant) is planned for v2.0.</p>
+  <ul>
+    <li>Every primary action in the app maps to a parameterized intent: "Add €50 transaction in Food budget", "What's my savings rate this month?", "Show my biggest expense this week"</li>
+    <li>Response content for voice is sourced from the same data layer as screen content — no separate voice data model needed</li>
+    <li>Verbal financial values must be unambiguous: €1,240.50 is spoken as "twelve hundred forty euros fifty" (not "one-two-four-zero-fifty")</li>
+    <li>Confirmation for destructive voice actions: a voice confirmation prompt repeats the action before executing ("I'll delete the €50 coffee transaction from July 12. Say 'confirm' to proceed.")</li>
+  </ul>
+
+  <h3>18.6 Design Token Versioning</h3>
+  <p>The design token system is versioned alongside the app. Breaking token changes require a migration path:</p>
+  <ul>
+    <li>Token deprecation: deprecated tokens are aliased to their replacement for one major version before removal</li>
+    <li>New primitives: added without breaking existing semantic tokens</li>
+    <li>Theme addition: new themes (e.g., Custom Theme) extend the token set; they do not modify existing tokens</li>
+    <li>Version tracking: the token manifest includes a <code>dsn_version</code> field (currently "1.0.0") — persisted in app state so upgrade migrations can detect token version deltas</li>
+  </ul>
+
+  <h3>18.7 Business Rules</h3>
+  <div class="tw"><table>
+    <tr><th>Rule ID</th><th>Rule</th><th>Rationale</th></tr>
+    <tr><td class="mono">BR-DSN-01</td><td>All interactive elements must meet WCAG 2.1 AA contrast before shipping. No exceptions.</td><td>Legal compliance (EU Accessibility Act) and user trust</td></tr>
+    <tr><td class="mono">BR-DSN-02</td><td>All touch targets must meet 44pt / 48dp minimum. HitSlop is acceptable to extend interactive area without visual change.</td><td>Motor accessibility and fat-finger usability</td></tr>
+    <tr><td class="mono">BR-DSN-03</td><td>Financial amounts are never abbreviated (K, M, B) in any display context. Full values are always shown.</td><td>Financial precision; abbreviated values cause mistakes</td></tr>
+    <tr><td class="mono">BR-DSN-04</td><td>Financial amounts always display exactly 2 decimal places, always with currency symbol.</td><td>Consistency; eliminates user confusion about units</td></tr>
+    <tr><td class="mono">BR-DSN-05</td><td>Every destructive action requires a confirmation dialog with a specific, non-default-focused destructive button.</td><td>Prevents accidental data loss</td></tr>
+    <tr><td class="mono">BR-DSN-06</td><td>The default (pre-focused) button in any dialog is always the non-destructive option (Cancel or primary).</td><td>Prevents accidental confirmation of destructive dialogs</td></tr>
+    <tr><td class="mono">BR-DSN-07</td><td>All motion must have a reduced-motion alternative. Animations are never the only way to communicate state change.</td><td>Accessibility; vestibular disorder accommodation</td></tr>
+    <tr><td class="mono">BR-DSN-08</td><td>Color is never the sole differentiator for status. Icon or shape co-encoding is mandatory.</td><td>Color blindness accommodation</td></tr>
+    <tr><td class="mono">BR-DSN-09</td><td>Empty states are never blank. Every empty state has an illustration, a title, a description, and a CTA.</td><td>Reduces abandonment; guides users to first value</td></tr>
+    <tr><td class="mono">BR-DSN-10</td><td>The back/close control is always present and always works. Users are never trapped in a screen.</td><td>Trust; standard platform convention</td></tr>
+    <tr><td class="mono">BR-DSN-11</td><td>Skeleton screens are shown for any load expected to exceed 100ms. No blank flash between states.</td><td>Perceived performance; prevents layout shift</td></tr>
+    <tr><td class="mono">BR-DSN-12</td><td>All text fields use the floating label pattern. Placeholder text is never the only label (it disappears on focus).</td><td>Usability; prevents "what was this field?" confusion</td></tr>
+    <tr><td class="mono">BR-DSN-13</td><td>RTL layout mirroring is systematic, not ad-hoc. All directional icons are catalogued and tested in Arabic locale.</td><td>Arabic UX quality; avoids confusing directional artifacts</td></tr>
+    <tr><td class="mono">BR-DSN-14</td><td>Maximum 5 items in the bottom tab bar. Secondary modules live in "More" tab.</td><td>Cognitive load; platform convention compliance</td></tr>
+    <tr><td class="mono">BR-DSN-15</td><td>The design system version (dsn_version) is stored in app state. Every release increments the version and documents breaking changes.</td><td>Enables migration tooling and regression detection</td></tr>
+  </table></div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-dsn-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-dsn-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
