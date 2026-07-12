@@ -1,0 +1,1715 @@
+
+<title>SPEC-PMO-001 — Performance, Monitoring &amp; Observability Specification</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root {
+  --acc: #0891B2;
+  --acc-dim: rgba(8,145,178,.65);
+  --acc-bg: rgba(8,145,178,.08);
+  --bg:    #18181B;
+  --surf:  #27272A;
+  --surf2: #3F3F46;
+  --bd:    #3F3F46;
+  --txt:   #F4F4F5;
+  --txt2:  #A1A1AA;
+  --txt3:  #71717A;
+  --ok:    #22C55E;
+  --warn:  #F59E0B;
+  --err:   #EF4444;
+  --info:  #38BDF8;
+  --radius: 8px;
+}
+@media (prefers-color-scheme: light) {
+  :root { --bg:#F9FAFB; --surf:#FFFFFF; --surf2:#F3F4F6; --bd:#E5E7EB; --txt:#111827; --txt2:#6B7280; --txt3:#9CA3AF; }
+}
+:root[data-theme="dark"]  { --bg:#18181B; --surf:#27272A; --surf2:#3F3F46; --bd:#3F3F46; --txt:#F4F4F5; --txt2:#A1A1AA; --txt3:#71717A; }
+:root[data-theme="light"] { --bg:#F9FAFB; --surf:#FFFFFF; --surf2:#F3F4F6; --bd:#E5E7EB; --txt:#111827; --txt2:#6B7280; --txt3:#9CA3AF; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg); color: var(--txt);
+  font-size: 15px; line-height: 1.6;
+  display: flex; min-height: 100vh;
+}
+nav {
+  width: 240px; flex-shrink: 0;
+  background: var(--surf); border-right: 1px solid var(--bd);
+  position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  padding: 24px 0 40px;
+}
+.nav-brand { padding: 0 20px 20px; border-bottom: 1px solid var(--bd); margin-bottom: 12px; }
+.nav-brand .spec-id { font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--acc); }
+.nav-brand .spec-title { font-size: .82rem; color: var(--txt2); line-height: 1.4; margin-top: 2px; }
+#nav-list { list-style: none; }
+#nav-list li a {
+  display: block; padding: 7px 20px;
+  font-size: .8rem; color: var(--txt2); text-decoration: none;
+  border-left: 2px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+}
+#nav-list li a:hover { color: var(--txt); background: var(--acc-bg); }
+#nav-list li a.active { color: var(--acc); border-left-color: var(--acc); background: var(--acc-bg); font-weight: 600; }
+main { flex: 1; max-width: 900px; padding: 40px 48px 100px; min-width: 0; }
+.doc-header { margin-bottom: 48px; padding-bottom: 32px; border-bottom: 1px solid var(--bd); }
+.doc-header .badge { display: inline-block; background: var(--acc-bg); color: var(--acc); font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; padding: 3px 10px; border-radius: 4px; margin-bottom: 14px; }
+.doc-header h1 { font-size: 2rem; font-weight: 800; line-height: 1.2; color: var(--txt); margin-bottom: 10px; }
+.doc-header .subtitle { font-size: 1rem; color: var(--txt2); margin-bottom: 20px; }
+.meta-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px,1fr)); gap: 12px; }
+.meta-item { background: var(--surf); border: 1px solid var(--bd); border-radius: var(--radius); padding: 12px 14px; }
+.meta-item .label { font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--txt3); margin-bottom: 3px; }
+.meta-item .value { font-size: .85rem; color: var(--txt); font-weight: 600; }
+section { margin-bottom: 64px; scroll-margin-top: 24px; }
+.sec-label { font-size: .68rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--acc); margin-bottom: 6px; }
+h2 { font-size: 1.45rem; font-weight: 700; color: var(--txt); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--acc); display: inline-block; }
+h3 { font-size: 1rem; font-weight: 700; color: var(--txt); margin: 28px 0 10px; }
+h4 { font-size: .9rem; font-weight: 600; color: var(--txt2); margin: 18px 0 8px; }
+p { color: var(--txt2); margin-bottom: 12px; }
+ul, ol { padding-left: 20px; color: var(--txt2); margin-bottom: 12px; }
+li { margin-bottom: 4px; }
+strong { color: var(--txt); font-weight: 600; }
+code { font-family: 'SF Mono','Fira Code',monospace; font-size: .8rem; background: var(--surf2); color: var(--acc); padding: 1px 5px; border-radius: 3px; }
+.tw { overflow-x: auto; margin: 14px 0 20px; border-radius: var(--radius); border: 1px solid var(--bd); }
+table { width: 100%; border-collapse: collapse; font-size: .83rem; }
+th { background: var(--surf2); color: var(--txt); font-weight: 700; font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--bd); }
+td { padding: 9px 14px; color: var(--txt2); border-bottom: 1px solid var(--bd); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--acc-bg); }
+.spec-block { background: var(--surf); border: 1px solid var(--bd); border-left: 3px solid var(--acc); border-radius: var(--radius); padding: 16px 18px; margin: 14px 0; font-size: .85rem; color: var(--txt2); line-height: 1.7; }
+.warn-block { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.3); border-left: 3px solid var(--warn); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; font-size: .85rem; color: var(--txt2); }
+.ok-block   { background: rgba(34,197,94,.07); border: 1px solid rgba(34,197,94,.3); border-left: 3px solid var(--ok); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; font-size: .85rem; color: var(--txt2); }
+.err-block  { background: rgba(239,68,68,.07); border: 1px solid rgba(239,68,68,.3); border-left: 3px solid var(--err); border-radius: var(--radius); padding: 14px 18px; margin: 14px 0; font-size: .85rem; color: var(--txt2); }
+.mono { font-family: 'SF Mono','Fira Code',monospace; font-size: .78rem; font-weight: 700; color: var(--acc); white-space: nowrap; }
+.pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 8px; border-radius: 20px; }
+.pill-ok   { background: rgba(34,197,94,.15); color: #22C55E; }
+.pill-warn { background: rgba(245,158,11,.15); color: #F59E0B; }
+.pill-err  { background: rgba(239,68,68,.15); color: #EF4444; }
+.pill-info { background: rgba(56,189,248,.15); color: #38BDF8; }
+.tier-row { display: flex; gap: 12px; margin: 16px 0; flex-wrap: wrap; }
+.tier-card { flex: 1; min-width: 160px; background: var(--surf); border: 1px solid var(--bd); border-top: 3px solid var(--acc); border-radius: var(--radius); padding: 14px; }
+.tier-card .tier-label { font-size: .68rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--acc); margin-bottom: 6px; }
+.tier-card p { font-size: .8rem; margin: 0; }
+#theme-btn { position: fixed; top: 14px; right: 16px; background: var(--surf); border: 1px solid var(--bd); border-radius: 20px; padding: 5px 12px; font-size: .75rem; color: var(--txt2); cursor: pointer; z-index: 100; }
+#theme-btn:hover { color: var(--txt); }
+@media (max-width: 768px) { body { flex-direction: column; } nav { width: 100%; height: auto; position: static; } main { padding: 24px 20px 60px; } }
+</style>
+
+<button id="theme-btn">☀ / ☾</button>
+
+<nav>
+  <div class="nav-brand">
+    <div class="spec-id">SPEC-PMO-001</div>
+    <div class="spec-title">Performance, Monitoring &amp; Observability</div>
+  </div>
+  <ul id="nav-list">
+    <li><a href="#s1">§1 Overview &amp; Philosophy</a></li>
+    <li><a href="#s2">§2 Performance Objectives</a></li>
+    <li><a href="#s3">§3 Performance Architecture</a></li>
+    <li><a href="#s4">§4 Observability Model</a></li>
+    <li><a href="#s5">§5 Monitoring Framework</a></li>
+    <li><a href="#s6">§6 Error Reporting</a></li>
+    <li><a href="#s7">§7 Logging Strategy</a></li>
+    <li><a href="#s8">§8 Health Dashboard</a></li>
+    <li><a href="#s9">§9 Business Metrics</a></li>
+    <li><a href="#s10">§10 Diagnostic Tools</a></li>
+    <li><a href="#s11">§11 Alerting Architecture</a></li>
+    <li><a href="#s12">§12 Resource Management</a></li>
+    <li><a href="#s13">§13 Release Monitoring</a></li>
+    <li><a href="#s14">§14 Privacy &amp; Compliance</a></li>
+    <li><a href="#s15">§15 Edge Cases &amp; Resilience</a></li>
+    <li><a href="#s16">§16 Telemetry Data Model</a></li>
+    <li><a href="#s17">§17 SLOs &amp; Operational Excellence</a></li>
+    <li><a href="#s18">§18 Future Scalability &amp; Business Rules</a></li>
+  </ul>
+</nav>
+
+<main>
+
+<div class="doc-header">
+  <div class="badge">Finance Bag — Specification Series</div>
+  <h1>Performance, Monitoring &amp; Observability Specification</h1>
+  <p class="subtitle">Complete architecture for measuring, monitoring, and continuously improving the performance, stability, and observability of a trust-critical personal finance application.</p>
+  <div class="meta-grid">
+    <div class="meta-item"><div class="label">Document ID</div><div class="value">SPEC-PMO-001</div></div>
+    <div class="meta-item"><div class="label">Version</div><div class="value">1.0.0</div></div>
+    <div class="meta-item"><div class="label">Series Part</div><div class="value">23 of N</div></div>
+    <div class="meta-item"><div class="label">App Version</div><div class="value">Finance Bag 1.0</div></div>
+    <div class="meta-item"><div class="label">Stack</div><div class="value">RN 0.76 / Expo SDK 52</div></div>
+    <div class="meta-item"><div class="label">Platform</div><div class="value">iOS 16+ / Android 12+</div></div>
+    <div class="meta-item"><div class="label">Status</div><div class="value">Authoritative</div></div>
+    <div class="meta-item"><div class="label">Companion Specs</div><div class="value">OFL-001, QA-001, SEC-001</div></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════ §1 -->
+<section id="s1">
+  <div class="sec-label">Section 01</div>
+  <h2>Overview &amp; Philosophy</h2>
+
+  <h3>1.1 Why Performance Is a Product Feature</h3>
+  <p>Finance Bag users open the app in specific, time-pressured moments: at the grocery checkout to check their budget, at the bank to record a payment, at month-end to review spending. An app that takes 4 seconds to start, freezes on navigation, or displays stale data is not a minor inconvenience — it actively fails the user at the moment they need it most.</p>
+  <p>Performance is therefore a first-class product requirement with the same priority as financial accuracy and security. It is designed and measured from the first day of development, not tuned during a pre-release "performance sprint." An app that was fast at launch and degrades over years of use and data accumulation has failed its users as surely as one that was always slow.</p>
+
+  <h3>1.2 The Four PMO Pillars</h3>
+  <div class="tier-row">
+    <div class="tier-card">
+      <div class="tier-label">Performance</div>
+      <p>The app is fast, responsive, and efficient under all conditions — from first launch with empty data to 3 years of financial history.</p>
+    </div>
+    <div class="tier-card">
+      <div class="tier-label">Monitoring</div>
+      <p>Problems are detected proactively, before users report them. The system monitors itself and alerts the team to degradations.</p>
+    </div>
+    <div class="tier-card">
+      <div class="tier-label">Observability</div>
+      <p>When something goes wrong, the team has enough instrumentation to diagnose the root cause without reproducing it manually.</p>
+    </div>
+    <div class="tier-card">
+      <div class="tier-label">Reliability</div>
+      <p>The app recovers gracefully from failures. Users experience continuity even when individual operations fail.</p>
+    </div>
+  </div>
+
+  <h3>1.3 Core Principles</h3>
+  <div class="tw"><table>
+    <tr><th>Principle</th><th>Application to Finance Bag</th></tr>
+    <tr><td><strong>Measure everything that matters</strong></td><td>Every user-perceptible operation has a performance counter. Unmeasured operations cannot be improved.</td></tr>
+    <tr><td><strong>Prioritize the P95 user, not the average</strong></td><td>Performance targets are defined as percentiles (P50, P95, P99). A fast average with a slow tail is not acceptable for a financial app — the tail users matter.</td></tr>
+    <tr><td><strong>Degrade gracefully, recover automatically</strong></td><td>When performance degrades (low memory, slow network, full storage), the app reduces its scope gracefully rather than failing catastrophically.</td></tr>
+    <tr><td><strong>Observability is for operators, not auditors</strong></td><td>Logs, metrics, and traces serve the engineering team's operational needs. They are not retroactive forensics tools — they are continuous operational intelligence.</td></tr>
+    <tr><td><strong>Privacy is not optional in monitoring</strong></td><td>Financial values, user names, and transaction details never appear in any telemetry, log, or metric payload. Observability and privacy are co-requirements, not trade-offs.</td></tr>
+    <tr><td><strong>Monitoring must survive failures</strong></td><td>The monitoring subsystem must function when the rest of the app is struggling. It is the last thing to degrade, not the first.</td></tr>
+  </table></div>
+
+  <h3>1.4 Scope</h3>
+  <p>This specification covers the complete performance, monitoring, and observability architecture for Finance Bag v1.0. It defines what to measure, how to measure it, what to alert on, how to log, how to diagnose failures, and how to scale the observability model as the app matures. It covers both local (on-device) instrumentation and the path to future cloud-based observability.</p>
+  <div class="warn-block"><strong>Out of scope:</strong> Implementation code, configuration files, specific SDK integrations, and server-side infrastructure. This spec defines what the system must do and why — not how it is implemented.</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §2 -->
+<section id="s2">
+  <div class="sec-label">Section 02</div>
+  <h2>Performance Objectives</h2>
+
+  <h3>2.1 User-Perceived Performance Targets</h3>
+  <p>All targets are measured on the minimum-supported device class (iPhone SE / Galaxy A-series) in release build, at the specified dataset level. Percentile definitions: P50 = median; P95 = 95th percentile user experience; P99 = near-worst case.</p>
+  <div class="tw"><table>
+    <tr><th>Metric</th><th>P50 Target</th><th>P95 Target</th><th>P99 Target</th><th>Hard Limit</th><th>Dataset</th></tr>
+    <tr><td>Cold app launch → first interactive frame</td><td>&lt;1.8s</td><td>&lt;2.5s</td><td>&lt;3.0s</td><td>4.0s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Warm app launch (resumed from background)</td><td>&lt;400ms</td><td>&lt;700ms</td><td>&lt;1.0s</td><td>1.5s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Dashboard fully rendered (all stat cards)</td><td>&lt;900ms</td><td>&lt;1.5s</td><td>&lt;2.0s</td><td>3.0s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Dashboard fully rendered (heavy dataset)</td><td>&lt;2.0s</td><td>&lt;3.0s</td><td>&lt;4.0s</td><td>5.0s</td><td>DS-HEAVY</td></tr>
+    <tr><td>Screen transition (stack push)</td><td>&lt;180ms</td><td>&lt;250ms</td><td>&lt;350ms</td><td>500ms</td><td>any</td></tr>
+    <tr><td>Tab switch (cross-fade)</td><td>&lt;80ms</td><td>&lt;150ms</td><td>&lt;220ms</td><td>300ms</td><td>any</td></tr>
+    <tr><td>Transaction list render (100 items)</td><td>&lt;200ms</td><td>&lt;400ms</td><td>&lt;600ms</td><td>1.0s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Transaction list render (500 items)</td><td>&lt;500ms</td><td>&lt;900ms</td><td>&lt;1.2s</td><td>2.0s</td><td>DS-HEAVY</td></tr>
+    <tr><td>Global search — results visible after keystroke</td><td>&lt;120ms</td><td>&lt;250ms</td><td>&lt;400ms</td><td>600ms</td><td>DS-HEAVY</td></tr>
+    <tr><td>Monthly report generation</td><td>&lt;800ms</td><td>&lt;2.0s</td><td>&lt;3.0s</td><td>5.0s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Annual summary generation</td><td>&lt;3.0s</td><td>&lt;6.0s</td><td>&lt;8.0s</td><td>15s</td><td>DS-HEAVY</td></tr>
+    <tr><td>AI Coach response (rule-based, offline)</td><td>&lt;80ms</td><td>&lt;150ms</td><td>&lt;250ms</td><td>500ms</td><td>DS-STANDARD</td></tr>
+    <tr><td>AI Coach response (remote LLM)</td><td>&lt;5.0s</td><td>&lt;10s</td><td>&lt;15s</td><td>20s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Sync — incremental delta (10 ops)</td><td>&lt;2.0s</td><td>&lt;3.5s</td><td>&lt;5.0s</td><td>10s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Sync — full epoch (DS-STANDARD)</td><td>&lt;18s</td><td>&lt;30s</td><td>&lt;45s</td><td>60s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Archive month navigation (switch month)</td><td>&lt;200ms</td><td>&lt;400ms</td><td>&lt;600ms</td><td>1.0s</td><td>DS-HEAVY (24mo)</td></tr>
+    <tr><td>PDF/CSV export generation</td><td>&lt;4.0s</td><td>&lt;8.0s</td><td>&lt;12s</td><td>20s</td><td>DS-STANDARD</td></tr>
+    <tr><td>Backup file creation</td><td>&lt;5.0s</td><td>&lt;10s</td><td>&lt;15s</td><td>30s</td><td>DS-HEAVY</td></tr>
+  </table></div>
+
+  <h3>2.2 Frame Rate Targets</h3>
+  <div class="tw"><table>
+    <tr><th>Operation</th><th>Target Frame Rate</th><th>Acceptable Drop</th><th>Unacceptable</th></tr>
+    <tr><td>Standard scrolling (transaction list)</td><td>60 fps (16.7ms/frame)</td><td>Brief dip to 50 fps during data loading</td><td>Sustained below 30 fps; visible jank</td></tr>
+    <tr><td>Navigation animations</td><td>60 fps throughout entire transition</td><td>Single frame stutter acceptable</td><td>Any stutter visible to user at 60fps</td></tr>
+    <tr><td>Chart rendering</td><td>60 fps during first render; 60 fps on pan/zoom</td><td>30 fps during complex chart calculation phase</td><td>Dropped frames during interaction</td></tr>
+    <tr><td>Bottom sheet presentation</td><td>60 fps</td><td>None</td><td>Any dropped frame on spring animation</td></tr>
+    <tr><td>Background heavy operation (report gen)</td><td>N/A — background thread</td><td>UI must remain at 60 fps during background op</td><td>Any UI frame drop caused by background work</td></tr>
+    <tr><td>ProMotion (120 fps devices)</td><td>120 fps for scroll &amp; transitions</td><td>60 fps floor maintained</td><td>Below 60 fps on ProMotion devices</td></tr>
+  </table></div>
+
+  <h3>2.3 Resource Consumption Targets</h3>
+  <div class="tw"><table>
+    <tr><th>Resource</th><th>Target</th><th>Warning Threshold</th><th>Critical Threshold</th></tr>
+    <tr><td>RAM — app at rest (auth screen)</td><td>&lt;80MB</td><td>&gt;120MB</td><td>&gt;150MB (OS kill risk)</td></tr>
+    <tr><td>RAM — Dashboard active (DS-STANDARD)</td><td>&lt;150MB</td><td>&gt;200MB</td><td>&gt;280MB</td></tr>
+    <tr><td>RAM — Reports with charts (DS-HEAVY)</td><td>&lt;210MB</td><td>&gt;280MB</td><td>&gt;350MB</td></tr>
+    <tr><td>RAM growth over 60-minute session</td><td>&lt;15MB</td><td>&gt;30MB (leak risk)</td><td>&gt;50MB (confirmed leak)</td></tr>
+    <tr><td>Battery drain — active 30-min session</td><td>&lt;4%</td><td>&gt;6%</td><td>&gt;8% (flagged as drain)</td></tr>
+    <tr><td>Battery drain — background sync (Wi-Fi)</td><td>&lt;0.3%</td><td>&gt;0.8%</td><td>&gt;1.5%</td></tr>
+    <tr><td>Storage — database (DS-STANDARD, 1 year)</td><td>&lt;20MB</td><td>&gt;50MB</td><td>&gt;100MB (investigate)</td></tr>
+    <tr><td>Storage — log files (rolling)</td><td>&lt;10MB</td><td>&gt;25MB</td><td>&gt;50MB (log rotation triggered)</td></tr>
+    <tr><td>CPU — main thread peak (any operation)</td><td>&lt;40%</td><td>&gt;60%</td><td>&gt;80% sustained (ANR risk)</td></tr>
+    <tr><td>Network — sync payload compression ratio</td><td>&gt;60% reduction</td><td>&lt;40% reduction</td><td>&lt;20% (compression not working)</td></tr>
+  </table></div>
+
+  <h3>2.4 Database Performance Targets</h3>
+  <div class="tw"><table>
+    <tr><th>Query Type</th><th>Row Count</th><th>P50 Target</th><th>P95 Target</th><th>Hard Limit</th></tr>
+    <tr><td>Single record lookup by ULID (PK)</td><td>1</td><td>&lt;1ms</td><td>&lt;3ms</td><td>10ms</td></tr>
+    <tr><td>Month transactions SELECT + ORDER</td><td>500</td><td>&lt;20ms</td><td>&lt;50ms</td><td>100ms</td></tr>
+    <tr><td>Month aggregate (SUM by category)</td><td>500</td><td>&lt;10ms</td><td>&lt;30ms</td><td>60ms</td></tr>
+    <tr><td>Full-text search (labels)</td><td>5,000</td><td>&lt;30ms</td><td>&lt;80ms</td><td>150ms</td></tr>
+    <tr><td>Annual aggregate (all months)</td><td>6,000</td><td>&lt;80ms</td><td>&lt;200ms</td><td>400ms</td></tr>
+    <tr><td>INSERT single transaction</td><td>1</td><td>&lt;5ms</td><td>&lt;15ms</td><td>30ms</td></tr>
+    <tr><td>Batch INSERT (sync restore, 500 rows)</td><td>500</td><td>&lt;200ms</td><td>&lt;500ms</td><td>1000ms</td></tr>
+    <tr><td>Dashboard aggregate (all modules)</td><td>mixed</td><td>&lt;50ms</td><td>&lt;120ms</td><td>250ms</td></tr>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §3 -->
+<section id="s3">
+  <div class="sec-label">Section 03</div>
+  <h2>Performance Architecture</h2>
+  <p>Finance Bag's performance architecture is built around a core principle: keep the main thread as close to idle as possible at all times. Every strategy below serves this principle, directly or indirectly.</p>
+
+  <h3>3.1 Main Thread Protection</h3>
+  <div class="spec-block">
+    <strong>The main thread budget:</strong> The main (UI) thread has a 16.67ms frame budget at 60 fps (8.33ms at 120 fps). Any work that exceeds this budget produces dropped frames visible to the user as jank. Finance Bag enforces strict main thread discipline:<br><br>
+    <strong>Permitted on main thread:</strong><br>
+    • React component rendering and re-rendering<br>
+    • User interaction handling (touch events)<br>
+    • Animation frame callbacks<br>
+    • Reading from already-computed state<br><br>
+    <strong>Prohibited on main thread:</strong><br>
+    • Any database read or write (all DB I/O is async background)<br>
+    • Any network request<br>
+    • Any encryption/decryption operation<br>
+    • Any report or aggregate calculation exceeding 2ms<br>
+    • JSON serialization of large payloads (&gt;100 fields)<br>
+    • File I/O (backup, export, log writes)<br>
+    • Image processing or heavy DOM-equivalent reconciliation
+  </div>
+
+  <h3>3.2 Multi-Tier Caching Architecture</h3>
+  <p>Finance Bag uses a three-tier caching strategy. Each tier is progressively slower and more persistent. The goal is to serve the most-requested data from the fastest tier.</p>
+  <div class="tw"><table>
+    <tr><th>Tier</th><th>Storage</th><th>TTL Policy</th><th>Capacity</th><th>What Lives Here</th></tr>
+    <tr><td><strong>L1 — In-Memory</strong></td><td>Zustand store (JS heap)</td><td>Session lifetime; invalidated by relevant data events</td><td>~5MB budget</td><td>Current month's budget summaries, dashboard aggregates, active module data</td></tr>
+    <tr><td><strong>L2 — SQLite Materialized Views</strong></td><td>Dedicated summary tables in the encrypted SQLite DB</td><td>Event-driven invalidation (transaction add/edit/delete triggers recalculation)</td><td>No limit (DB-backed)</td><td>Monthly totals per budget, per category; FHS component scores; dashboard snapshot</td></tr>
+    <tr><td><strong>L3 — Archived Data</strong></td><td>Immutable archive records in SQLite</td><td>Permanent (never invalidated — archives are immutable by spec)</td><td>No limit</td><td>All prior-month archives; historical report data</td></tr>
+  </table></div>
+  <div class="spec-block">
+    <strong>Cache invalidation rules:</strong><br>
+    • L1 cache is invalidated by Zustand event subscription. When a transaction is added to Budget A, only Budget A's cached summaries are invalidated — not all budgets.<br>
+    • L2 materialized views are updated synchronously within the same SQLite transaction as the triggering operation. The view is never stale relative to the underlying data.<br>
+    • L3 archives are never invalidated. Attempting to invalidate an archive is a programming error caught at the business logic layer.<br>
+    • Cross-tier consistency: L1 is always derived from L2; L2 is always derived from raw transaction data. No cache tier holds data independent of its source.
+  </div>
+
+  <h3>3.3 Lazy Loading Strategy</h3>
+  <div class="tw"><table>
+    <tr><th>Component / Module</th><th>Loading Strategy</th><th>Trigger</th><th>Rationale</th></tr>
+    <tr><td>Non-active tab module screens</td><td>Lazy-loaded on first tab activation</td><td>User navigates to tab</td><td>Only 1–2 tabs open at launch; others loaded on demand</td></tr>
+    <tr><td>Archive month data (prior months)</td><td>On-demand from L3 cache</td><td>User navigates to archived month</td><td>Archive data is large; rarely accessed; should not inflate launch memory</td></tr>
+    <tr><td>Report charts (non-visible)</td><td>Rendered only when parent scroll position makes them visible</td><td>Viewport intersection</td><td>Chart rendering is expensive; off-screen charts waste CPU</td></tr>
+    <tr><td>AI Coach module</td><td>Module JS bundle lazy-loaded</td><td>First navigation to AI module</td><td>AI module is JS-heavy; excluding from initial bundle improves startup time</td></tr>
+    <tr><td>Transaction history beyond 3 months</td><td>Paginated load (50 items per page)</td><td>User scrolls to bottom of list</td><td>Prevents loading 500+ transactions into memory for a rarely-scrolled list</td></tr>
+    <tr><td>Export module (PDF/CSV)</td><td>Lazy-loaded + background processing</td><td>User initiates export</td><td>Export is infrequent and memory-intensive; not worth loading at startup</td></tr>
+    <tr><td>Settings screens (rarely visited)</td><td>Lazy-loaded</td><td>First navigation to Settings</td><td>Settings are low-frequency; not worth loading at launch</td></tr>
+  </table></div>
+
+  <h3>3.4 Background Processing Architecture</h3>
+  <div class="spec-block">
+    <strong>Background Task Queue:</strong><br>
+    Finance Bag uses a priority-ordered background task queue that runs on a dedicated worker thread (off the main thread). Tasks are classified into four priority levels:<br><br>
+    <strong>P1 — Critical (runs immediately, blocks UI feedback):</strong><br>
+    • Transaction save (user is waiting for confirmation)<br>
+    • Authentication operations<br>
+    • PIN verification<br><br>
+    <strong>P2 — High (runs within 500ms of trigger):</strong><br>
+    • Dashboard aggregate recalculation after data change<br>
+    • Sync queue enqueue after user action<br>
+    • Search index update after transaction save<br><br>
+    <strong>P3 — Normal (runs when CPU idle, within 5s):</strong><br>
+    • Incremental sync execution<br>
+    • Report data pre-computation<br>
+    • AI recommendation recalculation<br>
+    • Notification scheduling<br><br>
+    <strong>P4 — Background (runs during OS-granted background time):</strong><br>
+    • Full-epoch sync<br>
+    • Nightly database maintenance<br>
+    • Log compression and rotation<br>
+    • Backup file verification
+  </div>
+
+  <h3>3.5 Database Optimization Architecture</h3>
+  <div class="tw"><table>
+    <tr><th>Optimization</th><th>Implementation</th><th>Performance Gain</th></tr>
+    <tr><td>Write-Ahead Logging (WAL) mode</td><td>SQLite in WAL mode; reads do not block writes; concurrent read + write</td><td>Eliminates write-read contention; 2–5× throughput improvement</td></tr>
+    <tr><td>Strategic index coverage</td><td>Indexes on: (entity_type, created_at), (budget_id, month_year), (category_id), (status), (sync_status)</td><td>Month transaction query from table scan to index scan: 50× improvement</td></tr>
+    <tr><td>Composite indexes for common queries</td><td>(budget_id, category_id, created_at) for budget-category-period drill-downs</td><td>Eliminates sort step; covered index satisfies full query</td></tr>
+    <tr><td>Prepared statements</td><td>Frequently-executed queries compiled once and reused across the session</td><td>Eliminates per-query parse overhead; 3–8ms savings per query</td></tr>
+    <tr><td>Connection pool (single connection)</td><td>One persistent SQLite connection per session; opened at startup, closed at app terminate</td><td>Eliminates per-operation connection open/close overhead (~10ms each)</td></tr>
+    <tr><td>VACUUM schedule</td><td>Nightly VACUUM during maintenance window (2–4 AM); incremental VACUUM during idle</td><td>Prevents storage fragmentation; keeps query planner statistics accurate</td></tr>
+    <tr><td>Page size optimization</td><td>SQLite page size set to 8KB (default 4KB); tuned for financial record sizes</td><td>Reduces I/O calls per query; better cache utilization on modern storage</td></tr>
+    <tr><td>Memory-mapped I/O</td><td>SQLite mmap enabled up to 64MB on devices with &gt;2GB RAM</td><td>Reduces OS system call overhead for read-heavy workloads</td></tr>
+    <tr><td>Query result cache</td><td>L2 materialized view tables for frequently-computed aggregates (dashboard, budget totals)</td><td>Turns multi-table aggregate (20–80ms) into single-row lookup (1ms)</td></tr>
+  </table></div>
+
+  <h3>3.6 React Native Performance Patterns</h3>
+  <div class="tw"><table>
+    <tr><th>Pattern</th><th>Application</th><th>Why</th></tr>
+    <tr><td>FlashList (virtualized list)</td><td>All transaction lists, budget lists, goal lists — any list with &gt;20 items</td><td>Renders only visible rows; constant memory regardless of list size</td></tr>
+    <tr><td>Memoization (useMemo, useCallback, memo)</td><td>All expensive derived values; all callback functions passed to list items</td><td>Prevents re-renders of stable child components when parent re-renders</td></tr>
+    <tr><td>Selector granularity</td><td>Zustand selectors subscribe to smallest possible slice of state</td><td>Transaction add in Budget A does not re-render Budget B component</td></tr>
+    <tr><td>Worklet animations (Reanimated 3)</td><td>All animations run as worklets on the UI thread (not JS thread)</td><td>Animations continue at 60 fps even when JS thread is busy</td></tr>
+    <tr><td>InteractionManager</td><td>Heavy post-navigation work deferred via InteractionManager.runAfterInteractions</td><td>Navigation animations complete at full frame rate before heavy work begins</td></tr>
+    <tr><td>Image optimization</td><td>Icon assets in SVG/vector format; no raster images in core UI; illustrations WebP-encoded</td><td>Vector scales without quality loss; WebP is 30% smaller than PNG at same quality</td></tr>
+    <tr><td>Bundle splitting</td><td>AI module, export module, and settings screens in separate JS chunks</td><td>Startup bundle is smaller; uncommon features load on demand</td></tr>
+    <tr><td>Hermes engine</td><td>Hermes JavaScript engine enabled (Expo SDK 52 default)</td><td>Faster startup, lower memory, better garbage collection than V8 on mobile</td></tr>
+  </table></div>
+
+  <h3>3.7 Memory Management</h3>
+  <div class="spec-block">
+    <strong>Memory lifecycle rules:</strong><br>
+    1. <strong>Acquisition:</strong> Data is loaded into memory only when needed. Archive data for months not currently displayed is not held in memory.<br>
+    2. <strong>Retention:</strong> The in-memory (L1) cache has an explicit eviction policy. When the app receives a memory pressure warning (iOS: UIApplicationDidReceiveMemoryWarningNotification; Android: onTrimMemory), L1 cache is cleared aggressively — data will be reloaded from L2 (SQLite) on next access.<br>
+    3. <strong>Release:</strong> Module screens release their data subscriptions when unmounted. Navigating away from Reports clears chart data from memory. Navigating back re-fetches from L2.<br>
+    4. <strong>Leak prevention:</strong> Every event listener, subscription, and timer registered by a component is stored in a ref and cleared in the cleanup function. No orphaned subscriptions.<br>
+    5. <strong>Large object handling:</strong> Export PDF buffers, backup file buffers, and large chart datasets are released immediately after use. They are never held in long-lived component state.<br>
+    6. <strong>Monitoring:</strong> Memory usage is sampled every 30 seconds during active sessions. A trend of &gt;2MB/minute growth triggers a memory leak diagnostic report.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §4 -->
+<section id="s4">
+  <div class="sec-label">Section 04</div>
+  <h2>Observability Model</h2>
+  <p>Finance Bag's observability model is built on four signal types: Metrics, Logs, Traces, and Health Indicators. Together, they provide a complete picture of the application's state at any point in time. Each signal type is designed to be useful independently and powerful when correlated with the others.</p>
+
+  <h3>4.1 The Four Signal Types</h3>
+  <div class="tw"><table>
+    <tr><th>Signal</th><th>What It Answers</th><th>Format</th><th>Granularity</th></tr>
+    <tr><td><strong>Metrics</strong></td><td>"How fast / how much / how often?" Quantitative time-series measurements of system performance and behavior.</td><td>Name + value + timestamp + tags. Numeric only.</td><td>Sampled (every N ms) or event-driven (per operation)</td></tr>
+    <tr><td><strong>Logs</strong></td><td>"What happened and when?" Structured records of discrete events ordered by time.</td><td>JSON: timestamp + level + message + context fields</td><td>Per-event; filtered by level in production</td></tr>
+    <tr><td><strong>Traces</strong></td><td>"How did a single operation flow through the system?" End-to-end timing of a user request across all subsystems.</td><td>Span tree: operation + start_time + duration + parent_span_id + attributes</td><td>Per user-initiated operation (sampled at 10% in v1.0)</td></tr>
+    <tr><td><strong>Health Indicators</strong></td><td>"Is each subsystem currently functional?" Binary or ternary state of critical system components.</td><td>Component name + status (HEALTHY / DEGRADED / UNHEALTHY) + last_checked_at</td><td>Checked on schedule (every 60s) and on failure events</td></tr>
+  </table></div>
+
+  <h3>4.2 Metrics Taxonomy</h3>
+  <div class="tw"><table>
+    <tr><th>Category</th><th>Metric Names</th><th>Type</th><th>Unit</th></tr>
+    <tr><td>Startup</td><td>app_launch_duration, js_bundle_parse_duration, db_open_duration, auth_check_duration</td><td>Histogram</td><td>milliseconds</td></tr>
+    <tr><td>Screen</td><td>screen_render_duration{screen_name}, screen_time_to_interactive{screen_name}</td><td>Histogram</td><td>milliseconds</td></tr>
+    <tr><td>Database</td><td>db_query_duration{query_type}, db_write_duration{entity_type}, db_queue_depth</td><td>Histogram / Gauge</td><td>milliseconds / count</td></tr>
+    <tr><td>Sync</td><td>sync_duration{phase}, sync_operations_pending, sync_operations_failed, sync_conflict_count{type}</td><td>Histogram / Gauge / Counter</td><td>ms / count</td></tr>
+    <tr><td>Memory</td><td>heap_used_bytes, heap_total_bytes, memory_pressure_events</td><td>Gauge / Counter</td><td>bytes / count</td></tr>
+    <tr><td>Network</td><td>network_request_duration{endpoint}, network_request_size_bytes, network_error_count</td><td>Histogram / Counter</td><td>ms / bytes / count</td></tr>
+    <tr><td>AI</td><td>ai_response_duration{mode}, ai_recommendation_count, ai_session_count</td><td>Histogram / Counter</td><td>ms / count</td></tr>
+    <tr><td>Business</td><td>transaction_create_count, budget_limit_exceeded_count, goal_completed_count, session_duration</td><td>Counter / Histogram</td><td>count / seconds</td></tr>
+    <tr><td>Errors</td><td>error_count{severity, module}, crash_count, handled_exception_count</td><td>Counter</td><td>count</td></tr>
+    <tr><td>Storage</td><td>db_size_bytes, log_size_bytes, backup_size_bytes, free_storage_bytes</td><td>Gauge</td><td>bytes</td></tr>
+  </table></div>
+
+  <h3>4.3 Trace Architecture</h3>
+  <div class="spec-block">
+    <strong>Trace coverage — operations that generate traces:</strong><br>
+    1. App launch sequence (root span → child spans: bundle parse, DB open, auth check, dashboard load)<br>
+    2. Transaction create (user tap → validation → DB write → cache update → UI refresh)<br>
+    3. Sync operation (trigger → queue → network → conflict resolution → DB write → UI update)<br>
+    4. Report generation (trigger → DB aggregate queries → calculation → chart data preparation → render)<br>
+    5. AI Coach request (query → context build → provider call → response parse → recommendation creation)<br>
+    6. Backup creation (trigger → DB read → encryption → file write → verification)<br>
+    7. Restore operation (file read → decryption → DB write → verification → UI refresh)<br><br>
+    <strong>Trace sampling policy:</strong><br>
+    • v1.0 (local only): 100% of traces captured locally; stored in rolling trace buffer (last 100 traces)<br>
+    • v1.5 (cloud): 10% random sampling for normal operations; 100% sampling for errors and slow operations (P99+)<br>
+    • Error traces: always 100% captured regardless of global sampling rate
+  </div>
+
+  <h3>4.4 Health Indicator System</h3>
+  <div class="tw"><table>
+    <tr><th>Component</th><th>HEALTHY</th><th>DEGRADED</th><th>UNHEALTHY</th></tr>
+    <tr><td>Database</td><td>All queries &lt;P95 target; no errors</td><td>Query latency &gt;P95 but &lt;hard limit; occasional timeouts</td><td>DB read/write failure; corruption detected</td></tr>
+    <tr><td>Sync Engine</td><td>Sync completing successfully; queue depth &lt;20</td><td>Retry rate &gt;10%; queue depth 20–100; last sync &gt;15min ago</td><td>All operations failing; queue depth &gt;500; sync loop detected</td></tr>
+    <tr><td>AI Coach</td><td>Rule-based responding &lt;150ms; remote responding normally</td><td>Remote AI unavailable (rule-based fallback active)</td><td>Rule-based also failing; all recommendations failing</td></tr>
+    <tr><td>Authentication</td><td>Auth operations &lt;500ms; no failures</td><td>Biometric temporarily unavailable; using PIN fallback</td><td>PIN verification failing; auth system error</td></tr>
+    <tr><td>Network</td><td>Connectivity normal; sync reachable</td><td>Captive portal; cellular constrained; high packet loss</td><td>No connectivity</td></tr>
+    <tr><td>Storage</td><td>Free storage &gt;100MB</td><td>Free storage 10–100MB; log rotation triggered</td><td>Free storage &lt;10MB; writes failing</td></tr>
+    <tr><td>Memory</td><td>Heap &lt;150MB; no pressure events</td><td>Memory pressure event received; L1 cache cleared</td><td>Multiple pressure events; approaching OOM</td></tr>
+    <tr><td>Notifications</td><td>All scheduled notifications delivering</td><td>Some delays in delivery; permission recently changed</td><td>Notification permission denied; delivery completely broken</td></tr>
+  </table></div>
+
+  <h3>4.5 Signal Correlation</h3>
+  <p>The four signal types are correlated through a shared <strong>session_id</strong> and <strong>correlation_id</strong> on every telemetry event. This allows any incident to be investigated across all signal types:</p>
+  <div class="spec-block">
+    <strong>Correlation workflow example — "User reported dashboard is slow":</strong><br>
+    1. Identify the session_id from the user's report (extracted from a diagnostic export)<br>
+    2. Filter metrics for that session_id: app_launch_duration = 4.2s → above P99<br>
+    3. Filter traces for session_id, trace_type = "dashboard_load": DB aggregate query = 3.1s → the bottleneck<br>
+    4. Filter logs for session_id around that timestamp: "materialized_view_invalidated, rebuild_duration=3100ms" → cache miss on cold start<br>
+    5. Health indicators at that time: DB health = DEGRADED, db_queue_depth = 47 (high)<br>
+    6. Root cause identified: large sync batch triggered materialized view rebuild during app launch
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §5 -->
+<section id="s5">
+  <div class="sec-label">Section 05</div>
+  <h2>Monitoring Framework</h2>
+  <p>Monitoring translates raw signals (metrics, logs, traces, health indicators) into operational awareness. Where observability answers "what happened?", monitoring answers "is anything wrong right now?"</p>
+
+  <h3>5.1 Monitoring Architecture</h3>
+  <div class="spec-block">
+    <strong>Finance Bag v1.0 — Local Monitoring Architecture:</strong><br>
+    In v1.0, all monitoring is performed locally on-device. The telemetry pipeline is:<br><br>
+    <strong>Instrumentation layer</strong> (embedded in production code, zero-overhead when disabled)<br>
+    → <strong>Telemetry collector</strong> (in-process service; collects events, batches them, writes to local store)<br>
+    → <strong>Local telemetry store</strong> (dedicated SQLite table separate from app data; rotating 7-day window)<br>
+    → <strong>Diagnostic exporter</strong> (reads telemetry store on demand; generates diagnostic report bundle)<br>
+    → <strong>Health monitor</strong> (reads from telemetry store; evaluates health indicator rules; updates health state)<br><br>
+    <strong>Finance Bag v1.5 — Cloud Monitoring Integration:</strong><br>
+    The v1.5 pipeline adds a remote export step between the telemetry collector and local store:<br>
+    Telemetry collector → Privacy filter → Anonymization layer → Remote export (batched, gzip-compressed) → Cloud observability platform<br>
+    Local store is retained as fallback; remote export is best-effort (failures do not impact app functionality).
+  </div>
+
+  <h3>5.2 What Is Monitored</h3>
+  <div class="tw"><table>
+    <tr><th>Category</th><th>Monitored Items</th><th>Method</th></tr>
+    <tr><td>Stability</td><td>App crashes, handled exceptions, unhandled JS errors, ANR events (Android), UI freezes (&gt;500ms main thread block)</td><td>Error interceptors, frame timing, ANR detector</td></tr>
+    <tr><td>Performance</td><td>All metrics in §4.2 table; P95 and P99 percentile tracking; any metric exceeding hard limit</td><td>Instrumented timing spans; sampled frame rate measurements</td></tr>
+    <tr><td>Database</td><td>Query latency, write latency, queue depth, error rate, DB size growth, WAL size, integrity check result</td><td>DB middleware layer; scheduled integrity checks</td></tr>
+    <tr><td>Synchronization</td><td>Sync success/failure rate, retry rate, conflict rate by type, queue depth, DEAD operation rate, sync loop detection</td><td>Sync engine event hooks; queue state polling</td></tr>
+    <tr><td>Authentication</td><td>Failed auth attempts, lockout events, biometric fallback events, session timeout events</td><td>Auth module event hooks</td></tr>
+    <tr><td>Network</td><td>Network state changes (ONLINE/OFFLINE/DEGRADED/CAPTIVE_PORTAL), request success/failure rates, latency distribution</td><td>NetInfo API; request interceptor</td></tr>
+    <tr><td>Storage</td><td>Free storage bytes, DB size, log file size, backup file age, backup verification result</td><td>Scheduled storage audits; FileSystem API</td></tr>
+    <tr><td>Memory</td><td>JS heap size (sampled every 30s), memory pressure events, peak usage, growth rate</td><td>Performance.memory API; OS memory callbacks</td></tr>
+    <tr><td>AI Coach</td><td>Response time by mode, fallback activation count, recommendation display/dismiss/act rates, context builder errors</td><td>AI service event hooks</td></tr>
+    <tr><td>Notifications</td><td>Scheduling success/failure, delivery confirmation (where available), permission state</td><td>Notification service hooks</td></tr>
+    <tr><td>Background tasks</td><td>Task execution time, task failure rate, scheduled-vs-actual execution time delta</td><td>Background task manager hooks</td></tr>
+    <tr><td>User experience</td><td>Screen load time by screen name, navigation patterns, error message displays, feature activation rates</td><td>Screen lifecycle hooks; UX event tracker</td></tr>
+  </table></div>
+
+  <h3>5.3 Monitoring Sampling Strategy</h3>
+  <div class="tw"><table>
+    <tr><th>Signal Type</th><th>v1.0 Sampling</th><th>Rationale</th></tr>
+    <tr><td>Crash events</td><td>100% — all crashes captured</td><td>Every crash is actionable; no acceptable loss</td></tr>
+    <tr><td>Handled exceptions</td><td>100%</td><td>Handled exceptions reveal logic errors; all are relevant</td></tr>
+    <tr><td>Performance metrics (critical path)</td><td>100% — all startup, auth, dashboard load events</td><td>Critical path must be fully measured</td></tr>
+    <tr><td>Performance metrics (secondary)</td><td>10% random sample</td><td>Statistical accuracy with 10× lower overhead</td></tr>
+    <tr><td>DB query timing</td><td>100% for queries &gt;P95 threshold; 5% for all others</td><td>Captures all slow queries; samples normal queries</td></tr>
+    <tr><td>Traces</td><td>100% for error traces; 10% for normal operations</td><td>Errors need full traces; normal ops provide statistical coverage</td></tr>
+    <tr><td>Memory samples</td><td>Every 30 seconds during active session</td><td>Sufficient resolution to detect leaks without excessive overhead</td></tr>
+    <tr><td>Business events (feature use)</td><td>100%</td><td>Business metrics require accurate counts, not samples</td></tr>
+    <tr><td>Log entries (INFO level)</td><td>100% in DEBUG build; 10% in release build</td><td>Release logs are for diagnostics, not general telemetry</td></tr>
+  </table></div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §6 -->
+<section id="s6">
+  <div class="sec-label">Section 06</div>
+  <h2>Error Reporting Architecture</h2>
+  <p>Error reporting in Finance Bag distinguishes between five error classes, each with different handling, storage, and escalation behaviors. The framework captures the context needed for root cause analysis while never capturing sensitive financial data.</p>
+
+  <h3>6.1 Error Classification</h3>
+  <div class="tw"><table>
+    <tr><th>Class</th><th>Definition</th><th>Examples</th><th>User Experience</th></tr>
+    <tr><td><span class="pill pill-err">CRASH</span></td><td>Unrecoverable error that terminates the process. App exits unexpectedly.</td><td>JS runtime error in critical path; native module crash; OOM kill</td><td>App closes; relaunches to recovery screen or last stable state</td></tr>
+    <tr><td><span class="pill pill-err">UNHANDLED</span></td><td>Uncaught exception that does not crash the process but leaves the app in undefined state.</td><td>Unhandled Promise rejection; async error without catch</td><td>Feature may stop working; app may require navigation reset</td></tr>
+    <tr><td><span class="pill pill-warn">HANDLED</span></td><td>Exception caught by error boundary or try-catch; app continues with degraded functionality.</td><td>Database query timeout (retried); network error (fallback shown); invalid data from sync</td><td>Error state shown in affected component; rest of app functions</td></tr>
+    <tr><td><span class="pill pill-warn">USER_VISIBLE</span></td><td>Expected failure shown to the user via UI feedback (not an exception; a deliberate error state).</td><td>Validation error on form; "Couldn't sync" banner; "No internet connection" state</td><td>Error message shown with recovery action</td></tr>
+    <tr><td><span class="pill pill-info">SILENT</span></td><td>Failure that is handled internally without user awareness; logged for operational review but not surfaced.</td><td>Log write failure; non-critical background task timeout; telemetry batch upload failure</td><td>No user impact; logged for engineering review</td></tr>
+  </table></div>
+
+  <h3>6.2 Error Report Schema</h3>
+  <div class="spec-block">
+    <strong>Every error report contains the following fields:</strong><br>
+    • <code>error_id</code>: ULID — unique identifier for this error instance<br>
+    • <code>session_id</code>: Session in which the error occurred<br>
+    • <code>error_class</code>: CRASH / UNHANDLED / HANDLED / USER_VISIBLE / SILENT<br>
+    • <code>error_type</code>: Specific error category (DatabaseError, NetworkError, AuthError, etc.)<br>
+    • <code>message</code>: Error message string (sanitized — no financial values)<br>
+    • <code>stack_trace</code>: Symbolicated stack trace (for CRASH and UNHANDLED)<br>
+    • <code>module</code>: Which Finance Bag module the error occurred in<br>
+    • <code>screen</code>: Which screen was visible when error occurred<br>
+    • <code>breadcrumbs</code>: Last 20 user actions and system events before the error (action types only — no financial data)<br>
+    • <code>device_info</code>: OS version, device model, app version, available memory at time of error<br>
+    • <code>occurred_at</code>: ISO 8601 timestamp<br>
+    • <code>is_fatal</code>: Boolean — whether the error crashed the app<br>
+    • <code>recovery_action</code>: What the system did in response (retry, fallback, navigate, none)
+  </div>
+
+  <h3>6.3 Crash Recovery Protocol</h3>
+  <div class="tw"><table>
+    <tr><th>Crash Type</th><th>Detection</th><th>Recovery Action</th></tr>
+    <tr><td>JS runtime crash (React Native)</td><td>Global error handler intercepted before process exit</td><td>State snapshot saved to local store; restart to Dashboard with "App restarted" toast</td></tr>
+    <tr><td>Native crash (iOS/Android)</td><td>Crash captured by OS; report written by crash SDK on next launch</td><td>Launch to Dashboard (no deep-link restoration); crash report filed; user sees no error message unless repeated</td></tr>
+    <tr><td>OOM kill (OS memory pressure)</td><td>Not catchable at runtime; detected by "app was not terminated cleanly" flag on next launch</td><td>L1 cache cleared; reload from DB; no data loss (L2/L3 unaffected by RAM kill)</td></tr>
+    <tr><td>Crash during DB write</td><td>SQLite WAL journal ensures atomic commit; incomplete writes are rolled back</td><td>DB is consistent on next launch; in-progress operation is lost; user may need to re-enter data</td></tr>
+    <tr><td>Repeated crash loop</td><td>Crash count ≥ 3 in last 5 minutes</td><td>Diagnostic mode launched; full diagnostic bundle auto-generated; user offered option to report or reset</td></tr>
+  </table></div>
+
+  <h3>6.4 Error Deduplication</h3>
+  <p>The same error occurring repeatedly must not flood the error log with identical entries. Error deduplication rules:</p>
+  <ul>
+    <li>Errors are grouped by a <code>fingerprint</code> computed from: error_type + top 3 stack frames + module</li>
+    <li>The first occurrence is always stored in full</li>
+    <li>Subsequent occurrences within the same session increment a <code>occurrence_count</code> counter on the fingerprint group</li>
+    <li>If the same error fingerprint occurs across multiple sessions, it is promoted to a "trending error" status in the health dashboard</li>
+    <li>Deduplication resets across app version boundaries — a new release starts fresh error grouping</li>
+  </ul>
+
+  <h3>6.5 Silent Failure Detection</h3>
+  <p>Silent failures are the most dangerous error class — they allow incorrect state to persist without the user knowing. Finance Bag uses invariant assertions to detect silent failures:</p>
+  <div class="spec-block">
+    <strong>Invariant assertion categories:</strong><br>
+    • <strong>Financial invariants:</strong> After every transaction write, assert that the parent budget's materialized total matches the sum of its transactions. Discrepancy logged as HANDLED error.<br>
+    • <strong>Sync invariants:</strong> After sync completion, assert that the local operation count matches the server-acknowledged count. Discrepancy logged + sync flagged for review.<br>
+    • <strong>Encryption invariants:</strong> After writing encrypted data, immediately re-read and verify the decrypted value matches the original. Mismatch = CRASH-level error (data integrity).<br>
+    • <strong>State invariants:</strong> After state transitions (e.g., goal ACTIVE → COMPLETED), assert all required fields are populated and consistent. Invalid state logged as HANDLED error.
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §7 -->
+<section id="s7">
+  <div class="sec-label">Section 07</div>
+  <h2>Logging Strategy</h2>
+  <p>Finance Bag uses structured, leveled logging. Every log entry is a JSON object with a defined schema. Logs are the primary narrative signal — they tell the story of what happened in order.</p>
+
+  <h3>7.1 Log Levels</h3>
+  <div class="tw"><table>
+    <tr><th>Level</th><th>Value</th><th>When to Use</th><th>Production Default</th></tr>
+    <tr><td><span class="pill" style="background:rgba(99,102,241,.15);color:#6366F1;">TRACE</span></td><td>0</td><td>Fine-grained execution flow; every function entry/exit. Extremely verbose.</td><td>Disabled</td></tr>
+    <tr><td><span class="pill pill-info">DEBUG</span></td><td>1</td><td>Values and state at key decision points; useful for debugging specific issues.</td><td>Disabled (enabled via diagnostic mode)</td></tr>
+    <tr><td><span class="pill pill-ok">INFO</span></td><td>2</td><td>Normal, significant operations. App launched. Screen opened. Transaction saved. Sync completed.</td><td>Enabled (sampled at 10% in release)</td></tr>
+    <tr><td><span class="pill pill-warn">WARN</span></td><td>3</td><td>Unexpected but recoverable conditions. Retry triggered. Fallback activated. Cache miss. Memory pressure.</td><td>Enabled (100%)</td></tr>
+    <tr><td><span class="pill pill-err">ERROR</span></td><td>4</td><td>Operation failure requiring attention. DB query failed. Sync operation dead. Auth error.</td><td>Enabled (100%)</td></tr>
+    <tr><td><span class="pill pill-err">FATAL</span></td><td>5</td><td>Unrecoverable state. Data integrity violation. Encryption failure. Crash-level event.</td><td>Enabled (100%); immediately triggers alert</td></tr>
+  </table></div>
+
+  <h3>7.2 Log Entry Schema</h3>
+  <div class="spec-block">
+    <strong>Standard log entry fields (all entries):</strong><br>
+    <code>ts</code>: ISO 8601 timestamp (UTC, millisecond precision)<br>
+    <code>lvl</code>: Log level string (TRACE/DEBUG/INFO/WARN/ERROR/FATAL)<br>
+    <code>msg</code>: Human-readable message (English; no sensitive data)<br>
+    <code>sid</code>: Session ID<br>
+    <code>cid</code>: Correlation ID (links related log entries for one logical operation)<br>
+    <code>mod</code>: Module (budget, goals, debt, sync, ai, auth, db, etc.)<br>
+    <code>v</code>: App version string<br><br>
+    <strong>Optional contextual fields (added when relevant):</strong><br>
+    <code>dur_ms</code>: Duration of the logged operation in milliseconds<br>
+    <code>entity_type</code>: Type of entity involved (transaction, budget, goal — never its content)<br>
+    <code>entity_id</code>: ULID of entity involved (never its financial values)<br>
+    <code>screen</code>: Screen name where event occurred<br>
+    <code>err_type</code>: For error/fatal entries: error class name<br>
+    <code>retry_count</code>: For retry events: current retry attempt number<br>
+    <code>outcome</code>: success / failure / partial_success / skipped
+  </div>
+
+  <h3>7.3 Sensitive Data Filtering Rules</h3>
+  <div class="err-block">
+    <strong>The following data MUST NEVER appear in any log entry:</strong><br>
+    • Monetary amounts (any currency value, budget limit, transaction amount, balance, salary)<br>
+    • User-entered text (transaction labels, goal names, notes, budget category names)<br>
+    • PIN, biometric data, encryption keys, session tokens<br>
+    • Device identifiers (IDFA, Android Advertising ID, IDFV unless anonymized)<br>
+    • Names, emails, or any personally identifiable information<br>
+    • AI-generated recommendations content<br>
+    • Sync payload content (may contain financial data)<br><br>
+    <strong>What IS permitted in logs:</strong><br>
+    • Entity IDs (ULIDs) — these are meaningless without the DB<br>
+    • Entity types (transaction, budget, goal) — types are not sensitive<br>
+    • Durations, counts, error codes, status codes<br>
+    • Screen names, module names, operation names<br>
+    • Boolean outcomes (success/failure)<br>
+    • Anonymized aggregates (e.g., "budget has 47 transactions" — count only)
+  </div>
+
+  <h3>7.4 Log Storage &amp; Rotation</h3>
+  <div class="tw"><table>
+    <tr><th>Property</th><th>Specification</th></tr>
+    <tr><td>Storage location</td><td>Dedicated table in a separate local SQLite database (not the financial data DB)</td></tr>
+    <tr><td>Encryption</td><td>Log DB is encrypted with the same SQLCipher AES-256 as the main DB</td></tr>
+    <tr><td>Retention window</td><td>7 days rolling; entries older than 7 days are automatically purged in nightly maintenance</td></tr>
+    <tr><td>Size limit</td><td>10MB target; 25MB hard limit; when hard limit reached, oldest entries are purged to reclaim space</td></tr>
+    <tr><td>Rotation trigger</td><td>Daily at 3 AM (nightly maintenance window) or when size exceeds 25MB</td></tr>
+    <tr><td>Write strategy</td><td>Asynchronous, batched writes (50 entries per batch) to avoid per-log I/O overhead</td></tr>
+    <tr><td>Write failure handling</td><td>If log DB write fails (storage full), log entry is silently dropped. Logging must never block or crash the app.</td></tr>
+    <tr><td>Audit log separation</td><td>Security events (auth failures, data access, encryption operations) are written to a separate audit log table with longer retention (90 days) and never purged by the normal rotation policy</td></tr>
+  </table></div>
+
+  <h3>7.5 Correlation ID Strategy</h3>
+  <p>Correlation IDs link all log entries, metrics, and traces that are part of the same logical operation. This is the primary mechanism for incident investigation.</p>
+  <div class="spec-block">
+    <strong>Correlation ID generation rules:</strong><br>
+    • User-initiated operation (e.g., "Save transaction"): new correlation ID generated at the user action; all DB writes, cache updates, and UI events for that action share the same correlation ID<br>
+    • Background operations (e.g., "Sync batch"): new correlation ID per sync batch; all operations within the batch share it<br>
+    • Session-level operations (e.g., "App launch"): correlation ID = session ID for launch-sequence events<br>
+    • Error events: inherit the correlation ID of the operation that caused them; if no operation context, generate a new correlation ID
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §8 -->
+<section id="s8">
+  <div class="sec-label">Section 08</div>
+  <h2>Health Dashboard</h2>
+  <p>The Health Dashboard is an internal operational view accessible to engineers and support staff. It is not visible to end users. In v1.0, it is accessible within the app via a hidden developer menu. In v1.5+, it is a web-based operational dashboard fed by the cloud telemetry pipeline.</p>
+
+  <h3>8.1 Dashboard Layout</h3>
+  <div class="spec-block">
+    <strong>Health Dashboard — top-level sections:</strong><br><br>
+    <strong>Row 1 — System Health Summary:</strong> 8 health indicator chips (one per subsystem from §4.4 table). Color-coded: green/HEALTHY, yellow/DEGRADED, red/UNHEALTHY. Clicking a chip reveals subsystem detail.<br><br>
+    <strong>Row 2 — Live Performance Metrics:</strong> 4 sparkline charts showing the last 60 minutes of: (1) App launch P50 duration, (2) Dashboard load P50, (3) DB query P50, (4) Sync success rate %<br><br>
+    <strong>Row 3 — Error Summary:</strong> Error count by class (CRASH / UNHANDLED / HANDLED / SILENT) for the last 24 hours. Trending errors (same fingerprint 3+ occurrences) highlighted in red.<br><br>
+    <strong>Row 4 — Resource Usage:</strong> Current values with trend arrows: RAM used, storage used (DB + logs + backups), battery drain (last 30 min session), network data consumed (last 24h)<br><br>
+    <strong>Row 5 — Business Metric Snapshot:</strong> Sessions today, transactions recorded today, sync operations completed, AI coach interactions (anonymous counts only)<br><br>
+    <strong>Row 6 — Release Quality:</strong> Current app version, crash-free rate (last 24h), performance regression alerts from current release vs prior baseline, active alerts count
+  </div>
+
+  <h3>8.2 Subsystem Detail Views</h3>
+  <div class="tw"><table>
+    <tr><th>Subsystem</th><th>Detail View Contents</th></tr>
+    <tr><td>Database Health</td><td>Query latency histogram (P50/P95/P99), write latency, DB file size, WAL size, last VACUUM time, last integrity check result, slow query log (top 10 slowest queries, by query type)</td></tr>
+    <tr><td>Sync Health</td><td>Queue depth over time (sparkline), sync success rate (24h), conflict count by type, DEAD operation count, last successful sync timestamp, sync retry rate</td></tr>
+    <tr><td>AI Availability</td><td>Rule-based response time (P50/P95), remote AI availability % (last 24h), fallback activation count, recommendation displayed/acted/dismissed counts, context builder error rate</td></tr>
+    <tr><td>Notification System</td><td>Scheduled notifications count, delivery success rate, permission status per device, overdue notifications count</td></tr>
+    <tr><td>Storage</td><td>Free storage bytes (trend over 30 days), DB size growth rate, log file size, backup file list with age and size, backup verification status</td></tr>
+    <tr><td>Memory</td><td>Heap usage over session timeline (sparkline), peak usage, memory pressure events count, memory growth rate, last OOM event timestamp</td></tr>
+    <tr><td>Performance</td><td>All §2.1 metrics displayed as histograms with P50/P95/P99 bands; red/yellow/green based on targets; trend vs prior 7 days</td></tr>
+    <tr><td>Error Trends</td><td>Error count time series (24h); top 10 error fingerprints by occurrence count; FATAL error list with full details; error resolution status</td></tr>
+  </table></div>
+
+  <h3>8.3 Developer Diagnostic Menu</h3>
+  <p>In debug builds and special release builds (internal beta), a developer diagnostic menu is accessible via a hidden gesture (7-tap on the app version label in Settings). This menu exposes:</p>
+  <ul>
+    <li>Live metric streaming view (real-time metric values as they are recorded)</li>
+    <li>Log viewer with level filter and module filter</li>
+    <li>Active trace inspector (current in-flight traces)</li>
+    <li>Health indicator states with manual override (for testing degraded state handling)</li>
+    <li>Database inspector (table row counts, index stats, query execution plan viewer)</li>
+    <li>Sync queue inspector (all pending/in-flight/failed operations)</li>
+    <li>Diagnostic bundle export button</li>
+    <li>Performance scenario runner (runs standard benchmark suite and reports results)</li>
+    <li>Memory pressure simulator (triggers artificial memory pressure events)</li>
+  </ul>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ §9 -->
+<section id="s9">
+  <div class="sec-label">Section 09</div>
+  <h2>Business Metrics &amp; Analytics</h2>
+  <p>Business metrics answer product questions: which features are used, how often, and by how many users. All business metrics are anonymous — they track events and counts, never content or financial values.</p>
+
+  <h3>9.1 Privacy-Safe Analytics Architecture</h3>
+  <div class="spec-block">
+    <strong>The Finance Bag analytics model:</strong><br>
+    • All analytics are event-based, not user-based. Events track <em>what happened</em>, not <em>who did it</em>.<br>
+    • No persistent user identifier is used in analytics. Session IDs are ephemeral (per-session ULIDs, not linked to previous sessions by default).<br>
+    • No financial values in analytics events. Budget creation is an event with module=budget and action=create — never with the amount.<br>
+    • Analytics are opt-in, with explicit user consent at onboarding (and changeable in Settings > Privacy).<br>
+    • When analytics are disabled, all business metric events are suppressed. The app functions identically — analytics never affect core functionality.<br>
+    • v1.0 analytics are stored locally only. v1.5 introduces optional anonymous cloud export (separate from crash reporting consent).
+  </div>
+
+  <h3>9.2 Core Business Events</h3>
+  <div class="tw"><table>
+    <tr><th>Event Name</th><th>Trigger</th><th>Dimensions</th></tr>
+    <tr><td><code>session_start</code></td><td>App launched and auth completed</td><td>device_class, app_version, locale</td></tr>
+    <tr><td><code>session_end</code></td><td>App backgrounded or terminated</td><td>session_duration_seconds, screens_visited_count</td></tr>
+    <tr><td><code>screen_view</code></td><td>Any screen becomes visible</td><td>screen_name, time_on_previous_screen_ms</td></tr>
+    <tr><td><code>module_activated</code></td><td>User navigates to a module for the first time in session</td><td>module_name</td></tr>
+    <tr><td><code>transaction_recorded</code></td><td>Transaction saved successfully</td><td>module=budget/debt/goal (type only; no amount)</td></tr>
+    <tr><td><code>budget_created</code></td><td>New budget created</td><td>none (count only)</td></tr>
+    <tr><td><code>goal_created</code></td><td>New goal created</td><td>goal_type (savings/purchase/debt-payoff)</td></tr>
+    <tr><td><code>goal_completed</code></td><td>Goal reaches 100% progress</td><td>days_to_complete (count only, no amounts)</td></tr>
+    <tr><td><code>debt_paid_off</code></td><td>Debt reaches zero balance</td><td>months_to_payoff (count only)</td></tr>
+    <tr><td><code>report_generated</code></td><td>User views Reports screen</td><td>report_type, period</td></tr>
+    <tr><td><code>ai_coach_query</code></td><td>User submits a question to AI Coach</td><td>intent_type, mode (rule-based/hybrid/full-ai), response_received (boolean)</td></tr>
+    <tr><td><code>ai_recommendation_action</code></td><td>User acts on, dismisses, or ignores recommendation</td><td>action (acted/dismissed/dismissed_permanently), recommendation_category</td></tr>
+    <tr><td><code>sync_completed</code></td><td>Sync operation finishes</td><td>outcome (success/partial/failure), phase</td></tr>
+    <tr><td><code>backup_created</code></td><td>Backup file created</td><td>outcome (success/failure)</td></tr>
+    <tr><td><code>export_generated</code></td><td>PDF/CSV export completed</td><td>format, outcome</td></tr>
+    <tr><td><code>search_performed</code></td><td>User submits a search query</td><td>results_count (0 / 1–5 / 6–20 / 20+; no query content)</td></tr>
+    <tr><td><code>onboarding_step_completed</code></td><td>Each onboarding screen completed</td><td>step_number, skipped (boolean)</td></tr>
+    <tr><td><code>feature_first_use</code></td><td>First time a feature is used in a new install</td><td>feature_name</td></tr>
+    <tr><td><code>settings_changed</code></td><td>Any settings value changed</td><td>setting_category (privacy, security, appearance, notifications — not the value)</td></tr>
+  </table></div>
+
+  <h3>9.3 Retention &amp; Engagement Metrics</h3>
+  <div class="tw"><table>
+    <tr><th>Metric</th><th>Definition</th><th>Target (v1.0 benchmark)</th></tr>
+    <tr><td>Day 1 Retention</td><td>% of new users who return the next day</td><td>&gt;60%</td></tr>
+    <tr><td>Day 7 Retention</td><td>% of new users who return within 7 days</td><td>&gt;40%</td></tr>
+    <tr><td>Day 30 Retention</td><td>% of new users still active at 30 days</td><td>&gt;25%</td></tr>
+    <tr><td>Monthly Active Users (MAU)</td><td>Unique sessions in calendar month</td><td>Baseline established post-launch</td></tr>
+    <tr><td>Daily Active Users (DAU)</td><td>Unique sessions in a calendar day</td><td>Target DAU/MAU ratio &gt;0.3</td></tr>
+    <tr><td>Average session duration</td><td>Mean of session_duration_seconds for completed sessions</td><td>&gt;4 minutes (engaged use)</td></tr>
+    <tr><td>Feature breadth</td><td>Average number of distinct modules activated per user per month</td><td>&gt;4 modules (multi-module engagement)</td></tr>
+    <tr><td>Goal completion rate</td><td>% of created goals that reach COMPLETED status within 12 months</td><td>&gt;30%</td></tr>
+    <tr><td>AI Coach engagement</td><td>% of active users who use AI Coach at least once per month</td><td>&gt;50% once full-AI mode launches</td></tr>
+    <tr><td>Onboarding completion rate</td><td>% of new users who complete all 4 onboarding screens</td><td>&gt;80%</td></tr>
+  </table></div>
+
+  <h3>9.4 Analytics Data Lifecycle</h3>
+  <div class="tw"><table>
+    <tr><th>Phase</th><th>Duration</th><th>Location</th><th>Actions</th></tr>
+    <tr><td>Collection</td><td>At event time</td><td>In-memory buffer (max 100 events)</td><td>Events batched before local write</td></tr>
+    <tr><td>Local storage</td><td>7 days</td><td>Analytics SQLite table (separate from app data)</td><td>Available for local health dashboard; exported on diagnostic report request</td></tr>
+    <tr><td>Remote export (v1.5+, opt-in)</td><td>At sync time (hourly batches)</td><td>Cloud analytics platform</td><td>Anonymized, aggregated; no user identifiers</td></tr>
+    <tr><td>Aggregation</td><td>Daily</td><td>Cloud analytics platform</td><td>Aggregated into daily cohort metrics; raw events discarded after 30 days</td></tr>
+    <tr><td>Retention (aggregated)</td><td>2 years</td><td>Cloud analytics (aggregates only)</td><td>Historical trend analysis; product decision support</td></tr>
+  </table></div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §10 DIAGNOSTIC TOOLS                                         -->
+<!-- ============================================================ -->
+<section id="s10">
+  <h2>§10 — Diagnostic Tools</h2>
+  <p>Finance Bag ships a comprehensive suite of diagnostic instruments accessible only in non-production builds or via authenticated developer mode. All tools read from the monitoring subsystem's internal signal stores; they never expose raw financial data.</p>
+
+  <h3>10.1 Performance Profiler</h3>
+  <p>The Performance Profiler provides a real-time overlay and session-replay-style log of JS frame budget consumption, main-thread task durations, and bridge traffic volumes.</p>
+  <table>
+    <thead><tr><th>Capability</th><th>Data Source</th><th>Display Granularity</th><th>Trigger</th></tr></thead>
+    <tbody>
+      <tr><td>Frame Budget Monitor</td><td>React Native Perf API</td><td>Per-frame (16ms buckets)</td><td>Always-on in dev builds</td></tr>
+      <tr><td>JS Thread Activity</td><td>Hermes sampling profiler</td><td>1ms resolution, flame graph</td><td>Manual start/stop</td></tr>
+      <tr><td>UI Thread Blocking Tasks</td><td>Custom instrumentation</td><td>Task name + duration + stack</td><td>Threshold: >8ms</td></tr>
+      <tr><td>Bridge/JSI Crossing Overhead</td><td>Perf marks around native modules</td><td>Per-call latency histogram</td><td>Always-on in dev builds</td></tr>
+      <tr><td>Render Count per Component</td><td>React DevTools protocol</td><td>Per component, per navigation</td><td>Manual start/stop</td></tr>
+      <tr><td>Layout Calculation Time</td><td>Yoga layout engine hooks</td><td>Per view tree recalculation</td><td>Threshold: >2ms</td></tr>
+      <tr><td>Session Perf Replay</td><td>Timestamped perf events store</td><td>Timeline view with event markers</td><td>Post-session export</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.2 Memory Inspector</h3>
+  <p>The Memory Inspector surfaces JS heap allocation trends, identifies component-level retention (potential leaks), and tracks React Navigation screen unmount completeness.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Heap Snapshot Comparison</div>
+      <ul>
+        <li>Manual trigger captures two snapshots before and after a user action</li>
+        <li>Diffing algorithm highlights retained objects by constructor type and count delta</li>
+        <li>Shallow vs. retained size displayed per category</li>
+        <li>Threshold alert: retained delta >5MB flagged as potential leak</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Component Retention Tracker</div>
+      <ul>
+        <li>Hooks into React reconciler fiber disposal events</li>
+        <li>Tracks screens by route name; flags screen instances still resident 30s after pop</li>
+        <li>EventListener and timer count per-screen surfaced to detect listener leaks</li>
+        <li>Image cache occupancy per-screen context reported</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Memory Pressure Simulator</div>
+      <ul>
+        <li>Developer-invoked allocation spike to simulate low-memory conditions</li>
+        <li>Records which caches are evicted and in what order (validates cache prioritization)</li>
+        <li>Confirms app recovers gracefully without crash or data loss</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Long-Session Memory Monitor</div>
+      <ul>
+        <li>Plots heap size vs. session duration on a rolling 4-hour timeline</li>
+        <li>Slope analysis flags sustained growth patterns (>1MB/hr = warning)</li>
+        <li>Periodic GC forced and heap reclamation measured</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>10.3 Database Inspector</h3>
+  <p>The DB Inspector provides a live window into SQLite query performance without exposing financial record contents.</p>
+  <table>
+    <thead><tr><th>Tool</th><th>Information Displayed</th><th>Privacy Constraint</th></tr></thead>
+    <tbody>
+      <tr><td>Query Log Viewer</td><td>SQL template, bind parameter types (not values), duration, rows returned, plan cost</td><td>Bind values never shown; temporal and count data only</td></tr>
+      <tr><td>EXPLAIN QUERY PLAN Runner</td><td>Execution plan for any stored query template; index usage, full-table scan warnings</td><td>Query templates only, no user data</td></tr>
+      <tr><td>Slow Query Detector</td><td>Auto-captures queries exceeding 100ms; shows SQL + plan + row count + call site</td><td>Values masked in all outputs</td></tr>
+      <tr><td>Index Utilization Report</td><td>Per-index: estimated row scans, times used in last session, selectivity estimate</td><td>No row data exposed</td></tr>
+      <tr><td>WAL File Inspector</td><td>WAL file size, checkpoint frequency, uncommitted frame count</td><td>No content inspection; size/count only</td></tr>
+      <tr><td>Table Row Count Dashboard</td><td>Row counts per table, growth rate since last session</td><td>Counts only; no content</td></tr>
+      <tr><td>Integrity Check Runner</td><td>SQLite PRAGMA integrity_check result; PRAGMA foreign_key_check result</td><td>Pass/fail result only</td></tr>
+      <tr><td>Schema Diff Tool</td><td>Expected schema (from drizzle migrations) vs. actual live schema; highlights any divergence</td><td>Schema only; no data</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.4 Sync Diagnostics</h3>
+  <p>Sync Diagnostics exposes the internal state of the offline-first sync engine: queue depths, conflict counts, retry timelines, and sync cycle performance.</p>
+  <ul>
+    <li><strong>Pending Queue Viewer:</strong> Operation count per entity type, oldest pending operation age, estimated sync duration at current throughput.</li>
+    <li><strong>Conflict History:</strong> Per-session conflict count by type (A–G), resolution rule applied, timestamp. No conflicting values displayed.</li>
+    <li><strong>Sync Cycle Timeline:</strong> Per-cycle: start/end, duration, operations processed, errors encountered, bytes transferred.</li>
+    <li><strong>Connectivity State Machine:</strong> Current state (ONLINE/OFFLINE/DEGRADED), transition history, time-in-state counters.</li>
+    <li><strong>Retry Queue Inspector:</strong> Operations in exponential-backoff retry: attempt count, next retry time, failure reason (error code only).</li>
+    <li><strong>Sync Loop Detector:</strong> Flags operations that have cycled through >5 retries without resolution; prevents runaway retry storms.</li>
+    <li><strong>Server Roundtrip Latency:</strong> P50/P95/P99 per sync endpoint over the last 100 operations.</li>
+  </ul>
+
+  <h3>10.5 Network Diagnostics</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Request Inspector</div>
+      <ul>
+        <li>URL pattern, HTTP method, status code, response size, total latency (DNS + connect + TLS + TTFB + transfer)</li>
+        <li>Retry count and final outcome per request</li>
+        <li>No request/response body content displayed</li>
+        <li>Certificate fingerprint and TLS version for each HTTPS connection</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Connectivity Simulator</div>
+      <ul>
+        <li>Developer-triggered: airplane mode simulation, 2G/3G throttle, 50% packet loss, high-latency (500ms RTT)</li>
+        <li>Records how sync engine and AI coach requests behave under each condition</li>
+        <li>Validates offline fallback paths are triggered correctly</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>10.6 Storage Diagnostics</h3>
+  <p>Storage Diagnostics reports file system occupancy, encrypted DB sizes, media cache states, and backup archive metadata — all without decrypting or displaying financial content.</p>
+  <table>
+    <thead><tr><th>Metric</th><th>Reported Value</th><th>Alert Threshold</th></tr></thead>
+    <tbody>
+      <tr><td>App Total Storage</td><td>Bytes used / OS quota / free</td><td>>80% quota → warning</td></tr>
+      <tr><td>Main DB File Size</td><td>Bytes (encrypted)</td><td>>200MB → warning</td></tr>
+      <tr><td>Log DB File Size</td><td>Bytes</td><td>>20MB → flush trigger</td></tr>
+      <tr><td>Backup Archive Count</td><td>Number of archives + date range</td><td>>20 archives → prune suggestion</td></tr>
+      <tr><td>WAL Journal Size</td><td>Bytes (pre-checkpoint)</td><td>>32MB → checkpoint trigger</td></tr>
+      <tr><td>Temp Files</td><td>Count + total bytes</td><td>>10MB → cleanup trigger</td></tr>
+      <tr><td>Export Cache</td><td>Count + total bytes of pending exports</td><td>>50MB → user notification</td></tr>
+    </tbody>
+  </table>
+
+  <h3>10.7 Configuration Validator</h3>
+  <p>On developer mode entry, the Configuration Validator checks the runtime environment for correctness and surfaces any misconfiguration before testing begins.</p>
+  <ul>
+    <li>Strict mode TypeScript flags confirmed active in the build</li>
+    <li>SQLCipher version and AES-256-CBC cipher confirmed</li>
+    <li>WAL mode and mmap settings confirmed against specification targets</li>
+    <li>All required SQLite indexes confirmed present via schema check</li>
+    <li>Hermes engine confirmed active (not V8 or JSC)</li>
+    <li>Expo SDK and React Native versions reported and cross-referenced with minimum supported versions</li>
+    <li>Zustand store structural invariants (no floating-point monetary values) spot-checked</li>
+    <li>Log DB encryption key derivation path confirmed correct</li>
+  </ul>
+
+  <h3>10.8 Diagnostic Bundle Export</h3>
+  <p>Developer mode provides a one-tap "Export Diagnostic Bundle" function that assembles a ZIP archive for sharing with the engineering team.</p>
+  <div class="card">
+    <div class="card-title">Bundle Contents (all privacy-safe)</div>
+    <table>
+      <thead><tr><th>File</th><th>Contents</th><th>Size Limit</th></tr></thead>
+      <tbody>
+        <tr><td>device_info.json</td><td>OS version, device model, memory, storage, RN/Expo versions, Hermes build</td><td>~2KB</td></tr>
+        <tr><td>perf_metrics.json</td><td>Last 1,000 metric events (no financial values)</td><td>~500KB</td></tr>
+        <tr><td>slow_queries.json</td><td>SQL templates + plans for all queries >50ms in session</td><td>~100KB</td></tr>
+        <tr><td>health_states.json</td><td>All subsystem health transitions during session with timestamps</td><td>~50KB</td></tr>
+        <tr><td>sync_timeline.json</td><td>All sync cycle summaries and conflict counts for last 7 days</td><td>~200KB</td></tr>
+        <tr><td>error_log.json</td><td>All WARN/ERROR/FATAL log entries from log DB (values masked)</td><td>~500KB</td></tr>
+        <tr><td>schema_diff.json</td><td>Expected vs. actual schema comparison result</td><td>~20KB</td></tr>
+        <tr><td>storage_report.json</td><td>Storage occupancy snapshot</td><td>~5KB</td></tr>
+        <tr><td>config_validation.json</td><td>Configuration validator output (pass/fail per check)</td><td>~10KB</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:0.75rem">Bundle must never contain: financial amounts, transaction descriptions, budget names, category labels, user email, device fingerprint, or encryption keys. A privacy scan runs before packaging and aborts export if any disallowed field is detected.</p>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- §11 ALERTING ARCHITECTURE                                     -->
+<!-- ============================================================ -->
+<section id="s11">
+  <h2>§11 — Alerting Architecture</h2>
+  <p>Finance Bag's alerting system is device-local. There is no server-side paging or on-call rotation in an always-online sense because the app operates offline-first. Instead, alerts surface within the app (health dashboard, developer overlay) and are journaled in the monitoring log DB. Alerts targeting end users surface as in-app banners and push notifications only when actionable.</p>
+
+  <h3>11.1 Alert Severity Levels</h3>
+  <table>
+    <thead><tr><th>Level</th><th>Code</th><th>Definition</th><th>User-Visible?</th><th>Response SLO</th></tr></thead>
+    <tbody>
+      <tr><td>Emergency</td><td>EMER</td><td>Data loss risk or app completely non-functional</td><td>Yes — blocking modal</td><td>Immediate crash recovery flow</td></tr>
+      <tr><td>Critical</td><td>CRIT</td><td>Core function unavailable or data integrity at risk</td><td>Yes — persistent banner</td><td>Automated recovery attempt; developer notified via export</td></tr>
+      <tr><td>Warning</td><td>WARN</td><td>Degraded experience; function available but slow or unreliable</td><td>Optional — dismissable toast</td><td>Logged; recovery attempted in background</td></tr>
+      <tr><td>Info</td><td>INFO</td><td>Notable system state change; no user impact</td><td>No — developer overlay only</td><td>Logged; no action required</td></tr>
+    </tbody>
+  </table>
+
+  <h3>11.2 Alert Definitions</h3>
+  <table>
+    <thead><tr><th>Alert ID</th><th>Name</th><th>Severity</th><th>Trigger Condition</th><th>Recovery Action</th></tr></thead>
+    <tbody>
+      <tr><td>ALT-001</td><td>Cold Launch Timeout</td><td>WARN</td><td>Cold launch exceeds 3.0s on DS-STANDARD</td><td>Log perf trace; flag for next build review</td></tr>
+      <tr><td>ALT-002</td><td>Freeze Frame Detected</td><td>CRIT</td><td>UI freeze >1,000ms detected</td><td>Capture JS thread dump; surface recovery banner</td></tr>
+      <tr><td>ALT-003</td><td>DB Write Failure</td><td>EMER</td><td>Any write to main DB returns error</td><td>Halt all further writes; show data-safe error modal; offer diagnostic export</td></tr>
+      <tr><td>ALT-004</td><td>DB Read Failure</td><td>EMER</td><td>Any integrity-critical read fails</td><td>Same as ALT-003; run PRAGMA integrity_check</td></tr>
+      <tr><td>ALT-005</td><td>DB Integrity Violation</td><td>EMER</td><td>PRAGMA integrity_check returns errors</td><td>Prevent further writes; prompt backup restore</td></tr>
+      <tr><td>ALT-006</td><td>Slow Query — Repeated</td><td>WARN</td><td>Same query template slow (>200ms) 3× in 5min</td><td>Log to slow_queries.json; flag for index review</td></tr>
+      <tr><td>ALT-007</td><td>Memory Hard Limit Breach</td><td>CRIT</td><td>JS heap exceeds 150MB</td><td>Evict all L1 caches; force GC; log heap snapshot delta</td></tr>
+      <tr><td>ALT-008</td><td>Memory Leak Suspected</td><td>WARN</td><td>Heap growth slope >5MB in 60min without reset</td><td>Log component retention report; suggest restart</td></tr>
+      <tr><td>ALT-009</td><td>Sync Stall</td><td>WARN</td><td>Sync queue non-empty for >30min with connectivity</td><td>Force sync retry; log sync diagnostics</td></tr>
+      <tr><td>ALT-010</td><td>Sync Loop Detected</td><td>CRIT</td><td>Same operation fails >5 consecutive sync attempts</td><td>Quarantine operation; surface banner; log for manual review</td></tr>
+      <tr><td>ALT-011</td><td>Conflict Storm</td><td>WARN</td><td>>20 sync conflicts resolved in a single cycle</td><td>Log all conflict types; flag for sync strategy review</td></tr>
+      <tr><td>ALT-012</td><td>AI Coach Timeout</td><td>WARN</td><td>AI inference exceeds 4.0s</td><td>Cancel request; return cached fallback; log latency</td></tr>
+      <tr><td>ALT-013</td><td>AI Coach Error Rate</td><td>WARN</td><td>>10% AI requests fail in 1hr window</td><td>Disable AI feature with user notification; log error codes</td></tr>
+      <tr><td>ALT-014</td><td>Storage Warning</td><td>WARN</td><td>App storage >80% of OS quota</td><td>Surface storage management banner; suggest archive prune</td></tr>
+      <tr><td>ALT-015</td><td>Storage Critical</td><td>CRIT</td><td>App storage >95% of OS quota</td><td>Halt non-essential writes; block backup; require user action</td></tr>
+      <tr><td>ALT-016</td><td>Log DB Overflow Risk</td><td>WARN</td><td>Log DB >20MB (approaching 25MB hard limit)</td><td>Force rotation of oldest log partition</td></tr>
+      <tr><td>ALT-017</td><td>Encryption Key Missing</td><td>EMER</td><td>DB encryption key not retrievable from secure storage</td><td>Block all DB access; guide user through recovery</td></tr>
+      <tr><td>ALT-018</td><td>Backup Overdue</td><td>INFO</td><td>No successful backup in >14 days</td><td>Surface reminder banner; offer one-tap backup</td></tr>
+      <tr><td>ALT-019</td><td>Backup Failure</td><td>WARN</td><td>Backup operation fails</td><td>Retry with exponential backoff; notify user after 3 failures</td></tr>
+      <tr><td>ALT-020</td><td>Clock Skew Detected</td><td>WARN</td><td>Device clock differs from server time by >5min</td><td>Log skew magnitude; use server time for sync timestamps</td></tr>
+      <tr><td>ALT-021</td><td>FHS Invariant Violation</td><td>EMER</td><td>Any Financial Hierarchy System invariant fails at runtime</td><td>Halt all writes; log invariant name and context (no values); require restart</td></tr>
+      <tr><td>ALT-022</td><td>Network Timeout Rate</td><td>WARN</td><td>>30% of sync requests timeout in 10min window</td><td>Switch to offline-first mode; suppress further outbound requests</td></tr>
+      <tr><td>ALT-023</td><td>Report Generation Timeout</td><td>WARN</td><td>Report generation exceeds 10s</td><td>Cancel; show partial result with notice; log dataset size</td></tr>
+      <tr><td>ALT-024</td><td>Crash-Free Rate Drop</td><td>CRIT</td><td>Session crash-free rate falls below 99% (rolling 24hr)</td><td>Capture crash metadata; disable affected feature if isolable</td></tr>
+      <tr><td>ALT-025</td><td>ANR Detected (Android)</td><td>CRIT</td><td>ANR event reported by OS watchdog</td><td>Log main-thread blocking task stack; flag for trace review</td></tr>
+      <tr><td>ALT-026</td><td>Unhandled Promise Rejection</td><td>WARN</td><td>Any unhandled promise rejection in production code paths</td><td>Log with breadcrumbs; increment error rate counter</td></tr>
+    </tbody>
+  </table>
+
+  <h3>11.3 Alert Deduplication & Fatigue Management</h3>
+  <ul>
+    <li><strong>Cooldown Window:</strong> Each alert fires at most once per defined cooldown (configurable per alert, default 5min). Subsequent triggers within the window increment a suppression counter rather than firing a new alert.</li>
+    <li><strong>Aggregation:</strong> Multiple triggers of the same alert type within a cooldown window are reported as one alert with a count (e.g., "DB slow query: 7 occurrences in 5 min").</li>
+    <li><strong>Exponential Suppression:</strong> Alerts firing repeatedly across multiple windows increase their cooldown period (×2 each occurrence up to 60min) until a sustained healthy period resets the base cooldown.</li>
+    <li><strong>User-Facing Alert Cap:</strong> At most 2 in-app banners visible simultaneously. Third alert queues behind existing banners. EMER alerts always preempt lower-severity banners.</li>
+    <li><strong>Developer Overlay vs. User Surface:</strong> INFO and some WARN alerts route only to the developer overlay (not shown to end users). User-visible alerts require explicit approval in the alert definition table.</li>
+  </ul>
+
+  <h3>11.4 Alert Notification Channels</h3>
+  <table>
+    <thead><tr><th>Channel</th><th>Applicable Severity</th><th>Mechanism</th><th>Persistence</th></tr></thead>
+    <tbody>
+      <tr><td>In-App Banner</td><td>WARN, CRIT, EMER</td><td>React Native Animated overlay at top of screen</td><td>WARN: dismissable; CRIT/EMER: persistent until resolved</td></tr>
+      <tr><td>Push Notification</td><td>CRIT, EMER (when app backgrounded)</td><td>Expo Notifications API via platform APNs/FCM</td><td>Single notification; links to health dashboard on tap</td></tr>
+      <tr><td>Health Dashboard Badge</td><td>All levels</td><td>Badge count on Health Dashboard tab/screen</td><td>Cleared when dashboard viewed</td></tr>
+      <tr><td>Developer Overlay</td><td>INFO, WARN, CRIT, EMER</td><td>In-dev-builds overlay with timestamp log</td><td>Scrollable history; cleared on session end</td></tr>
+      <tr><td>Diagnostic Log</td><td>All levels</td><td>Structured log entry in log DB</td><td>7-day retention; included in diagnostic bundle</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<!-- §12 RESOURCE MANAGEMENT                                       -->
+<!-- ============================================================ -->
+<section id="s12">
+  <h2>§12 — Resource Management</h2>
+
+  <h3>12.1 CPU Usage Policy</h3>
+  <p>Finance Bag never performs sustained high-CPU work on the main (JS) thread. All computationally intensive work runs either on native background threads (DB, encryption) or through Expo's background task API.</p>
+  <table>
+    <thead><tr><th>Work Category</th><th>Allowed Thread</th><th>CPU Budget</th><th>Governance Rule</th></tr></thead>
+    <tbody>
+      <tr><td>UI rendering and event handling</td><td>Main (JS)</td><td>Uncapped but frame-budgeted</td><td>No single task >8ms on main thread</td></tr>
+      <tr><td>State store reads/writes (Zustand)</td><td>Main (JS)</td><td>&lt;1ms per operation</td><td>No aggregate computation in selectors</td></tr>
+      <tr><td>SQLite reads (hot path)</td><td>Native DB thread</td><td>&lt;50ms per query</td><td>Prepared statements mandatory; no unbounded scans</td></tr>
+      <tr><td>SQLite writes (transactional)</td><td>Native DB thread</td><td>&lt;200ms per transaction</td><td>Batch writes; WAL mode active</td></tr>
+      <tr><td>Report generation</td><td>Native worker / background task</td><td>&lt;10s total per report</td><td>Chunked processing with yield points every 100ms</td></tr>
+      <tr><td>AI inference (on-device model)</td><td>Native AI thread</td><td>&lt;4s total</td><td>Timeout hard-cancelled; no retry on timeout</td></tr>
+      <tr><td>Encryption/decryption</td><td>Native crypto thread</td><td>&lt;100ms per operation</td><td>Only on background task initiation; never in render</td></tr>
+      <tr><td>Sync engine</td><td>Background task (OS-scheduled)</td><td>OS-budgeted</td><td>Cooperative yielding; no battery-intensive polling</td></tr>
+      <tr><td>CSV/PDF export</td><td>Background task</td><td>&lt;30s; chunked</td><td>Progress observable; cancellable</td></tr>
+    </tbody>
+  </table>
+
+  <h3>12.2 Memory Lifecycle Enforcement</h3>
+  <p>Memory management is governed by a three-tier priority eviction policy. When memory pressure is detected, caches are evicted in strict priority order before any data loss risk occurs.</p>
+  <div class="card">
+    <div class="card-title">Eviction Priority Order (lowest priority evicted first)</div>
+    <ol>
+      <li><strong>Image render cache</strong> — Pre-rendered chart images and icon composites. Evicted first; regenerated on demand. Maximum 20MB; target 10MB.</li>
+      <li><strong>Prefetched report data</strong> — Report dataset cached in memory for recent report views. Maximum 15MB; evicted on any memory warning.</li>
+      <li><strong>AI suggestion cache</strong> — Last 10 AI responses cached to avoid re-inference. Maximum 5MB; evicted on memory warning.</li>
+      <li><strong>L1 Zustand derived state</strong> — Computed views cached in Zustand. Recomputed from SQLite on eviction. No absolute maximum; full eviction on critical pressure.</li>
+      <li><strong>SQLite prepared statement cache</strong> — Retained for performance; re-prepared on eviction. 100-statement limit; evicted in LRU order.</li>
+      <li><strong>Active screen component state</strong> — Only evicted if app is in deep background (OS low-memory kill imminent). State persisted to SQLite before eviction.</li>
+    </ol>
+  </div>
+  <ul>
+    <li><strong>AppState-Driven Eviction:</strong> When app transitions to background, L1 cache (image render + report + AI suggestion) is proactively evicted to free memory before OS applies pressure.</li>
+    <li><strong>Warning-Driven Eviction:</strong> OS memory warning events trigger immediate eviction of all non-essential caches (tiers 1–3) and a forced GC hint to Hermes.</li>
+    <li><strong>Heap Budget Enforcement:</strong> Monitoring checks heap size every 30s during active sessions. If heap exceeds 120MB (WARN) or 150MB (CRIT), cache eviction is triggered programmatically without waiting for OS signal.</li>
+  </ul>
+
+  <h3>12.3 Storage Quota Management</h3>
+  <table>
+    <thead><tr><th>Threshold</th><th>% of OS Quota</th><th>Action Taken</th></tr></thead>
+    <tbody>
+      <tr><td>Green</td><td>&lt;60%</td><td>Normal operation; routine backup proceeds</td></tr>
+      <tr><td>Advisory</td><td>60–75%</td><td>Log advisory event; suggest archive prune in settings</td></tr>
+      <tr><td>Warning</td><td>75–85%</td><td>Surface storage management banner; defer non-essential exports</td></tr>
+      <tr><td>Critical</td><td>85–95%</td><td>Suspend automatic backup; block PDF/CSV export; require user action</td></tr>
+      <tr><td>Emergency</td><td>>95%</td><td>Halt all non-essential writes; block sync outbound; emergency prune of temp files; data-safe error modal</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Automatic Prune Rules:</strong> Log DB enforces its 25MB hard limit via automatic deletion of the oldest partition when the limit is approached. Temp files from interrupted exports are cleaned up at every app launch. Backup archives beyond the 10-archive user preference are pruned oldest-first.</p>
+
+  <h3>12.4 Battery Optimization Rules</h3>
+  <ul>
+    <li>Sync engine uses platform background task APIs (BGAppRefreshTask on iOS, WorkManager on Android) — never a continuous background process.</li>
+    <li>Location services: never requested by Finance Bag (no battery drain from location polling).</li>
+    <li>Push notification delivery (not local polling) for any server-triggered alerts — no polling loops.</li>
+    <li>AI inference runs only on explicit user-invoked coach interactions, never speculatively.</li>
+    <li>When device battery level drops below 15% (detectable via react-native-device-info), defer background sync to next foreground session and log deferral event.</li>
+    <li>Low-power mode detected (iOS) or battery saver detected (Android): suspend all background tasks; sync only on app foreground with explicit user action.</li>
+    <li>Chart rendering uses Canvas (Skia) with dirty-rect optimizations; full re-render only on data change, not on every animation frame.</li>
+  </ul>
+
+  <h3>12.5 Network Efficiency</h3>
+  <table>
+    <thead><tr><th>Technique</th><th>Applied To</th><th>Expected Benefit</th></tr></thead>
+    <tbody>
+      <tr><td>Request Batching</td><td>Sync engine: multiple pending operations batched into single HTTP request</td><td>Reduces connection overhead by 60–80% in typical sessions</td></tr>
+      <tr><td>Differential Sync</td><td>Only deltas (changed records since last sync) transmitted</td><td>Reduces payload size by 70–90% after initial sync</td></tr>
+      <tr><td>Compression (gzip)</td><td>All sync payloads >1KB</td><td>Reduces bandwidth by ~50% for JSON sync payloads</td></tr>
+      <tr><td>Connection Pooling</td><td>HTTP/2 multiplexing on sync connections</td><td>Eliminates per-request TLS handshake cost</td></tr>
+      <tr><td>Exponential Backoff</td><td>All retry-eligible requests</td><td>Prevents retry storms under degraded connectivity</td></tr>
+      <tr><td>Request Deduplication</td><td>Identical in-flight requests (same operation, same target)</td><td>Prevents duplicate mutations from rapid user action</td></tr>
+      <tr><td>Offline Queue</td><td>All mutations when offline</td><td>Zero failed operations due to connectivity; all queued and synced when online</td></tr>
+    </tbody>
+  </table>
+
+  <h3>12.6 Large Dataset Pagination Strategy</h3>
+  <p>Finance Bag never loads unbounded datasets into memory. All list views and reports use cursor-based or keyset pagination enforced at the query layer.</p>
+  <ul>
+    <li><strong>Transaction List:</strong> Keyset pagination with (created_at, transaction_id) cursor. Page size: 50 rows. Total count fetched separately (cheap COUNT(*) with index).</li>
+    <li><strong>Report Dataset:</strong> Chunked processing in 1,000-row batches for aggregation. Partial results streamed to UI as each chunk completes.</li>
+    <li><strong>Category/Budget List:</strong> Always loaded in full (bounded by FHS design: max ~200 nodes); no pagination needed.</li>
+    <li><strong>Archive Restore:</strong> Streamed in 500-record chunks; progress reported per chunk; cancellable between chunks.</li>
+    <li><strong>AI Coaching History:</strong> Last 50 interactions loaded; older history paginated on explicit user scroll.</li>
+  </ul>
+
+  <h3>12.7 Long-Session Management</h3>
+  <p>Sessions lasting more than 4 hours introduce compounding risks: memory accumulation, stale cache state, and sync queue depth. The following policies apply:</p>
+  <ul>
+    <li>At 4-hour session mark: automatic L1 cache (tier 1–3) eviction and GC hint; log "long session" event.</li>
+    <li>At 6-hour mark: full prepared statement cache flush and re-warm of only the most recently used 20 statements.</li>
+    <li>At 8-hour mark: soft suggestion to user to restart the app (non-blocking toast). If heap is below 80MB, no suggestion is made.</li>
+    <li>Navigation state snapshot persisted to SQLite at 1-hour intervals so a restart does not lose context.</li>
+    <li>Zustand store integrity check at 2-hour intervals to catch any state drift.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §13 RELEASE MONITORING                                        -->
+<!-- ============================================================ -->
+<section id="s13">
+  <h2>§13 — Release Monitoring</h2>
+  <p>Release monitoring spans three phases: pre-release baseline capture, active rollout health tracking, and post-release steady-state validation. Each phase has defined KPIs, decision gates, and rollback triggers.</p>
+
+  <h3>13.1 Pre-Release Baseline Capture</h3>
+  <p>Before any release, a performance and reliability baseline is captured against the QA fleet (6-device matrix from SPEC-QA-001) using the DS-STANDARD dataset.</p>
+  <table>
+    <thead><tr><th>Baseline Metric</th><th>Method</th><th>Stored As</th><th>Validity Period</th></tr></thead>
+    <tbody>
+      <tr><td>Cold launch P50/P95 per device</td><td>20 cold launch runs per device</td><td>release_baseline_v{N}.json</td><td>Valid for 30 days</td></tr>
+      <tr><td>Transaction create P95</td><td>100 create operations, randomized amounts</td><td>Same file</td><td>Same</td></tr>
+      <tr><td>Screen transition P95 per route</td><td>50 transitions per route pair</td><td>Same file</td><td>Same</td></tr>
+      <tr><td>Memory peak (DS-STANDARD, 30min session)</td><td>3 sessions per device</td><td>Same file</td><td>Same</td></tr>
+      <tr><td>Crash-free rate (QA test run)</td><td>Full E2E suite run on 6-device matrix</td><td>Same file</td><td>Per build</td></tr>
+      <tr><td>DB query P95 (20 most frequent queries)</td><td>EXPLAIN QUERY PLAN + 100-run timing</td><td>Same file</td><td>Per build</td></tr>
+    </tbody>
+  </table>
+  <p>Release is blocked if any pre-release baseline metric exceeds SPEC-PMO-001 §2 targets. Baseline is tagged with git commit hash and build number.</p>
+
+  <h3>13.2 Rollout Health Tracking</h3>
+  <p>Finance Bag does not use a traditional server-side percentile rollout (because it is a client-app with no mandatory server dependency), but OTA updates via Expo Updates can be staged. The following monitoring applies during staged OTA rollout:</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Rollout Dashboard KPIs</div>
+      <ul>
+        <li>Update adoption rate: % of active installations on new bundle</li>
+        <li>Crash-free rate: rolling 24hr, segmented by bundle version</li>
+        <li>Cold launch P95: segmented by bundle version and device tier</li>
+        <li>Sync error rate: % sync cycles failing, segmented by bundle version</li>
+        <li>DB error rate: DB operation failures per 1,000 operations</li>
+        <li>Alert rate: CRIT/EMER alerts per active session hour</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Rollout Decision Gates</div>
+      <ul>
+        <li>Pause rollout: crash-free rate drops below 99.5% on new bundle</li>
+        <li>Pause rollout: cold launch P95 regresses by >20% vs. baseline</li>
+        <li>Pause rollout: CRIT alert rate increases >2× vs. prior bundle</li>
+        <li>Rollback: crash-free rate drops below 99% and cannot be attributed to external factor</li>
+        <li>Rollback: any EMER alert type fires for >0.5% of sessions</li>
+        <li>Full rollout proceed: all KPIs within baseline ±10% after 48hr stable</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>13.3 Crash-Free Rate Monitoring</h3>
+  <ul>
+    <li><strong>Target:</strong> ≥99.5% of sessions crash-free (SPEC-PMO-001 §2 target).</li>
+    <li><strong>Measurement Window:</strong> Rolling 24-hour window; computed per bundle version.</li>
+    <li><strong>Session Definition:</strong> A session starts on app foreground and ends on background or after 30min of inactivity. A crashed session is one ending in an unhandled exception or OS kill with no clean lifecycle event.</li>
+    <li><strong>Crash Attribution:</strong> Crashes grouped by symbolicated stack frame top-3. New crash signatures (not seen in prior bundle) flagged as regressions. Recurrent crash signatures compared to known backlog.</li>
+    <li><strong>Non-Fatal Error Rate:</strong> HANDLED and UNHANDLED non-crash errors tracked separately. Target: &lt;0.1% of sessions with UNHANDLED non-crash errors.</li>
+  </ul>
+
+  <h3>13.4 Performance Regression Detection</h3>
+  <p>Regression detection compares live production metrics against the pre-release baseline stored at build time.</p>
+  <table>
+    <thead><tr><th>Metric</th><th>Regression Threshold</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>Cold launch P95</td><td>&gt;20% slower than baseline</td><td>CRIT alert; pause rollout</td></tr>
+      <tr><td>Transaction create P95</td><td>&gt;50% slower than baseline</td><td>CRIT alert; investigate</td></tr>
+      <tr><td>Screen transition P95</td><td>&gt;30% slower than baseline</td><td>WARN alert; monitor</td></tr>
+      <tr><td>Memory peak (DS-STANDARD)</td><td>&gt;25% higher than baseline</td><td>WARN alert; investigate</td></tr>
+      <tr><td>Sync cycle duration P95</td><td>&gt;50% slower than baseline</td><td>WARN alert; check server</td></tr>
+      <tr><td>DB write P95</td><td>&gt;100% slower than baseline</td><td>CRIT alert; check storage</td></tr>
+    </tbody>
+  </table>
+
+  <h3>13.5 Adoption Metrics</h3>
+  <p>Adoption metrics are anonymous and opt-in (see §14). They inform release health from a user-behavior angle rather than a technical angle.</p>
+  <ul>
+    <li><strong>D1 Retention Rate:</strong> % of install cohort returning on day 1. Target: ≥60%.</li>
+    <li><strong>D7 Retention Rate:</strong> % returning on day 7. Target: ≥40%.</li>
+    <li><strong>D30 Retention Rate:</strong> % returning on day 30. Target: ≥25%.</li>
+    <li><strong>Onboarding Completion Rate:</strong> % of installs completing the 4-screen onboarding. Target: ≥80%.</li>
+    <li><strong>First Transaction Rate:</strong> % of users logging their first transaction within 24hr of onboarding. Target: ≥60%.</li>
+    <li><strong>Feature Adoption:</strong> % of active users using each core feature (transactions, budgets, AI coach, reports) within 7 days. No targets set for v1; baseline captured for future reference.</li>
+  </ul>
+
+  <h3>13.6 Hotfix Decision Criteria</h3>
+  <p>A hotfix OTA (or expedited app store update) is triggered when any of the following occur in production with confirmed root cause:</p>
+  <ul>
+    <li>Any EMER alert type fires for >0.1% of sessions over a 4-hour window.</li>
+    <li>Data integrity alert (ALT-003, ALT-004, ALT-005, ALT-021) fires for any user.</li>
+    <li>Crash-free rate drops below 99% for >2 consecutive hours.</li>
+    <li>Encryption key access failure (ALT-017) confirmed as app bug (not keychain policy issue).</li>
+    <li>Any sync operation confirmed to produce duplicate financial records (zero tolerance).</li>
+  </ul>
+  <p>Hotfix SLO: root cause confirmed within 2 hours; fix deployed within 8 hours of trigger condition first occurring.</p>
+</section>
+
+<!-- ============================================================ -->
+<!-- §14 PRIVACY & COMPLIANCE                                      -->
+<!-- ============================================================ -->
+<section id="s14">
+  <h2>§14 — Privacy & Compliance</h2>
+  <p>Finance Bag handles deeply personal financial data. The monitoring and observability subsystem is designed with privacy as the primary constraint, not an afterthought. This section defines the privacy model, consent architecture, data masking rules, and regulatory readiness.</p>
+
+  <h3>14.1 Anonymous Diagnostics Design</h3>
+  <p>All telemetry and performance monitoring is designed to be structurally anonymous: no persistent user identifier ties monitoring data to an individual. The privacy model follows three principles:</p>
+  <ol>
+    <li><strong>No Financial Values:</strong> Monetary amounts, transaction descriptions, category names, and budget labels never enter the monitoring subsystem. The monitoring layer receives only counts, durations, and boolean outcomes.</li>
+    <li><strong>No Persistent Identity:</strong> Each installation uses a random, non-resettable installation ID (not tied to email, device fingerprint, or account). The installation ID is rotated on app reinstall. It is never transmitted in combination with any personally identifiable information.</li>
+    <li><strong>Minimal Surface:</strong> Only metrics necessary to diagnose performance and reliability are collected. Business analytics require separate explicit opt-in and are analytically independent from technical diagnostics.</li>
+  </ol>
+
+  <h3>14.2 User Consent Model</h3>
+  <table>
+    <thead><tr><th>Data Category</th><th>Default State</th><th>User Control</th><th>Impact of Opt-Out</th></tr></thead>
+    <tbody>
+      <tr><td>Technical diagnostics (crash reports, perf metrics)</td><td>Opt-in (requested during onboarding)</td><td>Toggle in Settings → Privacy</td><td>No crash or perf data sent off-device; local logs still written</td></tr>
+      <tr><td>Business/usage analytics</td><td>Opt-out by default</td><td>Explicit opt-in in Settings → Privacy</td><td>No usage events sent; product analytics unavailable for this user</td></tr>
+      <tr><td>AI coaching improvement</td><td>Opt-out by default</td><td>Explicit opt-in in Settings → AI</td><td>AI responses not used to improve models; local inference unaffected</td></tr>
+      <tr><td>Local diagnostic logs</td><td>Always collected, device-local</td><td>Clear in Settings → Privacy → Clear Logs</td><td>Diagnostic bundle export unavailable until new data accumulates</td></tr>
+    </tbody>
+  </table>
+  <p>Consent state is persisted in SQLite (not in the telemetry pipeline itself). A change in consent state takes effect immediately for all subsequent monitoring operations.</p>
+
+  <h3>14.3 Sensitive Data Masking Rules</h3>
+  <p>The following masking rules apply to all observability signals (metrics, logs, traces, health indicators) and are enforced at the monitoring layer boundary before any data is stored or transmitted.</p>
+  <table>
+    <thead><tr><th>Data Type</th><th>Masking Rule</th><th>Example (raw → masked)</th></tr></thead>
+    <tbody>
+      <tr><td>Monetary amounts</td><td>Never logged; replace with boolean "has_value" or numeric "count"</td><td>1250 centimes → (not recorded)</td></tr>
+      <tr><td>Transaction descriptions</td><td>Never logged; replace with character count only</td><td>"Coffee at Starbucks" → len=18</td></tr>
+      <tr><td>Category/budget names</td><td>Never logged; replaced with opaque ID hash</td><td>"Groceries" → cat_id:sha8=3f2a8c1d</td></tr>
+      <tr><td>Account holder name</td><td>Never logged in any form</td><td>"Jean Dupont" → (omitted)</td></tr>
+      <tr><td>Email address</td><td>Never logged; hashed if needed for deduplication</td><td>"user@example.com" → sha256(email)[0:8]</td></tr>
+      <tr><td>PIN / passcode</td><td>Never accepted as input to monitoring layer</td><td>— (structural exclusion)</td></tr>
+      <tr><td>Encryption keys</td><td>Never accepted as input to monitoring layer</td><td>— (structural exclusion)</td></tr>
+      <tr><td>AI prompts / responses</td><td>Never logged; prompt and response length only</td><td>"How can I save more?" → prompt_len=23, resp_len=145</td></tr>
+      <tr><td>Device IMEI / serial</td><td>Never collected</td><td>— (not requested)</td></tr>
+      <tr><td>Precise geolocation</td><td>Never collected (Finance Bag does not use location)</td><td>— (not requested)</td></tr>
+      <tr><td>IP address</td><td>Truncated to /24 subnet if needed for network diagnostics</td><td>192.168.1.47 → 192.168.1.0/24</td></tr>
+      <tr><td>Biometric data</td><td>Never collected; biometric auth result is boolean only</td><td>FaceID result → auth_success:true</td></tr>
+    </tbody>
+  </table>
+
+  <h3>14.4 Minimal Telemetry Principle</h3>
+  <p>For each telemetry event collected, the following justification is required in the event schema definition:</p>
+  <ul>
+    <li><strong>Purpose:</strong> What specific product or engineering decision does this metric enable?</li>
+    <li><strong>Minimum Necessary Fields:</strong> Every field must be justified; no "collect now, decide later."</li>
+    <li><strong>Retention Period:</strong> No telemetry retained longer than strictly needed for its stated purpose.</li>
+    <li><strong>Owner:</strong> A named engineer responsible for each telemetry event category.</li>
+  </ul>
+  <p>Telemetry events not meeting this standard are rejected during code review. An annual telemetry audit reviews all active event types for continued justification.</p>
+
+  <h3>14.5 GDPR Compliance Readiness</h3>
+  <table>
+    <thead><tr><th>GDPR Right</th><th>Finance Bag Implementation</th></tr></thead>
+    <tbody>
+      <tr><td>Right to Access</td><td>All financial data is local; user can export full data as CSV/PDF from the app. Monitoring data is anonymous and non-identifiable.</td></tr>
+      <tr><td>Right to Erasure</td><td>Account deletion wipes all local SQLite DBs (including log DB) via secure overwrite + delete. Any anonymized telemetry already transmitted cannot be linked back to the user and is therefore exempt per GDPR Recital 26.</td></tr>
+      <tr><td>Right to Portability</td><td>Full data export in machine-readable format (JSON + CSV) from app settings.</td></tr>
+      <tr><td>Right to Rectification</td><td>Users can edit any transaction, category, or budget from within the app; all corrections sync.</td></tr>
+      <tr><td>Consent</td><td>Opt-in model for diagnostics (see §14.2); consent is granular, revocable, and persisted locally.</td></tr>
+      <tr><td>Data Minimization</td><td>Monitoring subsystem never receives financial content (see §14.3). No purpose beyond stated use.</td></tr>
+      <tr><td>Privacy by Design</td><td>Monitoring layer is architecturally separated from data layer; financial values structurally excluded from monitoring API surface.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>14.6 Analytics Opt-Out Behavior</h3>
+  <ul>
+    <li>On opt-out, all pending buffered analytics events are discarded (not flushed to server).</li>
+    <li>The analytics event queue is cleared from memory and its SQLite table truncated.</li>
+    <li>No analytics events are generated after opt-out; the event collection layer checks consent state synchronously before every event.</li>
+    <li>If opt-in is later granted, a new installation-scoped session ID is generated to prevent linkage to pre-opt-in behavior.</li>
+    <li>Opt-out confirmation is shown to the user via toast; the toggle is immediately and visually reflected in settings.</li>
+    <li>Technical diagnostics (crash reports, perf metrics) consent is independent of analytics consent and must be separately revoked.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §15 EDGE CASES & RESILIENCE                                   -->
+<!-- ============================================================ -->
+<section id="s15">
+  <h2>§15 — Edge Cases & Resilience</h2>
+  <p>The monitoring subsystem must be resilient to the same failure conditions that affect the rest of the app. A monitoring subsystem that crashes under the conditions it is meant to monitor is counterproductive. This section defines edge case handling for the observability layer itself.</p>
+
+  <h3>15.1 Offline Monitoring Behavior</h3>
+  <ul>
+    <li>All monitoring signals (metrics, logs, traces, health indicators) are written to the local log DB regardless of connectivity state.</li>
+    <li>Any monitoring signals configured for remote transmission are held in a bounded outbound queue (max 2,000 events, FIFO with oldest discarded on overflow) and transmitted when connectivity is restored.</li>
+    <li>Business analytics events accumulated while offline are batched and sent on next sync cycle. If the batch exceeds 500 events, the oldest events are discarded to stay within the batch limit.</li>
+    <li>Health dashboard, diagnostic tools, and alert system all operate fully offline.</li>
+    <li>Connectivity state transitions (ONLINE → OFFLINE → ONLINE) are themselves logged as INFO-level events with timestamp and duration.</li>
+  </ul>
+
+  <h3>15.2 Corrupted Log Handling</h3>
+  <ul>
+    <li>Log DB is opened with PRAGMA integrity_check at app launch. If corruption is detected, the log DB is quarantined (renamed with .corrupt suffix + timestamp).</li>
+    <li>A new clean log DB is initialized immediately; monitoring continues without interruption.</li>
+    <li>The quarantined file is not automatically deleted — it is preserved for up to 7 days for developer diagnostic bundle export if available, then auto-purged.</li>
+    <li>Log corruption events are written first to an in-memory ring buffer (100 entries) before the new DB is ready, ensuring no monitoring gap during recovery.</li>
+    <li>A CRIT alert fires on log DB corruption detection; no user-visible notification (INFO-level health dashboard update only).</li>
+  </ul>
+
+  <h3>15.3 Storage-Full Behavior</h3>
+  <ul>
+    <li>When storage is full (write fails with ENOSPC or equivalent), the monitoring subsystem immediately switches to in-memory-only mode.</li>
+    <li>In-memory mode: a circular buffer of 500 most recent log entries is maintained; older entries are silently dropped.</li>
+    <li>An EMER alert is generated immediately. If alert persistence fails (also out of storage), the alert is surfaced purely in-memory as a blocking UI modal.</li>
+    <li>No further writes to the log DB are attempted until a storage-free event is detected (file delete, cache prune).</li>
+    <li>The diagnostic bundle export is suspended in storage-full state (cannot write the ZIP).</li>
+  </ul>
+
+  <h3>15.4 Log Overflow Protection</h3>
+  <ul>
+    <li>The log DB hard limit (25MB) is enforced via a pre-write check. Each write is preceded by a lightweight size check (cached, refreshed every 50 writes) against the 25MB ceiling.</li>
+    <li>If the ceiling would be exceeded, the oldest 20% of log entries (by timestamp) are deleted before the write is accepted.</li>
+    <li>Log entry ingestion rate is capped at 1,000 entries per second per module. If a module emits faster (e.g., a hot loop), entries are sampled (1 in N) and a "N entries suppressed" summary is appended each second.</li>
+    <li>The audit log (90-day retention) is stored in a separate table from the operational log (7-day retention); overflow protection on the operational log never affects the audit log.</li>
+  </ul>
+
+  <h3>15.5 Monitoring-Disabled State</h3>
+  <p>If the monitoring subsystem itself fails to initialize (e.g., log DB cannot be created, monitoring module crash), the app continues to function. The monitoring subsystem follows a "silent failure" principle: a monitoring failure never causes an app-level crash.</p>
+  <ul>
+    <li>All monitoring calls are wrapped in a null-object pattern: if the monitoring singleton is unavailable, all calls are no-ops.</li>
+    <li>A degraded-monitoring state is tracked in a simple in-memory boolean; alerts are surfaced on the health dashboard when the monitoring subsystem is in degraded mode.</li>
+    <li>The developer overlay displays "Monitoring DEGRADED" in this state.</li>
+    <li>App data integrity and user-facing functionality are unaffected by monitoring subsystem failures.</li>
+  </ul>
+
+  <h3>15.6 Clock Change Handling</h3>
+  <ul>
+    <li>All monitoring timestamps use monotonic clock (process uptime) for duration calculations; wall clock time is used only for absolute event timestamps.</li>
+    <li>Clock skew >5min detected via server-response timestamp comparison triggers ALT-020 and switches all sync timestamps to server-provided time.</li>
+    <li>DST transitions are handled by always storing timestamps in UTC; local display conversion is a view concern, not a storage concern.</li>
+    <li>Manual clock changes by the user while the app is running are detected by wall clock delta exceeding 60s in either direction; a log event is emitted and any time-based metric windows are reset.</li>
+    <li>Backward clock jumps (device clock set earlier): monitoring session continues; timestamps on new events may appear earlier than historical events. No corruption — events are timestamped as received.</li>
+  </ul>
+
+  <h3>15.7 App Kill During Logging</h3>
+  <ul>
+    <li>SQLite WAL mode ensures that any in-progress write at kill time is either committed or rolled back atomically at next open. No partial log entries persist.</li>
+    <li>In-memory log buffer (for pre-DB-init events): on kill, buffer is lost. This is acceptable — these are monitoring events, not financial data. App-level financial writes are committed to their own transactional DB before any monitoring write.</li>
+    <li>Session end event (marking session duration) may not be written if app is force-killed. This is handled by the session reconstruction algorithm at next launch: if a session start event exists without a matching session end, the session duration is inferred as (last_event_timestamp - session_start_timestamp).</li>
+    <li>Background task state is checkpointed every 60s; a kill in between loses at most 60s of background task progress metrics.</li>
+  </ul>
+
+  <h3>15.8 Sync Loop Detection</h3>
+  <p>A sync loop is a condition where the sync engine repeatedly processes and re-enqueues the same operation without progress. This can occur due to conflict resolution cycles or server-side validation rejections.</p>
+  <ul>
+    <li><strong>Detection:</strong> Any sync operation that has been attempted >5 times is flagged as a potential loop. The operation ID, type, and attempt count are logged.</li>
+    <li><strong>Confirmation:</strong> If the same operation_id appears in 3 consecutive sync cycles without successful completion, it is confirmed as a loop.</li>
+    <li><strong>Response:</strong> The operation is moved to a "quarantine queue" and excluded from normal sync cycles. ALT-010 fires. User is notified that one operation could not sync and requires review.</li>
+    <li><strong>Metrics:</strong> Quarantine queue depth is a monitored metric; persistent non-zero depth triggers WARN-level alert if sustained >1hr.</li>
+  </ul>
+
+  <h3>15.9 Large Diagnostic Datasets</h3>
+  <p>On long-lived installations with high transaction volume (DS-HEAVY: 10,000+ transactions), diagnostic datasets can become large enough to affect diagnostic tool performance.</p>
+  <ul>
+    <li>Query log viewer paginates: only last 500 queries shown; older results accessible via "load more."</li>
+    <li>Diagnostic bundle export enforces per-file size limits (see §10.8) and truncates oldest entries if limits are exceeded, with a note in the manifest indicating truncation.</li>
+    <li>Slow query detector retains at most 200 distinct slow queries per session (LRU by recency).</li>
+    <li>Sync timeline view shows last 100 cycles by default; full history accessible via export only.</li>
+    <li>Health dashboard history retained for 30 days; older health state transitions are archived in the audit log table, not the main health history table.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §16 TELEMETRY DATA MODEL                                      -->
+<!-- ============================================================ -->
+<section id="s16">
+  <h2>§16 — Telemetry Data Model</h2>
+  <p>This section defines the canonical schemas for all four observability signal types. These schemas are the authoritative contract between the monitoring subsystem and any consumer (diagnostic tools, export, dashboards).</p>
+
+  <h3>16.1 Metric Event Schema</h3>
+  <div class="card">
+    <div class="card-title">MetricEvent — time-series numeric measurement</div>
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>metric_id</td><td>ULID string</td><td>Yes</td><td>Unique identifier for this measurement instance</td></tr>
+        <tr><td>metric_name</td><td>string (enum)</td><td>Yes</td><td>Metric name from taxonomy (§5.1); dot-separated namespace (e.g., perf.launch.cold_ms)</td></tr>
+        <tr><td>value</td><td>float64</td><td>Yes</td><td>Numeric value in the metric's unit</td></tr>
+        <tr><td>unit</td><td>string (enum)</td><td>Yes</td><td>ms | bytes | count | percent | ratio | operations_per_sec</td></tr>
+        <tr><td>recorded_at</td><td>ISO8601 UTC string</td><td>Yes</td><td>Wall clock time of measurement</td></tr>
+        <tr><td>monotonic_ms</td><td>uint64</td><td>Yes</td><td>Process uptime at measurement (for duration accuracy)</td></tr>
+        <tr><td>session_id</td><td>ULID string</td><td>Yes</td><td>Monitoring session this metric belongs to</td></tr>
+        <tr><td>operation_id</td><td>ULID string</td><td>Conditional</td><td>Correlation ID if metric is part of a traced operation</td></tr>
+        <tr><td>dimensions</td><td>Record&lt;string, string&gt;</td><td>No</td><td>Key-value labels; e.g., {"device_tier": "low", "dataset": "DS_STANDARD"}. No financial values permitted.</td></tr>
+        <tr><td>dataset_size_bucket</td><td>string (enum)</td><td>No</td><td>EMPTY | MINIMAL | STANDARD | HEAVY — context for interpretation</td></tr>
+        <tr><td>build_version</td><td>string</td><td>Yes</td><td>App build version (semver)</td></tr>
+        <tr><td>bundle_id</td><td>string</td><td>Yes</td><td>OTA bundle ID for regression correlation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>16.2 Log Entry Schema</h3>
+  <div class="card">
+    <div class="card-title">LogEntry — structured event with context</div>
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>log_id</td><td>ULID string</td><td>Yes</td><td>Unique log entry identifier</td></tr>
+        <tr><td>level</td><td>uint8 (0–5)</td><td>Yes</td><td>Log level: TRACE(0) DEBUG(1) INFO(2) WARN(3) ERROR(4) FATAL(5)</td></tr>
+        <tr><td>level_name</td><td>string</td><td>Yes</td><td>Human-readable level name</td></tr>
+        <tr><td>module</td><td>string</td><td>Yes</td><td>Source module (e.g., "SyncEngine", "DBLayer", "AICoach")</td></tr>
+        <tr><td>message</td><td>string</td><td>Yes</td><td>Log message template. No financial values. No user content.</td></tr>
+        <tr><td>context</td><td>Record&lt;string, unknown&gt;</td><td>No</td><td>Structured context. All fields validated against allowlist before persistence.</td></tr>
+        <tr><td>session_id</td><td>ULID string</td><td>Yes</td><td>Monitoring session</td></tr>
+        <tr><td>operation_id</td><td>ULID string</td><td>Conditional</td><td>Correlation ID linking to trace span</td></tr>
+        <tr><td>screen</td><td>string</td><td>No</td><td>Expo Router route path active at time of log (e.g., "/transactions/new")</td></tr>
+        <tr><td>recorded_at</td><td>ISO8601 UTC string</td><td>Yes</td><td>Wall clock time</td></tr>
+        <tr><td>monotonic_ms</td><td>uint64</td><td>Yes</td><td>Process uptime</td></tr>
+        <tr><td>is_audit</td><td>boolean</td><td>No (default false)</td><td>True for audit-trail events requiring 90-day retention</td></tr>
+        <tr><td>build_version</td><td>string</td><td>Yes</td><td>App build version</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>16.3 Trace Span Schema</h3>
+  <div class="card">
+    <div class="card-title">TraceSpan — named, timed operation with parent linkage</div>
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>span_id</td><td>ULID string</td><td>Yes</td><td>Unique identifier for this span</td></tr>
+        <tr><td>trace_id</td><td>ULID string</td><td>Yes</td><td>Groups all spans in one logical operation tree (= operation_id)</td></tr>
+        <tr><td>parent_span_id</td><td>ULID string</td><td>No</td><td>Parent span; null for root spans</td></tr>
+        <tr><td>name</td><td>string</td><td>Yes</td><td>Operation name (e.g., "transaction.create", "db.write", "sync.cycle")</td></tr>
+        <tr><td>start_monotonic_ms</td><td>uint64</td><td>Yes</td><td>Process uptime at span start</td></tr>
+        <tr><td>end_monotonic_ms</td><td>uint64</td><td>Conditional</td><td>Process uptime at span end; null if span is still open</td></tr>
+        <tr><td>duration_ms</td><td>float64</td><td>Conditional</td><td>Computed: end - start. Null if span still open.</td></tr>
+        <tr><td>status</td><td>string (enum)</td><td>Yes</td><td>OK | ERROR | TIMEOUT | CANCELLED</td></tr>
+        <tr><td>error_type</td><td>string</td><td>Conditional</td><td>Error class if status = ERROR; no stack trace in span (use error report)</td></tr>
+        <tr><td>attributes</td><td>Record&lt;string, string | number | boolean&gt;</td><td>No</td><td>Span-specific metadata. No financial values. Validated against allowlist.</td></tr>
+        <tr><td>session_id</td><td>ULID string</td><td>Yes</td><td>Monitoring session</td></tr>
+        <tr><td>recorded_at</td><td>ISO8601 UTC string</td><td>Yes</td><td>Wall clock time of span start</td></tr>
+        <tr><td>build_version</td><td>string</td><td>Yes</td><td>App build version</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>16.4 Health Check Schema</h3>
+  <div class="card">
+    <div class="card-title">HealthCheckResult — subsystem health snapshot</div>
+    <table>
+      <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>check_id</td><td>ULID string</td><td>Yes</td><td>Unique check result identifier</td></tr>
+        <tr><td>subsystem</td><td>string (enum)</td><td>Yes</td><td>DB | SyncEngine | AICoach | Auth | Network | Storage | Memory | Notifications</td></tr>
+        <tr><td>status</td><td>string (enum)</td><td>Yes</td><td>HEALTHY | DEGRADED | UNHEALTHY</td></tr>
+        <tr><td>previous_status</td><td>string (enum)</td><td>No</td><td>Status before this check; enables transition event detection</td></tr>
+        <tr><td>check_duration_ms</td><td>float64</td><td>Yes</td><td>Time taken to perform the health check</td></tr>
+        <tr><td>details</td><td>string</td><td>No</td><td>Human-readable reason for non-HEALTHY status. No financial values.</td></tr>
+        <tr><td>metrics_snapshot</td><td>Record&lt;string, number&gt;</td><td>No</td><td>Key metrics at check time (e.g., {"heap_mb": 45, "db_size_mb": 12}). No financial values.</td></tr>
+        <tr><td>session_id</td><td>ULID string</td><td>Yes</td><td>Monitoring session</td></tr>
+        <tr><td>checked_at</td><td>ISO8601 UTC string</td><td>Yes</td><td>Wall clock time of health check</td></tr>
+        <tr><td>check_interval_s</td><td>uint32</td><td>Yes</td><td>Seconds since previous check for this subsystem</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>16.5 Error Report Schema</h3>
+  <p>The error report schema from §6.2 is the authoritative definition. Repeated here for reference with all 14 fields: error_id, session_id, error_class (CRASH/UNHANDLED/HANDLED/USER_VISIBLE/SILENT), error_type, message (template; no values), stack_trace (symbolicated), module, screen, breadcrumbs (last 20 events before error), device_info (OS version, device model, memory state), occurred_at (ISO8601 UTC), is_fatal (boolean), recovery_action (string enum of recovery attempted), build_version.</p>
+
+  <h3>16.6 Schema Versioning Policy</h3>
+  <ul>
+    <li>All schemas carry an implicit schema_version derived from the build_version field.</li>
+    <li>Breaking schema changes (field removal, type change, semantic change) require a migration in the log DB and a new schema version. The monitoring subsystem reads both old and new versions during a 2-build migration window.</li>
+    <li>Non-breaking changes (new optional fields) require no migration — old readers ignore unknown fields.</li>
+    <li>Diagnostic bundle exports include the schema_version for each file to allow offline analysis tools to interpret correctly.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §17 SLOs & OPERATIONAL EXCELLENCE                            -->
+<!-- ============================================================ -->
+<section id="s17">
+  <h2>§17 — SLOs & Operational Excellence</h2>
+
+  <h3>17.1 Service Level Objectives</h3>
+  <p>Finance Bag SLOs are defined at the user-experience level, not at infrastructure level (since the app is primarily offline-first). SLOs are measured on DS-STANDARD dataset on representative device hardware.</p>
+  <table>
+    <thead><tr><th>SLO ID</th><th>User-Facing SLO</th><th>Target</th><th>Measurement Window</th><th>Error Budget</th></tr></thead>
+    <tbody>
+      <tr><td>SLO-001</td><td>App launches within 2.5s (P95) on mid-range device</td><td>P95 ≤ 2.5s</td><td>Rolling 30 days</td><td>5% of launches may exceed</td></tr>
+      <tr><td>SLO-002</td><td>Transaction is saved and confirmed within 300ms (P95)</td><td>P95 ≤ 300ms</td><td>Rolling 30 days</td><td>5% may exceed</td></tr>
+      <tr><td>SLO-003</td><td>Any screen transition completes within 400ms (P95)</td><td>P95 ≤ 400ms</td><td>Rolling 30 days</td><td>5% may exceed</td></tr>
+      <tr><td>SLO-004</td><td>Monthly report renders within 3s (P95, DS-STANDARD)</td><td>P95 ≤ 3s</td><td>Rolling 30 days</td><td>5% may exceed</td></tr>
+      <tr><td>SLO-005</td><td>AI coach response returned within 3s (P95)</td><td>P95 ≤ 3s</td><td>Rolling 30 days</td><td>5% may exceed</td></tr>
+      <tr><td>SLO-006</td><td>Session crash-free rate ≥ 99.5%</td><td>≥ 99.5%</td><td>Rolling 24 hours</td><td>0.5% of sessions may crash</td></tr>
+      <tr><td>SLO-007</td><td>Sync completes within 30s (P95, 500 pending operations)</td><td>P95 ≤ 30s</td><td>Rolling 30 days</td><td>5% may exceed</td></tr>
+      <tr><td>SLO-008</td><td>Backup completes without error ≥ 99% of attempts</td><td>≥ 99%</td><td>Rolling 30 days</td><td>1% may fail (retried)</td></tr>
+      <tr><td>SLO-009</td><td>Data integrity: zero duplicate financial records per user lifetime</td><td>100%</td><td>Lifetime</td><td>Zero tolerance — any occurrence triggers hotfix</td></tr>
+      <tr><td>SLO-010</td><td>JS frame rate ≥ 55fps (P50) during navigation animations</td><td>P50 ≥ 55fps</td><td>Rolling 30 days</td><td>50% may be below only if all are ≥ 30fps</td></tr>
+    </tbody>
+  </table>
+
+  <h3>17.2 Error Budgets</h3>
+  <p>Error budgets define how much SLO headroom can be consumed before a feature freeze or engineering focus shift is triggered.</p>
+  <table>
+    <thead><tr><th>SLO</th><th>Monthly Budget</th><th>Budget Consumed Threshold</th><th>Action at Threshold</th></tr></thead>
+    <tbody>
+      <tr><td>SLO-001 (Launch P95)</td><td>5% of launches may exceed 2.5s</td><td>75% consumed</td><td>Performance investigation; no new feature work until resolved</td></tr>
+      <tr><td>SLO-006 (Crash-free)</td><td>0.5% of sessions may crash</td><td>50% consumed in any 24hr window</td><td>Immediate investigation; rollback considered</td></tr>
+      <tr><td>SLO-009 (Data integrity)</td><td>Zero tolerance</td><td>Any occurrence</td><td>Hotfix initiated within 2 hours</td></tr>
+    </tbody>
+  </table>
+
+  <h3>17.3 SLO Breach Escalation</h3>
+  <ol>
+    <li><strong>Warning (>50% budget consumed):</strong> Engineering lead notified via monitoring dashboard. Root cause investigation initiated within 1 sprint.</li>
+    <li><strong>Alert (>75% budget consumed):</strong> Engineering lead + product owner notified. Feature freeze on related module. Daily SLO check-in.</li>
+    <li><strong>Breach (budget exhausted / SLO missed):</strong> All non-critical feature work paused for the module. Post-incident review required within 48 hours. Remediation sprint planned.</li>
+    <li><strong>SLO-009 Breach (data integrity):</strong> Immediate all-hands escalation. Hotfix deployed. Full audit of all financial records created during breach window.</li>
+  </ol>
+
+  <h3>17.4 Operational Runbooks</h3>
+  <p>Runbooks are maintained as living documents in the engineering knowledge base. Each runbook covers one operational scenario and is triggered by specific alert IDs.</p>
+  <table>
+    <thead><tr><th>Runbook ID</th><th>Scenario</th><th>Triggered By</th><th>Estimated Resolution Time</th></tr></thead>
+    <tbody>
+      <tr><td>RB-001</td><td>Cold launch regression investigation</td><td>ALT-001, SLO-001 breach</td><td>30–120 min</td></tr>
+      <tr><td>RB-002</td><td>Memory leak investigation and mitigation</td><td>ALT-007, ALT-008</td><td>60–240 min</td></tr>
+      <tr><td>RB-003</td><td>DB integrity failure recovery</td><td>ALT-003, ALT-004, ALT-005</td><td>15–60 min (restore from backup)</td></tr>
+      <tr><td>RB-004</td><td>Sync loop identification and quarantine</td><td>ALT-010</td><td>30–90 min</td></tr>
+      <tr><td>RB-005</td><td>Crash rate spike investigation</td><td>ALT-024, SLO-006 breach</td><td>45–180 min</td></tr>
+      <tr><td>RB-006</td><td>Storage emergency prune</td><td>ALT-015</td><td>5–15 min</td></tr>
+      <tr><td>RB-007</td><td>AI coach degradation response</td><td>ALT-012, ALT-013</td><td>15–30 min (feature disable)</td></tr>
+      <tr><td>RB-008</td><td>Hotfix deployment procedure</td><td>EMER alerts, SLO-009 breach</td><td>2–8 hours (end-to-end)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>17.5 Incident Severity Definitions</h3>
+  <table>
+    <thead><tr><th>Severity</th><th>Definition</th><th>Detection-to-Acknowledge</th><th>Resolution Target</th><th>Post-Incident Review</th></tr></thead>
+    <tbody>
+      <tr><td>SEV-1</td><td>Data loss or corruption affecting any user; app completely non-functional for >10% of users</td><td>15 min</td><td>4 hours</td><td>Required; within 24 hours</td></tr>
+      <tr><td>SEV-2</td><td>Core feature unavailable; crash-free rate below 99%; data integrity risk but no confirmed loss</td><td>30 min</td><td>8 hours</td><td>Required; within 48 hours</td></tr>
+      <tr><td>SEV-3</td><td>Degraded performance; non-core feature unavailable; SLO budget >75% consumed</td><td>2 hours</td><td>Next sprint</td><td>Optional; captured in sprint retro</td></tr>
+      <tr><td>SEV-4</td><td>Minor issue; cosmetic or rare edge case; no user-visible impact on core function</td><td>Next business day</td><td>Within 2 sprints</td><td>No formal review</td></tr>
+    </tbody>
+  </table>
+
+  <h3>17.6 Post-Incident Review Process</h3>
+  <p>Post-incident reviews (PIRs) for SEV-1 and SEV-2 incidents follow a blameless retrospective model.</p>
+  <ul>
+    <li><strong>Timeline Reconstruction:</strong> Chronological sequence of alerts, actions taken, and resolution steps. Uses monitoring log correlation IDs to reconstruct the exact event sequence.</li>
+    <li><strong>Root Cause Analysis:</strong> 5-Whys or Fishbone analysis to identify systemic root cause (not proximate cause).</li>
+    <li><strong>Impact Assessment:</strong> Number of affected users (estimated from monitoring cohort data); duration of impact; data integrity confirmation.</li>
+    <li><strong>Action Items:</strong> Concrete, owner-assigned, time-bound changes to prevent recurrence. Minimum 1 action item per PIR; tracked to completion.</li>
+    <li><strong>Detection Gap Analysis:</strong> Could the incident have been detected earlier? Should a new alert be defined? Was the alert threshold too high?</li>
+    <li><strong>Documentation:</strong> PIR document stored in engineering knowledge base; linked from the incident alert history in the monitoring log.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ -->
+<!-- §18 FUTURE SCALABILITY & BUSINESS RULES                      -->
+<!-- ============================================================ -->
+<section id="s18">
+  <h2>§18 — Future Scalability & Business Rules</h2>
+
+  <h3>18.1 Cloud Observability Integration Path</h3>
+  <p>The monitoring subsystem is designed to remain purely device-local in v1. The data model and API surface are designed to support cloud integration in future versions without architectural refactoring.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Phase 1 (v1 — Current): Local Only</div>
+      <ul>
+        <li>All four signal types stored in device-local encrypted log DB</li>
+        <li>Diagnostic bundle exported manually by user/developer</li>
+        <li>Business analytics transmitted in anonymous batches to analytics platform</li>
+        <li>No persistent cross-device telemetry linkage</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Phase 2 (Future): Opt-In Cloud Diagnostics</div>
+      <ul>
+        <li>Crash reports transmitted to crash analytics service (opt-in)</li>
+        <li>Performance metrics transmitted to a backend metrics store for cross-device aggregation</li>
+        <li>Monitoring signal schemas (§16) serve as the transmission contract with no changes</li>
+        <li>Existing telemetry pipeline gains a "cloud sink" alongside the local DB sink</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Phase 3 (Future): Distributed Tracing</div>
+      <ul>
+        <li>Trace span schema (§16.3) is already W3C Trace Context-compatible (trace_id + span_id)</li>
+        <li>Adding a propagation layer to sync HTTP requests enables end-to-end distributed tracing across client and sync server</li>
+        <li>No changes to trace model required; only a propagation adapter and a backend trace collector</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Phase 4 (Future): AI-Assisted Diagnostics</div>
+      <ul>
+        <li>Diagnostic bundle format (§10.8) is machine-readable; AI analysis tooling can ingest it directly</li>
+        <li>Pattern recognition over slow query logs, memory slopes, and sync timelines to suggest root causes</li>
+        <li>Predictive alerting: model trained on historical diagnostic data to surface degradation before it becomes a user-visible issue</li>
+        <li>Privacy constraint maintained: AI sees only the privacy-safe diagnostic bundle, never financial data</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>18.2 Real-Time Dashboard Readiness</h3>
+  <p>The health dashboard (§8) is designed for a future where monitoring data is streamed rather than polled.</p>
+  <ul>
+    <li>Health indicator updates in v1 are pull-based (periodic health checks on a timer). The health check schema (§16.4) is event-driven by design; switching from pull to push requires only changing the check trigger, not the schema.</li>
+    <li>The in-app health dashboard architecture separates data retrieval from display; a remote data source can replace the local SQLite query without UI changes.</li>
+    <li>A future web-based developer dashboard can consume the same monitoring signal schemas via a sync-enabled API layer.</li>
+  </ul>
+
+  <h3>18.3 Remote Diagnostics Architecture</h3>
+  <p>Remote diagnostics (allowing a developer to inspect a user's device with their consent) would use the diagnostic bundle export as its data source. Design requirements for future implementation:</p>
+  <ul>
+    <li>User must initiate the remote session explicitly; no passive remote access.</li>
+    <li>Diagnostic bundle is transmitted only after user-confirmed consent with a visible in-app indicator.</li>
+    <li>All privacy constraints from §14 apply to remotely transmitted bundles — financial values structurally excluded.</li>
+    <li>Session-scoped access only; no persistent remote inspection capability.</li>
+    <li>All remote diagnostic sessions logged in the audit log (90-day retention).</li>
+  </ul>
+
+  <h3>18.4 Multi-Device Monitoring Considerations</h3>
+  <p>As Finance Bag adds cross-device sync in future versions, monitoring must extend to cover multi-device state.</p>
+  <ul>
+    <li>Each device retains its own monitoring session and installation ID — no cross-device session merging.</li>
+    <li>Sync conflicts (types A–G from SPEC-QA-001) are already instrumented per-device; future cloud aggregation can correlate conflict events across devices using the shared entity IDs (financial data IDs, not user IDs).</li>
+    <li>The SLO for data integrity (SLO-009: zero duplicate records) extends to multi-device sync: a duplicate record created by a sync conflict failure between two devices is a SLO-009 breach regardless of where it originated.</li>
+    <li>Health dashboard could future-show aggregate health across all registered devices for the same account (without linking user identity to device identity in the monitoring backend).</li>
+  </ul>
+
+  <h3>18.5 Monitoring Schema Evolution Policy</h3>
+  <ul>
+    <li>All monitoring schemas (§16) are versioned via the build_version field. Consumers must handle unknown fields gracefully (ignore-unknown policy).</li>
+    <li>A schema registry (internal documentation, not a runtime component in v1) tracks all schema versions and their differences.</li>
+    <li>Diagnostic bundle exports include a manifest.json listing all schema versions for each file in the bundle.</li>
+    <li>Retired event types are deprecated for 2 major versions before removal, with a deprecation notice in the schema registry.</li>
+  </ul>
+
+  <h3>18.6 Business Rules — SPEC-PMO-001</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">BR-PMO-01 through BR-PMO-05</div>
+      <ul>
+        <li><strong>BR-PMO-01:</strong> All monetary values are structurally excluded from every monitoring signal type. Any monitoring code that references a financial amount field is a defect. Enforced by code review and automated static analysis.</li>
+        <li><strong>BR-PMO-02:</strong> The monitoring subsystem must never cause a user-visible crash or data integrity failure. Monitoring is observational infrastructure; its failure must be silent and self-healing.</li>
+        <li><strong>BR-PMO-03:</strong> Every performance target in §2 (Performance Objectives) must be measured against the defined dataset size (DS-EMPTY, DS-MINIMAL, DS-STANDARD, DS-HEAVY). Measurements taken on DS-EMPTY are not valid SLO evidence for DS-STANDARD workloads.</li>
+        <li><strong>BR-PMO-04:</strong> No persistent user identifier may link monitoring data across sessions. Installation IDs are per-install, not per-account. Session IDs are per-session. Correlation across sessions is not supported by design.</li>
+        <li><strong>BR-PMO-05:</strong> Business analytics (§9) are operationally independent from technical diagnostics (§§5–8). A user opting out of analytics must not degrade crash reporting, and a user opting out of crash reporting must not affect analytics collection.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">BR-PMO-06 through BR-PMO-10</div>
+      <ul>
+        <li><strong>BR-PMO-06:</strong> All database operations on the main (JS) thread are prohibited. Any DB access that blocks the main thread for more than 8ms is a performance defect regardless of which query it is.</li>
+        <li><strong>BR-PMO-07:</strong> Retry logic must implement exponential backoff for all retriable operations. Fixed-interval retries that could cause network storms are prohibited.</li>
+        <li><strong>BR-PMO-08:</strong> Alert deduplication (§11.3) is mandatory. An alert that fires more than once per cooldown window without a state change between firings indicates a defect in the alert's trigger condition.</li>
+        <li><strong>BR-PMO-09:</strong> The log DB hard limit (25MB for operational logs) is enforced before every write, not after overflow. Write-then-truncate patterns that temporarily exceed the limit are prohibited.</li>
+        <li><strong>BR-PMO-10:</strong> All health check durations are themselves monitored. A health check taking longer than 50ms is itself a WARN-level event (a slow health check degrades the monitoring cadence).</li>
+      </ul>
+    </div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">BR-PMO-11 through BR-PMO-15</div>
+      <ul>
+        <li><strong>BR-PMO-11:</strong> Every alert definition in §11.2 must have a corresponding recovery action. Alerts without defined recovery paths are informational at best and alert fatigue at worst — they must be upgraded to actionable or removed.</li>
+        <li><strong>BR-PMO-12:</strong> SLO breach (§17.2) triggers a mandatory engineering response. A product team may not override an SLO breach without documented justification and explicit engineering sign-off that the breach is acceptable (i.e., due to a known transient external factor, not a systemic app defect).</li>
+        <li><strong>BR-PMO-13:</strong> Pre-release performance baselines (§13.1) are mandatory before any app store submission or OTA rollout. A release without a captured baseline cannot be meaningfully monitored for regression and must not proceed to production.</li>
+        <li><strong>BR-PMO-14:</strong> Privacy masking rules (§14.3) are enforced at the monitoring layer boundary, not at the call site. Relying on call sites to self-censor financial values is insufficient; the monitoring API must structurally reject any field that could contain financial content.</li>
+        <li><strong>BR-PMO-15:</strong> Diagnostic bundle export privacy scans (§10.8) are not optional. A diagnostic bundle export without a completed privacy scan must be blocked, not warned. The bundle's value to engineering is non-zero; the risk of inadvertent financial data exposure in a shared file is also non-zero. The scan requirement is non-negotiable.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">Specification Completeness Checklist</div>
+      <ul>
+        <li>✓ Performance objectives with P50/P95/P99/Hard Limit targets (§2)</li>
+        <li>✓ 3-tier caching architecture (§3.1)</li>
+        <li>✓ Main-thread prohibition list and background queue priority levels (§3)</li>
+        <li>✓ 4 observability signal types with canonical schemas (§§4, 16)</li>
+        <li>✓ Full metrics taxonomy (§5.1) and trace coverage (§5.3)</li>
+        <li>✓ 8-subsystem health indicator model (§5.4)</li>
+        <li>✓ 5 error classes + error report schema (§6)</li>
+        <li>✓ 6 log levels, log entry schema, masking rules, storage policy (§7)</li>
+        <li>✓ Health dashboard 6-row layout + 7-tap hidden diagnostic menu (§8)</li>
+        <li>✓ Business metrics — 18 opt-in anonymous events (§9)</li>
+        <li>✓ 9 diagnostic tool categories + diagnostic bundle format (§10)</li>
+        <li>✓ 26 alert definitions across 4 severity levels + deduplication (§11)</li>
+        <li>✓ Resource management: CPU, memory, storage, battery, network, pagination, long-session (§12)</li>
+        <li>✓ Release monitoring: baseline, rollout gates, crash-free tracking, hotfix criteria (§13)</li>
+        <li>✓ Privacy model: consent, masking rules table, GDPR readiness (§14)</li>
+        <li>✓ 9 edge case categories with explicit handling rules (§15)</li>
+        <li>✓ 10 SLOs with error budgets + 8 runbooks + incident severity + PIR process (§17)</li>
+        <li>✓ BR-PMO-01 through BR-PMO-15 (§18.6)</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const stored = localStorage.getItem('fb-pmo-theme');
+  if (stored) root.setAttribute('data-theme', stored);
+  btn.addEventListener('click', () => {
+    const c = root.getAttribute('data-theme');
+    const n = c === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', n);
+    localStorage.setItem('fb-pmo-theme', n);
+  });
+  const links = document.querySelectorAll('#nav-list a');
+  const secs = document.querySelectorAll('section[id]');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector('#nav-list a[href="#' + e.target.id + '"]');
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  secs.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
