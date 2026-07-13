@@ -18,8 +18,8 @@ import { isPinValid } from './pin-validation';
  * Steps:
  *  1. Verify current PIN against stored verifier
  *  2. Derive new key with a fresh salt
- *  3. PRAGMA rekey — re-encrypts the DB file in place (SQLCipher)
- *  4. Persist new salt + verifier to SecureStore
+ *  3. Persist new salt + verifier to SecureStore first (so a rekey failure can be rolled back)
+ *  4. PRAGMA rekey — re-encrypts the DB file in place (SQLCipher); rollback credentials on error
  *  5. Update the in-memory DB key so the session continues uninterrupted
  */
 export async function changePin(
@@ -48,8 +48,19 @@ export async function changePin(
     const newKey = await derivePinKey(newPin, newSalt);
     const newVerifier = await computeVerifier(newKey);
 
-    await rekeyDatabase(newKey);
+    // Save new credentials BEFORE rekeying the DB.
+    // If savePinCredentials fails, the DB is still encrypted with the current key
+    // and the user can still unlock with their current PIN — no lockout.
+    // If rekeyDatabase fails after credentials are saved, we roll back to the
+    // original credentials so the current PIN continues to work.
     await savePinCredentials(newSalt, newVerifier);
+    try {
+      await rekeyDatabase(newKey);
+    } catch (rekeyError) {
+      // Rollback: restore old credentials so the current PIN still works.
+      await savePinCredentials(salt, storedVerifier);
+      throw rekeyError;
+    }
     useAuthStore.getState().unlock(newKey);
 
     return Ok(undefined);

@@ -16,20 +16,28 @@ export function getDb() {
  * Open (or create) the encrypted SQLite database and apply all DDL.
  * Must be called once during app startup, after the PIN is verified.
  *
- * @param encryptionKey  256-bit hex key derived from the user's PIN via PBKDF2.
- *                       Pass undefined only in tests that use an unencrypted DB.
+ * @param encryptionKey  256-bit hex key (64 lowercase hex chars) derived from
+ *                       the user's PIN via PBKDF2. Always required — there is
+ *                       no plaintext fallback. Use initDatabaseUnencrypted()
+ *                       in tests that do not require encryption.
  */
-export async function initDatabase(encryptionKey?: string): Promise<void> {
+export async function initDatabase(encryptionKey: string): Promise<void> {
+  // Guard: key must be exactly 64 lowercase hex characters (256-bit raw key).
+  // This fails fast rather than silently opening an unencrypted or mis-keyed DB.
+  if (!/^[0-9a-f]{64}$/.test(encryptionKey)) {
+    throw new Error('initDatabase: encryptionKey must be exactly 64 lowercase hex characters');
+  }
+
   const sqlite = await SQLite.openDatabaseAsync('finance_bag.db');
 
   _sqlite = sqlite;
   _db = drizzle(sqlite, { schema });
 
   // SQLCipher key must be the very first PRAGMA on a newly-opened connection.
-  // An empty encryptionKey means the database is plaintext (test-only path).
-  await sqlite.execAsync(
-    encryptionKey ? `PRAGMA key = "${encryptionKey.replace(/"/g, '""')}";` : 'SELECT 1;'
-  );
+  // The "x'...'" notation passes the key as raw bytes, not as a passphrase —
+  // this is required by SPEC-SEC-001 §6.2 and avoids SQLCipher's internal KDF
+  // running a second PBKDF2 derivation on the already-derived key.
+  await sqlite.execAsync(`PRAGMA key = "x'${encryptionKey}'";`);
 
   await sqlite.execAsync(`
     PRAGMA journal_mode = WAL;
@@ -180,14 +188,32 @@ async function runMigrations(sqlite: SQLite.SQLiteDatabase): Promise<void> {
 /**
  * Re-encrypt the open database with a new key (SQLCipher PRAGMA rekey).
  * Must be called while the DB is open and the current session is authenticated.
+ * Uses raw-key notation ("x'hex'") consistent with initDatabase().
  */
 export async function rekeyDatabase(newKey: string): Promise<void> {
   if (!_sqlite) throw new Error('Database not initialized. Call initDatabase() first.');
-  await _sqlite.execAsync(`PRAGMA rekey = "${newKey.replace(/"/g, '""')}";`);
+  if (!/^[0-9a-f]{64}$/.test(newKey)) {
+    throw new Error('rekeyDatabase: newKey must be exactly 64 lowercase hex characters');
+  }
+  await _sqlite.execAsync(`PRAGMA rekey = "x'${newKey}'";`);
 }
 
 /** Close the database and clear the singleton — used in tests and PIN reset flows. */
 export async function closeDatabase(): Promise<void> {
+  if (_sqlite) {
+    await _sqlite.closeAsync();
+  }
   _sqlite = null;
   _db = null;
+}
+
+/**
+ * Open an unencrypted database for automated tests only.
+ * MUST NOT be called in production code paths — there is no encryption key.
+ * @internal
+ */
+export async function initDatabaseUnencrypted(): Promise<void> {
+  const sqlite = await SQLite.openDatabaseAsync(':memory:');
+  _sqlite = sqlite;
+  _db = drizzle(sqlite, { schema });
 }
