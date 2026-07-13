@@ -1,0 +1,2031 @@
+<title>SPEC-MAS-001 — Master Product Specification & Executive Blueprint</title>
+<style>
+:root {
+  --acc:     #CA8A04;
+  --acc-dim: rgba(202,138,4,.5);
+  --acc-bg:  rgba(202,138,4,.08);
+  --bg:      #09090B;
+  --surf:    #18181B;
+  --surf2:   #27272A;
+  --bd:      #3F3F46;
+  --txt:     #F4F4F5;
+  --txt2:    #A1A1AA;
+  --txt3:    #71717A;
+  --ok:      #22C55E;
+  --warn:    #F59E0B;
+  --danger:  #EF4444;
+  --blue:    #3B82F6;
+  --violet:  #A78BFA;
+  --cyan:    #22D3EE;
+  --emerald: #34D399;
+  --orange:  #FB923C;
+  --rose:    #FB7185;
+}
+@media (prefers-color-scheme: light) { :root {
+  --bg: #FAFAFA; --surf: #FFFFFF; --surf2: #F4F4F5; --bd: #E4E4E7;
+  --txt: #09090B; --txt2: #52525B; --txt3: #A1A1AA;
+}}
+:root[data-theme="dark"] {
+  --bg: #09090B; --surf: #18181B; --surf2: #27272A; --bd: #3F3F46;
+  --txt: #F4F4F5; --txt2: #A1A1AA; --txt3: #71717A;
+}
+:root[data-theme="light"] {
+  --bg: #FAFAFA; --surf: #FFFFFF; --surf2: #F4F4F5; --bd: #E4E4E7;
+  --txt: #09090B; --txt2: #52525B; --txt3: #A1A1AA;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg); color: var(--txt);
+  line-height: 1.65; display: flex; min-height: 100vh;
+}
+
+#sidebar {
+  position: fixed; top: 0; left: 0; width: 236px; height: 100vh;
+  background: var(--surf); border-right: 1px solid var(--bd);
+  overflow-y: auto; padding: 1.5rem 0; z-index: 100;
+  scrollbar-width: thin;
+}
+#sidebar-header { padding: 0 1.25rem 1.25rem; border-bottom: 1px solid var(--bd); margin-bottom: .75rem; }
+.spec-id { font-size: .65rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: .25rem; }
+.spec-title { font-size: .7rem; color: var(--txt2); line-height: 1.4; }
+#sidebar nav a {
+  display: block; padding: .38rem 1.25rem; font-size: .74rem;
+  color: var(--txt2); text-decoration: none; border-left: 2px solid transparent;
+  transition: color .15s, border-color .15s, background .15s;
+}
+#sidebar nav a:hover { color: var(--txt); background: var(--surf2); }
+#sidebar nav a.active { color: var(--acc); border-left-color: var(--acc); background: var(--acc-bg); font-weight: 600; }
+.nav-section { padding: .5rem 1.25rem .2rem; font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--txt3); }
+
+#main { margin-left: 236px; flex: 1; }
+
+#topbar {
+  position: sticky; top: 0; z-index: 90;
+  background: var(--surf); border-bottom: 1px solid var(--bd);
+  padding: .65rem 2.5rem; display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-left { display: flex; align-items: center; gap: .75rem; }
+.topbar-badge {
+  font-size: .6rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  background: var(--acc-bg); color: var(--acc); border: 1px solid var(--acc-dim);
+  border-radius: 4px; padding: .15rem .5rem;
+}
+.topbar-master { font-size: .7rem; font-weight: 600; color: var(--acc); letter-spacing: .04em; }
+.topbar-ver { font-size: .7rem; color: var(--txt3); }
+#theme-btn {
+  border: 1px solid var(--bd); background: var(--surf2); color: var(--txt2);
+  border-radius: 6px; padding: .3rem .65rem; font-size: .75rem; cursor: pointer;
+  transition: background .15s;
+}
+#theme-btn:hover { background: var(--bd); color: var(--txt); }
+
+section { padding: 3rem 2.5rem 3.5rem; border-bottom: 1px solid var(--bd); max-width: 1120px; }
+.sec-eyebrow { font-size: .65rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--acc); margin-bottom: .5rem; }
+.sec-title { font-size: 1.7rem; font-weight: 700; color: var(--txt); margin-bottom: .4rem; text-wrap: balance; }
+.sec-sub { font-size: .9rem; color: var(--txt2); margin-bottom: 2rem; max-width: 74ch; }
+
+h3 { font-size: 1.05rem; font-weight: 600; color: var(--txt); margin: 2rem 0 .75rem; }
+h4 { font-size: .85rem; font-weight: 600; color: var(--txt2); margin: 1.25rem 0 .5rem; text-transform: uppercase; letter-spacing: .06em; }
+p { font-size: .875rem; color: var(--txt2); margin-bottom: .75rem; max-width: 82ch; }
+
+/* Tables */
+.tbl-wrap { overflow-x: auto; margin: 1rem 0; }
+table { width: 100%; border-collapse: collapse; font-size: .8rem; }
+th {
+  background: var(--surf2); color: var(--txt2); font-weight: 600;
+  padding: .6rem .85rem; text-align: left; border-bottom: 1px solid var(--bd);
+  font-size: .72rem; letter-spacing: .05em; text-transform: uppercase; white-space: nowrap;
+}
+td { padding: .55rem .85rem; border-bottom: 1px solid var(--bd); color: var(--txt2); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: var(--surf2); }
+td:first-child { color: var(--txt); font-weight: 500; }
+
+/* Callouts */
+.callout {
+  border-left: 3px solid var(--acc); background: var(--acc-bg);
+  border-radius: 0 6px 6px 0; padding: .85rem 1rem; margin: 1.25rem 0;
+  font-size: .83rem; color: var(--txt2);
+}
+.callout strong { color: var(--acc); }
+.callout-ok     { border-left-color: var(--ok);     background: rgba(34,197,94,.07); }
+.callout-ok     strong { color: var(--ok); }
+.callout-warn   { border-left-color: var(--warn);   background: rgba(245,158,11,.07); }
+.callout-warn   strong { color: var(--warn); }
+.callout-danger { border-left-color: var(--danger); background: rgba(239,68,68,.07); }
+.callout-danger strong { color: var(--danger); }
+.callout-blue   { border-left-color: var(--blue);   background: rgba(59,130,246,.07); }
+.callout-blue   strong { color: var(--blue); }
+.callout-violet { border-left-color: var(--violet); background: rgba(167,139,250,.07); }
+.callout-violet strong { color: var(--violet); }
+
+/* Cards */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin: 1rem 0; }
+.card { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: 1rem 1.1rem; }
+.card-title { font-size: .8rem; font-weight: 700; color: var(--txt); margin-bottom: .35rem; }
+.card-body { font-size: .78rem; color: var(--txt2); line-height: 1.6; }
+
+/* Executive stat bar */
+.stat-bar { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1.25rem 0; }
+.stat-chip {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 6px; padding: .55rem .9rem;
+  display: flex; flex-direction: column; gap: .1rem;
+}
+.stat-val { font-size: 1.25rem; font-weight: 700; color: var(--acc); font-variant-numeric: tabular-nums; }
+.stat-label { font-size: .67rem; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--txt3); }
+
+/* Architecture layers */
+.arch-stack { display: flex; flex-direction: column; gap: .5rem; margin: 1.25rem 0; }
+.arch-layer {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; padding: .85rem 1.1rem;
+  display: grid; grid-template-columns: 140px 1fr; gap: 1rem; align-items: start;
+}
+.arch-layer-name { font-size: .78rem; font-weight: 700; color: var(--txt); }
+.arch-layer-tag { font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .1rem .4rem; border-radius: 3px; margin-top: .2rem; display: inline-block; }
+.arch-layer-desc { font-size: .78rem; color: var(--txt2); line-height: 1.55; }
+.arch-mods { display: flex; flex-wrap: wrap; gap: .3rem; margin-top: .35rem; }
+.arch-mod { font-size: .67rem; background: var(--surf2); color: var(--txt3); padding: .1rem .45rem; border-radius: 3px; border: 1px solid var(--bd); }
+
+/* Feature domain */
+.domain-block { margin: 1.5rem 0; }
+.domain-hdr {
+  font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--acc); padding: .45rem .85rem; background: var(--acc-bg);
+  border-radius: 5px 5px 0 0; border: 1px solid var(--acc-dim); border-bottom: none;
+  display: flex; align-items: center; gap: .5rem;
+}
+.domain-count { font-size: .65rem; background: var(--acc-dim); color: var(--acc); padding: .1rem .4rem; border-radius: 3px; }
+.domain-table { width: 100%; border-collapse: collapse; font-size: .78rem; border: 1px solid var(--bd); border-radius: 0 0 5px 5px; overflow: hidden; }
+.domain-table th { background: var(--surf2); color: var(--txt3); font-size: .67rem; letter-spacing: .07em; text-transform: uppercase; padding: .45rem .75rem; text-align: left; border-bottom: 1px solid var(--bd); white-space: nowrap; }
+.domain-table td { padding: .45rem .75rem; border-bottom: 1px solid var(--bd); color: var(--txt2); vertical-align: top; }
+.domain-table tr:last-child td { border-bottom: none; }
+.domain-table tr:hover td { background: var(--surf2); }
+.domain-table td:first-child { color: var(--txt); font-weight: 500; }
+
+/* Priority pills */
+.p-must   { font-size: .62rem; font-weight: 700; padding: .1rem .4rem; border-radius: 3px; background: rgba(239,68,68,.15); color: #F87171; white-space: nowrap; }
+.p-should { font-size: .62rem; font-weight: 700; padding: .1rem .4rem; border-radius: 3px; background: rgba(245,158,11,.15); color: #FCD34D; white-space: nowrap; }
+.p-could  { font-size: .62rem; font-weight: 700; padding: .1rem .4rem; border-radius: 3px; background: rgba(59,130,246,.15); color: #93C5FD; white-space: nowrap; }
+.p-future { font-size: .62rem; font-weight: 700; padding: .1rem .4rem; border-radius: 3px; background: var(--surf2); color: var(--txt3); white-space: nowrap; }
+
+/* Release badges */
+.rel-v10  { font-size: .62rem; font-weight: 700; padding: .1rem .4rem; border-radius: 3px; background: rgba(34,197,94,.15); color: #86EFAC; white-space: nowrap; }
+.rel-v1x  { font-size: .62rem; font-weight: 700; padding: .1rem .4rem; border-radius: 3px; background: rgba(34,211,238,.15); color: var(--cyan); white-space: nowrap; }
+.rel-v2x  { font-size: .62rem; font-weight: 700; padding: .1rem .4rem; border-radius: 3px; background: rgba(167,139,250,.15); color: var(--violet); white-space: nowrap; }
+.rel-v3x  { font-size: .62rem; font-weight: 700; padding: .1rem .4rem; border-radius: 3px; background: rgba(202,138,4,.15); color: var(--acc); white-space: nowrap; }
+
+/* Risk blocks */
+.risk-block { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: 1rem 1.1rem; margin: .65rem 0; }
+.risk-meta { display: flex; align-items: center; gap: .65rem; margin-bottom: .5rem; flex-wrap: wrap; }
+.risk-id { font-size: .65rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--txt3); }
+.risk-name { font-size: .85rem; font-weight: 600; color: var(--txt); }
+.risk-pill { font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; padding: .12rem .45rem; border-radius: 3px; margin-left: auto; }
+.rp-high { background: rgba(239,68,68,.15); color: var(--danger); }
+.rp-med  { background: rgba(245,158,11,.15); color: var(--warn); }
+.rp-low  { background: rgba(34,197,94,.15);  color: var(--ok); }
+.risk-detail { font-size: .8rem; color: var(--txt2); line-height: 1.6; }
+
+/* Validation checks */
+.val-grid { display: flex; flex-direction: column; gap: .4rem; margin: 1rem 0; }
+.val-row {
+  display: grid; grid-template-columns: 24px 1fr 100px; gap: .75rem; align-items: start;
+  padding: .45rem .6rem; border-radius: 5px; font-size: .8rem;
+}
+.val-row:hover { background: var(--surf2); }
+.val-icon { font-size: .85rem; margin-top: .05rem; }
+.val-text { color: var(--txt2); }
+.val-src { font-size: .67rem; color: var(--txt3); text-align: right; }
+.val-pass { color: var(--ok); }
+.val-warn { color: var(--warn); }
+.val-gap  { color: var(--danger); }
+
+/* Checklist */
+.check-section { margin: 1.25rem 0; }
+.check-hdr { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--acc); padding: .4rem .75rem; background: var(--acc-bg); border-radius: 4px; margin-bottom: .5rem; }
+.check-item { display: flex; align-items: flex-start; gap: .65rem; padding: .35rem .5rem; border-radius: 4px; font-size: .8rem; color: var(--txt2); }
+.check-item:hover { background: var(--surf2); }
+.check-box { width: 14px; height: 14px; border: 1.5px solid var(--bd); border-radius: 3px; flex-shrink: 0; margin-top: .15rem; }
+.check-crit { font-size: .67rem; color: var(--txt3); margin-left: auto; white-space: nowrap; }
+
+/* Business rules */
+.br-block { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: .85rem 1rem; margin: .55rem 0; display: flex; gap: .9rem; align-items: flex-start; }
+.br-id { font-size: .68rem; font-weight: 700; color: var(--acc); letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; padding-top: .05rem; }
+.br-body { font-size: .82rem; color: var(--txt2); line-height: 1.6; }
+
+/* Spec index cards */
+.spec-index { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: .85rem; margin: 1rem 0; }
+.spec-card {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; padding: .9rem 1rem; border-top: 3px solid var(--bd);
+}
+.spec-card-id { font-size: .65rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; margin-bottom: .25rem; }
+.spec-card-name { font-size: .82rem; font-weight: 600; color: var(--txt); margin-bottom: .35rem; }
+.spec-card-scope { font-size: .75rem; color: var(--txt2); line-height: 1.5; }
+.spec-card-meta { display: flex; gap: .5rem; margin-top: .5rem; flex-wrap: wrap; }
+.spec-tag { font-size: .62rem; font-weight: 600; padding: .1rem .4rem; border-radius: 3px; background: var(--surf2); color: var(--txt3); }
+
+/* Recommendation cards */
+.rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin: 1rem 0; }
+.rec-card { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: 1.1rem; border-left: 3px solid var(--acc); }
+.rec-num { font-size: .65rem; font-weight: 800; color: var(--acc); letter-spacing: .1em; text-transform: uppercase; margin-bottom: .3rem; }
+.rec-title { font-size: .85rem; font-weight: 700; color: var(--txt); margin-bottom: .4rem; }
+.rec-body { font-size: .78rem; color: var(--txt2); line-height: 1.6; }
+
+/* Roadmap timeline */
+.roadmap-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .85rem; margin: 1rem 0; }
+.roadmap-phase {
+  background: var(--surf); border: 1px solid var(--bd);
+  border-radius: 8px; padding: .9rem 1rem;
+}
+.roadmap-ver { font-size: .78rem; font-weight: 800; color: var(--acc); margin-bottom: .2rem; }
+.roadmap-name { font-size: .82rem; font-weight: 600; color: var(--txt); margin-bottom: .4rem; }
+.roadmap-feat { font-size: .75rem; color: var(--txt2); line-height: 1.6; }
+.roadmap-date { font-size: .67rem; color: var(--txt3); margin-top: .4rem; }
+
+/* Status */
+.status-ok     { color: var(--ok);      font-weight: 600; }
+.status-warn   { color: var(--warn);    font-weight: 600; }
+.status-info   { color: var(--blue);    font-weight: 600; }
+.status-danger { color: var(--danger);  font-weight: 600; }
+.status-future { color: var(--txt3);    font-weight: 600; }
+
+/* Pipeline style */
+.pipeline { display: flex; align-items: stretch; gap: 0; margin: 1.25rem 0; overflow-x: auto; padding-bottom: .5rem; }
+.pipe-stage { background: var(--surf); border: 1px solid var(--bd); border-radius: 6px; padding: .75rem .9rem; min-width: 120px; flex-shrink: 0; position: relative; }
+.pipe-stage + .pipe-stage { margin-left: .5rem; }
+.pipe-stage::after { content: '→'; position: absolute; right: -1.15rem; top: 50%; transform: translateY(-50%); color: var(--txt3); font-size: .9rem; pointer-events: none; z-index: 1; }
+.pipe-stage:last-child::after { display: none; }
+.pipe-num { font-size: .6rem; font-weight: 700; color: var(--acc); letter-spacing: .08em; margin-bottom: .2rem; }
+.pipe-name { font-size: .72rem; font-weight: 600; color: var(--txt); }
+.pipe-sub { font-size: .67rem; color: var(--txt3); margin-top: .1rem; }
+.pipe-top-acc  { border-top: 3px solid var(--acc); }
+.pipe-top-ok   { border-top: 3px solid var(--ok); }
+.pipe-top-blue { border-top: 3px solid var(--blue); }
+.pipe-top-vio  { border-top: 3px solid var(--violet); }
+.pipe-top-cy   { border-top: 3px solid var(--cyan); }
+.pipe-top-em   { border-top: 3px solid var(--emerald); }
+.pipe-top-or   { border-top: 3px solid var(--orange); }
+
+/* KPI grid */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .85rem; margin: 1rem 0; }
+.kpi-card { background: var(--surf); border: 1px solid var(--bd); border-radius: 8px; padding: .85rem 1rem; }
+.kpi-label { font-size: .65rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--txt3); margin-bottom: .35rem; }
+.kpi-val { font-size: 1.35rem; font-weight: 700; color: var(--acc); font-variant-numeric: tabular-nums; margin-bottom: .2rem; }
+.kpi-desc { font-size: .72rem; color: var(--txt3); }
+
+/* Responsive */
+@media (max-width: 900px) {
+  #sidebar { display: none; }
+  #main { margin-left: 0; }
+  section { padding: 2rem 1.25rem; }
+  .arch-layer { grid-template-columns: 1fr; }
+}
+</style>
+
+<div id="sidebar">
+  <div id="sidebar-header">
+    <div class="spec-id">SPEC-MAS-001</div>
+    <div class="spec-title">Master Product Specification & Executive Blueprint</div>
+  </div>
+  <nav>
+    <div class="nav-section">Executive</div>
+    <a href="#s1">§1 Executive Summary</a>
+    <a href="#s2">§2 Product Overview</a>
+    <a href="#s3">§3 Feature Inventory</a>
+    <div class="nav-section">Technical</div>
+    <a href="#s4">§4 Architecture Summary</a>
+    <a href="#s5">§5 UX Summary</a>
+    <a href="#s6">§6 Data Governance</a>
+    <a href="#s7">§7 Security Summary</a>
+    <a href="#s8">§8 AI Summary</a>
+    <a href="#s9">§9 Quality Summary</a>
+    <div class="nav-section">Strategy</div>
+    <a href="#s10">§10 Development Strategy</a>
+    <a href="#s11">§11 Release Roadmap</a>
+    <a href="#s12">§12 Project Governance</a>
+    <a href="#s13">§13 Risk Review</a>
+    <div class="nav-section">Validation</div>
+    <a href="#s14">§14 Final Validation</a>
+    <a href="#s15">§15 Executive Checklist</a>
+    <a href="#s16">§16 Strategic Recommendations</a>
+    <a href="#s17">§17 Specification Index</a>
+    <a href="#s18">§18 Master Business Rules</a>
+  </nav>
+</div>
+
+<div id="main">
+  <div id="topbar">
+    <div class="topbar-left">
+      <span class="topbar-badge">SPEC-MAS-001</span>
+      <span class="topbar-master">Master Executive Blueprint</span>
+      <span class="topbar-ver">v1.0.0 — Finance Bag</span>
+    </div>
+    <button id="theme-btn" aria-label="Toggle theme">Toggle Theme</button>
+  </div>
+
+  <main>
+
+<!-- ── §1 Executive Summary ── -->
+<section id="s1">
+  <div class="sec-eyebrow">Section 1</div>
+  <div class="sec-title">Executive Summary</div>
+  <div class="sec-sub">The definitive executive overview of Finance Bag — product vision, mission, target audience, value proposition, and long-term trajectory.</div>
+
+  <h3>Product Vision</h3>
+  <div class="callout">
+    <strong>Vision:</strong> To be the most trusted, intelligent, and privacy-respecting personal finance companion for individuals who take their financial future seriously — a tool that works completely without the internet, protects every number with military-grade encryption, and explains financial behavior with the clarity of a personal advisor.
+  </div>
+
+  <h3>Mission Statement</h3>
+  <p>Finance Bag empowers people to understand, control, and improve their financial lives through a beautifully designed, completely offline mobile application. Every peso, dollar, or dirham is tracked with precision. Every financial goal is made achievable through intelligent coaching. Every user's data remains entirely theirs — on their device, encrypted, never transmitted to a server without their explicit consent.</p>
+
+  <h3>At a Glance</h3>
+  <div class="stat-bar">
+    <div class="stat-chip"><div class="stat-val">11</div><div class="stat-label">Spec Documents</div></div>
+    <div class="stat-chip"><div class="stat-val">46</div><div class="stat-label">Dev Weeks to v1.0</div></div>
+    <div class="stat-chip"><div class="stat-val">23</div><div class="stat-label">Sprints Planned</div></div>
+    <div class="stat-chip"><div class="stat-val">16</div><div class="stat-label">Dev Phases</div></div>
+    <div class="stat-chip"><div class="stat-val">6</div><div class="stat-label">Launch Locales</div></div>
+    <div class="stat-chip"><div class="stat-val">20</div><div class="stat-label">Launch Currencies</div></div>
+    <div class="stat-chip"><div class="stat-val">2</div><div class="stat-label">Platforms (iOS+Android)</div></div>
+    <div class="stat-chip"><div class="stat-val">AES-256</div><div class="stat-label">Encryption</div></div>
+  </div>
+
+  <h3>Target Audience</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">The Aware Beginner</div>
+      <div class="card-body">Ages 22–35. Earns a steady income but has never tracked spending systematically. Feels anxious about finances, has modest debt (student loans, credit cards), and no clear savings strategy. Needs structure, clarity, and motivation — not complexity. Primary persona for onboarding and core budget flows.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">The Debt Fighter</div>
+      <div class="card-body">Ages 28–45. Actively managing multiple debts. Understands budgeting basics but needs advanced payoff strategy tools (avalanche, snowball, hybrid). Motivated by data-driven progress and visible milestones. Primary persona for debt management, goal tracking, and AI coaching.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">The Privacy Optimizer</div>
+      <div class="card-body">Ages 30–55. High financial literacy. Deeply concerned about data privacy. Refuses cloud-first finance apps. Values offline functionality, local encryption, and complete data ownership. Primary persona for security architecture and export/backup features. Influential referral source.</div>
+    </div>
+  </div>
+
+  <h3>Core Value Proposition</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Differentiator</th><th>Finance Bag</th><th>Category Norm</th></tr></thead>
+      <tbody>
+        <tr><td>Data residency</td><td>100% on-device; zero server dependency for core features</td><td>Cloud-synced; server breach = user data exposure</td></tr>
+        <tr><td>Encryption</td><td>SQLCipher AES-256-CBC; database encrypted at rest, always</td><td>Plaintext SQLite or cloud DB with varying protections</td></tr>
+        <tr><td>AI coaching</td><td>Contextual, privacy-preserving AI over local financial snapshot</td><td>Generic tips or cloud-based profiling</td></tr>
+        <tr><td>Debt strategy</td><td>Four payoff methods with projection modeling and hybrid optimization</td><td>Basic list management or single-method calculator</td></tr>
+        <tr><td>Financial Health Score</td><td>Composite real-time score across 6 financial dimensions</td><td>Absent or single-metric credit score proxy</td></tr>
+        <tr><td>Offline capability</td><td>Full feature parity offline; no degraded mode</td><td>Partial offline; sync-required for key features</td></tr>
+        <tr><td>Localization depth</td><td>6 locales, RTL, 20 currencies, locale-correct number/date formats</td><td>English-first; limited locale support</td></tr>
+        <tr><td>Gamification depth</td><td>Streaks, achievements, FHS progression, contextual rewards</td><td>Absent or superficial badge systems</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Long-Term Vision</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Horizon</th><th>Strategic Direction</th></tr></thead>
+      <tbody>
+        <tr><td>Year 1 (v1.0)</td><td>Premier offline personal finance app. Establish trust through privacy and reliability. Build loyal user base among privacy-conscious users and debt-focused individuals.</td></tr>
+        <tr><td>Year 2 (v2.x)</td><td>Introduce optional encrypted cloud sync. Family accounts. Bank statement import. Expand to 40 currencies. Strengthen AI coaching with longitudinal pattern analysis.</td></tr>
+        <tr><td>Year 3 (v3.x)</td><td>Investment tracking (manual). Business accounts (basic). Platform expansion (desktop). Third-party data integrations (opt-in only). Enterprise privacy-first edition.</td></tr>
+        <tr><td>Year 4+ (v4.x+)</td><td>Multi-region cloud infrastructure. Partner ecosystem. White-label B2B. Wearable companion. Potential open-source core modules. Become the de-facto platform for privacy-first personal finance.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── §2 Product Overview ── -->
+<section id="s2">
+  <div class="sec-eyebrow">Section 2</div>
+  <div class="sec-title">Product Overview</div>
+  <div class="sec-sub">Purpose, problem definition, business objectives, user objectives, core philosophy, and definition of success.</div>
+
+  <h3>Problems Solved</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Financial Opacity</div>
+      <div class="card-body">Most people have no real-time view of their financial health. Finance Bag provides a unified dashboard, Financial Health Score, and AI explanations that make the current state of finances immediately legible — not just a transaction list.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Privacy Betrayal</div>
+      <div class="card-body">Dominant finance apps monetize user data. Finance Bag eliminates this risk by design: the database lives on the device, encrypted, with no mandatory server connection. Privacy is an architectural property, not a policy promise.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Debt Paralysis</div>
+      <div class="card-body">Debt is emotionally overwhelming and mathematically complex. Finance Bag models multiple payoff strategies, projects outcomes, and recommends approaches based on the user's specific debt composition — transforming paralysis into an executable plan.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Goal Abandonment</div>
+      <div class="card-body">Financial goals fail without accountability systems. Finance Bag combines goal tracking, dependency modeling (cannot fund vacation before emergency fund), gamification, and AI check-ins that maintain long-term motivation through behavioral design.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Complexity Fatigue</div>
+      <div class="card-body">Power-user finance apps overwhelm beginners. Finance Bag adapts its interface to user financial sophistication — simple views for beginners, full depth for advanced users — through progressive disclosure rather than feature toggling.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Localization Gaps</div>
+      <div class="card-body">Finance apps are overwhelmingly English and dollar-centric. Finance Bag is designed for global users from the data model up — multi-currency at the schema level, RTL-capable from the first commit, and locale-correct formatting throughout.</div>
+    </div>
+  </div>
+
+  <h3>Business Objectives</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Objective</th><th>Success Signal</th></tr></thead>
+      <tbody>
+        <tr><td>BO-1</td><td>Establish Finance Bag as the leading offline-first personal finance app on both major stores</td><td>Top-5 ranking in Personal Finance category in target markets within 6 months post-launch</td></tr>
+        <tr><td>BO-2</td><td>Achieve and maintain ≥4.5 star average store rating</td><td>Rating sustained for 3+ months post v1.0 launch</td></tr>
+        <tr><td>BO-3</td><td>Build a loyal, retained user base as foundation for premium tier</td><td>Day-30 retention ≥35%; Day-90 retention ≥20%</td></tr>
+        <tr><td>BO-4</td><td>Establish developer reputation for quality and security in FinTech</td><td>Zero security incidents in first 12 months; store compliance maintained without rejections</td></tr>
+        <tr><td>BO-5</td><td>Create a platform architecture that supports v2.x monetization (premium, family, enterprise)</td><td>v2.0 cloud sync feature launchable without platform rebuild</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Core Philosophy (Invariants)</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Principle</th><th>Statement</th><th>Architectural Expression</th></tr></thead>
+      <tbody>
+        <tr><td>Privacy First</td><td>User data never leaves the device without explicit, informed consent</td><td>SQLCipher encryption; no analytics SDK with PII; AI sends only snapshot, not raw history</td></tr>
+        <tr><td>Offline First</td><td>Every feature works without network connectivity</td><td>Local SQLite + Drizzle; feature flags have local defaults; AI degrades gracefully</td></tr>
+        <tr><td>Financial Precision</td><td>No floating-point arithmetic for money</td><td>All monetary values stored as integer centimes (smallest currency unit)</td></tr>
+        <tr><td>Data Integrity</td><td>No financial data is ever permanently deleted</td><td>Soft deletes only; is_deleted flag; physical records retained indefinitely</td></tr>
+        <tr><td>Simplicity at Scale</td><td>Features are progressively disclosed, never hidden</td><td>Dashboard adapts; beginner defaults; advanced views require deliberate navigation</td></tr>
+        <tr><td>Provider Independence</td><td>No hard coupling to any single external service</td><td>AI provider abstraction layer; platform adapter pattern throughout</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── §3 Complete Feature Inventory ── -->
+<section id="s3">
+  <div class="sec-eyebrow">Section 3</div>
+  <div class="sec-title">Complete Feature Inventory</div>
+  <div class="sec-sub">Every feature grouped by domain with priority, release target, dependencies, and current status. This is the authoritative feature register for the product.</div>
+
+  <div class="callout-blue callout">
+    <strong>Priority Key:</strong> <span class="p-must">MUST</span> = MVP required &nbsp;·&nbsp; <span class="p-should">SHOULD</span> = v1.0 target &nbsp;·&nbsp; <span class="p-could">COULD</span> = v1.x enhancement &nbsp;·&nbsp; <span class="p-future">FUTURE</span> = v2.x+ &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Release Key:</strong> <span class="rel-v10">v1.0</span> <span class="rel-v1x">v1.x</span> <span class="rel-v2x">v2.x</span> <span class="rel-v3x">v3.x+</span>
+  </div>
+
+  <!-- Authentication & Security -->
+  <div class="domain-block">
+    <div class="domain-hdr">Authentication & Security <span class="domain-count">7 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>PIN Authentication</td><td>4–8 digit PIN gate; PBKDF2-derived encryption key</td><td>SQLCipher, Keychain/Keystore</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Biometric Authentication</td><td>FaceID / fingerprint unlock for returning sessions</td><td>PIN auth (fallback), expo-local-authentication</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Auto-Lock</td><td>Configurable inactivity timeout; app clears memory on lock</td><td>PIN/biometric auth, AppState lifecycle</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Decoy PIN</td><td>Alternate PIN that presents a sanitized empty account view</td><td>PIN auth, separate decoy DB namespace</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Database Encryption</td><td>SQLCipher AES-256-CBC full database encryption at rest</td><td>SQLite, drizzle-orm, expo-sqlite</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Session Management</td><td>Secure session token rotation; revocation on suspicious events</td><td>Auth system, memory security</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Security Audit Log</td><td>Local immutable log of auth events, failed attempts, lock events</td><td>SQLite append-only table</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- User Profile & Settings -->
+  <div class="domain-block">
+    <div class="domain-hdr">User Profile & Settings <span class="domain-count">6 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>User Profile</td><td>Display name, avatar (emoji), primary currency, locale preference</td><td>None (root entity)</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Currency Configuration</td><td>Primary currency selection; multi-currency account support</td><td>User profile, 20-currency launch set</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Locale & Language</td><td>App language, number format, date format, first-day-of-week</td><td>i18n system, locale config</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Notification Preferences</td><td>Per-category notification enable/disable, quiet hours</td><td>Notification engine</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Security Settings</td><td>Change PIN, configure biometric, set auto-lock timeout</td><td>Auth system</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Data Export</td><td>Full data export as JSON or CSV; GDPR right-to-portability</td><td>All domain entities</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Account Management -->
+  <div class="domain-block">
+    <div class="domain-hdr">Account Management <span class="domain-count">5 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Account CRUD</td><td>Create/edit/archive accounts (checking, savings, cash, credit, investment)</td><td>User profile, currency config</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Balance Tracking</td><td>Real-time balance computed from initial balance + all transactions</td><td>Transaction engine</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Multi-Currency Accounts</td><td>Each account has its own currency; FX rate display (manual)</td><td>Currency config, FX rate store</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Account Transfers</td><td>Move funds between accounts; generates balanced transaction pair</td><td>Transaction engine, account balance</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Net Worth Summary</td><td>Aggregate across all accounts in primary currency</td><td>All accounts, FX rates</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Salary & Income -->
+  <div class="domain-block">
+    <div class="domain-hdr">Salary & Income Management <span class="domain-count">4 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Income Source Management</td><td>Multiple income sources (salary, freelance, rental, business)</td><td>Account management</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Salary History</td><td>Track income changes over time; trend analysis</td><td>Income source, transaction engine</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Gross / Net Tracking</td><td>Record gross and net; track withholdings and deductions</td><td>Income source model</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Income Allocation</td><td>Auto-allocate income to budget categories on receipt</td><td>Budget engine, income source</td><td><span class="p-could">COULD</span></td><td><span class="rel-v1x">v1.x</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Transaction Management -->
+  <div class="domain-block">
+    <div class="domain-hdr">Transaction Management <span class="domain-count">8 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Manual Transaction Entry</td><td>Add income/expense/transfer with amount, category, date, notes</td><td>Account management, category system</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Transaction Categories</td><td>Hierarchical category system; user-customizable; default set provided</td><td>Category model</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Transaction Tags</td><td>Freeform tagging for cross-category grouping and search</td><td>Transaction model</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Recurring Transactions</td><td>Scheduled automatic transactions (bills, subscriptions, salary)</td><td>Event engine, transaction entry</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Transaction Edit / Soft Delete</td><td>Edit any field; deleted transactions marked is_deleted, never purged</td><td>Transaction model, audit log</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Transaction Notes & Memo</td><td>Free-text notes, payee name, reference number</td><td>Transaction model</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Bulk Import (CSV)</td><td>Import transactions from CSV export of banks/other apps</td><td>Parser, category matching, duplicate detection</td><td><span class="p-could">COULD</span></td><td><span class="rel-v1x">v1.x</span></td></tr>
+        <tr><td>Receipt Attachment</td><td>Attach photo of receipt to transaction</td><td>Camera, storage model</td><td><span class="p-could">COULD</span></td><td><span class="rel-v1x">v1.x</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Budget Management -->
+  <div class="domain-block">
+    <div class="domain-hdr">Budget Management <span class="domain-count">6 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Budget Creation & Templates</td><td>Monthly/custom-period budgets with preset templates (50/30/20, zero-based)</td><td>Category system, income sources</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Category Budget Allocation</td><td>Allocate budget per category; track spent vs allocated in real-time</td><td>Transaction engine, budget model</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Budget Rollover Rules</td><td>Carry unused budget to next period (configurable per category)</td><td>Budget model, period engine</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Budget Alerts</td><td>Notifications at 50%, 80%, 100%, and over-limit thresholds</td><td>Notification engine, budget model</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Budget vs Actual Reports</td><td>Visual comparison of planned vs actual by category and period</td><td>Transaction data, budget model, reports engine</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Smart Budget Suggestions</td><td>AI-generated budget allocation based on historical spending patterns</td><td>AI coach, transaction history (3+ months)</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Debt Management -->
+  <div class="domain-block">
+    <div class="domain-hdr">Debt Management <span class="domain-count">6 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Debt Account Tracking</td><td>Track balance, interest rate, minimum payment, creditor per debt</td><td>Account management, debt model</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Payoff Strategy Engine</td><td>Avalanche (highest rate first), Snowball (lowest balance first), Hybrid, Custom priority order</td><td>Debt model, projection engine</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Debt Payoff Projections</td><td>Month-by-month amortization; payoff date; total interest calculations</td><td>Strategy engine, current balances</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Extra Payment Modeling</td><td>Simulate impact of additional monthly payments on payoff date</td><td>Projection engine</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Debt Payment Reminders</td><td>Due date reminders; minimum payment alerts; overdue warnings</td><td>Notification engine, debt model</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Debt Consolidation Analysis</td><td>Compare consolidation scenarios vs current multi-debt payoff</td><td>Projection engine, AI coach</td><td><span class="p-could">COULD</span></td><td><span class="rel-v1x">v1.x</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Emergency Fund -->
+  <div class="domain-block">
+    <div class="domain-hdr">Emergency Fund <span class="domain-count">3 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Emergency Fund Goal</td><td>Dedicated goal type; automatically calculated 3–6 month expense target</td><td>Transaction history, expense analysis, goal engine</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Fund Progress Tracking</td><td>Current balance vs target; months of expenses covered; visual progress</td><td>Account balance, expense calculation</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Fund Contribution Planning</td><td>Monthly savings amount needed to reach target by goal date</td><td>Goal engine, budget integration</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Financial Goals -->
+  <div class="domain-block">
+    <div class="domain-hdr">Financial Goals <span class="domain-count">5 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Goal Creation</td><td>Named savings goals with target amount, target date, linked account</td><td>Account management, goal model</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Goal Categories</td><td>Preset categories: Home, Vehicle, Education, Travel, Retirement, Emergency, Custom</td><td>Goal model</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Goal Progress Tracking</td><td>Real-time progress; required monthly savings; on-track / at-risk status</td><td>Account balance, goal model</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Goal Dependencies</td><td>Define prerequisite goals (e.g., Emergency Fund must complete before Vacation); enforced by engine</td><td>Goal model, dependency graph</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Goal Milestones & Celebrations</td><td>25%, 50%, 75%, 100% milestone notifications and gamification events</td><td>Goal progress, notification engine, gamification</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Financial Health Score -->
+  <div class="domain-block">
+    <div class="domain-hdr">Financial Health Score (FHS) <span class="domain-count">3 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>FHS Computation Engine</td><td>Composite 0–100 score across 6 dimensions: spending, saving, debt, emergency, goals, cashflow</td><td>All financial domains, budget, debt, goals</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>FHS Trend Visualization</td><td>30/90/180-day FHS trend chart; dimension breakdown radar</td><td>FHS history (stored), chart engine</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>FHS Improvement Suggestions</td><td>Ranked actionable suggestions to improve lowest-scoring dimension</td><td>FHS engine, AI coach</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="domain-block">
+    <div class="domain-hdr">Dashboard <span class="domain-count">6 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Financial Overview Widget</td><td>Net worth, month-to-date income/expense, cash position at a glance</td><td>All accounts, transaction engine</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Budget Health Widget</td><td>Current period: total budgeted vs spent; top over-budget categories</td><td>Budget engine, transactions</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>FHS Score Widget</td><td>Prominent FHS display; trend indicator; quick drill-down</td><td>FHS engine</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Recent Transactions Feed</td><td>Last 10 transactions with category, amount, account; quick add button</td><td>Transaction engine</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Goal Progress Summary</td><td>Top 3 active goals with progress bars; one-tap to goal detail</td><td>Goal engine</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Customizable Widget Layout</td><td>User can reorder and pin dashboard widgets</td><td>Dashboard layout persistence</td><td><span class="p-could">COULD</span></td><td><span class="rel-v1x">v1.x</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Reports & Analytics -->
+  <div class="domain-block">
+    <div class="domain-hdr">Reports & Analytics <span class="domain-count">6 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Spending Trends Report</td><td>Category spending over time; month-over-month comparison</td><td>Transaction history, category system</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Income vs Expense Report</td><td>Cashflow summary by period; surplus/deficit trend</td><td>Transaction engine</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Category Breakdown</td><td>Pie/bar chart of spending by category; drill-down to transactions</td><td>Transaction data, category system</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Net Worth Trend</td><td>Account balance history plotted over time; asset vs liability split</td><td>Account snapshot history</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Custom Date Range Reports</td><td>Any report filterable by arbitrary date range</td><td>All report engines</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Annual Tax Summary</td><td>Income, deductible expenses, and category summary for tax preparation</td><td>Transaction data, category tagging</td><td><span class="p-could">COULD</span></td><td><span class="rel-v1x">v1.x</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Search -->
+  <div class="domain-block">
+    <div class="domain-hdr">Search & Discovery <span class="domain-count">4 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Global Transaction Search</td><td>Full-text search across transaction notes, payees, amounts; SQLite FTS5</td><td>Transaction engine, SQLite FTS5</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Advanced Filters</td><td>Filter by account, category, tag, date range, amount range, type</td><td>Transaction model</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Recent Searches</td><td>Persist and display last 10 search queries</td><td>Search history model</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Smart Search Suggestions</td><td>Auto-complete on payee names, category names, tag names</td><td>FTS5 index, transaction history</td><td><span class="p-could">COULD</span></td><td><span class="rel-v1x">v1.x</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- AI Financial Coach -->
+  <div class="domain-block">
+    <div class="domain-hdr">AI Financial Coach <span class="domain-count">8 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Natural Language Q&A</td><td>Ask any financial question in natural language; AI responds with context from local data</td><td>claude-sonnet-5, financial snapshot builder, internet connectivity</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Spending Analysis</td><td>AI identifies top spending patterns, anomalies, and trends</td><td>Transaction history (30+ days), AI coach</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Budget Recommendations</td><td>AI suggests budget adjustments based on spending vs income ratio</td><td>Budget model, income data, AI coach</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Debt Strategy Advice</td><td>AI explains and recommends payoff strategies; models user-specific outcomes</td><td>Debt model, projection engine, AI coach</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Goal Planning Guidance</td><td>AI assesses goal feasibility; suggests adjustments to timeline or contribution</td><td>Goal model, cashflow data, AI coach</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Predictive Cash Flow Alerts</td><td>AI warns when projected cashflow will go negative before month end</td><td>Recurring transactions, income, budget, AI engine</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>AI Response Explainability</td><td>Every AI recommendation links to the specific data points that triggered it</td><td>AI coach, snapshot builder, citation system</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Proactive Insights</td><td>Periodic unsolicited AI insights surfaced in dashboard and notifications</td><td>AI coach, background analysis, notification engine</td><td><span class="p-could">COULD</span></td><td><span class="rel-v1x">v1.x</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Gamification -->
+  <div class="domain-block">
+    <div class="domain-hdr">Gamification & Motivation <span class="domain-count">6 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Achievement System</td><td>50+ achievements across 8 categories: transaction entry, budget adherence, debt payoff, goal completion, streaks, exploration, FHS milestones, social</td><td>All financial domains, event engine</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Streak Tracking</td><td>Daily login, weekly budget adherence, monthly goal contribution streaks with recovery grace period</td><td>Gamification engine, event log</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>XP & Level System</td><td>Experience points awarded for financial actions; progression through 10 user levels</td><td>Event engine, gamification model</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>FHS as Primary Motivator</td><td>Financial Health Score doubles as the primary gamification metric; visible progression</td><td>FHS engine, gamification UI</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Challenge System</td><td>Weekly/monthly financial challenges (e.g., "Stay under dining budget this week")</td><td>Budget engine, gamification engine, notification</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Celebration Moments</td><td>Debt payoff celebrations, goal completions, FHS milestones — animated in-app moments</td><td>All financial domains, animation system</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Notifications & Reminders -->
+  <div class="domain-block">
+    <div class="domain-hdr">Notifications & Reminders <span class="domain-count">5 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Budget Threshold Alerts</td><td>Alerts at 50%, 80%, 100%, and over-budget per category</td><td>Budget engine, notification system</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Bill & Debt Reminders</td><td>Recurring payment due-date reminders; configurable advance notice (1, 3, 7 days)</td><td>Recurring transactions, debt model, notification system</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Goal Milestone Notifications</td><td>Celebrate 25%, 50%, 75%, 100% goal completion in-app and push</td><td>Goal engine, notification system, gamification</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>AI Insight Notifications</td><td>Proactive AI alerts for cashflow risk, overspending pattern, goal at risk</td><td>AI coach, notification system</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Custom Reminders</td><td>User-defined reminders with custom message, frequency, and time</td><td>Notification system, reminder model</td><td><span class="p-should">SHOULD</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Localization & Accessibility -->
+  <div class="domain-block">
+    <div class="domain-hdr">Localization & Accessibility <span class="domain-count">4 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Feature</th><th>Purpose</th><th>Dependencies</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Multi-Language Support</td><td>English (US), Arabic, French, Spanish, Portuguese, Mandarin at v1.0 launch; 6 total</td><td>i18n system (i18next), locale files</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>RTL Layout Support</td><td>Full right-to-left layout for Arabic; mirrored navigation, icons, charts</td><td>RTL-aware components, i18n direction config</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>Locale-Correct Formatting</td><td>Date, number, currency formatting per locale (e.g., 1.234,56 vs 1,234.56)</td><td>Intl API, locale config</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+        <tr><td>WCAG 2.1 AA Accessibility</td><td>Screen reader support, minimum 4.5:1 contrast, minimum 44×44 tap targets, reduced motion</td><td>Design system, component library</td><td><span class="p-must">MUST</span></td><td><span class="rel-v10">v1.0</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Future Modules -->
+  <div class="domain-block">
+    <div class="domain-hdr">Future Modules (v2.x+) <span class="domain-count">8 features</span></div>
+    <table class="domain-table">
+      <thead><tr><th>Module</th><th>Purpose</th><th>Prerequisites</th><th>Priority</th><th>Release</th></tr></thead>
+      <tbody>
+        <tr><td>Encrypted Cloud Sync</td><td>End-to-end encrypted sync across up to 5 devices; zero-knowledge server</td><td>CRDT-ready data model, backend infrastructure</td><td><span class="p-future">FUTURE</span></td><td><span class="rel-v2x">v2.0</span></td></tr>
+        <tr><td>Family Accounts</td><td>Shared budgeting with family members; role-based permissions</td><td>Cloud sync, multi-user model</td><td><span class="p-future">FUTURE</span></td><td><span class="rel-v2x">v2.1</span></td></tr>
+        <tr><td>Bank Statement Import</td><td>Automated transaction import from bank CSV/OFX exports</td><td>Parser engine, duplicate detection, category AI</td><td><span class="p-future">FUTURE</span></td><td><span class="rel-v2x">v2.2</span></td></tr>
+        <tr><td>Investment Tracking</td><td>Manual entry of investment portfolio; performance tracking</td><td>Investment model, FX rates</td><td><span class="p-future">FUTURE</span></td><td><span class="rel-v3x">v3.0</span></td></tr>
+        <tr><td>Business Accounts (Basic)</td><td>Separate business account context; invoicing placeholder</td><td>Multi-context model, cloud sync</td><td><span class="p-future">FUTURE</span></td><td><span class="rel-v3x">v3.1</span></td></tr>
+        <tr><td>Desktop Application</td><td>macOS / Windows companion app sharing the same data model</td><td>Cloud sync, desktop adapter layer</td><td><span class="p-future">FUTURE</span></td><td><span class="rel-v3x">v3.x</span></td></tr>
+        <tr><td>Wearable Companion</td><td>WatchOS / WearOS quick-add and FHS glance</td><td>Mobile app, watch extension framework</td><td><span class="p-future">FUTURE</span></td><td><span class="rel-v3x">v3.x</span></td></tr>
+        <tr><td>Open Banking Integration</td><td>Read-only bank connection (PSD2/open banking APIs) for automatic import</td><td>Bank import, regulatory compliance</td><td><span class="p-future">FUTURE</span></td><td><span class="rel-v3x">v4.x</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── §4 Architecture Summary ── -->
+<section id="s4">
+  <div class="sec-eyebrow">Section 4</div>
+  <div class="sec-title">System Architecture Summary</div>
+  <div class="sec-sub">The layered application architecture, module boundaries, data flow, and key technical decisions that constitute the Finance Bag platform. Full specification in SPEC-ARC-001.</div>
+
+  <h3>Application Layers</h3>
+  <div class="arch-stack">
+    <div class="arch-layer">
+      <div>
+        <div class="arch-layer-name">Presentation Layer</div>
+        <div class="arch-layer-tag" style="background:rgba(59,130,246,.12);color:var(--blue)">L-1 · React Native UI</div>
+      </div>
+      <div class="arch-layer-desc">
+        React Native 0.76 + Expo SDK 52 + Expo Router 4 (file-based navigation). TypeScript 5.3 strict throughout. Design tokens consumed from the design system; no hardcoded colors or spacing. All screens are pure functions of state — no local component state for business logic.
+        <div class="arch-mods">
+          <span class="arch-mod">Expo Router 4</span><span class="arch-mod">React Native 0.76</span><span class="arch-mod">Hermes Engine</span><span class="arch-mod">Design System Tokens</span><span class="arch-mod">WCAG 2.1 AA Components</span><span class="arch-mod">RTL Support</span>
+        </div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div>
+        <div class="arch-layer-name">Application Layer</div>
+        <div class="arch-layer-tag" style="background:rgba(202,138,4,.12);color:var(--acc)">L-2 · State & Navigation</div>
+      </div>
+      <div class="arch-layer-desc">
+        Zustand 5 for all global state (auth, financial data, UI preferences, feature flags). Custom hooks bridge state stores to UI. Expo Router handles type-safe navigation. No Redux, no Context API for business state.
+        <div class="arch-mods">
+          <span class="arch-mod">Zustand 5</span><span class="arch-mod">Custom Hooks</span><span class="arch-mod">Feature Flag Store</span><span class="arch-mod">Auth State</span><span class="arch-mod">Type-Safe Navigation</span>
+        </div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div>
+        <div class="arch-layer-name">Domain Layer</div>
+        <div class="arch-layer-tag" style="background:rgba(34,197,94,.12);color:var(--ok)">L-3 · Business Logic</div>
+      </div>
+      <div class="arch-layer-desc">
+        Pure TypeScript service modules for each financial domain. No UI imports allowed in this layer. All monetary arithmetic uses integer centimes (no floating point). Business rules are tested independently of UI. The domain layer is the authoritative location for all financial calculations.
+        <div class="arch-mods">
+          <span class="arch-mod">Budget Service</span><span class="arch-mod">Debt Projection Engine</span><span class="arch-mod">FHS Engine</span><span class="arch-mod">Goal Engine</span><span class="arch-mod">AI Snapshot Builder</span><span class="arch-mod">Event Bus</span>
+        </div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div>
+        <div class="arch-layer-name">Data Layer</div>
+        <div class="arch-layer-tag" style="background:rgba(34,211,238,.12);color:var(--cyan)">L-4 · Persistence</div>
+      </div>
+      <div class="arch-layer-desc">
+        expo-sqlite backed by SQLCipher AES-256-CBC encryption. Drizzle ORM for type-safe schema definition and query building. All primary keys are ULIDs (not auto-increment integers). All deletes are soft deletes (is_deleted flag). Migrations are sequential and never modified after generation.
+        <div class="arch-mods">
+          <span class="arch-mod">expo-sqlite + SQLCipher</span><span class="arch-mod">drizzle-orm</span><span class="arch-mod">ULID PKs</span><span class="arch-mod">Soft Deletes</span><span class="arch-mod">Sequential Migrations</span><span class="arch-mod">SQLite FTS5</span>
+        </div>
+      </div>
+    </div>
+    <div class="arch-layer">
+      <div>
+        <div class="arch-layer-name">Infrastructure Layer</div>
+        <div class="arch-layer-tag" style="background:rgba(167,139,250,.12);color:var(--violet)">L-5 · External & Cross-Cutting</div>
+      </div>
+      <div class="arch-layer-desc">
+        Adapters for all external dependencies. Sentry for crash reporting (PII-scrubbed). Anthropic API (claude-sonnet-5) via provider abstraction. Local-first feature flags with remote override capability. All external calls are wrapped in adapter interfaces — no direct SDK imports from domain layer.
+        <div class="arch-mods">
+          <span class="arch-mod">Sentry React Native</span><span class="arch-mod">AI Provider Adapter</span><span class="arch-mod">Feature Flag Engine</span><span class="arch-mod">Notification Adapter</span><span class="arch-mod">i18n (i18next)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Key Architectural Decisions</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Decision</th><th>Choice</th><th>Rationale</th></tr></thead>
+      <tbody>
+        <tr><td>State Management</td><td>Zustand 5 (not Redux, not MobX)</td><td>Minimal boilerplate; excellent React Native performance; supports Hermes engine optimizations</td></tr>
+        <tr><td>Navigation</td><td>Expo Router 4 (file-based)</td><td>Type-safe routing; eliminates navigation config drift; aligns with Expo SDK 52 best practices</td></tr>
+        <tr><td>Database ORM</td><td>Drizzle ORM (not Prisma, not Realm)</td><td>Type-safe SQL; zero runtime overhead; full SQLite support including SQLCipher extension</td></tr>
+        <tr><td>Money representation</td><td>Integer centimes (not float, not Decimal.js)</td><td>Eliminates all floating-point rounding errors; correct for all 20 launch currencies</td></tr>
+        <tr><td>Primary keys</td><td>ULID (not UUID, not auto-increment)</td><td>Lexicographically sortable; chronological by nature; collision-resistant; CRDT-compatible</td></tr>
+        <tr><td>AI provider</td><td>Anthropic claude-sonnet-5 via adapter</td><td>Best-in-class financial reasoning; adapter pattern enables future provider swap without domain changes</td></tr>
+        <tr><td>JS Engine</td><td>Hermes (not JSC)</td><td>Faster startup, lower memory, better TTI on both Android and iOS</td></tr>
+        <tr><td>Module boundaries</td><td>No cross-domain direct imports (domain graph is acyclic)</td><td>Enables independent testing; prevents coupling; supports future module extraction</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── §5 UX Summary ── -->
+<section id="s5">
+  <div class="sec-eyebrow">Section 5</div>
+  <div class="sec-title">User Experience Summary</div>
+  <div class="sec-sub">Navigation philosophy, design system foundation, accessibility commitments, localization approach, and key user journeys. Full specification in SPEC-UX-001.</div>
+
+  <h3>Design System Foundation</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Layer</th><th>Decisions</th></tr></thead>
+      <tbody>
+        <tr><td>Color Tokens</td><td>Semantic token system: --color-bg, --color-surface, --color-text-primary, --color-accent, --color-semantic-*. Two full themes (light/dark) with identical token names. Semantic colors (success, warning, danger) are distinct from the brand accent.</td></tr>
+        <tr><td>Typography</td><td>System font stack (SF Pro on iOS, Roboto on Android). 8-step type scale. Heading weights: 700. Body: 400/500. Captions: 400. All monetary values use tabular numerals (font-variant-numeric: tabular-nums). Long text uses text-wrap: balance.</td></tr>
+        <tr><td>Spacing</td><td>4px base grid. Spacing scale: 4, 8, 12, 16, 20, 24, 32, 40, 48, 64px. No arbitrary values outside the scale.</td></tr>
+        <tr><td>Motion</td><td>Reduced-motion media query respected. Default animation duration: 200ms (micro), 300ms (layout), 500ms (page transitions). Celebration animations (goal completion, debt payoff) may extend to 1,500ms for emotional impact.</td></tr>
+        <tr><td>Components</td><td>Atomic design system: atoms (Button, Input, Badge, Avatar), molecules (TransactionRow, GoalCard, BudgetBar), organisms (Dashboard, TransactionList, GoalGrid). No third-party component libraries — all custom to ensure design consistency.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Navigation Philosophy</h3>
+  <p>Tab-based primary navigation with 5 tabs: Dashboard, Transactions, Budget, Goals, Settings. Secondary navigation via stack-based drill-down from any tab. Bottom sheet for quick actions (add transaction, quick budget check). No hamburger menus. Deep linking supported for notification-triggered navigation.</p>
+
+  <h3>Key User Journeys</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">First Launch (Onboarding)</div>
+      <div class="card-body">5-step onboarding: language select → PIN setup → profile & currency → first account → first budget template. Completable in under 3 minutes. Skip option available (returns to core setup on next prompt). Onboarding state is tracked; partial completion resumes from last step.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Add Transaction (Primary Action)</div>
+      <div class="card-body">Accessible from any tab via floating action button and dashboard quick-add. Amount entry is the first field (numeric keyboard). Category, account, date are pre-filled intelligently. Notes are optional. Submission completes in 3 taps for a common expense. Total target: under 10 seconds.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Review Financial Health</div>
+      <div class="card-body">Dashboard → FHS widget → detail view shows dimension breakdown. Each dimension links to the relevant feature (tap "Debt" score → debt manager). AI coach accessible from the FHS detail to explain score and suggest improvements. Journey completable in under 60 seconds.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Set Up Debt Payoff Plan</div>
+      <div class="card-body">Debt tab → Add Debt → enter balance, rate, minimum payment → Strategy Selection screen shows avalanche vs snowball vs hybrid with projected savings and payoff dates → Select strategy → Plan is active. Milestone celebrations triggered on each debt payoff event.</div>
+    </div>
+  </div>
+
+  <h3>Accessibility Commitments</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Standard</th><th>Requirement</th><th>Enforcement</th></tr></thead>
+      <tbody>
+        <tr><td>Contrast ratio</td><td>Minimum 4.5:1 for normal text; 3:1 for large text and UI components</td><td>Design token system enforces; automated CI check; manual audit per release</td></tr>
+        <tr><td>Touch targets</td><td>Minimum 44×44px for all interactive elements</td><td>Component design system enforces minimum hit areas</td></tr>
+        <tr><td>Screen reader</td><td>Full VoiceOver (iOS) and TalkBack (Android) support; all interactive elements labeled</td><td>Manual QA on both platforms before each release</td></tr>
+        <tr><td>Reduced motion</td><td>All animations respect prefers-reduced-motion; functional equivalents provided</td><td>Motion hooks check system preference; no purely decorative motion in critical paths</td></tr>
+        <tr><td>Focus management</td><td>Logical focus order; focus visible at all times; modal focus trap</td><td>Expo Router manages focus; modals use FocusTrap component</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── §6 Data Governance ── -->
+<section id="s6">
+  <div class="sec-eyebrow">Section 6</div>
+  <div class="sec-title">Data Governance</div>
+  <div class="sec-sub">Database architecture, entity model, data lifecycle, migration strategy, privacy compliance, and retention policy. Full specification in SPEC-DB-001.</div>
+
+  <h3>Core Entity Model</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Entity</th><th>Primary Key</th><th>Key Fields</th><th>Relationships</th><th>Notes</th></tr></thead>
+      <tbody>
+        <tr><td>users</td><td>ULID</td><td>display_name, locale, primary_currency_code, created_at</td><td>Root entity; all others reference users</td><td>Single-user in v1.0; multi-user CRDT-ready in v2.x</td></tr>
+        <tr><td>accounts</td><td>ULID</td><td>name, type, currency_code, initial_balance_centimes, is_deleted</td><td>Has many: transactions, transfers</td><td>Balance computed, never stored as field</td></tr>
+        <tr><td>transactions</td><td>ULID</td><td>account_id, category_id, amount_centimes, type, date, notes, is_deleted, is_recurring</td><td>Belongs to: account, category; has many: tags</td><td>Largest table; FTS5 index on notes+payee</td></tr>
+        <tr><td>categories</td><td>ULID</td><td>name, icon, color, parent_id, type (income/expense), is_system, is_deleted</td><td>Self-referencing (hierarchy); has many: transactions, budget_items</td><td>Hierarchical; max 2 levels in v1.0</td></tr>
+        <tr><td>budgets</td><td>ULID</td><td>period_start, period_end, total_amount_centimes, rollover_enabled, is_active</td><td>Has many: budget_items</td><td>One active budget per period; historical preserved</td></tr>
+        <tr><td>budget_items</td><td>ULID</td><td>budget_id, category_id, allocated_centimes, rollover_centimes</td><td>Belongs to: budget, category</td><td>Spent amount computed from transactions</td></tr>
+        <tr><td>debts</td><td>ULID</td><td>name, current_balance_centimes, interest_rate_bps, min_payment_centimes, due_day, creditor, is_deleted</td><td>Has many: debt_payments</td><td>Interest rate stored as basis points (integer)</td></tr>
+        <tr><td>goals</td><td>ULID</td><td>name, target_centimes, current_centimes, target_date, category, linked_account_id, status, is_deleted</td><td>Has many: goal_dependencies; belongs to: account</td><td>Dependencies form a DAG; cycle prevention enforced</td></tr>
+        <tr><td>income_sources</td><td>ULID</td><td>name, type, gross_centimes, net_centimes, frequency, linked_account_id</td><td>Belongs to: account</td><td>Drives budget recommendations and cashflow projections</td></tr>
+        <tr><td>achievements</td><td>ULID</td><td>achievement_type, unlocked_at, xp_awarded, metadata_json</td><td>Belongs to: user</td><td>Append-only; never soft-deleted</td></tr>
+        <tr><td>fhs_snapshots</td><td>ULID</td><td>date, total_score, dimension_scores_json, factors_json</td><td>Belongs to: user</td><td>Daily snapshot; read-only after creation</td></tr>
+        <tr><td>ai_conversations</td><td>ULID</td><td>session_id, messages_json (encrypted), created_at</td><td>Belongs to: user</td><td>Stored encrypted; user can delete; no transmission of full history</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Data Lifecycle Policy</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Data Type</th><th>Creation</th><th>Modification</th><th>Deletion</th><th>Retention</th></tr></thead>
+      <tbody>
+        <tr><td>Financial transactions</td><td>User action or recurring engine</td><td>Allowed; version history not tracked in v1.0</td><td>Soft delete only (is_deleted = 1)</td><td>Indefinite (never purged)</td></tr>
+        <tr><td>Accounts</td><td>User action</td><td>Allowed for name, type; currency locked after first transaction</td><td>Soft delete; prevents new transactions</td><td>Indefinite</td></tr>
+        <tr><td>Budget history</td><td>Period engine</td><td>Allowed during active period only</td><td>Never deleted; historical read-only after period end</td><td>Indefinite</td></tr>
+        <tr><td>FHS snapshots</td><td>Nightly (system)</td><td>Immutable after creation</td><td>Cascade delete only on account deletion</td><td>2 years rolling (older archived)</td></tr>
+        <tr><td>AI conversations</td><td>User-initiated chat</td><td>Immutable after session close</td><td>User explicit delete — fully removed (physical delete)</td><td>User-controlled; default 90 days</td></tr>
+        <tr><td>Achievements</td><td>Event engine</td><td>Immutable after unlock</td><td>Never deleted</td><td>Indefinite</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Privacy Architecture</h3>
+  <div class="callout-ok callout">
+    <strong>Privacy by Design:</strong> All financial data resides exclusively on the user's device, encrypted by SQLCipher AES-256-CBC with a key derived from the user's PIN via PBKDF2 (600,000 iterations). No analytics SDK receives identifiable financial data. Crash reports are PII-scrubbed before transmission. AI interactions transmit only a structured financial snapshot (no raw transaction history). In v1.0, Finance Bag is data-silent: it neither transmits nor receives user financial data over any network.
+  </div>
+
+  <h3>Migration Strategy</h3>
+  <p>Database migrations are numbered sequentially (migration_001, migration_002, …) and executed by Drizzle ORM on app startup. Migrations are append-only — historical migrations are never modified. Every migration has a corresponding automated test. A migration failure on app startup triggers a safe error screen with recovery options (not a crash). The migration chain is verified in CI before every release.</p>
+</section>
+
+<!-- ── §7 Security Summary ── -->
+<section id="s7">
+  <div class="sec-eyebrow">Section 7</div>
+  <div class="sec-title">Security Summary</div>
+  <div class="sec-sub">Authentication architecture, encryption model, session management, threat mitigation, and compliance posture. Full specification in SPEC-SEC-001.</div>
+
+  <h3>Security Architecture Overview</h3>
+  <div class="pipeline">
+    <div class="pipe-stage pipe-top-ok">
+      <div class="pipe-num">S-1</div>
+      <div class="pipe-name">Authentication</div>
+      <div class="pipe-sub">PIN + Biometric</div>
+    </div>
+    <div class="pipe-stage pipe-top-acc">
+      <div class="pipe-num">S-2</div>
+      <div class="pipe-name">Key Derivation</div>
+      <div class="pipe-sub">PBKDF2 · 600K iter</div>
+    </div>
+    <div class="pipe-stage pipe-top-cy">
+      <div class="pipe-num">S-3</div>
+      <div class="pipe-name">DB Encryption</div>
+      <div class="pipe-sub">AES-256-CBC</div>
+    </div>
+    <div class="pipe-stage pipe-top-blue">
+      <div class="pipe-num">S-4</div>
+      <div class="pipe-name">Session Guard</div>
+      <div class="pipe-sub">Auto-lock · Timeout</div>
+    </div>
+    <div class="pipe-stage pipe-top-vio">
+      <div class="pipe-num">S-5</div>
+      <div class="pipe-name">Network Layer</div>
+      <div class="pipe-sub">TLS 1.3 · Cert pin</div>
+    </div>
+    <div class="pipe-stage pipe-top-em">
+      <div class="pipe-num">S-6</div>
+      <div class="pipe-name">Output Guard</div>
+      <div class="pipe-sub">PII scrub · Audit log</div>
+    </div>
+  </div>
+
+  <h3>Encryption Architecture</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Layer</th><th>Algorithm</th><th>Key Source</th><th>Where</th></tr></thead>
+      <tbody>
+        <tr><td>Database at rest</td><td>SQLCipher AES-256-CBC</td><td>PBKDF2(PIN, device_salt, 600_000, SHA-256)</td><td>All SQLite pages; transparent to Drizzle ORM</td></tr>
+        <tr><td>Keychain / Keystore</td><td>OS-managed (Secure Enclave / TEE)</td><td>OS hardware key</td><td>Biometric key, session token storage</td></tr>
+        <tr><td>AI conversation store</td><td>AES-256-GCM (application layer)</td><td>Derived from database key</td><td>Conversations table; decrypted only when displayed</td></tr>
+        <tr><td>Network transport</td><td>TLS 1.3 minimum</td><td>Certificate pinning for Anthropic API</td><td>All outbound HTTPS requests</td></tr>
+        <tr><td>Export files</td><td>AES-256 (optional)</td><td>User-chosen password</td><td>JSON/CSV exports when encryption requested</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Threat Mitigation Summary</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Threat</th><th>Mitigation</th></tr></thead>
+      <tbody>
+        <tr><td>Device theft / physical access</td><td>SQLCipher encryption; auto-lock; PIN required on every unlock; biometric optional but not sole factor</td></tr>
+        <tr><td>Bruteforce PIN attack</td><td>Progressive delay after failed attempts (30s, 2min, 15min); optional wipe after N consecutive failures</td></tr>
+        <tr><td>Memory scraping</td><td>Sensitive values cleared from memory on app background; no financial data in system logs</td></tr>
+        <tr><td>Network interception (AI calls)</td><td>TLS 1.3 + certificate pinning; no raw transaction data in AI payload; only structured anonymous snapshot</td></tr>
+        <tr><td>Screenshot / screen recorder</td><td>Secure flag on sensitive screens (account balances, PIN entry) on Android; iOS blur on app-switch</td></tr>
+        <tr><td>SQL injection</td><td>Drizzle ORM parameterized queries exclusively; no string concatenation in SQL; SAST rules in CI</td></tr>
+        <tr><td>Dependency compromise</td><td>npm audit + Snyk on every CI run; lockfile enforced; major version pinning; CVE alerts to Tech Lead</td></tr>
+        <tr><td>Social engineering (coercion)</td><td>Decoy PIN presents sanitized empty account; no visible indication of decoy mode</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ── §8 AI Summary ── -->
+<section id="s8">
+  <div class="sec-eyebrow">Section 8</div>
+  <div class="sec-title">AI Summary</div>
+  <div class="sec-sub">AI architecture, coaching capabilities, privacy design, provider independence, and future evolution. Full specification in SPEC-AI-001.</div>
+
+  <h3>AI Architecture</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Component</th><th>Design</th></tr></thead>
+      <tbody>
+        <tr><td>Provider</td><td>Anthropic claude-sonnet-5. Accessed via a provider adapter interface — no direct SDK imports from domain layer. The provider can be replaced without touching coaching logic.</td></tr>
+        <tr><td>Financial Snapshot</td><td>Before each AI interaction, a structured snapshot builder creates a sanitized financial summary: aggregates only (no raw transaction list). Net worth, budget utilization by category, debt summary, goal progress, FHS, cashflow projection. Maximum snapshot size: 4,096 tokens.</td></tr>
+        <tr><td>System Prompt</td><td>A version-controlled, non-modifiable-at-runtime system prompt that defines the AI's role (financial coach, not advisor), disclosure requirements ("I am AI and not a financial advisor"), response format constraints, and privacy commitments.</td></tr>
+        <tr><td>Privacy Guarantee</td><td>Individual transactions are never sent to the AI API. The snapshot contains aggregates and summaries only. User PII (name, account names) is anonymized before inclusion. No conversation history is sent without user-initiated context sharing.</td></tr>
+        <tr><td>Context Window Management</td><td>Conversation history is summarized client-side before exceeding 80% of the model's context window. Summaries are generated by the AI itself and stored locally. Full history is never discarded — it remains in local encrypted storage.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>AI Coaching Capabilities</h3>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">Conversational Financial Q&A</div>
+      <div class="card-body">Natural language questions about the user's own finances ("Why did I overspend in June?", "Can I afford a car payment?"). Responses are contextual — grounded in the user's actual snapshot, not generic advice.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Spending Pattern Analysis</div>
+      <div class="card-body">Identifies top spending categories, unusual spikes, recurring subscriptions, and year-over-year trends from transaction aggregates. Presents findings as prioritized insights rather than raw data.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Debt Strategy Guidance</div>
+      <div class="card-body">Explains the mathematical difference between avalanche and snowball methods for the user's specific debt profile. Models the impact of extra payments. Frames decisions in terms of total interest saved and psychological motivation trade-offs.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Budget Calibration</div>
+      <div class="card-body">Suggests budget adjustments based on 3+ months of spending history. Identifies categories where the budget is consistently under-estimated or over-estimated. Recommends rebalancing to match actual behavior while guiding toward goals.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Cash Flow Prediction</div>
+      <div class="card-body">Projects income and expenses for the remainder of the current month based on recurring transactions and historical patterns. Alerts when projected month-end balance will be negative. Suggests discretionary spending reductions to prevent shortfall.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">Goal Feasibility Assessment</div>
+      <div class="card-body">Assesses whether a goal's target amount is achievable by its target date given current savings rate. Suggests either adjusting the timeline, increasing monthly contribution, or modifying related spending. Keeps recommendations grounded in current financial reality.</div>
+    </div>
+  </div>
+
+  <h3>Explainability & Disclosure</h3>
+  <p>Every AI response that references financial data includes a "Based on" citation noting the data points used (e.g., "Based on your last 3 months of dining expenses averaging $340/month..."). Every AI response carries a persistent disclosure label: "AI-generated. Not financial advice." The AI is instructed to recommend professional financial advisors for decisions involving taxes, investments, or legal matters.</p>
+
+  <h3>Provider Independence</h3>
+  <div class="callout-violet callout">
+    <strong>Invariant:</strong> The AI coaching system is accessed exclusively through an <code>AIProvider</code> interface defined in the infrastructure layer. This interface accepts a financial snapshot and returns a structured response. The domain layer has no knowledge of Anthropic, claude-sonnet-5, or any API-specific parameters. Migrating to a different provider requires implementing a new adapter only — zero changes to coaching logic, snapshot building, or UI.
+  </div>
+</section>
+
+<!-- ── §9 Quality Summary ── -->
+<section id="s9">
+  <div class="sec-eyebrow">Section 9</div>
+  <div class="sec-title">Quality Summary</div>
+  <div class="sec-sub">Testing strategy, performance targets, monitoring architecture, observability, and continuous improvement process. Full specifications in SPEC-QA-001 and SPEC-PMO-001.</div>
+
+  <h3>Testing Strategy</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Test Type</th><th>Tool</th><th>Coverage Target</th><th>Gate</th></tr></thead>
+      <tbody>
+        <tr><td>Unit tests (business logic)</td><td>Jest + Hermes</td><td>≥85% line coverage; ≥80% branch coverage</td><td>CI hard fail on regression</td></tr>
+        <tr><td>Unit tests (stores)</td><td>Jest</td><td>≥90% for all Zustand stores</td><td>CI hard fail</td></tr>
+        <tr><td>Unit tests (database layer)</td><td>Jest + in-memory SQLite</td><td>≥90% for all schema operations and migrations</td><td>CI hard fail</td></tr>
+        <tr><td>Unit tests (utilities)</td><td>Jest</td><td>≥95% for crypto, ULID, formatting functions</td><td>CI hard fail</td></tr>
+        <tr><td>Component tests</td><td>Jest + React Native Testing Library</td><td>≥75% for UI components</td><td>CI hard fail</td></tr>
+        <tr><td>Integration tests</td><td>Jest + in-memory DB</td><td>100% pass for all cross-module contracts</td><td>CI hard fail</td></tr>
+        <tr><td>E2E tests (smoke)</td><td>Detox</td><td>All critical paths on Android emulator + iOS simulator</td><td>CI hard fail; required for RC promotion</td></tr>
+        <tr><td>Accessibility tests</td><td>Detox + a11y assertions + manual</td><td>WCAG 2.1 AA compliance</td><td>Manual audit before each release</td></tr>
+        <tr><td>Performance tests</td><td>Flashlight + custom profiling</td><td>All targets met on reference devices</td><td>Baseline regression alert in CI</td></tr>
+        <tr><td>Security tests</td><td>Semgrep + npm audit + Snyk</td><td>Zero high/critical in production binary</td><td>CI hard fail</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Performance Targets</h3>
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-label">Cold Launch</div>
+      <div class="kpi-val">≤2.5s</div>
+      <div class="kpi-desc">p95 on reference devices</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Dashboard Render</div>
+      <div class="kpi-val">≤300ms</div>
+      <div class="kpi-desc">Time to interactive</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Transaction Save</div>
+      <div class="kpi-val">≤100ms</div>
+      <div class="kpi-desc">Commit + UI update</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">DB Query (1,000 tx)</div>
+      <div class="kpi-val">≤50ms</div>
+      <div class="kpi-desc">Standard list query</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Search Results</div>
+      <div class="kpi-val">≤200ms</div>
+      <div class="kpi-desc">FTS5 on 10K records</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">JS Bundle Size</div>
+      <div class="kpi-val">≤3.5MB</div>
+      <div class="kpi-desc">Minified + gzipped</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Memory (steady)</div>
+      <div class="kpi-val">≤120MB</div>
+      <div class="kpi-desc">Stable app usage</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Frame Rate</div>
+      <div class="kpi-val">60 FPS</div>
+      <div class="kpi-desc">All animations (≤120 on ProMotion)</div>
+    </div>
+  </div>
+
+  <h3>Monitoring Architecture</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Layer</th><th>Tool</th><th>P0 Alert Threshold</th></tr></thead>
+      <tbody>
+        <tr><td>Crash & error monitoring</td><td>Sentry React Native (PII-scrubbed)</td><td>Crash-free rate &lt; 99%; any new crash type in production</td></tr>
+        <tr><td>Performance monitoring</td><td>Sentry Performance + custom spans</td><td>Cold launch p95 &gt; 5,000ms; frame rate &lt; 50fps</td></tr>
+        <tr><td>Platform vitals (Android)</td><td>Google Play Console — Android Vitals</td><td>ANR rate &gt; 0.5%; crash rate &gt; 1%</td></tr>
+        <tr><td>Platform vitals (iOS)</td><td>App Store Connect Crashes + Sentry</td><td>Crash-free sessions &lt; 99%</td></tr>
+        <tr><td>AI API health</td><td>Custom uptime check + Anthropic status</td><td>API error rate &gt; 5% in production</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ §10 -->
+<section id="s10">
+  <div class="sec-eyebrow">SECTION 10</div>
+  <h2>Development Strategy</h2>
+  <p>This section defines the engineering culture, methodology, and standards that govern how the Finance Bag platform is built. These principles ensure consistency across the 11-specification suite and form the operational backbone for 5+ years of active development.</p>
+
+  <h3>10.1 Guiding Architecture Principles</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Principle</th><th>Statement</th><th>Architectural Implication</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Offline-First</strong></td><td>The application must be fully functional without network connectivity</td><td>All user actions write to SQLite first; synchronization is a background concern, never a blocker</td></tr>
+        <tr><td><strong>Privacy-by-Default</strong></td><td>No user financial data leaves the device without explicit user consent</td><td>AI coaching operates on anonymized, client-aggregated metrics; no raw transactions transmitted</td></tr>
+        <tr><td><strong>Precision-over-Convenience</strong></td><td>Financial accuracy is non-negotiable; no rounding shortcuts</td><td>All monetary values stored as integer centimes; floating-point arithmetic is prohibited in financial calculations</td></tr>
+        <tr><td><strong>Adapter Isolation</strong></td><td>Third-party services are accessed exclusively through defined adapter interfaces</td><td>AI provider, notification service, and analytics are each behind a typed adapter; swap without touching business logic</td></tr>
+        <tr><td><strong>Type Safety Everywhere</strong></td><td>TypeScript strict mode with zero <code>any</code> in production paths</td><td>ESLint enforces <code>@typescript-eslint/no-explicit-any</code>; CI fails on violation</td></tr>
+        <tr><td><strong>Auditability</strong></td><td>Every financial state change must be reconstructible from immutable event records</td><td>Soft-delete only; append-only transaction ledger; ULID timestamps enable total ordering</td></tr>
+        <tr><td><strong>Performance-as-Feature</strong></td><td>Cold launch &lt;1,500ms on target devices; zero jank in list scrolling</td><td>Hermes engine; lazy navigation; FlatList virtualization; SQLite indexed queries only</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>10.2 Agile Delivery Methodology</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Element</th><th>Specification</th></tr></thead>
+      <tbody>
+        <tr><td>Sprint Duration</td><td>2-week sprints; sprints begin Monday, end Friday of week 2</td></tr>
+        <tr><td>Sprint Planning</td><td>Monday of Sprint Week 1; capacity planning in story points (1 SP ≈ 1 ideal engineer-day); no carry-forward of unfinished stories without explicit re-estimation</td></tr>
+        <tr><td>Daily Standup</td><td>15 minutes; async-first via Slack thread updates; synchronous check-in optional for blocked items</td></tr>
+        <tr><td>Sprint Review</td><td>Friday of Sprint Week 2; demo against acceptance criteria; stakeholder attendance required for v1.0 milestones</td></tr>
+        <tr><td>Sprint Retrospective</td><td>Friday of Sprint Week 2 (post-review); action items assigned with owner and due-date</td></tr>
+        <tr><td>Backlog Refinement</td><td>Wednesday of Sprint Week 1; PO + Tech Lead; stories groomed 1 sprint ahead; acceptance criteria required before estimation</td></tr>
+        <tr><td>Definition of Done</td><td>Code reviewed (≥1 approval), CI green, tests at coverage target, accessibility audit passed, SPEC cross-reference updated, changelog entry written</td></tr>
+        <tr><td>Definition of Ready</td><td>User story written, acceptance criteria defined, SPEC-ID cross-referenced, dependencies identified, no blocking unknowns</td></tr>
+        <tr><td>Capacity Planning</td><td>70% capacity for sprint commitments; 20% for tech debt and hardening; 10% for unplanned/support</td></tr>
+        <tr><td>Velocity Tracking</td><td>12-sprint rolling average; used for release date forecasting; not a performance metric</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>10.3 Coding Standards &amp; Conventions</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Domain</th><th>Standard</th></tr></thead>
+      <tbody>
+        <tr><td>Language</td><td>TypeScript 5.3 strict; <code>tsconfig.json</code> with <code>strict: true</code>, <code>noUncheckedIndexedAccess: true</code>, <code>exactOptionalPropertyTypes: true</code></td></tr>
+        <tr><td>File Naming</td><td>kebab-case for files and directories; PascalCase for React components; camelCase for functions and variables; SCREAMING_SNAKE for compile-time constants</td></tr>
+        <tr><td>Module Structure</td><td>Feature-first: <code>src/features/{domain}/</code> containing <code>components/</code>, <code>hooks/</code>, <code>store/</code>, <code>utils/</code>, <code>types/</code></td></tr>
+        <tr><td>Import Order</td><td>React → React Native → Expo → Third-party → Internal absolute → Internal relative; enforced by eslint-plugin-import</td></tr>
+        <tr><td>Component Contracts</td><td>Props typed with explicit interface (no inline object types); optional props have documented defaults; no prop-drilling beyond 2 levels — use Zustand store</td></tr>
+        <tr><td>Error Handling</td><td>Never throw raw strings; use typed <code>AppError</code> class; all async operations wrapped in <code>Result&lt;T, AppError&gt;</code> return type</td></tr>
+        <tr><td>Financial Arithmetic</td><td>All monetary operations via <code>money.ts</code> utility module; integer centimes input/output only; display formatting via <code>Intl.NumberFormat</code></td></tr>
+        <tr><td>Testing Colocation</td><td>Unit tests in <code>__tests__/</code> adjacent to implementation; integration tests in <code>src/__tests__/integration/</code>; E2E in <code>e2e/</code></td></tr>
+        <tr><td>Commit Message</td><td>Conventional Commits: <code>feat(scope): description</code>; scope matches feature domain (transactions, budgets, ai, auth, etc.); breaking changes marked <code>!</code></td></tr>
+        <tr><td>PR Size</td><td>Target &lt;400 lines changed per PR; larger PRs require tech lead approval and must be split into logical stages where possible</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>10.4 Module Ownership Map</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Domain Module</th><th>Primary Owner Role</th><th>Backup Owner</th><th>SPEC Reference</th></tr></thead>
+      <tbody>
+        <tr><td>Authentication &amp; Security</td><td>Security Lead</td><td>Tech Lead</td><td>SPEC-SEC-001</td></tr>
+        <tr><td>Transaction Ledger</td><td>Backend Lead</td><td>Full-Stack Engineer</td><td>SPEC-PRD-001, SPEC-DAT-001</td></tr>
+        <tr><td>Budget Engine</td><td>Backend Lead</td><td>Full-Stack Engineer</td><td>SPEC-PRD-001</td></tr>
+        <tr><td>AI Coaching</td><td>AI Engineer</td><td>Tech Lead</td><td>SPEC-AI-001</td></tr>
+        <tr><td>Navigation &amp; Shell</td><td>Frontend Lead</td><td>Mobile Engineer</td><td>SPEC-UX-001</td></tr>
+        <tr><td>Design System / Tokens</td><td>UX Engineer</td><td>Frontend Lead</td><td>SPEC-UX-001</td></tr>
+        <tr><td>Database &amp; Migrations</td><td>Data Architect</td><td>Backend Lead</td><td>SPEC-DAT-001, SPEC-ARC-001</td></tr>
+        <tr><td>CI/CD Pipeline</td><td>DevOps Engineer</td><td>Tech Lead</td><td>SPEC-OPS-001</td></tr>
+        <tr><td>Internationalization</td><td>Frontend Lead</td><td>Mobile Engineer</td><td>SPEC-PRD-001</td></tr>
+        <tr><td>Accessibility</td><td>UX Engineer</td><td>QA Lead</td><td>SPEC-UX-001, SPEC-QA-001</td></tr>
+        <tr><td>Analytics &amp; Gamification</td><td>Full-Stack Engineer</td><td>Product Manager</td><td>SPEC-GAM-001</td></tr>
+        <tr><td>Quality Assurance</td><td>QA Lead</td><td>Tech Lead</td><td>SPEC-QA-001</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>10.5 Documentation Standards</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Artifact</th><th>Format</th><th>Update Trigger</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td>Architecture Decision Records (ADRs)</td><td>Markdown in <code>docs/adr/</code>; template: context, decision, consequences, status</td><td>Any architectural change affecting ≥2 modules or introducing a new dependency</td><td>Tech Lead</td></tr>
+        <tr><td>Specification Documents (SPEC-*)</td><td>HTML in <code>docs/specs/</code>; this suite of 11 documents</td><td>Feature additions, business rule changes, architecture pivots</td><td>Principal Architect + PO</td></tr>
+        <tr><td>API / Interface Contracts</td><td>TypeScript interfaces in <code>src/types/contracts/</code>; versioned with semver suffix</td><td>Any change to a public module interface</td><td>Module Owner</td></tr>
+        <tr><td>Changelog</td><td><code>CHANGELOG.md</code> following Keep a Changelog format; grouped by version</td><td>Every PR merged to <code>main</code></td><td>PR Author</td></tr>
+        <tr><td>Runbooks</td><td>Markdown in <code>docs/runbooks/</code>; one file per operational procedure</td><td>New operational procedure identified; existing procedure changed</td><td>DevOps / SRE</td></tr>
+        <tr><td>Data Dictionary</td><td>Generated from drizzle-orm schema; supplemented by <code>docs/data-dictionary.md</code></td><td>Any schema migration</td><td>Data Architect</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ §11 -->
+<section id="s11">
+  <div class="sec-eyebrow">SECTION 11</div>
+  <h2>Release Roadmap</h2>
+  <p>The release roadmap defines the phased delivery from project inception through mature platform. All dates are expressed as weeks from project kickoff (Week 0). Version numbers follow Semantic Versioning 2.0.0.</p>
+
+  <h3>11.1 Pre-Launch Phase (Weeks 0–46)</h3>
+  <div class="roadmap-grid">
+    <div class="roadmap-phase">
+      <div class="roadmap-ver rel-v10">MVP — Week 20</div>
+      <div class="roadmap-name">Internal Alpha</div>
+      <div class="roadmap-feat">Core transaction ledger (CRUD)</div>
+      <div class="roadmap-feat">Account management (5 types)</div>
+      <div class="roadmap-feat">Basic budget creation &amp; tracking</div>
+      <div class="roadmap-feat">SQLCipher local encryption</div>
+      <div class="roadmap-feat">PIN authentication</div>
+      <div class="roadmap-feat">English (US) locale only</div>
+      <div class="roadmap-feat">iOS + Android builds via EAS</div>
+      <div class="roadmap-date">Target: Week 20 · Team Internal Only</div>
+    </div>
+    <div class="roadmap-phase">
+      <div class="roadmap-ver rel-v10">v0.8 Beta — Week 32</div>
+      <div class="roadmap-name">Closed Beta</div>
+      <div class="roadmap-feat">All 6 launch locales + RTL</div>
+      <div class="roadmap-feat">20-currency support</div>
+      <div class="roadmap-feat">Recurring transactions engine</div>
+      <div class="roadmap-feat">Reports (6 chart types)</div>
+      <div class="roadmap-feat">AI coaching integration (claude-sonnet-5)</div>
+      <div class="roadmap-feat">Financial Health Score (FHS)</div>
+      <div class="roadmap-feat">Biometric authentication</div>
+      <div class="roadmap-feat">Gamification system (XP, streaks, badges)</div>
+      <div class="roadmap-date">Target: Week 32 · ≤500 beta testers</div>
+    </div>
+    <div class="roadmap-phase">
+      <div class="roadmap-ver rel-v10">v0.9 RC — Week 40</div>
+      <div class="roadmap-name">Release Candidate</div>
+      <div class="roadmap-feat">Full WCAG 2.1 AA audit completed</div>
+      <div class="roadmap-feat">App Store + Play Store assets ready</div>
+      <div class="roadmap-feat">Privacy Policy + Terms of Service finalized</div>
+      <div class="roadmap-feat">Performance benchmarks validated</div>
+      <div class="roadmap-feat">Security penetration test passed</div>
+      <div class="roadmap-feat">App Store review submission</div>
+      <div class="roadmap-feat">Data export (CSV/PDF) feature complete</div>
+      <div class="roadmap-date">Target: Week 40 · Open Beta (≤5,000)</div>
+    </div>
+    <div class="roadmap-phase">
+      <div class="roadmap-ver rel-v10">v1.0.0 — Week 46</div>
+      <div class="roadmap-name">General Availability</div>
+      <div class="roadmap-feat">Public launch: App Store + Google Play</div>
+      <div class="roadmap-feat">5% → 20% → 50% → 100% rollout</div>
+      <div class="roadmap-feat">All 100+ features in inventory live</div>
+      <div class="roadmap-feat">Support desk operational</div>
+      <div class="roadmap-feat">Monitoring dashboards active</div>
+      <div class="roadmap-feat">Incident response runbooks deployed</div>
+      <div class="roadmap-date">Target: Week 46 · Global GA</div>
+    </div>
+  </div>
+
+  <h3>11.2 Post-Launch Quarterly Releases (v1.x)</h3>
+  <div class="roadmap-grid">
+    <div class="roadmap-phase">
+      <div class="roadmap-ver rel-v1x">v1.1 — Q1 Post-Launch</div>
+      <div class="roadmap-name">Growth &amp; Polish</div>
+      <div class="roadmap-feat">Advanced analytics dashboard</div>
+      <div class="roadmap-feat">Custom category icons &amp; colors</div>
+      <div class="roadmap-feat">Widget support (iOS 16 / Android 12)</div>
+      <div class="roadmap-feat">Siri / Google Assistant shortcuts</div>
+      <div class="roadmap-feat">Performance optimizations from launch telemetry</div>
+      <div class="roadmap-feat">Additional badge &amp; achievement types</div>
+      <div class="roadmap-date">~12 weeks post-GA</div>
+    </div>
+    <div class="roadmap-phase">
+      <div class="roadmap-ver rel-v1x">v1.2 — Q2 Post-Launch</div>
+      <div class="roadmap-name">Intelligence Upgrade</div>
+      <div class="roadmap-feat">Expanded AI coaching conversation modes</div>
+      <div class="roadmap-feat">Predictive budget alerts (trend-based)</div>
+      <div class="roadmap-feat">Smart transaction categorization suggestions</div>
+      <div class="roadmap-feat">Seasonal financial insights</div>
+      <div class="roadmap-feat">Multi-currency net worth tracking</div>
+      <div class="roadmap-date">~24 weeks post-GA</div>
+    </div>
+    <div class="roadmap-phase">
+      <div class="roadmap-ver rel-v1x">v1.3 — Q3 Post-Launch</div>
+      <div class="roadmap-name">Social &amp; Sharing</div>
+      <div class="roadmap-feat">Shareable financial health snapshots (privacy-masked)</div>
+      <div class="roadmap-feat">Export to financial advisor format</div>
+      <div class="roadmap-feat">Enhanced CSV import (bank statement parsing)</div>
+      <div class="roadmap-feat">Notification preferences expansion</div>
+      <div class="roadmap-date">~36 weeks post-GA</div>
+    </div>
+    <div class="roadmap-phase">
+      <div class="roadmap-ver rel-v1x">v1.4 — Q4 Post-Launch</div>
+      <div class="roadmap-name">Platform Maturity</div>
+      <div class="roadmap-feat">Year-in-review annual report feature</div>
+      <div class="roadmap-feat">Tax preparation export templates</div>
+      <div class="roadmap-feat">Advanced goal milestone celebrations</div>
+      <div class="roadmap-feat">Accessibility audit v2 + additional locale support</div>
+      <div class="roadmap-date">~48 weeks post-GA</div>
+    </div>
+  </div>
+
+  <h3>11.3 Platform Evolution (v2.x – v3.x)</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Version</th><th>Theme</th><th>Key Capabilities</th><th>Prerequisite</th></tr></thead>
+      <tbody>
+        <tr><td><span class="roadmap-ver rel-v2x" style="display:inline-block;margin:0">v2.0</span></td><td>Collaboration</td><td>Household / family shared budgeting; role-based access (owner, viewer, editor); shared goals; consolidated family reports</td><td>v1.4 stable; cloud sync architecture decision finalized</td></tr>
+        <tr><td><span class="roadmap-ver rel-v2x" style="display:inline-block;margin:0">v2.1</span></td><td>Open Banking</td><td>Read-only bank feed integration (PSD2 / Open Banking API); automatic transaction import with manual confirmation; balance reconciliation</td><td>v2.0 stable; jurisdiction-specific legal review completed; partner bank agreements signed</td></tr>
+        <tr><td><span class="roadmap-ver rel-v2x" style="display:inline-block;margin:0">v2.2</span></td><td>Investments</td><td>Investment portfolio tracking (manual entry); asset allocation visualization; net worth timeline; multi-asset class support</td><td>v2.1 stable; financial data compliance review</td></tr>
+        <tr><td><span class="roadmap-ver rel-v3x" style="display:inline-block;margin:0">v3.0</span></td><td>Platform</td><td>Public API for third-party integrations; developer SDK; partner ecosystem; white-label licensing option; enterprise tier</td><td>v2.x proven at scale (≥500k MAU); legal &amp; compliance framework matured</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ §12 -->
+<section id="s12">
+  <div class="sec-eyebrow">SECTION 12</div>
+  <h2>Project Governance</h2>
+  <p>Governance defines how decisions are made, how the architecture evolves, and how the team manages change, technical debt, and long-term roadmap alignment.</p>
+
+  <h3>12.1 Decision-Making Framework</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Decision Type</th><th>Decision Maker</th><th>Required Input</th><th>Documentation</th></tr></thead>
+      <tbody>
+        <tr><td>Product feature inclusion/exclusion</td><td>Product Owner</td><td>User research, tech estimate, strategic fit</td><td>Backlog + SPEC update</td></tr>
+        <tr><td>Architecture pattern change</td><td>Tech Lead + Principal Architect</td><td>ADR with context, options, consequences</td><td>ADR filed in <code>docs/adr/</code></td></tr>
+        <tr><td>New dependency introduction</td><td>Tech Lead</td><td>Security audit, license review, bundle size impact, maintenance status</td><td>ADR or PR description</td></tr>
+        <tr><td>API / interface contract change (breaking)</td><td>Tech Lead + affected module owners</td><td>Migration plan, deprecation timeline, impact assessment</td><td>ADR + CHANGELOG + SPEC update</td></tr>
+        <tr><td>Infrastructure change (EAS, CI, cloud)</td><td>DevOps Lead</td><td>Risk assessment, rollback plan</td><td>Runbook update + change log</td></tr>
+        <tr><td>Security policy change</td><td>Security Lead + Tech Lead</td><td>Threat model update</td><td>SPEC-SEC-001 update + ADR</td></tr>
+        <tr><td>Release date change</td><td>Product Owner + Tech Lead</td><td>Velocity data, scope delta, stakeholder communication plan</td><td>Roadmap update</td></tr>
+        <tr><td>SPEC document update (major section)</td><td>Principal Architect + PO</td><td>Review by all relevant module owners</td><td>SPEC revision with changelog entry</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>12.2 Architecture Decision Record (ADR) Process</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Stage</th><th>Action</th><th>Owner</th></tr></thead>
+      <tbody>
+        <tr><td>Trigger</td><td>Any engineer may propose an ADR when an architectural decision is needed; Tech Lead confirms ADR is required vs. PR description sufficiency</td><td>Any engineer</td></tr>
+        <tr><td>Draft</td><td>Author writes ADR using standard template: Title, Status (Proposed), Context, Decision, Consequences (positive, negative, neutral)</td><td>Proposing engineer</td></tr>
+        <tr><td>Review</td><td>ADR opened as PR; minimum 2 approvals required (Tech Lead + one module owner affected); discussion period ≥48 hours</td><td>Tech Lead</td></tr>
+        <tr><td>Accept/Reject</td><td>Status updated to Accepted or Rejected; rejected ADRs retained for institutional memory</td><td>Tech Lead</td></tr>
+        <tr><td>Implementation</td><td>Accepted ADR linked from implementing PR; SPEC documents updated if needed</td><td>Proposing engineer</td></tr>
+        <tr><td>Supersede</td><td>When a decision is revisited, new ADR created with <code>Supersedes: ADR-NNN</code>; old ADR status set to Superseded</td><td>Tech Lead</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>12.3 Technical Debt Management Policy</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Debt Classification</th><th>Definition</th><th>Resolution Policy</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Intentional (Documented)</strong></td><td>Deliberate shortcut taken with explicit trade-off acknowledged in code comment and tech debt backlog</td><td>Scheduled for resolution within 2 sprints; tagged <code>tech-debt</code> in backlog</td></tr>
+        <tr><td><strong>Inadvertent (Discovered)</strong></td><td>Sub-optimal solution identified during review or maintenance; not originally intended as a shortcut</td><td>Added to tech debt backlog; prioritized based on risk (security/data integrity = P0, performance = P1, maintainability = P2)</td></tr>
+        <tr><td><strong>Critical Debt</strong></td><td>Debt that creates security risk, data integrity risk, or blocks performance targets</td><td>Must be resolved before next release; Tech Lead approval required to defer</td></tr>
+        <tr><td><strong>Debt Budget</strong></td><td>20% of each sprint capacity reserved for tech debt and hardening</td><td>Non-negotiable; may be used for debt or proactive hardening; cannot be reallocated to features</td></tr>
+        <tr><td><strong>Debt Review</strong></td><td>Quarterly review of entire tech debt backlog; re-prioritization and aging check</td><td>Tech debt older than 6 months with no schedule must be escalated to Tech Lead</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>12.4 Roadmap Review Cadence</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Review</th><th>Frequency</th><th>Participants</th><th>Output</th></tr></thead>
+      <tbody>
+        <tr><td>Sprint Review</td><td>Every 2 weeks</td><td>Whole team + stakeholders</td><td>Updated backlog priorities; velocity data</td></tr>
+        <tr><td>Quarterly Business Review (QBR)</td><td>Every 12 weeks</td><td>PO, Tech Lead, Principal Architect, key stakeholders</td><td>Roadmap adjustment; resource allocation; risk escalation</td></tr>
+        <tr><td>Annual Architecture Review</td><td>Yearly</td><td>Principal Architect + all module owners</td><td>Tech debt priority reset; dependency audit; SPEC suite revision plan</td></tr>
+        <tr><td>Pre-Release Gate Review</td><td>Before every production release</td><td>Tech Lead, QA Lead, PO, DevOps Lead</td><td>Release go/no-go decision; documented in release notes</td></tr>
+        <tr><td>Post-Incident Review (PIR)</td><td>Within 48h of P0/P1 incident</td><td>Incident Commander + affected module owners</td><td>Root cause analysis; action items with owners and deadlines</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>12.5 Change Management Protocol</h3>
+  <p>All changes to production systems follow this protocol regardless of change size:</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Phase</th><th>Action Required</th></tr></thead>
+      <tbody>
+        <tr><td>Assess</td><td>Categorize change: Standard (pre-approved pattern), Normal (requires CAB review), Emergency (P0 only; post-hoc CAB)</td></tr>
+        <tr><td>Plan</td><td>Document rollback procedure before any Normal or Emergency change is executed</td></tr>
+        <tr><td>Communicate</td><td>Notify team in <code>#releases</code> Slack channel; update status page if user-visible impact possible</td></tr>
+        <tr><td>Execute</td><td>Follow runbook; monitor health gates during and after deployment</td></tr>
+        <tr><td>Validate</td><td>Confirm success via monitoring dashboards; check health gate metrics for ≥30 minutes post-change</td></tr>
+        <tr><td>Document</td><td>Log change outcome; update runbook if procedure deviated; file PIR if incident occurred</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ §13 -->
+<section id="s13">
+  <div class="sec-eyebrow">SECTION 13</div>
+  <h2>Risk Review</h2>
+  <p>Consolidated risk register synthesized from all 11 specification documents. Risks are rated on a 1–5 scale for Likelihood (L) and Impact (I); Priority Score = L × I. Mitigation owners reference module ownership (§10.4).</p>
+
+  <h3>13.1 Technical Risks</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Risk ID</th><th>Risk</th><th>L</th><th>I</th><th>Score</th><th>Mitigation</th><th>SPEC Source</th></tr></thead>
+      <tbody>
+        <tr><td>RT-01</td><td>SQLite FTS5 performance degradation beyond 10,000 transactions</td><td>3</td><td>4</td><td class="warn-cell">12</td><td>Pagination + index optimization; performance benchmark gate in CI; query explain plan review at 1,000 / 5,000 / 10,000 row marks</td><td>SPEC-ARC-001, SPEC-QA-001</td></tr>
+        <tr><td>RT-02</td><td>Hermes JS engine upgrade causes runtime regression</td><td>2</td><td>4</td><td>8</td><td>Upgrade JS engine only in QA environment first; 2-sprint validation window; rollback via prior EAS SDK pin</td><td>SPEC-ARC-001, SPEC-OPS-001</td></tr>
+        <tr><td>RT-03</td><td>SQLCipher migration failure during PIN change corrupts encrypted database</td><td>2</td><td>5</td><td class="warn-cell">10</td><td>Backup-before-migrate pattern; atomic migration with rollback; integration test covering migration path</td><td>SPEC-SEC-001, SPEC-DAT-001</td></tr>
+        <tr><td>RT-04</td><td>React Native version upgrade breaks Expo SDK compatibility</td><td>3</td><td>3</td><td>9</td><td>Upgrade only when Expo SDK ships official support; dependency lock review before upgrade; staging validation required</td><td>SPEC-ARC-001</td></tr>
+        <tr><td>RT-05</td><td>Expo Router navigation state corruption on deep-link edge cases</td><td>2</td><td>3</td><td>6</td><td>Comprehensive E2E coverage for deep-link flows; typed route parameters enforced at compile time</td><td>SPEC-UX-001, SPEC-QA-001</td></tr>
+        <tr><td>RT-06</td><td>Integer centimes overflow for large-denomination currencies</td><td>1</td><td>5</td><td>5</td><td>BigInt guard in money.ts for values exceeding Number.MAX_SAFE_INTEGER; unit test coverage for extreme values</td><td>SPEC-PRD-001, SPEC-DAT-001</td></tr>
+        <tr><td>RT-07</td><td>ULID collision under concurrent writes (edge case on low-resolution clocks)</td><td>1</td><td>3</td><td>3</td><td>ULID entropy component provides 80-bit randomness; collision probability mathematically negligible; unique constraint on PK as final guard</td><td>SPEC-DAT-001</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>13.2 Business Risks</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Risk ID</th><th>Risk</th><th>L</th><th>I</th><th>Score</th><th>Mitigation</th><th>SPEC Source</th></tr></thead>
+      <tbody>
+        <tr><td>RB-01</td><td>App Store / Google Play rejection at initial submission</td><td>3</td><td>4</td><td class="warn-cell">12</td><td>Pre-submission checklist (SPEC-OPS-001 §8); TestFlight + Internal Track testing; legal review of financial app disclosures; privacy manifest complete</td><td>SPEC-OPS-001</td></tr>
+        <tr><td>RB-02</td><td>User adoption below target (≤10k MAU at 90 days)</td><td>3</td><td>4</td><td class="warn-cell">12</td><td>Soft launch in 1 market first; rapid iteration cycle; analytics funnel tracking from Day 1; App Store Optimization (ASO) in launch plan</td><td>SPEC-GAM-001, SPEC-PMO-001</td></tr>
+        <tr><td>RB-03</td><td>Competitor releases comparable feature set during development</td><td>3</td><td>3</td><td>9</td><td>Privacy-first + offline-first as durable differentiator; AI coaching as moat; gamification as engagement layer that requires longitudinal data to replicate</td><td>SPEC-PRD-001</td></tr>
+        <tr><td>RB-04</td><td>Key personnel departure (Tech Lead, Principal Architect)</td><td>2</td><td>4</td><td>8</td><td>Documentation-first culture; ADR history; SPEC suite; no single point of knowledge; pairing on critical modules</td><td>SPEC-PMO-001</td></tr>
+        <tr><td>RB-05</td><td>Scope creep delaying v1.0 launch</td><td>4</td><td>4</td><td class="danger-cell">16</td><td>Strict MoSCoW triage; PO owns "No" on scope additions post-Week 32; change management protocol for post-freeze additions</td><td>SPEC-PMO-001</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>13.3 Security Risks</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Risk ID</th><th>Risk</th><th>L</th><th>I</th><th>Score</th><th>Mitigation</th><th>SPEC Source</th></tr></thead>
+      <tbody>
+        <tr><td>RS-01</td><td>PIN brute-force via direct SQLite file access on rooted device</td><td>2</td><td>5</td><td class="warn-cell">10</td><td>PBKDF2 (600k iterations) makes brute-force computationally infeasible; jailbreak/root detection advisory; AES-256-CBC on entire database</td><td>SPEC-SEC-001</td></tr>
+        <tr><td>RS-02</td><td>Supply chain attack via compromised npm package</td><td>3</td><td>5</td><td class="danger-cell">15</td><td>Dependabot + npm audit in CI; SBOM generation; pinned major versions; no auto-merge of dependency PRs without review</td><td>SPEC-SEC-001, SPEC-OPS-001</td></tr>
+        <tr><td>RS-03</td><td>Anthropic API key exfiltration from device storage</td><td>2</td><td>4</td><td>8</td><td>API key stored in EAS Secrets (never in source); runtime injection via environment variable; no key persisted in app bundle or device storage</td><td>SPEC-SEC-001, SPEC-AI-001</td></tr>
+        <tr><td>RS-04</td><td>Clipboard exposure of financial data on copy actions</td><td>3</td><td>3</td><td>9</td><td>Clipboard cleared after 60 seconds; sensitive fields use secure text entry; no automatic clipboard population for amounts</td><td>SPEC-SEC-001, SPEC-UX-001</td></tr>
+        <tr><td>RS-05</td><td>Screen content exposure in app switcher / recent apps</td><td>3</td><td>3</td><td>9</td><td><code>FLAG_SECURE</code> (Android) / <code>ignoresInvertColors + blur</code> (iOS) applied to all financial screens; enabled by default, configurable in privacy settings</td><td>SPEC-SEC-001</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>13.4 Operational &amp; AI Risks</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Risk ID</th><th>Risk</th><th>L</th><th>I</th><th>Score</th><th>Mitigation</th><th>SPEC Source</th></tr></thead>
+      <tbody>
+        <tr><td>RO-01</td><td>Anthropic API outage degrades AI coaching feature</td><td>3</td><td>3</td><td>9</td><td>Graceful degradation to cached coaching content; feature flag to disable AI UI if API error rate &gt;5%; circuit breaker with exponential backoff</td><td>SPEC-AI-001, SPEC-OPS-001</td></tr>
+        <tr><td>RO-02</td><td>EAS Build service outage blocks release</td><td>2</td><td>4</td><td>8</td><td>Build artifacts cached; manual Xcode/Android Studio fallback runbook documented; release pipeline documented so any senior engineer can execute</td><td>SPEC-OPS-001</td></tr>
+        <tr><td>RO-03</td><td>App Store review delay exceeds 7-day SLA</td><td>3</td><td>3</td><td>9</td><td>Expedited review request protocol documented; phased rollout minimizes risk of forced update; critical fixes via JS bundle update (OTA) where possible</td><td>SPEC-OPS-001</td></tr>
+        <tr><td>RO-04</td><td>AI coaching produces financially harmful advice</td><td>2</td><td>5</td><td class="warn-cell">10</td><td>System prompt explicitly frames AI as educational tool, not licensed financial advisor; legal disclaimer in UI; human-in-the-loop confirmation for action suggestions; content moderation layer</td><td>SPEC-AI-001</td></tr>
+        <tr><td>RO-05</td><td>Database backup failure leads to irrecoverable user data loss</td><td>1</td><td>5</td><td>5</td><td>Offline-first architecture means primary data is always on-device; export (CSV/PDF) as user-controlled backup; iCloud / Google Drive backup API integration in v1.1</td><td>SPEC-DAT-001, SPEC-OPS-001</td></tr>
+        <tr><td>RO-06</td><td>Gamification system exploited for XP farming (non-organic behavior)</td><td>3</td><td>2</td><td>6</td><td>Server-side validation of XP events; rate limiting on XP award per session; anomaly detection for outlier XP accumulation patterns</td><td>SPEC-GAM-001</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ §14 -->
+<section id="s14">
+  <div class="sec-eyebrow">SECTION 14</div>
+  <h2>Final Validation</h2>
+  <p>Cross-specification consistency verification. This section confirms that the 11 SPEC documents are internally consistent, business rules do not conflict, and no critical gaps exist in the specification suite.</p>
+
+  <h3>14.1 Cross-Spec Consistency Checks</h3>
+  <div class="val-grid">
+    <div class="val-row val-pass">
+      <span class="val-icon">✓</span>
+      <div class="val-text"><strong>Data Types: Integer Centimes</strong> — All monetary storage specifications across SPEC-PRD-001, SPEC-DAT-001, SPEC-ARC-001, and SPEC-AI-001 consistently mandate integer centimes. No floating-point financial storage identified in any specification.</div>
+      <span class="val-src">PRD / DAT / ARC / AI</span>
+    </div>
+    <div class="val-row val-pass">
+      <span class="val-icon">✓</span>
+      <div class="val-text"><strong>Primary Keys: ULID</strong> — All data model specifications (SPEC-DAT-001) and architecture specifications (SPEC-ARC-001) consistently specify ULID primary keys. No UUID or auto-increment IDs specified anywhere in the suite.</div>
+      <span class="val-src">DAT / ARC</span>
+    </div>
+    <div class="val-row val-pass">
+      <span class="val-icon">✓</span>
+      <div class="val-text"><strong>Soft Deletes Only</strong> — SPEC-DAT-001 (data lifecycle), SPEC-PRD-001 (feature behavior), and SPEC-ARC-001 (architecture principles) all mandate soft-delete exclusively. No hard-delete operations specified for user financial data.</div>
+      <span class="val-src">DAT / PRD / ARC</span>
+    </div>
+    <div class="val-row val-pass">
+      <span class="val-icon">✓</span>
+      <div class="val-text"><strong>AI Provider: claude-sonnet-5</strong> — SPEC-AI-001 and SPEC-ARC-001 both specify claude-sonnet-5 (Anthropic) as the AI provider. SPEC-AI-001 mandates adapter interface for provider swappability. SPEC-SEC-001 confirms API key management via EAS Secrets.</div>
+      <span class="val-src">AI / ARC / SEC</span>
+    </div>
+    <div class="val-row val-pass">
+      <span class="val-icon">✓</span>
+      <div class="val-text"><strong>Encryption: SQLCipher AES-256-CBC</strong> — SPEC-SEC-001 and SPEC-DAT-001 consistently specify SQLCipher AES-256-CBC with PBKDF2 key derivation (600,000 iterations, SHA-256) from PIN. No conflict identified.</div>
+      <span class="val-src">SEC / DAT</span>
+    </div>
+    <div class="val-row val-pass">
+      <span class="val-icon">✓</span>
+      <div class="val-text"><strong>Performance KPIs</strong> — Cold launch p95 ≤3,000ms (production gate) appears consistently in SPEC-QA-001 and SPEC-OPS-001. Development target of ≤1,500ms in SPEC-QA-001 is correctly framed as aspirational, not a release gate.</div>
+      <span class="val-src">QA / OPS</span>
+    </div>
+    <div class="val-row val-pass">
+      <span class="val-icon">✓</span>
+      <div class="val-text"><strong>Health Gate Thresholds</strong> — Crash-free rate ≥99.5% and ANR ≤0.5% rollout gates appear consistently in SPEC-OPS-001 and SPEC-QA-001. No threshold conflicts found.</div>
+      <span class="val-src">OPS / QA</span>
+    </div>
+    <div class="val-row val-pass">
+      <span class="val-icon">✓</span>
+      <div class="val-text"><strong>Accessibility: WCAG 2.1 AA</strong> — SPEC-UX-001 specifies WCAG 2.1 AA as the accessibility standard. SPEC-QA-001 includes WCAG 2.1 AA audit as a release gate. SPEC-OPS-001 includes accessibility in the production checklist. Consistent across all three.</div>
+      <span class="val-src">UX / QA / OPS</span>
+    </div>
+    <div class="val-row val-pass">
+      <span class="val-icon">✓</span>
+      <div class="val-text"><strong>Localization: 6 Launch Locales</strong> — en-US, Arabic (RTL), French, Spanish, Portuguese, Mandarin Chinese consistently specified across SPEC-PRD-001 and SPEC-UX-001. RTL layout requirements addressed in both. 20-currency scope consistent.</div>
+      <span class="val-src">PRD / UX</span>
+    </div>
+    <div class="val-row val-pass">
+      <span class="val-icon">✓</span>
+      <div class="val-text"><strong>Technology Stack</strong> — React Native 0.76 + Expo SDK 52 + Expo Router 4 + TypeScript 5.3 specified consistently across SPEC-ARC-001, SPEC-OPS-001, and SPEC-QA-001. No version conflicts.</div>
+      <span class="val-src">ARC / OPS / QA</span>
+    </div>
+    <div class="val-row val-warn">
+      <span class="val-icon">△</span>
+      <div class="val-text"><strong>Cloud Backup Integration</strong> — SPEC-DAT-001 references iCloud / Google Drive backup as a data protection layer, while SPEC-OPS-001 Recovery objectives focus on build artifacts and infrastructure. The user-data cloud backup integration is deferred to v1.1 (§11.2). This gap is noted and intentional — the offline-first architecture means the primary copy is always on-device.</div>
+      <span class="val-src">DAT / OPS</span>
+    </div>
+    <div class="val-row val-warn">
+      <span class="val-icon">△</span>
+      <div class="val-text"><strong>Multi-Device Sync</strong> — SPEC-PRD-001 notes cloud sync as a future capability. SPEC-DAT-001 and SPEC-ARC-001 do not include a sync architecture for v1.0. This is a known intentional scope boundary — sync is a v2.0 feature requiring a separate architectural decision (ADR). No conflict; the gap is documented.</div>
+      <span class="val-src">PRD / DAT / ARC</span>
+    </div>
+  </div>
+
+  <h3>14.2 Business Rule Conflict Review</h3>
+  <p>No conflicting business rules were identified across the 11 specification documents. The following cross-cutting rules are confirmed consistent:</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Rule Domain</th><th>Consistent Definition</th><th>Appears In</th></tr></thead>
+      <tbody>
+        <tr><td>Minimum PIN length</td><td>6 digits; biometric as secondary after PIN established</td><td>SPEC-SEC-001, SPEC-PRD-001, SPEC-UX-001</td></tr>
+        <tr><td>Budget period reset</td><td>Budgets reset monthly (calendar month) or weekly (Monday) per user setting; recurring on exact UTC midnight</td><td>SPEC-PRD-001, SPEC-DAT-001</td></tr>
+        <tr><td>Transaction immutability</td><td>Original transaction record is never modified; corrections create new transaction with reference to corrected ID</td><td>SPEC-PRD-001, SPEC-DAT-001, SPEC-ARC-001</td></tr>
+        <tr><td>FHS calculation frequency</td><td>Recalculated on each transaction add/edit/delete event; cached score expires immediately on data change</td><td>SPEC-PRD-001, SPEC-AI-001</td></tr>
+        <tr><td>Category delete behavior</td><td>Category with transactions cannot be hard-deleted; must be merged into another category or soft-deleted with orphan transaction re-assignment prompt</td><td>SPEC-PRD-001, SPEC-DAT-001</td></tr>
+        <tr><td>XP awards on deleted data</td><td>XP is not revoked when data is soft-deleted (rewards granted actions, not data permanence)</td><td>SPEC-GAM-001, SPEC-PRD-001</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>14.3 Specification Gap Assessment</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Potential Gap</th><th>Status</th><th>Resolution</th></tr></thead>
+      <tbody>
+        <tr><td>Notification delivery infrastructure (push server)</td><td class="ok-cell">Addressed</td><td>SPEC-OPS-001 §8 covers Expo Push Notifications service; no server-side push infrastructure needed for v1.0</td></tr>
+        <tr><td>App rating prompt logic</td><td class="ok-cell">Addressed</td><td>SPEC-PRD-001 §Feature Inventory covers rating prompt (after 3 positive actions, ≥7 days after install)</td></tr>
+        <tr><td>Offline AI coaching behavior</td><td class="ok-cell">Addressed</td><td>SPEC-AI-001 specifies graceful degradation to cached coaching content when API is unavailable</td></tr>
+        <tr><td>CSV import format specification</td><td class="warn-cell">Partial</td><td>SPEC-PRD-001 includes CSV import as v1.3 feature; detailed format specification deferred to that release's SPEC update</td></tr>
+        <tr><td>Multi-device sync architecture</td><td class="warn-cell">Deferred</td><td>Intentionally deferred to v2.0 ADR process; offline-first architecture makes v1.0 fully functional without sync</td></tr>
+        <tr><td>Open Banking / bank feed integration</td><td class="warn-cell">Deferred</td><td>v2.1 capability requiring jurisdiction-specific legal review; not in v1.x scope</td></tr>
+        <tr><td>Enterprise / B2B features</td><td class="warn-cell">Deferred</td><td>v3.0 platform tier; requires separate business model and security specification</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ §15 -->
+<section id="s15">
+  <div class="sec-eyebrow">SECTION 15</div>
+  <h2>Executive Readiness Checklist</h2>
+  <p>Master pre-launch checklist synthesized from all 11 specification documents. Each item references its authoritative source specification. This checklist is the final gate before v1.0 General Availability.</p>
+
+  <h3>15.1 Product &amp; Feature Readiness</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Checkpoint</th><th>Acceptance Criteria</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>P-01</td><td>All v1.0 Must-Have features implemented and accepted</td><td>All P0 user stories in sprint backlog marked Done; PO sign-off on acceptance criteria</td><td>SPEC-PRD-001</td></tr>
+        <tr><td>P-02</td><td>Transaction CRUD fully functional across all 5 account types</td><td>E2E tests pass for all transaction types; recurring engine validated</td><td>SPEC-PRD-001</td></tr>
+        <tr><td>P-03</td><td>Budget engine: creation, tracking, alerts, and rollover operational</td><td>Budget health calculation verified; over-budget alerts trigger correctly; monthly reset confirmed</td><td>SPEC-PRD-001</td></tr>
+        <tr><td>P-04</td><td>Financial Health Score (FHS) calculating correctly across 6 dimensions</td><td>FHS formula validated against 10 test scenarios covering edge cases (new user, single transaction, all-zero balances)</td><td>SPEC-PRD-001, SPEC-AI-001</td></tr>
+        <tr><td>P-05</td><td>AI coaching responding correctly with appropriate financial guidance</td><td>10 coaching scenario acceptance tests pass; disclaimer displayed; no hallucinated financial figures</td><td>SPEC-AI-001</td></tr>
+        <tr><td>P-06</td><td>Gamification: XP, levels, streaks, and badges functioning</td><td>20 core badge unlock scenarios validated; streak calculation tested across timezone changes; leaderboard renders correctly</td><td>SPEC-GAM-001</td></tr>
+        <tr><td>P-07</td><td>All 6 launch locales rendering correctly including RTL (Arabic)</td><td>Screenshot review for all screens in all 6 locales; RTL layout mirror verified; no untranslated strings in production build</td><td>SPEC-PRD-001, SPEC-UX-001</td></tr>
+        <tr><td>P-08</td><td>20-currency support with correct formatting and conversion display</td><td>Currency list renders correctly; Intl.NumberFormat output verified for each currency; no broken currency symbols</td><td>SPEC-PRD-001</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>15.2 Security &amp; Privacy Readiness</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Checkpoint</th><th>Acceptance Criteria</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>S-01</td><td>PIN authentication with PBKDF2 (600k iterations) operational</td><td>Key derivation validated; PIN change flow tested; brute-force lockout (5 attempts → 30s timeout) confirmed</td><td>SPEC-SEC-001</td></tr>
+        <tr><td>S-02</td><td>Biometric authentication (Face ID / Touch ID / Android Biometric) functional</td><td>Both iOS and Android biometric flows tested; fallback to PIN on failure confirmed</td><td>SPEC-SEC-001</td></tr>
+        <tr><td>S-03</td><td>SQLCipher AES-256-CBC encryption confirmed on all databases</td><td>Verify database file is unreadable in hex editor without correct key; encryption test in CI</td><td>SPEC-SEC-001</td></tr>
+        <tr><td>S-04</td><td>External penetration test completed with no Critical or High findings open</td><td>Pen test report received; all Critical/High findings remediated and verified by tester</td><td>SPEC-SEC-001</td></tr>
+        <tr><td>S-05</td><td>Privacy Policy and data handling disclosures approved by legal</td><td>Privacy Policy live at public URL; App Store / Play Store metadata references it; legal sign-off document retained</td><td>SPEC-SEC-001, SPEC-OPS-001</td></tr>
+        <tr><td>S-06</td><td>Screen content protection active on all financial screens</td><td>App switcher screenshot confirmed blank/blurred on both platforms in QA testing</td><td>SPEC-SEC-001</td></tr>
+        <tr><td>S-07</td><td>Clipboard auto-clear (60s) working for sensitive data</td><td>Manual test: copy amount → wait 61s → paste confirms cleared</td><td>SPEC-SEC-001</td></tr>
+        <tr><td>S-08</td><td>API keys stored in EAS Secrets; none present in codebase or build artifact</td><td>Secret scanning CI step passes; no keys found in APK/IPA inspection; EAS Secrets inventory reviewed</td><td>SPEC-SEC-001, SPEC-OPS-001</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>15.3 Quality &amp; Performance Readiness</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Checkpoint</th><th>Acceptance Criteria</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>Q-01</td><td>Unit test coverage ≥80% across all modules</td><td>Coverage report from CI shows ≥80% lines; financial calculation modules at ≥95%</td><td>SPEC-QA-001</td></tr>
+        <tr><td>Q-02</td><td>Integration test suite green (all database + store integration paths)</td><td>Full integration test run passes on CI; no skipped tests without documented reason</td><td>SPEC-QA-001</td></tr>
+        <tr><td>Q-03</td><td>E2E test suite green on physical devices (iOS + Android)</td><td>Maestro E2E suite passes on ≥1 iPhone (iOS 16+) and ≥1 Android device (API 33+); no flaky tests</td><td>SPEC-QA-001</td></tr>
+        <tr><td>Q-04</td><td>Cold launch p95 ≤ 3,000ms on target devices</td><td>Performance test on lowest-spec target device (iPhone 11 / mid-range Android API 33) shows p95 cold launch ≤ 3,000ms</td><td>SPEC-QA-001, SPEC-OPS-001</td></tr>
+        <tr><td>Q-05</td><td>WCAG 2.1 AA accessibility audit passed</td><td>Automated axe-core scan + manual screen reader test (VoiceOver / TalkBack) pass; no AA violations in release build</td><td>SPEC-QA-001, SPEC-UX-001</td></tr>
+        <tr><td>Q-06</td><td>TypeScript strict compilation: zero errors</td><td>CI TypeScript check exits 0; no <code>@ts-ignore</code> or <code>any</code> in production paths</td><td>SPEC-QA-001</td></tr>
+        <tr><td>Q-07</td><td>Bundle size within targets (iOS ≤80MB, Android ≤60MB)</td><td>EAS Production build output checked; IPA and APK sizes below thresholds</td><td>SPEC-QA-001, SPEC-OPS-001</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>15.4 Operations &amp; Release Readiness</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>#</th><th>Checkpoint</th><th>Acceptance Criteria</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>O-01</td><td>App Store Connect submission accepted (not rejected)</td><td>App Store review completed; no rejection notices outstanding; binary approved</td><td>SPEC-OPS-001</td></tr>
+        <tr><td>O-02</td><td>Google Play Console production track approved</td><td>Play Store policy review passed; data safety form completed and approved; app available in production track</td><td>SPEC-OPS-001</td></tr>
+        <tr><td>O-03</td><td>Phased rollout plan active (5% initial)</td><td>Play Console rollout set to 5%; App Store phased release enabled; monitoring dashboards active</td><td>SPEC-OPS-001</td></tr>
+        <tr><td>O-04</td><td>Crash monitoring (Sentry) active and reporting</td><td>Sentry project receiving events from production builds; PII scrubbing confirmed; alert routing to on-call configured</td><td>SPEC-OPS-001, SPEC-QA-001</td></tr>
+        <tr><td>O-05</td><td>Incident response runbooks documented and tested</td><td>P0–P4 runbooks in <code>docs/runbooks/</code>; tabletop incident simulation completed; on-call rotation established</td><td>SPEC-OPS-001</td></tr>
+        <tr><td>O-06</td><td>App store metadata complete: screenshots, descriptions, keywords (all 6 locales)</td><td>Metadata reviewed and approved by PO; screenshots match production build UI; keyword research documented</td><td>SPEC-OPS-001</td></tr>
+        <tr><td>O-07</td><td>Support desk operational (user-facing contact, FAQ, response SLA)</td><td>Support email active; FAQ published; ≤24h response SLA documented</td><td>SPEC-OPS-001</td></tr>
+        <tr><td>O-08</td><td>Feature flag system operational (LaunchDarkly / equivalent)</td><td>All v1.0 features behind flags confirmed off in new installs initially; flag rollout plan documented</td><td>SPEC-OPS-001</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ §16 -->
+<section id="s16">
+  <div class="sec-eyebrow">SECTION 16</div>
+  <h2>Strategic Recommendations</h2>
+  <p>Executive-level guidance synthesized by the Principal Enterprise Solution Architect and CPO. These recommendations are forward-looking and address the highest-leverage decisions for long-term platform success.</p>
+
+  <h3>16.1 First Release Priorities</h3>
+  <div class="rec-grid">
+    <div class="rec-card">
+      <div class="rec-num">01</div>
+      <div class="rec-title">Launch in One Market First</div>
+      <div class="rec-body">Resist the temptation to launch all 6 locales simultaneously. Soft-launch in English (US) first to validate core product-market fit before committing to localization quality at scale. Add Arabic (RTL) second as the highest-differentiation locale for the target demographic. Remaining locales in waves of two over 8 weeks post-launch.</div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-num">02</div>
+      <div class="rec-title">Treat AI Coaching as a Differentiator, Not a Feature</div>
+      <div class="rec-body">The AI coaching experience is the single most powerful retention driver in the product. Invest in the quality of system prompt engineering and the coaching conversation design before launch — not as polish, but as core product work. Poor AI responses will generate negative App Store reviews that are very difficult to recover from.</div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-num">03</div>
+      <div class="rec-title">Harden Onboarding Above All Else</div>
+      <div class="rec-body">The first 7-day user experience determines retention. Prioritize a delightful, frictionless onboarding flow (PIN setup → first transaction → first budget → FHS reveal) over any secondary feature. Instrument every step with analytics; optimize before the full public launch.</div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-num">04</div>
+      <div class="rec-title">Ship Small, Ship Often</div>
+      <div class="rec-body">Phased rollout is your safety net. Use the 5% → 20% → 50% → 100% rollout gates aggressively. Pause at each gate and review crash-free rates and user feedback before expanding. Speed of rollout is never worth a compromised experience for your early adopters.</div>
+    </div>
+  </div>
+
+  <h3>16.2 Post-Launch Strategic Priorities</h3>
+  <div class="rec-grid">
+    <div class="rec-card">
+      <div class="rec-num">05</div>
+      <div class="rec-title">Build the Longitudinal Data Moat</div>
+      <div class="rec-body">Your most durable competitive advantage is the depth of a user's financial history in the app. Every architectural decision that makes data migration out (and in) easier for the user paradoxically increases retention — because trust compounds over time. Prioritize CSV export quality and data portability as a trust signal, not a churn risk.</div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-num">06</div>
+      <div class="rec-title">Gamification Must Feel Earned</div>
+      <div class="rec-body">The engagement layer only works if achievements feel genuinely meaningful. Audit badge unlock rates at 90 days post-launch. If ≥80% of users have a given badge within 7 days, it is too easy and loses its value. If ≤5% ever unlock it, it is too hard and invisible. Calibrate continuously.</div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-num">07</div>
+      <div class="rec-title">Prepare the Sync Architecture Decision Early</div>
+      <div class="rec-body">Multi-device sync (v2.0) will require a fundamental architecture decision that touches the database schema, the encryption model, and the conflict resolution strategy. Begin the ADR process at v1.2 (6 months post-launch) so the architectural design is complete and reviewed before v2.0 engineering begins.</div>
+    </div>
+    <div class="rec-card">
+      <div class="rec-num">08</div>
+      <div class="rec-title">Invest in App Store ASO Continuously</div>
+      <div class="rec-body">App Store Optimization (ASO) — keywords, screenshot copy, localized descriptions — is a compounding investment. Allocate ½ day per sprint to ASO iteration from Day 1 of public availability. Track keyword rank weekly. This is the highest-ROI marketing channel for an indie fintech app at early scale.</div>
+    </div>
+  </div>
+
+  <h3>16.3 Technical Evolution Guidance</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Horizon</th><th>Decision</th><th>Recommended Approach</th></tr></thead>
+      <tbody>
+        <tr><td>6 months post-launch</td><td>AI provider evaluation</td><td>Validate claude-sonnet-5 performance vs. alternatives (GPT-4o, Gemini). The adapter interface means switching is 1 file change. Run evaluation quarterly; the model landscape changes fast.</td></tr>
+        <tr><td>12 months post-launch</td><td>Cloud sync architecture</td><td>Evaluate CRDTs (Yjs / Automerge) vs. operational transforms for offline-first sync. The integer-centimes financial model constrains acceptable conflict resolution strategies — financial amounts cannot be "merged" algorithmically without domain logic.</td></tr>
+        <tr><td>18 months post-launch</td><td>Expo managed vs. bare workflow</td><td>Evaluate whether native module requirements from v2.x features (e.g., Open Banking SDKs, biometric advanced APIs) necessitate ejecting from managed workflow. Document trigger criteria in ADR before they become urgent.</td></tr>
+        <tr><td>24 months post-launch</td><td>React Native new architecture (Fabric / JSI) full adoption</td><td>React Native's new architecture will be mandatory in future SDK versions. Plan migration at v2.1 or later when the ecosystem has stabilized. Monitor Expo SDK release notes for migration guidance.</td></tr>
+        <tr><td>36 months post-launch</td><td>Platform-native (Swift / Kotlin) evaluation</td><td>If performance or native API access becomes a persistent constraint, evaluate a native rewrite for high-usage screens (transaction list, dashboard). This is a major investment — only justified if React Native cannot meet performance targets at scale.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>16.4 Risk Reduction Priorities</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Priority</th><th>Action</th><th>Timing</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>External penetration test (SPEC-SEC-001 mandate): schedule with reputable firm; budget 3–4 weeks for findings review and remediation</td><td>Week 38–40 (before App Store submission)</td></tr>
+        <tr><td>2</td><td>Legal review of AI coaching disclaimers across all 6 locales; ensure no jurisdiction-specific financial advice regulations are inadvertently triggered</td><td>Week 36–40</td></tr>
+        <tr><td>3</td><td>Dependency audit: run npm audit + license checker; resolve any GPL-licensed transitive dependencies before commercial launch</td><td>Week 40 and every quarter post-launch</td></tr>
+        <tr><td>4</td><td>Establish on-call rotation before launch; ensure all engineers have access to runbooks, monitoring dashboards, and escalation paths</td><td>Week 44 (2 weeks before GA)</td></tr>
+        <tr><td>5</td><td>Plan and test the "force update" flow: how users are prompted to update to a critical security patch; test with a mock OTA and app store update scenario</td><td>Week 42</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ §17 -->
+<section id="s17">
+  <div class="sec-eyebrow">SECTION 17</div>
+  <h2>Specification Index</h2>
+  <p>Complete index of all 11 specification documents comprising the Finance Bag product specification suite. Each document is an authoritative architectural reference for its domain.</p>
+
+  <div class="spec-index">
+    <div class="spec-card">
+      <div class="spec-card-id">SPEC-PRD-001</div>
+      <div class="spec-card-name">Product Requirements &amp; Feature Specification</div>
+      <div class="spec-card-scope">Complete feature inventory, user stories, business rules, and acceptance criteria for all product capabilities across the 12 feature domains.</div>
+      <div class="spec-card-meta">
+        <span class="spec-tag">18 Sections</span>
+        <span class="spec-tag">100+ Features</span>
+        <span class="spec-tag">BR-PRD-01–30</span>
+        <span class="spec-tag">v1.0.0</span>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-id">SPEC-UX-001</div>
+      <div class="spec-card-name">UX / UI Design System &amp; Interaction Specification</div>
+      <div class="spec-card-scope">Design language, token system, navigation architecture, component library, interaction patterns, accessibility standards, and 4 primary user journeys.</div>
+      <div class="spec-card-meta">
+        <span class="spec-tag">18 Sections</span>
+        <span class="spec-tag">WCAG 2.1 AA</span>
+        <span class="spec-tag">6 Locales + RTL</span>
+        <span class="spec-tag">v1.0.0</span>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-id">SPEC-ARC-001</div>
+      <div class="spec-card-name">Technical Architecture Specification</div>
+      <div class="spec-card-scope">System architecture, technology stack, 5-layer application model, module boundaries, performance requirements, and 8 key architectural decisions.</div>
+      <div class="spec-card-meta">
+        <span class="spec-tag">18 Sections</span>
+        <span class="spec-tag">React Native 0.76</span>
+        <span class="spec-tag">Expo SDK 52</span>
+        <span class="spec-tag">v1.0.0</span>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-id">SPEC-DAT-001</div>
+      <div class="spec-card-name">Data Architecture &amp; Database Specification</div>
+      <div class="spec-card-scope">Complete 12-entity data model, schema definitions, indexing strategy, migration governance, data lifecycle policies, and privacy framework.</div>
+      <div class="spec-card-meta">
+        <span class="spec-tag">18 Sections</span>
+        <span class="spec-tag">SQLite / drizzle-orm</span>
+        <span class="spec-tag">ULID PKs</span>
+        <span class="spec-tag">v1.0.0</span>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-id">SPEC-SEC-001</div>
+      <div class="spec-card-name">Security Architecture &amp; Threat Mitigation Specification</div>
+      <div class="spec-card-scope">6-stage security pipeline, authentication mechanisms, encryption specifications, threat model, 8 mitigated attack vectors, and compliance posture.</div>
+      <div class="spec-card-meta">
+        <span class="spec-tag">18 Sections</span>
+        <span class="spec-tag">SQLCipher AES-256</span>
+        <span class="spec-tag">PBKDF2 600k</span>
+        <span class="spec-tag">v1.0.0</span>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-id">SPEC-AI-001</div>
+      <div class="spec-card-name">AI Integration &amp; Coaching Engine Specification</div>
+      <div class="spec-card-scope">AI coaching architecture, 6 coaching capability domains, provider adapter pattern, Financial Health Score integration, privacy-preserving data design, and model governance.</div>
+      <div class="spec-card-meta">
+        <span class="spec-tag">18 Sections</span>
+        <span class="spec-tag">claude-sonnet-5</span>
+        <span class="spec-tag">Adapter Interface</span>
+        <span class="spec-tag">v1.0.0</span>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-id">SPEC-GAM-001</div>
+      <div class="spec-card-name">Gamification &amp; Engagement System Specification</div>
+      <div class="spec-card-scope">XP engine, leveling system, achievement taxonomy (50+ badges), streak mechanics, leaderboard architecture, and engagement analytics framework.</div>
+      <div class="spec-card-meta">
+        <span class="spec-tag">18 Sections</span>
+        <span class="spec-tag">50+ Badges</span>
+        <span class="spec-tag">XP Engine</span>
+        <span class="spec-tag">v1.0.0</span>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-id">SPEC-QA-001</div>
+      <div class="spec-card-name">Quality Assurance &amp; Testing Specification</div>
+      <div class="spec-card-scope">10-layer testing strategy, coverage targets, performance KPIs, 8 health gate metrics, testing toolchain, and quality release gates.</div>
+      <div class="spec-card-meta">
+        <span class="spec-tag">18 Sections</span>
+        <span class="spec-tag">Jest + Maestro</span>
+        <span class="spec-tag">≥80% Coverage</span>
+        <span class="spec-tag">v1.0.0</span>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-id">SPEC-PMO-001</div>
+      <div class="spec-card-name">Project Management &amp; Delivery Specification</div>
+      <div class="spec-card-scope">Team structure, RACI matrix, sprint cadence, resource plan, budget governance, risk register, stakeholder communication, and delivery milestones.</div>
+      <div class="spec-card-meta">
+        <span class="spec-tag">18 Sections</span>
+        <span class="spec-tag">Agile / Scrum</span>
+        <span class="spec-tag">RACI</span>
+        <span class="spec-tag">v1.0.0</span>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-id">SPEC-RDM-001</div>
+      <div class="spec-card-name">Roadmap, Versioning &amp; Evolution Specification</div>
+      <div class="spec-card-scope">Detailed release roadmap from Week 0 to v3.x, semantic versioning policy, feature flag governance, deprecation protocol, and platform evolution strategy.</div>
+      <div class="spec-card-meta">
+        <span class="spec-tag">18 Sections</span>
+        <span class="spec-tag">SemVer 2.0</span>
+        <span class="spec-tag">Feature Flags</span>
+        <span class="spec-tag">v1.0.0</span>
+      </div>
+    </div>
+    <div class="spec-card">
+      <div class="spec-card-id">SPEC-OPS-001</div>
+      <div class="spec-card-name">CI/CD Pipeline, Infrastructure &amp; Operations Specification</div>
+      <div class="spec-card-scope">8-environment architecture, GitHub Actions CI pipeline, 10-ring CD delivery, EAS Build management, secret management, code signing, App Store release workflow, and incident response.</div>
+      <div class="spec-card-meta">
+        <span class="spec-tag">18 Sections</span>
+        <span class="spec-tag">GitHub Actions + EAS</span>
+        <span class="spec-tag">8 Environments</span>
+        <span class="spec-tag">v1.0.0</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ §18 -->
+<section id="s18">
+  <div class="sec-eyebrow">SECTION 18</div>
+  <h2>Master Business Rules &amp; Document Metadata</h2>
+
+  <h3>18.1 Master Business Rules</h3>
+  <p>Cross-cutting business rules that apply globally across all domains and take precedence over domain-specific rules where conflicts arise.</p>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Rule ID</th><th>Rule Statement</th><th>Enforcement Layer</th></tr></thead>
+      <tbody>
+        <tr><td><strong>BR-MAS-01</strong></td><td>All monetary amounts are stored as integer centimes (smallest currency unit). Floating-point arithmetic is prohibited in all financial calculations across the entire application.</td><td>TypeScript type system + ESLint rule + money.ts utility enforcement</td></tr>
+        <tr><td><strong>BR-MAS-02</strong></td><td>No user financial data is transmitted off-device without explicit, per-session user action. AI coaching operates on client-aggregated anonymous metrics only.</td><td>Architecture (adapter layer) + network policy + privacy review</td></tr>
+        <tr><td><strong>BR-MAS-03</strong></td><td>All primary keys are ULID. Auto-increment integers and random UUIDs are prohibited as primary keys for any table containing user data.</td><td>drizzle-orm schema + code review checklist</td></tr>
+        <tr><td><strong>BR-MAS-04</strong></td><td>User financial records are never hard-deleted. Soft-delete (deleted_at timestamp) is the only permitted deletion mechanism. Physical deletion is prohibited except under GDPR right-to-erasure request.</td><td>Repository layer + database constraints + audit log</td></tr>
+        <tr><td><strong>BR-MAS-05</strong></td><td>The application must be fully functional without network connectivity. Any feature that requires a network connection must degrade gracefully with a clear offline indicator and queue mechanism.</td><td>Architecture + feature flag + UX pattern</td></tr>
+        <tr><td><strong>BR-MAS-06</strong></td><td>Every code change targeting the main branch requires ≥1 approved code review. Security-touching changes (authentication, encryption, data access) require ≥2 approvals including the Security Lead.</td><td>GitHub branch protection rules</td></tr>
+        <tr><td><strong>BR-MAS-07</strong></td><td>TypeScript strict mode is mandatory across the entire codebase. The <code>any</code> type is prohibited in all production code paths. Build fails if <code>any</code> escapes to production.</td><td>tsconfig.json + ESLint + CI TypeScript check</td></tr>
+        <tr><td><strong>BR-MAS-08</strong></td><td>WCAG 2.1 AA compliance is a non-negotiable release gate. No production release proceeds with outstanding AA-level accessibility violations.</td><td>QA gate + axe-core CI scan + manual audit</td></tr>
+        <tr><td><strong>BR-MAS-09</strong></td><td>All secrets (API keys, signing certificates, credentials) are stored in EAS Secrets or equivalent secure secret manager. No secret is committed to source control under any circumstances.</td><td>CI secret scanning + pre-commit hook + repository rule</td></tr>
+        <tr><td><strong>BR-MAS-10</strong></td><td>Production deployments are phased (minimum 5% initial rollout). Full 100% rollout requires passing all health gate metrics at each phase transition.</td><td>OPS runbook + SPEC-OPS-001 §3</td></tr>
+        <tr><td><strong>BR-MAS-11</strong></td><td>Third-party dependencies are accessed exclusively through typed adapter interfaces. Direct third-party SDK calls in business logic are prohibited.</td><td>Architecture pattern + code review checklist</td></tr>
+        <tr><td><strong>BR-MAS-12</strong></td><td>The AI coaching system must display a legally-reviewed disclaimer on first use and on each coaching session clearly stating it is not a licensed financial advisor.</td><td>UX requirement + legal review + QA checklist</td></tr>
+        <tr><td><strong>BR-MAS-13</strong></td><td>Every Architectural Decision Record (ADR) must document context, decision, positive consequences, negative consequences, and status. ADRs are never deleted — only superseded.</td><td>ADR template + review process</td></tr>
+        <tr><td><strong>BR-MAS-14</strong></td><td>The application must support a minimum of 6 launch locales at GA. Locale support is not optional post-launch; regression in any supported locale is treated as a P1 bug.</td><td>QA locale test matrix + CI locale build validation</td></tr>
+        <tr><td><strong>BR-MAS-15</strong></td><td>All specification documents in this suite are versioned. Any substantive change to a specification document requires a version increment, a changelog entry, and notification to all module owners.</td><td>Documentation governance process + SPEC-MAS-001 §12</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>18.2 Specification Suite Metadata</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Spec ID</th><th>Document Title</th><th>Version</th><th>Status</th><th>Sections</th><th>Authoring Roles</th></tr></thead>
+      <tbody>
+        <tr><td>SPEC-PRD-001</td><td>Product Requirements &amp; Feature Specification</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Principal Product Architect, Product Owner, UX Lead, FinTech Domain Expert</td></tr>
+        <tr><td>SPEC-UX-001</td><td>UX / UI Design System &amp; Interaction Specification</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Principal UX Strategist, Lead UX Designer, Accessibility Specialist, Mobile UX Engineer</td></tr>
+        <tr><td>SPEC-ARC-001</td><td>Technical Architecture Specification</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Principal Software Architect, Mobile Platform Lead, Data Architect, Security Architect</td></tr>
+        <tr><td>SPEC-DAT-001</td><td>Data Architecture &amp; Database Specification</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Principal Data Architect, Database Engineer, Privacy Compliance Officer, Backend Lead</td></tr>
+        <tr><td>SPEC-SEC-001</td><td>Security Architecture &amp; Threat Mitigation Specification</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Principal Security Architect, Mobile Security Engineer, Penetration Testing Advisor, Compliance Lead</td></tr>
+        <tr><td>SPEC-AI-001</td><td>AI Integration &amp; Coaching Engine Specification</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Principal AI Systems Architect, ML Engineer, UX Conversational Designer, FinTech Domain Expert</td></tr>
+        <tr><td>SPEC-GAM-001</td><td>Gamification &amp; Engagement System Specification</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Gamification Systems Designer, Behavioral Economist, Frontend Engineer, Product Analyst</td></tr>
+        <tr><td>SPEC-QA-001</td><td>Quality Assurance &amp; Testing Specification</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Principal QA Architect, Test Automation Engineer, Performance Engineer, Accessibility QA Specialist</td></tr>
+        <tr><td>SPEC-PMO-001</td><td>Project Management &amp; Delivery Specification</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Principal Program Manager, Agile Coach, Resource Planning Lead, Stakeholder Relations Manager</td></tr>
+        <tr><td>SPEC-RDM-001</td><td>Roadmap, Versioning &amp; Evolution Specification</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Principal Product Strategist, Release Manager, Feature Flag Architect, Platform Evolution Lead</td></tr>
+        <tr><td>SPEC-OPS-001</td><td>CI/CD Pipeline, Infrastructure &amp; Operations Specification</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Principal DevOps Architect, Mobile Release Manager, Cloud Infrastructure Architect, SRE, FinTech Operations Specialist</td></tr>
+        <tr><td>SPEC-MAS-001</td><td>Master Product Specification &amp; Executive Blueprint</td><td>1.0.0</td><td class="ok-cell">Final</td><td>18</td><td>Principal Enterprise Solution Architect, CPO, CTO, Principal UX Strategist, FinTech Domain Expert, Executive Technical Advisor</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>18.3 Document Control</h3>
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Field</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Document ID</td><td>SPEC-MAS-001</td></tr>
+        <tr><td>Document Title</td><td>Finance Bag — Master Product Specification &amp; Executive Blueprint</td></tr>
+        <tr><td>Version</td><td>1.0.0</td></tr>
+        <tr><td>Status</td><td>Final — Approved for v1.0 Development</td></tr>
+        <tr><td>Total Sections</td><td>18</td></tr>
+        <tr><td>Specification Suite</td><td>12 documents (SPEC-PRD-001 through SPEC-MAS-001)</td></tr>
+        <tr><td>Total Features Documented</td><td>100+ across 18 domain blocks (SPEC-PRD-001)</td></tr>
+        <tr><td>Total Business Rules</td><td>BR-MAS-01 through BR-MAS-15 (this document) + domain-specific rules in each SPEC</td></tr>
+        <tr><td>Product</td><td>Finance Bag — Offline-First Personal Finance Manager</td></tr>
+        <tr><td>Target Platform</td><td>iOS 16+ and Android API 33+ (React Native 0.76 / Expo SDK 52)</td></tr>
+        <tr><td>Launch Locales</td><td>en-US, Arabic (RTL), French, Spanish, Portuguese, Mandarin Chinese</td></tr>
+        <tr><td>GA Target</td><td>Week 46 from project kickoff</td></tr>
+        <tr><td>Repository</td><td>youssefaridal-ctrl/claude · branch: claude/finance-bag-prd-k43g48</td></tr>
+        <tr><td>Specification Path</td><td>docs/specs/mas-spec.html</td></tr>
+        <tr><td>Review Cycle</td><td>Quarterly or on any major architectural decision</td></tr>
+        <tr><td>Next Scheduled Review</td><td>Post-v1.0 launch (Quarterly Business Review)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</main>
+
+<script>
+  const btn = document.getElementById('theme-btn');
+  const root = document.documentElement;
+  const key = 'fb-mas-theme';
+  const saved = localStorage.getItem(key);
+  if (saved) { root.setAttribute('data-theme', saved); btn.textContent = saved === 'dark' ? 'Light Mode' : 'Dark Mode'; }
+  else { btn.textContent = 'Light Mode'; }
+  btn.addEventListener('click', () => {
+    const cur = root.getAttribute('data-theme');
+    const next = cur === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem(key, next);
+    btn.textContent = next === 'dark' ? 'Light Mode' : 'Dark Mode';
+  });
+
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('#sidebar nav a');
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        links.forEach(l => l.classList.remove('active'));
+        const a = document.querySelector(`#sidebar nav a[href="#${e.target.id}"]`);
+        if (a) a.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>
