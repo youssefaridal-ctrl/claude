@@ -1,4 +1,7 @@
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -9,14 +12,10 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { router } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useTranslation } from 'react-i18next';
-import { updateProfile } from '../../src/application/profile/update-profile.usecase';
-import { useAppStore } from '../../src/store';
 import { AmountInput } from '../../src/components/ui/AmountInput';
 import { Button } from '../../src/components/ui/Button';
 import { Input } from '../../src/components/ui/Input';
+import { useAppStore } from '../../src/store';
 import type { Currency } from '../../src/store/types';
 import { Colors } from '../../src/theme/colors';
 import { Radius, Spacing } from '../../src/theme/spacing';
@@ -63,7 +62,10 @@ export default function SetupScreen() {
   const selectedSymbol = CURRENCIES.find((c) => c.code === currency)?.symbol ?? 'DH';
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={{ flex: 1 }}
+    >
       <LinearGradient colors={['#090E1A', '#141C2E']} style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
@@ -120,10 +122,20 @@ export default function SetupScreen() {
                       end={{ x: 1, y: 1 }}
                     />
                   )}
-                  <Text style={[styles.currencySymbol, currency === c.code && styles.currencySymbolSelected]}>
+                  <Text
+                    style={[
+                      styles.currencySymbol,
+                      currency === c.code && styles.currencySymbolSelected,
+                    ]}
+                  >
                     {c.symbol}
                   </Text>
-                  <Text style={[styles.currencyCode, currency === c.code && styles.currencyCodeSelected]}>
+                  <Text
+                    style={[
+                      styles.currencyCode,
+                      currency === c.code && styles.currencyCodeSelected,
+                    ]}
+                  >
                     {c.code}
                   </Text>
                 </TouchableOpacity>

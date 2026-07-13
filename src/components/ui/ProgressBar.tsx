@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, ViewStyle } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import { Colors } from '../../theme/colors';
 import { Typography } from '../../theme/typography';
-import { Radius } from '../../theme/spacing';
 
 interface Props {
   progress: number; // 0–100
@@ -55,10 +54,7 @@ export function ProgressBar({
       )}
       <View style={[styles.track, { backgroundColor, height, borderRadius: height / 2 }]}>
         <Animated.View
-          style={[
-            styles.fill,
-            { backgroundColor: color, height, borderRadius: height / 2, width },
-          ]}
+          style={[styles.fill, { backgroundColor: color, height, borderRadius: height / 2, width }]}
         />
       </View>
     </View>
@@ -74,9 +70,16 @@ interface MultiSegmentProps {
 
 export function MultiProgressBar({ segments, total, height = 10, style }: MultiSegmentProps) {
   return (
-    <View style={[styles.track, { height, borderRadius: height / 2, backgroundColor: Colors.bg.elevated }, style]}>
+    <View
+      style={[
+        styles.track,
+        { height, borderRadius: height / 2, backgroundColor: Colors.bg.elevated },
+        style,
+      ]}
+    >
       {segments.map((seg, i) => {
-        const width: `${number}%` = total > 0 ? `${Math.min(100, (seg.value / total) * 100)}%` : '0%';
+        const width: `${number}%` =
+          total > 0 ? `${Math.min(100, (seg.value / total) * 100)}%` : '0%';
         return (
           <View
             key={i}

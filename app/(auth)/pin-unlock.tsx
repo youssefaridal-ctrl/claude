@@ -8,10 +8,9 @@
  *   3. Wrong PIN: record failed attempt; enforce progressive lockout at 5/10/15 attempts
  */
 
-import * as LocalAuth from 'expo-local-authentication';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { unlockWithPin } from '../../src/application/auth/unlock-with-pin.usecase';
 import { ErrorCode } from '../../src/domain/shared/errors/domain-error';
 import {
@@ -30,8 +29,6 @@ export default function PinUnlockScreen() {
   const [pin, setPin] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [info, setInfo] = useState('');
-  const [biometricAvailable, setBiometricAvailable] = useState(false);
   const [lockedUntil, setLockedUntil] = useState<number | null>(null);
   const [remainingSeconds, setRemainingSeconds] = useState(0);
   const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -67,24 +64,6 @@ export default function PinUnlockScreen() {
     const state = await loadAttemptState();
     if (state.lockedUntil && state.lockedUntil > Date.now()) {
       startCountdown(state.lockedUntil);
-      return;
-    }
-    const compatible = await LocalAuth.hasHardwareAsync();
-    const enrolled = await LocalAuth.isEnrolledAsync();
-    if (compatible && enrolled) {
-      setBiometricAvailable(true);
-      void attemptBiometric();
-    }
-  };
-
-  const attemptBiometric = async () => {
-    const result = await LocalAuth.authenticateAsync({
-      promptMessage: t('auth.biometric_prompt'),
-      fallbackLabel: t('auth.biometric_fallback'),
-    });
-    if (result.success) {
-      setInfo(t('auth.biometric_success'));
-      setError('');
     }
   };
 
@@ -162,20 +141,12 @@ export default function PinUnlockScreen() {
         ))}
       </View>
 
-      {info ? <Text style={styles.info}>{info}</Text> : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       {busy ? (
         <ActivityIndicator color={Colors.primary} style={styles.loader} />
       ) : (
-        <>
-          <PinPad onDigit={handleDigit} onDelete={handleDelete} />
-          {biometricAvailable && (
-            <TouchableOpacity style={styles.biometricBtn} onPress={attemptBiometric}>
-              <Text style={styles.biometricText}>{t('auth.biometric_button')}</Text>
-            </TouchableOpacity>
-          )}
-        </>
+        <PinPad onDigit={handleDigit} onDelete={handleDelete} />
       )}
     </View>
   );
@@ -218,12 +189,6 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
   },
-  info: {
-    color: Colors.text.secondary,
-    fontSize: 14,
-    marginBottom: 12,
-    textAlign: 'center',
-  },
   error: {
     color: '#F87171',
     fontSize: 14,
@@ -232,13 +197,5 @@ const styles = StyleSheet.create({
   },
   loader: {
     marginTop: 40,
-  },
-  biometricBtn: {
-    marginTop: 24,
-  },
-  biometricText: {
-    color: Colors.primary,
-    fontSize: 15,
-    fontWeight: '600',
   },
 });

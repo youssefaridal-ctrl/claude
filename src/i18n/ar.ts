@@ -101,6 +101,7 @@ export const ar = {
     health_critical_desc: 'حرج! قلل مصاريفك.',
     add_expense_title: 'مصروف جديد',
     add_income_title: 'دخل جديد',
+    transaction_placeholder: 'مثال: إيجار، بقالة...',
   },
 
   // Salary
@@ -151,6 +152,9 @@ export const ar = {
     type_income: 'دخل',
     category_icon: 'الأيقونة',
     category_color: 'اللون',
+    category_name_placeholder: 'مثال: ملابس',
+    income_source_placeholder: 'مثال: عمل حر، إيجار...',
+    transaction_name_placeholder: 'مثال: تسوق، إيجار...',
     categories: {
       housing: 'السكن',
       food: 'الغذاء',
@@ -210,6 +214,7 @@ export const ar = {
     snowball_desc: 'ابدأ بأصغر قرض لبناء الزخم.',
     avalanche_desc: 'ابدأ بالسعر الأعلى لتوفير الأكثر.',
     long_press_tip: 'اضغط مطولاً على قرض لحذفه',
+    credit_name_placeholder: 'مثال: قرض سيارة بنك X',
     income_pct: 'من الدخل في السداد',
     critical_ratio_desc: 'أقساطك تتجاوز 33% من دخلك. حاول تقليل ديونك.',
     healthy_ratio_desc: 'أقساطك في نطاق صحي. استمر على هذا المنوال.',
@@ -308,6 +313,8 @@ export const ar = {
     in_progress: 'قيد التنفيذ',
     achieved: 'المحققة',
     current_savings: 'المدخر',
+    goal_name_placeholder: 'مثال: إجازة في إسبانيا',
+    goal_description_placeholder: 'تفاصيل هدفك...',
   },
 
   // Settings

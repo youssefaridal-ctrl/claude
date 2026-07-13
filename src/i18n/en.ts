@@ -102,6 +102,7 @@ export const en = {
     health_critical_desc: 'Critical! Reduce your spending.',
     add_expense_title: 'New expense',
     add_income_title: 'New income',
+    transaction_placeholder: 'Ex: Rent, Groceries...',
   },
 
   // Salary
@@ -152,6 +153,9 @@ export const en = {
     type_income: 'Income',
     category_icon: 'Icon',
     category_color: 'Color',
+    category_name_placeholder: 'Ex: Clothing',
+    income_source_placeholder: 'Ex: Freelance, Rental...',
+    transaction_name_placeholder: 'Ex: Groceries, Rent...',
     categories: {
       housing: 'Housing',
       food: 'Food',
@@ -211,6 +215,7 @@ export const en = {
     snowball_desc: 'Start with the smallest loan to build momentum.',
     avalanche_desc: 'Start with the highest rate to save the most.',
     long_press_tip: 'Long press a loan to delete it',
+    credit_name_placeholder: 'Ex: Car loan Bank X',
     income_pct: 'of income in repayments',
     critical_ratio_desc: 'Your repayments exceed 33% of your income. Try to reduce your debts.',
     healthy_ratio_desc: 'Your repayments are in a healthy zone. Keep it up.',
@@ -309,6 +314,8 @@ export const en = {
     in_progress: 'In progress',
     achieved: 'Achieved',
     current_savings: 'Saved',
+    goal_name_placeholder: 'Ex: Vacation in Spain',
+    goal_description_placeholder: 'Goal details...',
   },
 
   // Settings

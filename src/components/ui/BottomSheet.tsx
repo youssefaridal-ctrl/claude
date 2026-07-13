@@ -1,20 +1,21 @@
-import React, { useEffect, useRef } from 'react';
+import type React from 'react';
+import { useEffect, useRef } from 'react';
 import {
-  View,
-  Modal,
-  StyleSheet,
   Animated,
-  TouchableWithoutFeedback,
   Dimensions,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
   ScrollView,
+  StyleSheet,
   Text,
   TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
 import { Colors } from '../../theme/colors';
-import { Typography } from '../../theme/typography';
 import { Radius, Spacing } from '../../theme/spacing';
+import { Typography } from '../../theme/typography';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -50,18 +51,23 @@ export function BottomSheet({ visible, onClose, title, children, snapPoint = 0.6
 
   return (
     <Modal visible={visible} transparent animationType="none" onRequestClose={onClose}>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.flex}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.flex}
+      >
         <TouchableWithoutFeedback onPress={onClose}>
           <Animated.View style={[styles.backdrop, { opacity: visible ? 1 : 0 }]} />
         </TouchableWithoutFeedback>
-        <Animated.View
-          style={[styles.sheet, { height: sheetHeight, transform: [{ translateY }] }]}
-        >
+        <Animated.View style={[styles.sheet, { height: sheetHeight, transform: [{ translateY }] }]}>
           <View style={styles.handle} />
           {title && (
             <View style={styles.header}>
               <Text style={styles.title}>{title}</Text>
-              <TouchableOpacity onPress={onClose} style={styles.closeBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <TouchableOpacity
+                onPress={onClose}
+                style={styles.closeBtn}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
                 <Text style={styles.closeText}>✕</Text>
               </TouchableOpacity>
             </View>

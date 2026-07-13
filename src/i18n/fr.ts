@@ -102,6 +102,7 @@ export const fr = {
     health_critical_desc: 'Critique ! Réduisez vos dépenses.',
     add_expense_title: 'Nouvelle dépense',
     add_income_title: 'Nouveau revenu',
+    transaction_placeholder: 'Ex: Loyer, Supermarché...',
   },
 
   // Salary
@@ -152,6 +153,9 @@ export const fr = {
     type_income: 'Revenu',
     category_icon: 'Icône',
     category_color: 'Couleur',
+    category_name_placeholder: 'Ex: Vêtements',
+    income_source_placeholder: 'Ex: Freelance, Location...',
+    transaction_name_placeholder: 'Ex: Courses, Loyer...',
     categories: {
       housing: 'Logement',
       food: 'Alimentation',
@@ -211,6 +215,7 @@ export const fr = {
     snowball_desc: 'Commencez par le plus petit crédit pour gagner en motivation.',
     avalanche_desc: 'Commencez par le taux le plus élevé pour économiser le plus.',
     long_press_tip: 'Maintenez un crédit pour le supprimer',
+    credit_name_placeholder: 'Ex: Crédit auto Banque X',
     income_pct: 'du revenu en remboursements',
     critical_ratio_desc:
       'Vos remboursements dépassent 33% de votre revenu. Cherchez à réduire vos dettes.',
@@ -310,6 +315,8 @@ export const fr = {
     in_progress: 'En cours',
     achieved: 'Atteints',
     current_savings: 'Épargné',
+    goal_name_placeholder: 'Ex: Vacances en Espagne',
+    goal_description_placeholder: 'Détails de votre objectif...',
   },
 
   // Settings

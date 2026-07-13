@@ -10,8 +10,8 @@
  */
 
 import { useCallback, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
 import { setupPin } from '../../src/application/auth/setup-pin.usecase';
 import { PinPad } from '../../src/presentation/components/auth/PinPad';
 import { Colors } from '../../src/theme/colors';
@@ -82,7 +82,9 @@ export default function PinSetupScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{step === 'enter' ? t('auth.setup_title') : t('auth.confirm_title')}</Text>
+      <Text style={styles.title}>
+        {step === 'enter' ? t('auth.setup_title') : t('auth.confirm_title')}
+      </Text>
       <Text style={styles.subtitle}>
         {step === 'enter' ? t('auth.setup_subtitle') : t('auth.confirm_subtitle')}
       </Text>

@@ -2,7 +2,7 @@ export function getCurrentMonth(): string {
   return new Date().toISOString().slice(0, 7);
 }
 
-export function formatDate(dateStr: string, lang: string = 'fr'): string {
+export function formatDate(dateStr: string, lang = 'fr'): string {
   const date = new Date(dateStr);
   const locales: Record<string, string> = { fr: 'fr-FR', ar: 'ar-MA', en: 'en-US' };
   return date.toLocaleDateString(locales[lang] || 'fr-FR', {
@@ -12,7 +12,7 @@ export function formatDate(dateStr: string, lang: string = 'fr'): string {
   });
 }
 
-export function formatShortDate(dateStr: string, lang: string = 'fr'): string {
+export function formatShortDate(dateStr: string, lang = 'fr'): string {
   const date = new Date(dateStr);
   const locales: Record<string, string> = { fr: 'fr-FR', ar: 'ar-MA', en: 'en-US' };
   return date.toLocaleDateString(locales[lang] || 'fr-FR', {
@@ -49,7 +49,7 @@ export function addMonths(date: Date, months: number): Date {
   return d;
 }
 
-export function getMonthName(monthStr: string, lang: string = 'fr'): string {
+export function getMonthName(monthStr: string, lang = 'fr'): string {
   const date = new Date(monthStr + '-01');
   const locales: Record<string, string> = { fr: 'fr-FR', ar: 'ar-MA', en: 'en-US' };
   return date.toLocaleDateString(locales[lang] || 'fr-FR', { month: 'long', year: 'numeric' });

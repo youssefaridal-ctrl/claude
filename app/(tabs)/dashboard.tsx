@@ -1,4 +1,5 @@
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -41,7 +42,7 @@ export default function DashboardScreen() {
 
   const tips = useMemo(
     () => [t('dashboard.tip_50_30_20'), t('dashboard.tip_emergency'), t('dashboard.tip_debt')],
-    [t],
+    [t]
   );
 
   const totalIncome = getTotalIncome();
@@ -92,7 +93,7 @@ export default function DashboardScreen() {
     .map((c) => ({ value: c.amount, color: c.color, label: c.name }));
 
   const handleAddTransaction = useCallback(async () => {
-    const amount = Number.parseFloat(txAmount.replace(',', '.'));
+    const amount = Number.parseFloat(txAmount.replace(/,/g, '.'));
     if (!txDesc.trim() || !amount || amount <= 0) {
       Alert.alert('', t('common.required'));
       return;
@@ -219,14 +220,26 @@ export default function DashboardScreen() {
               <Text style={styles.actionLabel}>{t('dashboard.add_income')}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              activeOpacity={0.8}
+              onPress={() => router.push('/(tabs)/salary')}
+              accessibilityRole="button"
+              accessibilityLabel={t('dashboard.view_stats')}
+            >
               <View style={[styles.actionIcon, { backgroundColor: Colors.bg.elevated }]}>
                 <Text style={styles.actionEmoji}>📈</Text>
               </View>
               <Text style={styles.actionLabel}>{t('dashboard.view_stats')}</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionBtn} activeOpacity={0.8}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              activeOpacity={0.8}
+              onPress={() => router.push('/(tabs)/settings')}
+              accessibilityRole="button"
+              accessibilityLabel={t('settings.title')}
+            >
               <View style={[styles.actionIcon, { backgroundColor: Colors.bg.elevated }]}>
                 <Text style={styles.actionEmoji}>⚙️</Text>
               </View>
@@ -377,9 +390,7 @@ export default function DashboardScreen() {
         visible={showAddTx}
         onClose={() => setShowAddTx(false)}
         title={
-          txType === 'expense'
-            ? t('dashboard.add_expense_title')
-            : t('dashboard.add_income_title')
+          txType === 'expense' ? t('dashboard.add_expense_title') : t('dashboard.add_income_title')
         }
         snapPoint={0.75}
       >
@@ -424,15 +435,11 @@ export default function DashboardScreen() {
           label={t('salary.transaction_name')}
           value={txDesc}
           onChangeText={setTxDesc}
-          placeholder="Ex: Loyer, Supermarché..."
+          placeholder={t('dashboard.transaction_placeholder')}
         />
 
         <Text style={styles.catSelectLabel}>{t('salary.transaction_category')}</Text>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.catSelect}
-        >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catSelect}>
           {categories.map((cat) => (
             <TouchableOpacity
               key={cat.id}
@@ -443,12 +450,7 @@ export default function DashboardScreen() {
               ]}
             >
               <Text style={styles.catChipIcon}>{cat.icon}</Text>
-              <Text
-                style={[
-                  styles.catChipLabel,
-                  txCategory === cat.id && { color: Colors.white },
-                ]}
-              >
+              <Text style={[styles.catChipLabel, txCategory === cat.id && { color: Colors.white }]}>
                 {cat.name}
               </Text>
             </TouchableOpacity>

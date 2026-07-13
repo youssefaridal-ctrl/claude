@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import type React from 'react';
+import { useState } from 'react';
 import {
-  View,
-  TextInput,
-  Text,
   StyleSheet,
-  TouchableOpacity,
-  TextInputProps,
-  ViewStyle,
+  Text,
+  TextInput,
+  type TextInputProps,
+  View,
+  type ViewStyle,
 } from 'react-native';
 import { Colors } from '../../theme/colors';
-import { Typography } from '../../theme/typography';
 import { Radius, Spacing } from '../../theme/spacing';
+import { Typography } from '../../theme/typography';
 
 interface Props extends TextInputProps {
   label?: string;
@@ -21,22 +21,30 @@ interface Props extends TextInputProps {
   containerStyle?: ViewStyle;
 }
 
-export function Input({ label, error, hint, prefix, suffix, containerStyle, style, ...props }: Props) {
+export function Input({
+  label,
+  error,
+  hint,
+  prefix,
+  suffix,
+  containerStyle,
+  style,
+  ...props
+}: Props) {
   const [focused, setFocused] = useState(false);
 
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View
-        style={[
-          styles.inputWrapper,
-          focused && styles.focused,
-          !!error && styles.errorBorder,
-        ]}
-      >
+      <View style={[styles.inputWrapper, focused && styles.focused, !!error && styles.errorBorder]}>
         {prefix && <View style={styles.prefix}>{prefix}</View>}
         <TextInput
-          style={[styles.input, !!prefix && styles.withPrefix, !!suffix && styles.withSuffix, style]}
+          style={[
+            styles.input,
+            !!prefix && styles.withPrefix,
+            !!suffix && styles.withSuffix,
+            style,
+          ]}
           placeholderTextColor={Colors.text.tertiary}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}

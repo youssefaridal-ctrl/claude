@@ -116,7 +116,7 @@ export default function SalaryScreen() {
   };
 
   const handleUpdateSalary = async () => {
-    const amount = Number.parseFloat(newSalaryStr.replace(',', '.'));
+    const amount = Number.parseFloat(newSalaryStr.replace(/,/g, '.'));
     const result = await updateSalary(amount);
     if (!result.ok) {
       Alert.alert(t('common.error'), result.error.message);
@@ -143,7 +143,7 @@ export default function SalaryScreen() {
   };
 
   const handleAddCategory = async () => {
-    const pct = Number.parseFloat(newCatPct.replace(',', '.'));
+    const pct = Number.parseFloat(newCatPct.replace(/,/g, '.'));
     const result = await addBudgetCategory({
       name: newCatName,
       percentage: Number.isNaN(pct) ? 0 : pct,
@@ -174,7 +174,7 @@ export default function SalaryScreen() {
   };
 
   const handleAddSource = async () => {
-    const amount = Number.parseFloat(newSourceAmount.replace(',', '.'));
+    const amount = Number.parseFloat(newSourceAmount.replace(/,/g, '.'));
     const result = await addIncomeSource({
       name: newSourceName,
       amount: Number.isNaN(amount) ? 0 : amount,
@@ -204,10 +204,14 @@ export default function SalaryScreen() {
   };
 
   const handleAddTransaction = async () => {
-    const amount = Number.parseFloat(txAmount.replace(',', '.'));
+    const amount = Number.parseFloat(txAmount.replace(/,/g, '.'));
+    if (!txDesc.trim() || !amount || amount <= 0) {
+      Alert.alert('', t('common.required'));
+      return;
+    }
     const result = await addTransaction({
       description: txDesc,
-      amount: Number.isNaN(amount) ? 0 : amount,
+      amount,
       categoryId: txCategoryId || (categories[0]?.id ?? ''),
       date: txDate,
       type: txType,
@@ -250,12 +254,16 @@ export default function SalaryScreen() {
 
           <View style={styles.salaryCard}>
             <Text style={styles.salaryLabel}>{t('salary.total_income')}</Text>
-            <Text style={styles.salaryAmount}>{formatCurrency(totalIncome, user.currency, user.language)}</Text>
+            <Text style={styles.salaryAmount}>
+              {formatCurrency(totalIncome, user.currency, user.language)}
+            </Text>
 
             <View style={styles.incomeBreakdown}>
               <View style={styles.incomeItem}>
                 <Text style={styles.incomeLabel}>{t('salary.net_salary')}</Text>
-                <Text style={styles.incomeValue}>{formatCurrency(salary, user.currency, user.language)}</Text>
+                <Text style={styles.incomeValue}>
+                  {formatCurrency(salary, user.currency, user.language)}
+                </Text>
               </View>
               {incomeSources.length > 0 && (
                 <View style={styles.incomeItem}>
@@ -376,7 +384,8 @@ export default function SalaryScreen() {
                       <View>
                         <Text style={styles.catName}>{cat.name}</Text>
                         <Text style={styles.catBudget}>
-                          {cat.percentage}% · {formatCurrency(cat.amount, user.currency, user.language)}
+                          {cat.percentage}% ·{' '}
+                          {formatCurrency(cat.amount, user.currency, user.language)}
                         </Text>
                       </View>
                     </View>
@@ -568,7 +577,7 @@ export default function SalaryScreen() {
           label={t('salary.category_name')}
           value={newCatName}
           onChangeText={setNewCatName}
-          placeholder="Ex: Vêtements"
+          placeholder={t('salary.category_name_placeholder')}
         />
         <Input
           label={`${t('salary.category_percentage')} (max ${unallocated}%)`}
@@ -624,7 +633,7 @@ export default function SalaryScreen() {
           label={t('salary.income_name')}
           value={newSourceName}
           onChangeText={setNewSourceName}
-          placeholder="Ex: Freelance, Location..."
+          placeholder={t('salary.income_source_placeholder')}
         />
         <AmountInput
           label={t('salary.income_amount')}
@@ -667,7 +676,7 @@ export default function SalaryScreen() {
           label={t('salary.transaction_name')}
           value={txDesc}
           onChangeText={setTxDesc}
-          placeholder="Ex: Courses, Loyer..."
+          placeholder={t('salary.transaction_name_placeholder')}
         />
         <AmountInput
           label={t('salary.transaction_amount')}

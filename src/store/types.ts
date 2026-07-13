@@ -39,7 +39,14 @@ export interface Transaction {
 export interface Credit {
   id: string;
   name: string;
-  type: 'mortgage' | 'car_loan' | 'personal_loan' | 'consumer_credit' | 'student_loan' | 'credit_card' | 'other';
+  type:
+    | 'mortgage'
+    | 'car_loan'
+    | 'personal_loan'
+    | 'consumer_credit'
+    | 'student_loan'
+    | 'credit_card'
+    | 'other';
   totalAmount: number;
   remainingAmount: number;
   monthlyPayment: number;
@@ -68,7 +75,17 @@ export interface EmergencyFund {
 }
 
 export type GoalPriority = 'high' | 'medium' | 'low';
-export type GoalType = 'travel' | 'car' | 'home' | 'education' | 'emergency' | 'retirement' | 'wedding' | 'gadget' | 'business' | 'other';
+export type GoalType =
+  | 'travel'
+  | 'car'
+  | 'home'
+  | 'education'
+  | 'emergency'
+  | 'retirement'
+  | 'wedding'
+  | 'gadget'
+  | 'business'
+  | 'other';
 
 export interface GoalContribution {
   id: string;

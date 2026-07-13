@@ -120,13 +120,13 @@ export default function GoalsScreen() {
     if (progress >= 1) return { label: `✅ ${t('goals.completed')}`, variant: 'success' };
     if (!goal.targetDate) return { label: `⏳ ${t('goals.in_progress')}`, variant: 'info' };
     const monthsLeft = monthsUntilDate(goal.targetDate);
-    const onTrack = monthsLeft > 0;
+    const onTrack = monthsLeft >= 0;
     if (onTrack) return { label: `✓ ${t('goals.on_track')}`, variant: 'success' };
     return { label: `⚠️ ${t('goals.behind')}`, variant: 'warning' };
   };
 
   const handleAddGoal = useCallback(async () => {
-    const target = Number.parseFloat(goalTarget.replace(',', '.'));
+    const target = Number.parseFloat(goalTarget.replace(/,/g, '.'));
     if (!goalName.trim() || Number.isNaN(target) || target <= 0) {
       Alert.alert(t('common.error'), t('common.required'));
       return;
@@ -181,7 +181,7 @@ export default function GoalsScreen() {
 
   const handleContribute = useCallback(async () => {
     if (!showContribute) return;
-    const amount = Number.parseFloat(contribAmount.replace(',', '.'));
+    const amount = Number.parseFloat(contribAmount.replace(/,/g, '.'));
     if (Number.isNaN(amount) || amount <= 0) {
       Alert.alert(t('common.error'), t('common.required'));
       return;
@@ -418,7 +418,7 @@ export default function GoalsScreen() {
           label={`${t('goals.goal_name')} *`}
           value={goalName}
           onChangeText={setGoalName}
-          placeholder="Ex: Vacances en Espagne"
+          placeholder={t('goals.goal_name_placeholder')}
         />
 
         <Text style={styles.formLabel}>{t('goals.goal_type')}</Text>
@@ -488,7 +488,7 @@ export default function GoalsScreen() {
           label={`${t('goals.goal_description')} (${t('common.optional')})`}
           value={goalDesc}
           onChangeText={setGoalDesc}
-          placeholder="Détails de votre objectif..."
+          placeholder={t('goals.goal_description_placeholder')}
           multiline
           numberOfLines={2}
         />

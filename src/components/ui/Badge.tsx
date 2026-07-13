@@ -1,8 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet, ViewStyle } from 'react-native';
+import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import { Colors } from '../../theme/colors';
-import { Typography } from '../../theme/typography';
 import { Radius, Spacing } from '../../theme/spacing';
+import { Typography } from '../../theme/typography';
 
 type Variant = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'primary';
 
@@ -28,12 +27,7 @@ export function Badge({ label, variant = 'neutral', size = 'sm', style }: Props)
 
   return (
     <View
-      style={[
-        styles.badge,
-        { backgroundColor: bg },
-        isSmall ? styles.small : styles.medium,
-        style,
-      ]}
+      style={[styles.badge, { backgroundColor: bg }, isSmall ? styles.small : styles.medium, style]}
     >
       <Text style={[styles.text, { color: text }, isSmall ? styles.smallText : styles.mediumText]}>
         {label}

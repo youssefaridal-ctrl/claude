@@ -1,17 +1,17 @@
-import React from 'react';
-import {
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  ViewStyle,
-  TextStyle,
-  ActivityIndicator,
-  View,
-} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import type React from 'react';
+import {
+  ActivityIndicator,
+  StyleSheet,
+  Text,
+  type TextStyle,
+  TouchableOpacity,
+  View,
+  type ViewStyle,
+} from 'react-native';
 import { Colors } from '../../theme/colors';
-import { Typography } from '../../theme/typography';
 import { Radius, Spacing } from '../../theme/spacing';
+import { Typography } from '../../theme/typography';
 
 type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
 type Size = 'sm' | 'md' | 'lg';

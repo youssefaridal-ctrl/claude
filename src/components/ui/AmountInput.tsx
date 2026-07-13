@@ -1,8 +1,7 @@
-import React from 'react';
-import { View, TextInput, Text, StyleSheet, ViewStyle } from 'react-native';
+import { StyleSheet, Text, TextInput, View, type ViewStyle } from 'react-native';
 import { Colors } from '../../theme/colors';
-import { Typography } from '../../theme/typography';
 import { Radius, Spacing } from '../../theme/spacing';
+import { Typography } from '../../theme/typography';
 
 interface Props {
   value: string;
@@ -14,7 +13,15 @@ interface Props {
   large?: boolean;
 }
 
-export function AmountInput({ value, onChangeText, currency = 'DH', label, placeholder = '0', style, large }: Props) {
+export function AmountInput({
+  value,
+  onChangeText,
+  currency = 'DH',
+  label,
+  placeholder = '0',
+  style,
+  large,
+}: Props) {
   return (
     <View style={[styles.container, style]}>
       {label && <Text style={styles.label}>{label}</Text>}

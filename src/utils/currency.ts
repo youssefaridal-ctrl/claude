@@ -1,4 +1,4 @@
-import { Currency } from '../store/types';
+import type { Currency } from '../store/types';
 
 const CURRENCY_SYMBOLS: Record<Currency, string> = {
   MAD: 'DH',
@@ -17,7 +17,7 @@ const LOCALES: Record<string, string> = {
   en: 'en-US',
 };
 
-export function formatCurrency(amount: number, currency: Currency = 'MAD', lang: string = 'fr'): string {
+export function formatCurrency(amount: number, currency: Currency = 'MAD', lang = 'fr'): string {
   const symbol = CURRENCY_SYMBOLS[currency];
   const locale = LOCALES[lang] ?? 'fr-FR';
   const formatted = amount.toLocaleString(locale, {
@@ -27,7 +27,7 @@ export function formatCurrency(amount: number, currency: Currency = 'MAD', lang:
   return `${formatted} ${symbol}`;
 }
 
-export function formatAmount(amount: number, lang: string = 'fr'): string {
+export function formatAmount(amount: number, lang = 'fr'): string {
   const locale = LOCALES[lang] ?? 'fr-FR';
   return amount.toLocaleString(locale, {
     minimumFractionDigits: 0,

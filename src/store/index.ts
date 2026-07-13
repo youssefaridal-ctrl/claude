@@ -1,33 +1,82 @@
-import { create } from 'zustand';
 import { eq, isNull } from 'drizzle-orm';
 import * as Crypto from 'expo-crypto';
+import { create } from 'zustand';
 import { getDb } from '../database/client';
 import * as schema from '../database/schema';
 import i18n from '../i18n';
 import { Colors } from '../theme/colors';
 import type {
-  UserProfile,
   BudgetCategory,
-  IncomeSource,
-  Transaction,
   Credit,
+  Currency,
   EmergencyFund,
   Goal,
-  Currency,
+  IncomeSource,
   Language,
+  Transaction,
+  UserProfile,
 } from './types';
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
 function getDefaultCategories(): Omit<BudgetCategory, 'amount'>[] {
   return [
-    { id: 'housing', name: i18n.t('salary.categories.housing'), percentage: 30, color: Colors.categories.housing, icon: '🏠', spent: 0 },
-    { id: 'food', name: i18n.t('salary.categories.food'), percentage: 15, color: Colors.categories.food, icon: '🛒', spent: 0 },
-    { id: 'transport', name: i18n.t('salary.categories.transport'), percentage: 10, color: Colors.categories.transport, icon: '🚗', spent: 0 },
-    { id: 'health', name: i18n.t('salary.categories.health'), percentage: 5, color: Colors.categories.health, icon: '❤️', spent: 0 },
-    { id: 'leisure', name: i18n.t('salary.categories.leisure'), percentage: 10, color: Colors.categories.leisure, icon: '🎮', spent: 0 },
-    { id: 'savings', name: i18n.t('salary.categories.savings'), percentage: 20, color: Colors.categories.savings, icon: '💰', spent: 0 },
-    { id: 'utilities', name: i18n.t('salary.categories.utilities'), percentage: 10, color: Colors.categories.utilities, icon: '⚡', spent: 0 },
+    {
+      id: 'housing',
+      name: i18n.t('salary.categories.housing'),
+      percentage: 30,
+      color: Colors.categories.housing,
+      icon: '🏠',
+      spent: 0,
+    },
+    {
+      id: 'food',
+      name: i18n.t('salary.categories.food'),
+      percentage: 15,
+      color: Colors.categories.food,
+      icon: '🛒',
+      spent: 0,
+    },
+    {
+      id: 'transport',
+      name: i18n.t('salary.categories.transport'),
+      percentage: 10,
+      color: Colors.categories.transport,
+      icon: '🚗',
+      spent: 0,
+    },
+    {
+      id: 'health',
+      name: i18n.t('salary.categories.health'),
+      percentage: 5,
+      color: Colors.categories.health,
+      icon: '❤️',
+      spent: 0,
+    },
+    {
+      id: 'leisure',
+      name: i18n.t('salary.categories.leisure'),
+      percentage: 10,
+      color: Colors.categories.leisure,
+      icon: '🎮',
+      spent: 0,
+    },
+    {
+      id: 'savings',
+      name: i18n.t('salary.categories.savings'),
+      percentage: 20,
+      color: Colors.categories.savings,
+      icon: '💰',
+      spent: 0,
+    },
+    {
+      id: 'utilities',
+      name: i18n.t('salary.categories.utilities'),
+      percentage: 10,
+      color: Colors.categories.utilities,
+      icon: '⚡',
+      spent: 0,
+    },
   ];
 }
 
@@ -47,7 +96,10 @@ const getCurrentMonth = () => new Date().toISOString().slice(0, 7);
 const now = () => new Date().toISOString();
 const today = () => new Date().toISOString().slice(0, 10);
 
-const recalcCategoryAmounts = (categories: BudgetCategory[], totalIncome: number): BudgetCategory[] =>
+const recalcCategoryAmounts = (
+  categories: BudgetCategory[],
+  totalIncome: number
+): BudgetCategory[] =>
   categories.map((c) => ({ ...c, amount: Math.round((c.percentage / 100) * totalIncome) }));
 
 // ─── DB mappers ───────────────────────────────────────────────────────────────
@@ -115,7 +167,12 @@ interface AppState {
   initializeApp: () => Promise<void>;
   updateUser: (user: Partial<UserProfile>) => Promise<void>;
   setSalary: (amount: number) => Promise<void>;
-  completeOnboarding: (name: string, salary: number, language: Language, currency: Currency) => Promise<void>;
+  completeOnboarding: (
+    name: string,
+    salary: number,
+    language: Language,
+    currency: Currency
+  ) => Promise<void>;
 
   updateCategories: (categories: BudgetCategory[]) => Promise<void>;
   apply503020Rule: () => void;
@@ -176,18 +233,33 @@ export const useAppStore = create<AppState>((set, get) => ({
     try {
       const db = getDb();
 
-      const [userRows, categoryRows, incomeRows, txRows, creditRows, efRows, efTxRows, goalRows, contribRows] =
-        await Promise.all([
-          db.select().from(schema.users).where(eq(schema.users.id, 1)),
-          db.select().from(schema.budgetCategories).where(isNull(schema.budgetCategories.deletedAt)),
-          db.select().from(schema.incomeSources).where(isNull(schema.incomeSources.deletedAt)),
-          db.select().from(schema.transactions).where(isNull(schema.transactions.deletedAt)),
-          db.select().from(schema.credits).where(isNull(schema.credits.deletedAt)),
-          db.select().from(schema.emergencyFund).where(eq(schema.emergencyFund.id, 1)),
-          db.select().from(schema.emergencyTransactions).where(isNull(schema.emergencyTransactions.deletedAt)),
-          db.select().from(schema.goals).where(isNull(schema.goals.deletedAt)),
-          db.select().from(schema.goalContributions).where(isNull(schema.goalContributions.deletedAt)),
-        ]);
+      const [
+        userRows,
+        categoryRows,
+        incomeRows,
+        txRows,
+        creditRows,
+        efRows,
+        efTxRows,
+        goalRows,
+        contribRows,
+      ] = await Promise.all([
+        db.select().from(schema.users).where(eq(schema.users.id, 1)),
+        db.select().from(schema.budgetCategories).where(isNull(schema.budgetCategories.deletedAt)),
+        db.select().from(schema.incomeSources).where(isNull(schema.incomeSources.deletedAt)),
+        db.select().from(schema.transactions).where(isNull(schema.transactions.deletedAt)),
+        db.select().from(schema.credits).where(isNull(schema.credits.deletedAt)),
+        db.select().from(schema.emergencyFund).where(eq(schema.emergencyFund.id, 1)),
+        db
+          .select()
+          .from(schema.emergencyTransactions)
+          .where(isNull(schema.emergencyTransactions.deletedAt)),
+        db.select().from(schema.goals).where(isNull(schema.goals.deletedAt)),
+        db
+          .select()
+          .from(schema.goalContributions)
+          .where(isNull(schema.goalContributions.deletedAt)),
+      ]);
 
       const userRow = userRows[0];
       const salary = userRow?.salary ?? 0;
@@ -229,7 +301,13 @@ export const useAppStore = create<AppState>((set, get) => ({
             monthlyExpenses: ef.monthlyExpenses,
             transactions: efTxRows
               .filter((t) => !t.deletedAt)
-              .map((t) => ({ id: t.id, type: t.type, amount: t.amount, date: t.date, note: t.note })),
+              .map((t) => ({
+                id: t.id,
+                type: t.type,
+                amount: t.amount,
+                date: t.date,
+                note: t.note,
+              })),
           }
         : DEFAULT_EMERGENCY_FUND;
 
@@ -298,10 +376,16 @@ export const useAppStore = create<AppState>((set, get) => ({
     const updated = recalcCategoryAmounts(get().categories, totalIncome);
     set({ salary: amount, categories: updated });
     const db = getDb();
-    await db.update(schema.users).set({ salary: amount, updatedAt: now() }).where(eq(schema.users.id, 1));
+    await db
+      .update(schema.users)
+      .set({ salary: amount, updatedAt: now() })
+      .where(eq(schema.users.id, 1));
     await Promise.all(
       updated.map((c) =>
-        db.update(schema.budgetCategories).set({ amount: c.amount }).where(eq(schema.budgetCategories.id, c.id))
+        db
+          .update(schema.budgetCategories)
+          .set({ amount: c.amount })
+          .where(eq(schema.budgetCategories.id, c.id))
       )
     );
   },
@@ -309,7 +393,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   completeOnboarding: async (name, salary, language, currency) => {
     const totalIncome = salary + get().incomeSources.reduce((a, s) => a + s.amount, 0);
     const updated = recalcCategoryAmounts(get().categories, totalIncome);
-    const user: UserProfile = { ...get().user, name, language, currency, onboardingCompleted: true };
+    const user: UserProfile = {
+      ...get().user,
+      name,
+      language,
+      currency,
+      onboardingCompleted: true,
+    };
     set({ user, salary, categories: updated });
     const db = getDb();
     await db
@@ -318,7 +408,10 @@ export const useAppStore = create<AppState>((set, get) => ({
       .where(eq(schema.users.id, 1));
     await Promise.all(
       updated.map((c) =>
-        db.update(schema.budgetCategories).set({ amount: c.amount }).where(eq(schema.budgetCategories.id, c.id))
+        db
+          .update(schema.budgetCategories)
+          .set({ amount: c.amount })
+          .where(eq(schema.budgetCategories.id, c.id))
       )
     );
   },
@@ -331,7 +424,13 @@ export const useAppStore = create<AppState>((set, get) => ({
       categories.map((c) =>
         db
           .update(schema.budgetCategories)
-          .set({ name: c.name, percentage: c.percentage, amount: c.amount, color: c.color, icon: c.icon })
+          .set({
+            name: c.name,
+            percentage: c.percentage,
+            amount: c.amount,
+            color: c.color,
+            icon: c.icon,
+          })
           .where(eq(schema.budgetCategories.id, c.id))
       )
     );
@@ -340,9 +439,33 @@ export const useAppStore = create<AppState>((set, get) => ({
   apply503020Rule: () => {
     const totalIncome = get().getTotalIncome();
     const preset: BudgetCategory[] = [
-      { id: 'needs', name: i18n.t('salary.needs'), percentage: 50, amount: totalIncome * 0.5, color: Colors.primary, icon: '🏠', spent: 0 },
-      { id: 'wants', name: i18n.t('salary.wants'), percentage: 30, amount: totalIncome * 0.3, color: Colors.secondary, icon: '🎮', spent: 0 },
-      { id: 'savings', name: i18n.t('salary.savings'), percentage: 20, amount: totalIncome * 0.2, color: Colors.success, icon: '💰', spent: 0 },
+      {
+        id: 'needs',
+        name: i18n.t('salary.needs'),
+        percentage: 50,
+        amount: totalIncome * 0.5,
+        color: Colors.primary,
+        icon: '🏠',
+        spent: 0,
+      },
+      {
+        id: 'wants',
+        name: i18n.t('salary.wants'),
+        percentage: 30,
+        amount: totalIncome * 0.3,
+        color: Colors.secondary,
+        icon: '🎮',
+        spent: 0,
+      },
+      {
+        id: 'savings',
+        name: i18n.t('salary.savings'),
+        percentage: 20,
+        amount: totalIncome * 0.2,
+        color: Colors.success,
+        icon: '💰',
+        spent: 0,
+      },
     ];
     get().updateCategories(preset);
   },
@@ -386,10 +509,18 @@ export const useAppStore = create<AppState>((set, get) => ({
     const updatedCats = recalcCategoryAmounts(get().categories, totalIncome);
     set({ incomeSources: updated, categories: updatedCats });
     const db = getDb();
-    await db.insert(schema.incomeSources).values({ id: newSource.id, name: newSource.name, amount: newSource.amount, type: newSource.type });
+    await db.insert(schema.incomeSources).values({
+      id: newSource.id,
+      name: newSource.name,
+      amount: newSource.amount,
+      type: newSource.type,
+    });
     await Promise.all(
       updatedCats.map((c) =>
-        db.update(schema.budgetCategories).set({ amount: c.amount }).where(eq(schema.budgetCategories.id, c.id))
+        db
+          .update(schema.budgetCategories)
+          .set({ amount: c.amount })
+          .where(eq(schema.budgetCategories.id, c.id))
       )
     );
   },
@@ -400,10 +531,16 @@ export const useAppStore = create<AppState>((set, get) => ({
     const updatedCats = recalcCategoryAmounts(get().categories, totalIncome);
     set({ incomeSources: updated, categories: updatedCats });
     const db = getDb();
-    await db.update(schema.incomeSources).set({ deletedAt: now() }).where(eq(schema.incomeSources.id, id));
+    await db
+      .update(schema.incomeSources)
+      .set({ deletedAt: now() })
+      .where(eq(schema.incomeSources.id, id));
     await Promise.all(
       updatedCats.map((c) =>
-        db.update(schema.budgetCategories).set({ amount: c.amount }).where(eq(schema.budgetCategories.id, c.id))
+        db
+          .update(schema.budgetCategories)
+          .set({ amount: c.amount })
+          .where(eq(schema.budgetCategories.id, c.id))
       )
     );
   },
@@ -520,7 +657,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     };
     set({ emergencyFund: updated });
     const db = getDb();
-    await db.insert(schema.emergencyTransactions).values({ id: txId, type: 'contribution', amount, date: tx.date, note });
+    await db
+      .insert(schema.emergencyTransactions)
+      .values({ id: txId, type: 'contribution', amount, date: tx.date, note });
     await db
       .update(schema.emergencyFund)
       .set({ currentAmount: updated.currentAmount, updatedAt: now() })
@@ -537,7 +676,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     };
     set({ emergencyFund: updated });
     const db = getDb();
-    await db.insert(schema.emergencyTransactions).values({ id: txId, type: 'withdrawal', amount, date: tx.date, note: reason });
+    await db
+      .insert(schema.emergencyTransactions)
+      .values({ id: txId, type: 'withdrawal', amount, date: tx.date, note: reason });
     await db
       .update(schema.emergencyFund)
       .set({ currentAmount: updated.currentAmount, updatedAt: now() })
@@ -597,15 +738,24 @@ export const useAppStore = create<AppState>((set, get) => ({
     const contribution = { id: contribId, amount, date: now() };
     const updated = get().goals.map((g) =>
       g.id === goalId
-        ? { ...g, currentAmount: g.currentAmount + amount, contributions: [contribution, ...g.contributions] }
+        ? {
+            ...g,
+            currentAmount: g.currentAmount + amount,
+            contributions: [contribution, ...g.contributions],
+          }
         : g
     );
     set({ goals: updated });
     const db = getDb();
-    await db.insert(schema.goalContributions).values({ id: contribId, goalId, amount, date: contribution.date });
+    await db
+      .insert(schema.goalContributions)
+      .values({ id: contribId, goalId, amount, date: contribution.date });
     const goal = updated.find((g) => g.id === goalId);
     if (!goal) return;
-    await db.update(schema.goals).set({ currentAmount: goal.currentAmount }).where(eq(schema.goals.id, goalId));
+    await db
+      .update(schema.goals)
+      .set({ currentAmount: goal.currentAmount })
+      .where(eq(schema.goals.id, goalId));
   },
 
   // ── Computed ──────────────────────────────────────────────────────────────
@@ -617,8 +767,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     const total = get().getTotalIncome();
     if (total === 0) return 100;
     const month = getCurrentMonth();
-    const spent = get().transactions
-      .filter((t) => t.month === month && t.type === 'expense')
+    const spent = get()
+      .transactions.filter((t) => t.month === month && t.type === 'expense')
       .reduce((a, t) => a + t.amount, 0);
     return Math.max(0, Math.round(((total - spent) / total) * 100));
   },

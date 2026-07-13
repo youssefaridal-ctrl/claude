@@ -1,11 +1,13 @@
-import { int, real, text, sqliteTable, index } from 'drizzle-orm/sqlite-core';
 import { sql } from 'drizzle-orm';
+import { index, int, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 
 // ─── Users (singleton) ───────────────────────────────────────────────────────
 export const users = sqliteTable('users', {
   id: int('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull().default(''),
-  language: text('language', { enum: ['fr', 'ar', 'en'] }).notNull().default('fr'),
+  language: text('language', { enum: ['fr', 'ar', 'en'] })
+    .notNull()
+    .default('fr'),
   currency: text('currency', {
     enum: ['MAD', 'EUR', 'USD', 'GBP', 'TND', 'DZD', 'SAR', 'AED'],
   })
@@ -14,12 +16,8 @@ export const users = sqliteTable('users', {
   salary: real('salary').notNull().default(0),
   salaryPaymentDay: int('salary_payment_day').notNull().default(1),
   onboardingCompleted: int('onboarding_completed', { mode: 'boolean' }).notNull().default(false),
-  createdAt: text('created_at')
-    .notNull()
-    .default(sql`(datetime('now'))`),
-  updatedAt: text('updated_at')
-    .notNull()
-    .default(sql`(datetime('now'))`),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
+  updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
 });
 
 // ─── Income Sources ───────────────────────────────────────────────────────────
@@ -27,10 +25,10 @@ export const incomeSources = sqliteTable('income_sources', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   amount: real('amount').notNull(),
-  type: text('type', { enum: ['fixed', 'variable'] }).notNull().default('fixed'),
-  createdAt: text('created_at')
+  type: text('type', { enum: ['fixed', 'variable'] })
     .notNull()
-    .default(sql`(datetime('now'))`),
+    .default('fixed'),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
   deletedAt: text('deleted_at'),
 });
 
@@ -43,9 +41,7 @@ export const budgetCategories = sqliteTable('budget_categories', {
   color: text('color').notNull().default('#6366F1'),
   icon: text('icon').notNull().default('💰'),
   sortOrder: int('sort_order').notNull().default(0),
-  createdAt: text('created_at')
-    .notNull()
-    .default(sql`(datetime('now'))`),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
   deletedAt: text('deleted_at'),
 });
 
@@ -60,9 +56,7 @@ export const transactions = sqliteTable(
     date: text('date').notNull(),
     month: text('month').notNull(), // YYYY-MM
     type: text('type', { enum: ['expense', 'income'] }).notNull(),
-    createdAt: text('created_at')
-      .notNull()
-      .default(sql`(datetime('now'))`),
+    createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
     deletedAt: text('deleted_at'),
   },
   (t) => ({
@@ -97,9 +91,7 @@ export const credits = sqliteTable('credits', {
   endDate: text('end_date').notNull(),
   bank: text('bank').notNull().default(''),
   color: text('color').notNull().default('#6366F1'),
-  createdAt: text('created_at')
-    .notNull()
-    .default(sql`(datetime('now'))`),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
   deletedAt: text('deleted_at'),
 });
 
@@ -115,9 +107,7 @@ export const emergencyFund = sqliteTable('emergency_fund', {
     .notNull()
     .default('6_months'),
   monthlyExpenses: real('monthly_expenses').notNull().default(0),
-  updatedAt: text('updated_at')
-    .notNull()
-    .default(sql`(datetime('now'))`),
+  updatedAt: text('updated_at').notNull().default(sql`(datetime('now'))`),
 });
 
 // ─── Emergency Transactions ───────────────────────────────────────────────────
@@ -154,12 +144,12 @@ export const goals = sqliteTable('goals', {
   targetAmount: real('target_amount').notNull().default(0),
   currentAmount: real('current_amount').notNull().default(0),
   targetDate: text('target_date').notNull(),
-  priority: text('priority', { enum: ['high', 'medium', 'low'] }).notNull().default('medium'),
+  priority: text('priority', { enum: ['high', 'medium', 'low'] })
+    .notNull()
+    .default('medium'),
   color: text('color').notNull().default('#6366F1'),
   icon: text('icon').notNull().default('🎯'),
-  createdAt: text('created_at')
-    .notNull()
-    .default(sql`(datetime('now'))`),
+  createdAt: text('created_at').notNull().default(sql`(datetime('now'))`),
   deletedAt: text('deleted_at'),
 });
 

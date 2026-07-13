@@ -59,7 +59,10 @@ function RootNavigator() {
 
     // status === 'unlocked' — wait for app store to finish initializing
     if (isLoading) return;
-    if (initError) { void SplashScreen.hideAsync(); return; }
+    if (initError) {
+      void SplashScreen.hideAsync();
+      return;
+    }
     if (!isInitialized) return;
 
     void SplashScreen.hideAsync();

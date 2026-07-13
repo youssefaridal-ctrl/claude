@@ -1,19 +1,37 @@
-import { useRef, useState } from 'react';
-import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Colors } from '../../src/theme/colors';
-import { Typography } from '../../src/theme/typography';
-import { Radius, Spacing } from '../../src/theme/spacing';
+import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Button } from '../../src/components/ui/Button';
+import { Colors } from '../../src/theme/colors';
+import { Radius, Spacing } from '../../src/theme/spacing';
+import { Typography } from '../../src/theme/typography';
 
 const { width } = Dimensions.get('window');
 
 const FEATURES = [
-  { key: 'salary', icon: '💰', gradient: Colors.gradient.salary, titleKey: 'feature1_title', descKey: 'feature1_desc' },
-  { key: 'credits', icon: '📊', gradient: Colors.gradient.credits, titleKey: 'feature2_title', descKey: 'feature2_desc' },
-  { key: 'goals', icon: '🎯', gradient: Colors.gradient.goals, titleKey: 'feature3_title', descKey: 'feature3_desc' },
+  {
+    key: 'salary',
+    icon: '💰',
+    gradient: Colors.gradient.salary,
+    titleKey: 'feature1_title',
+    descKey: 'feature1_desc',
+  },
+  {
+    key: 'credits',
+    icon: '📊',
+    gradient: Colors.gradient.credits,
+    titleKey: 'feature2_title',
+    descKey: 'feature2_desc',
+  },
+  {
+    key: 'goals',
+    icon: '🎯',
+    gradient: Colors.gradient.goals,
+    titleKey: 'feature3_title',
+    descKey: 'feature3_desc',
+  },
 ] as const;
 
 export default function WelcomeScreen() {
@@ -74,10 +92,7 @@ export default function WelcomeScreen() {
         {FEATURES.map((feature) => (
           <View
             key={feature.key}
-            style={[
-              styles.dot,
-              FEATURES[currentIndex].key === feature.key && styles.dotActive,
-            ]}
+            style={[styles.dot, FEATURES[currentIndex].key === feature.key && styles.dotActive]}
           />
         ))}
       </View>
@@ -85,7 +100,9 @@ export default function WelcomeScreen() {
       {/* Actions */}
       <View style={styles.actions}>
         <Button
-          title={currentIndex < FEATURES.length - 1 ? t('common.next') : t('onboarding.get_started')}
+          title={
+            currentIndex < FEATURES.length - 1 ? t('common.next') : t('onboarding.get_started')
+          }
           onPress={handleNext}
           fullWidth
           size="lg"

@@ -79,7 +79,7 @@ export default function CreditsScreen() {
         icon: CREDIT_TYPE_ICONS[value],
         label: `${CREDIT_TYPE_ICONS[value]} ${t(`credits.${value}`)}`,
       })),
-    [t],
+    [t]
   );
 
   const totalDebt = credits.reduce((a, c) => a + c.remainingAmount, 0);
@@ -96,11 +96,28 @@ export default function CreditsScreen() {
       : null;
 
   const handleAddCredit = async () => {
-    const total = Number.parseFloat(creditTotal.replace(',', '.'));
-    const remaining = Number.parseFloat(creditRemaining.replace(',', '.'));
-    const monthly = Number.parseFloat(creditMonthly.replace(',', '.'));
+    const total = Number.parseFloat(creditTotal.replace(/,/g, '.'));
+    const remaining = Number.parseFloat(creditRemaining.replace(/,/g, '.'));
+    const monthly = Number.parseFloat(creditMonthly.replace(/,/g, '.'));
 
-    if (!creditName.trim() || Number.isNaN(total) || Number.isNaN(remaining) || Number.isNaN(monthly)) {
+    if (
+      !creditName.trim() ||
+      Number.isNaN(total) ||
+      Number.isNaN(remaining) ||
+      Number.isNaN(monthly)
+    ) {
+      Alert.alert('', t('common.required'));
+      return;
+    }
+    if (remaining > total) {
+      Alert.alert('', t('common.error'));
+      return;
+    }
+    if (
+      !creditEndDate ||
+      !/^\d{4}-\d{2}-\d{2}$/.test(creditEndDate) ||
+      new Date(creditEndDate) < new Date()
+    ) {
       Alert.alert('', t('common.required'));
       return;
     }
@@ -150,9 +167,7 @@ export default function CreditsScreen() {
             <View style={styles.summaryTop}>
               <View>
                 <Text style={styles.summaryLabel}>{t('credits.total_debt')}</Text>
-                <Text style={styles.summaryAmount}>
-                  {formatCurrency(totalDebt, user.currency)}
-                </Text>
+                <Text style={styles.summaryAmount}>{formatCurrency(totalDebt, user.currency)}</Text>
               </View>
               <View style={styles.debtBadge}>
                 <Badge
@@ -201,7 +216,10 @@ export default function CreditsScreen() {
         <View style={styles.body}>
           {/* Debt Ratio Info */}
           <View
-            style={[styles.ratioCard, { borderColor: debtRatio > 33 ? Colors.danger : Colors.success }]}
+            style={[
+              styles.ratioCard,
+              { borderColor: debtRatio > 33 ? Colors.danger : Colors.success },
+            ]}
           >
             <Text style={styles.ratioIcon}>{debtRatio > 33 ? '⚠️' : '✅'}</Text>
             <View style={styles.ratioInfo}>
@@ -261,9 +279,7 @@ export default function CreditsScreen() {
                           <Text style={styles.creditTypeIcon}>{typeInfo?.icon ?? '📋'}</Text>
                           <View>
                             <Text style={styles.creditName}>{credit.name}</Text>
-                            {credit.bank && (
-                              <Text style={styles.creditBank}>{credit.bank}</Text>
-                            )}
+                            {credit.bank && <Text style={styles.creditBank}>{credit.bank}</Text>}
                           </View>
                         </View>
                         <View style={styles.creditRight}>
@@ -312,9 +328,7 @@ export default function CreditsScreen() {
             })
           )}
 
-          {credits.length > 0 && (
-            <Text style={styles.tip}>💡 {t('credits.long_press_tip')}</Text>
-          )}
+          {credits.length > 0 && <Text style={styles.tip}>💡 {t('credits.long_press_tip')}</Text>}
 
           {/* Payoff Strategy */}
           {credits.length >= 2 && (
@@ -346,7 +360,7 @@ export default function CreditsScreen() {
           label={`${t('credits.credit_name')} *`}
           value={creditName}
           onChangeText={setCreditName}
-          placeholder="Ex: Crédit auto Banque X"
+          placeholder={t('credits.credit_name_placeholder')}
         />
 
         <Text style={styles.formLabel}>{t('credits.credit_type')}</Text>
@@ -358,10 +372,7 @@ export default function CreditsScreen() {
               style={[styles.typeChip, creditType === type.value && styles.typeChipSelected]}
             >
               <Text
-                style={[
-                  styles.typeChipText,
-                  creditType === type.value && { color: Colors.white },
-                ]}
+                style={[styles.typeChipText, creditType === type.value && { color: Colors.white }]}
               >
                 {type.label}
               </Text>
@@ -460,9 +471,7 @@ export default function CreditsScreen() {
               { label: t('credits.bank'), value: showDetail.bank || 'N/A' },
               {
                 label: t('credits.end_date'),
-                value: showDetail.endDate
-                  ? formatDate(showDetail.endDate, user.language)
-                  : 'N/A',
+                value: showDetail.endDate ? formatDate(showDetail.endDate, user.language) : 'N/A',
               },
             ].map((item) => (
               <View key={item.label} style={styles.detailItem}>
@@ -474,8 +483,7 @@ export default function CreditsScreen() {
           <ProgressBar
             progress={
               showDetail.totalAmount > 0
-                ? ((showDetail.totalAmount - showDetail.remainingAmount) /
-                    showDetail.totalAmount) *
+                ? ((showDetail.totalAmount - showDetail.remainingAmount) / showDetail.totalAmount) *
                   100
                 : 0
             }
