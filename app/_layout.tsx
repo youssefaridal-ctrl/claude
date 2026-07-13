@@ -1,8 +1,7 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { I18nManager, StatusBar, View } from 'react-native';
+import { I18nManager, StatusBar, StyleSheet, Text, View } from 'react-native';
 import i18n, { LANGUAGES } from '../src/i18n';
 import { hasPinSetup } from '../src/infrastructure/crypto/pin-store';
 import { useAuthStore } from '../src/presentation/stores/auth.store';
@@ -11,15 +10,9 @@ import { Colors } from '../src/theme/colors';
 
 SplashScreen.preventAutoHideAsync();
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: { retry: 1, staleTime: 30_000 },
-  },
-});
-
 function RootNavigator() {
   const { status } = useAuthStore();
-  const { isLoading, isInitialized, user } = useAppStore();
+  const { isLoading, isInitialized, initError, user } = useAppStore();
   const { language } = user;
 
   // Sync stored language and RTL direction after the DB is open and user data is loaded
@@ -40,38 +33,55 @@ function RootNavigator() {
     const { setStatus } = useAuthStore.getState();
     hasPinSetup()
       .then((has) => setStatus(has ? 'locked' : 'no_pin'))
-      .catch(() => setStatus('no_pin'));
+      .catch(() => setStatus('error'));
   }, []);
 
   // Route based on auth + onboarding state
   useEffect(() => {
     if (status === 'checking') return;
 
+    if (status === 'error') {
+      void SplashScreen.hideAsync();
+      return;
+    }
+
     if (status === 'no_pin') {
-      SplashScreen.hideAsync();
+      void SplashScreen.hideAsync();
       router.replace('/(auth)/pin-setup');
       return;
     }
 
     if (status === 'locked') {
-      SplashScreen.hideAsync();
+      void SplashScreen.hideAsync();
       router.replace('/(auth)/pin-unlock');
       return;
     }
 
     // status === 'unlocked' — wait for app store to finish initializing
-    if (!isInitialized || isLoading) return;
+    if (isLoading) return;
+    if (initError) { void SplashScreen.hideAsync(); return; }
+    if (!isInitialized) return;
 
-    SplashScreen.hideAsync();
+    void SplashScreen.hideAsync();
     if (!user.onboardingCompleted) {
       router.replace('/onboarding/welcome');
     } else {
       router.replace('/(tabs)/dashboard');
     }
-  }, [status, isInitialized, isLoading, user.onboardingCompleted]);
+  }, [status, isInitialized, isLoading, initError, user.onboardingCompleted]);
 
-  if (status === 'checking' || (status === 'unlocked' && (isLoading || !isInitialized))) {
+  if (status === 'checking' || (status === 'unlocked' && isLoading)) {
     return <View style={{ flex: 1, backgroundColor: Colors.bg.primary }} />;
+  }
+
+  if (status === 'error' || (status === 'unlocked' && !isLoading && initError)) {
+    const message = initError ?? i18n.t('auth.error_message');
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorTitle}>{i18n.t('auth.error_title')}</Text>
+        <Text style={styles.errorMessage}>{message}</Text>
+      </View>
+    );
   }
 
   return (
@@ -92,10 +102,29 @@ function RootNavigator() {
   );
 }
 
+const styles = StyleSheet.create({
+  errorContainer: {
+    flex: 1,
+    backgroundColor: Colors.bg.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 32,
+  },
+  errorTitle: {
+    color: Colors.text.primary,
+    fontSize: 20,
+    fontWeight: '700',
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  errorMessage: {
+    color: Colors.text.secondary,
+    fontSize: 14,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
+});
+
 export default function RootLayout() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <RootNavigator />
-    </QueryClientProvider>
-  );
+  return <RootNavigator />;
 }

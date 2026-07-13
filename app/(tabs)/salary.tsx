@@ -250,12 +250,12 @@ export default function SalaryScreen() {
 
           <View style={styles.salaryCard}>
             <Text style={styles.salaryLabel}>{t('salary.total_income')}</Text>
-            <Text style={styles.salaryAmount}>{formatCurrency(totalIncome, user.currency)}</Text>
+            <Text style={styles.salaryAmount}>{formatCurrency(totalIncome, user.currency, user.language)}</Text>
 
             <View style={styles.incomeBreakdown}>
               <View style={styles.incomeItem}>
                 <Text style={styles.incomeLabel}>{t('salary.net_salary')}</Text>
-                <Text style={styles.incomeValue}>{formatCurrency(salary, user.currency)}</Text>
+                <Text style={styles.incomeValue}>{formatCurrency(salary, user.currency, user.language)}</Text>
               </View>
               {incomeSources.length > 0 && (
                 <View style={styles.incomeItem}>
@@ -263,7 +263,8 @@ export default function SalaryScreen() {
                   <Text style={styles.incomeValue}>
                     {formatCurrency(
                       incomeSources.reduce((a, s) => a + s.amount, 0),
-                      user.currency
+                      user.currency,
+                      user.language
                     )}
                   </Text>
                 </View>
@@ -375,7 +376,7 @@ export default function SalaryScreen() {
                       <View>
                         <Text style={styles.catName}>{cat.name}</Text>
                         <Text style={styles.catBudget}>
-                          {cat.percentage}% · {formatCurrency(cat.amount, user.currency)}
+                          {cat.percentage}% · {formatCurrency(cat.amount, user.currency, user.language)}
                         </Text>
                       </View>
                     </View>
@@ -384,7 +385,7 @@ export default function SalaryScreen() {
                         <Badge label={t('salary.over_budget')} variant="danger" />
                       ) : (
                         <Text style={styles.catRemaining}>
-                          {formatCurrency(remaining, user.currency)}
+                          {formatCurrency(remaining, user.currency, user.language)}
                         </Text>
                       )}
                     </View>
@@ -398,7 +399,7 @@ export default function SalaryScreen() {
                     />
                     <View style={styles.catProgressLabels}>
                       <Text style={styles.catSpent}>
-                        {t('salary.spent')}: {formatCurrency(spent, user.currency)}
+                        {t('salary.spent')}: {formatCurrency(spent, user.currency, user.language)}
                       </Text>
                       <Text
                         style={[
@@ -487,7 +488,7 @@ export default function SalaryScreen() {
                         ]}
                       >
                         {tx.type === 'income' ? '+' : '-'}
-                        {formatCurrency(tx.amount, user.currency)}
+                        {formatCurrency(tx.amount, user.currency, user.language)}
                       </Text>
                       <Badge
                         label={
@@ -519,7 +520,7 @@ export default function SalaryScreen() {
                   </View>
                   <View style={styles.sourceRight}>
                     <Text style={styles.sourceAmount}>
-                      {formatCurrency(src.amount, user.currency)}
+                      {formatCurrency(src.amount, user.currency, user.language)}
                     </Text>
                     <TouchableOpacity onPress={() => handleDeleteSource(src.id)}>
                       <Text style={styles.deleteBtn}>🗑️</Text>
@@ -530,7 +531,7 @@ export default function SalaryScreen() {
             </View>
           )}
 
-          <Text style={styles.tip}>💡 {t('common.no_data')}</Text>
+          <Text style={styles.tip}>💡 {t('dashboard.tip_50_30_20')}</Text>
         </View>
       </ScrollView>
 

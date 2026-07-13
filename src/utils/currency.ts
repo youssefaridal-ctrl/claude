@@ -11,17 +11,25 @@ const CURRENCY_SYMBOLS: Record<Currency, string> = {
   AED: 'AED',
 };
 
-export function formatCurrency(amount: number, currency: Currency = 'MAD'): string {
+const LOCALES: Record<string, string> = {
+  fr: 'fr-FR',
+  ar: 'ar-MA',
+  en: 'en-US',
+};
+
+export function formatCurrency(amount: number, currency: Currency = 'MAD', lang: string = 'fr'): string {
   const symbol = CURRENCY_SYMBOLS[currency];
-  const formatted = amount.toLocaleString('fr-FR', {
+  const locale = LOCALES[lang] ?? 'fr-FR';
+  const formatted = amount.toLocaleString(locale, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   });
   return `${formatted} ${symbol}`;
 }
 
-export function formatAmount(amount: number): string {
-  return amount.toLocaleString('fr-FR', {
+export function formatAmount(amount: number, lang: string = 'fr'): string {
+  const locale = LOCALES[lang] ?? 'fr-FR';
+  return amount.toLocaleString(locale, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });

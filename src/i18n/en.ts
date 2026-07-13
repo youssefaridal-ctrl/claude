@@ -338,6 +338,28 @@ export const en = {
     restart_required: 'Restart the app to apply the new text direction.',
   },
 
+  // Auth screens
+  auth: {
+    unlock_title: 'Welcome back',
+    unlock_subtitle: 'Enter your PIN to continue',
+    wrong_pin: 'Incorrect PIN. Please try again.',
+    biometric_success: 'Biometric verified. Please enter your PIN to continue.',
+    biometric_button: 'Use Face / Touch ID',
+    biometric_prompt: 'Unlock Finance Bag',
+    biometric_fallback: 'Use PIN',
+    setup_title: 'Create your PIN',
+    confirm_title: 'Confirm your PIN',
+    setup_subtitle: 'Choose a 6-digit PIN to protect your data',
+    confirm_subtitle: 'Re-enter your PIN to confirm',
+    pin_mismatch_title: 'PINs do not match',
+    pin_mismatch_message: 'Please try again.',
+    setup_failed: 'Setup failed',
+    locked_title: 'Account locked',
+    locked_message: 'Too many incorrect attempts. Try again in {{seconds}} seconds.',
+    error_title: 'Security error',
+    error_message: 'Unable to verify security. Please restart the app.',
+  },
+
   // Currencies
   currencies: {
     MAD: 'Moroccan Dirham (MAD)',

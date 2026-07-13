@@ -47,3 +47,38 @@ export async function clearPinCredentials(): Promise<void> {
     SecureStore.deleteItemAsync(KEY_VERIFIER),
   ]);
 }
+
+// ── Brute-force lockout ───────────────────────────────────────────────────────
+
+const KEY_ATTEMPTS = 'finance_bag_pin_attempts_v1';
+
+interface AttemptState {
+  count: number;
+  lockedUntil: number | null;
+}
+
+export async function loadAttemptState(): Promise<AttemptState> {
+  const raw = await SecureStore.getItemAsync(KEY_ATTEMPTS);
+  if (!raw) return { count: 0, lockedUntil: null };
+  try {
+    return JSON.parse(raw) as AttemptState;
+  } catch {
+    return { count: 0, lockedUntil: null };
+  }
+}
+
+export async function recordFailedAttempt(): Promise<AttemptState> {
+  const state = await loadAttemptState();
+  const count = state.count + 1;
+  let lockedUntil: number | null = null;
+  if (count >= 15) lockedUntil = Date.now() + 30 * 60 * 1000;
+  else if (count >= 10) lockedUntil = Date.now() + 5 * 60 * 1000;
+  else if (count >= 5) lockedUntil = Date.now() + 30 * 1000;
+  const next: AttemptState = { count, lockedUntil };
+  await SecureStore.setItemAsync(KEY_ATTEMPTS, JSON.stringify(next));
+  return next;
+}
+
+export async function resetAttemptState(): Promise<void> {
+  await SecureStore.deleteItemAsync(KEY_ATTEMPTS);
+}

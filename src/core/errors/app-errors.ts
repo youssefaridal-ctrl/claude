@@ -28,6 +28,10 @@ export function AlreadyExistsError(message: string): AppError {
   return { code: 'ALREADY_EXISTS', message };
 }
 
+export function UnauthorizedError(message: string): AppError {
+  return { code: 'UNAUTHORIZED', message };
+}
+
 export function UnknownError(cause: unknown): AppError {
   const message = cause instanceof Error ? cause.message : String(cause);
   return { code: 'UNKNOWN', message, cause };

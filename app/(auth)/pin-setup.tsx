@@ -11,6 +11,7 @@
 
 import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { setupPin } from '../../src/application/auth/setup-pin.usecase';
 import { PinPad } from '../../src/presentation/components/auth/PinPad';
 import { Colors } from '../../src/theme/colors';
@@ -21,6 +22,7 @@ const PIN_LENGTH = 6;
 const DOT_IDS = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'] as const;
 
 export default function PinSetupScreen() {
+  const { t } = useTranslation();
   const [step, setStep] = useState<Step>('enter');
   const [pin, setPin] = useState('');
   const [confirming, setConfirming] = useState('');
@@ -44,7 +46,7 @@ export default function PinSetupScreen() {
         setConfirming(next);
         if (next.length === PIN_LENGTH) {
           if (next !== firstPin.current) {
-            Alert.alert('PINs do not match', 'Please try again.');
+            Alert.alert(t('auth.pin_mismatch_title'), t('auth.pin_mismatch_message'));
             firstPin.current = '';
             setConfirming('');
             setStep('enter');
@@ -54,7 +56,7 @@ export default function PinSetupScreen() {
         }
       }
     },
-    [step, pin, confirming, busy]
+    [step, pin, confirming, busy, t]
   );
 
   const handleDelete = useCallback(() => {
@@ -67,7 +69,7 @@ export default function PinSetupScreen() {
     setBusy(true);
     const result = await setupPin(confirmedPin);
     if (!result.ok) {
-      Alert.alert('Setup failed', result.error.message);
+      Alert.alert(t('auth.setup_failed'), result.error.message);
       firstPin.current = '';
       setConfirming('');
       setStep('enter');
@@ -80,11 +82,9 @@ export default function PinSetupScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{step === 'enter' ? 'Create your PIN' : 'Confirm your PIN'}</Text>
+      <Text style={styles.title}>{step === 'enter' ? t('auth.setup_title') : t('auth.confirm_title')}</Text>
       <Text style={styles.subtitle}>
-        {step === 'enter'
-          ? 'Choose a 6-digit PIN to protect your data'
-          : 'Re-enter your PIN to confirm'}
+        {step === 'enter' ? t('auth.setup_subtitle') : t('auth.confirm_subtitle')}
       </Text>
 
       <View style={styles.dots}>

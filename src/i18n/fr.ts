@@ -339,6 +339,28 @@ export const fr = {
     restart_required: "Redémarrez l'application pour appliquer la nouvelle direction du texte.",
   },
 
+  // Auth screens
+  auth: {
+    unlock_title: 'Bienvenue',
+    unlock_subtitle: 'Entrez votre code PIN pour continuer',
+    wrong_pin: 'Code PIN incorrect. Veuillez réessayer.',
+    biometric_success: 'Biométrie vérifiée. Entrez votre code PIN pour continuer.',
+    biometric_button: 'Utiliser Face ID / Empreinte digitale',
+    biometric_prompt: 'Déverrouiller Finance Bag',
+    biometric_fallback: 'Utiliser le PIN',
+    setup_title: 'Créez votre code PIN',
+    confirm_title: 'Confirmez votre code PIN',
+    setup_subtitle: 'Choisissez un code PIN à 6 chiffres pour protéger vos données',
+    confirm_subtitle: 'Ressaisissez votre code PIN pour confirmer',
+    pin_mismatch_title: 'Codes PIN différents',
+    pin_mismatch_message: 'Veuillez réessayer.',
+    setup_failed: 'Échec de la configuration',
+    locked_title: 'Compte verrouillé',
+    locked_message: 'Trop de tentatives incorrectes. Réessayez dans {{seconds}} secondes.',
+    error_title: 'Erreur de sécurité',
+    error_message: "Impossible de vérifier la sécurité. Redémarrez l'application.",
+  },
+
   // Currencies
   currencies: {
     MAD: 'Dirham Marocain (MAD)',

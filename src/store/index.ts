@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { eq, isNull, and } from 'drizzle-orm';
+import { eq, isNull } from 'drizzle-orm';
 import * as Crypto from 'expo-crypto';
 import { getDb } from '../database/client';
 import * as schema from '../database/schema';
+import i18n from '../i18n';
 import { Colors } from '../theme/colors';
 import type {
   UserProfile,
@@ -18,15 +19,17 @@ import type {
 
 // ─── Defaults ─────────────────────────────────────────────────────────────────
 
-const DEFAULT_CATEGORIES: Omit<BudgetCategory, 'amount'>[] = [
-  { id: 'housing', name: 'Logement', percentage: 30, color: Colors.categories.housing, icon: '🏠', spent: 0 },
-  { id: 'food', name: 'Alimentation', percentage: 15, color: Colors.categories.food, icon: '🛒', spent: 0 },
-  { id: 'transport', name: 'Transport', percentage: 10, color: Colors.categories.transport, icon: '🚗', spent: 0 },
-  { id: 'health', name: 'Santé', percentage: 5, color: Colors.categories.health, icon: '❤️', spent: 0 },
-  { id: 'leisure', name: 'Loisirs', percentage: 10, color: Colors.categories.leisure, icon: '🎮', spent: 0 },
-  { id: 'savings', name: 'Épargne', percentage: 20, color: Colors.categories.savings, icon: '💰', spent: 0 },
-  { id: 'utilities', name: 'Factures', percentage: 10, color: Colors.categories.utilities, icon: '⚡', spent: 0 },
-];
+function getDefaultCategories(): Omit<BudgetCategory, 'amount'>[] {
+  return [
+    { id: 'housing', name: i18n.t('salary.categories.housing'), percentage: 30, color: Colors.categories.housing, icon: '🏠', spent: 0 },
+    { id: 'food', name: i18n.t('salary.categories.food'), percentage: 15, color: Colors.categories.food, icon: '🛒', spent: 0 },
+    { id: 'transport', name: i18n.t('salary.categories.transport'), percentage: 10, color: Colors.categories.transport, icon: '🚗', spent: 0 },
+    { id: 'health', name: i18n.t('salary.categories.health'), percentage: 5, color: Colors.categories.health, icon: '❤️', spent: 0 },
+    { id: 'leisure', name: i18n.t('salary.categories.leisure'), percentage: 10, color: Colors.categories.leisure, icon: '🎮', spent: 0 },
+    { id: 'savings', name: i18n.t('salary.categories.savings'), percentage: 20, color: Colors.categories.savings, icon: '💰', spent: 0 },
+    { id: 'utilities', name: i18n.t('salary.categories.utilities'), percentage: 10, color: Colors.categories.utilities, icon: '⚡', spent: 0 },
+  ];
+}
 
 const DEFAULT_EMERGENCY_FUND: EmergencyFund = {
   currentAmount: 0,
@@ -42,6 +45,7 @@ const DEFAULT_EMERGENCY_FUND: EmergencyFund = {
 const generateId = () => Crypto.randomUUID();
 const getCurrentMonth = () => new Date().toISOString().slice(0, 7);
 const now = () => new Date().toISOString();
+const today = () => new Date().toISOString().slice(0, 10);
 
 const recalcCategoryAmounts = (categories: BudgetCategory[], totalIncome: number): BudgetCategory[] =>
   categories.map((c) => ({ ...c, amount: Math.round((c.percentage / 100) * totalIncome) }));
@@ -97,6 +101,7 @@ function dbRowToCredit(row: schema.DbCredit): Credit {
 interface AppState {
   isLoading: boolean;
   isInitialized: boolean;
+  initError: string | null;
 
   user: UserProfile;
   salary: number;
@@ -149,6 +154,7 @@ interface AppState {
 export const useAppStore = create<AppState>((set, get) => ({
   isLoading: true,
   isInitialized: false,
+  initError: null,
 
   user: {
     name: '',
@@ -158,7 +164,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     onboardingCompleted: false,
   },
   salary: 0,
-  categories: DEFAULT_CATEGORIES.map((c) => ({ ...c, amount: 0 })),
+  categories: getDefaultCategories().map((c) => ({ ...c, amount: 0 })),
   incomeSources: [],
   transactions: [],
   credits: [],
@@ -192,7 +198,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       // Seed default categories if none exist
       let parsedCategories: BudgetCategory[];
       if (categoryRows.length === 0) {
-        const defaults = DEFAULT_CATEGORIES.map((c, i) => ({
+        const defaults = getDefaultCategories().map((c, i) => ({
           ...c,
           amount: Math.round((c.percentage / 100) * totalIncome),
           sortOrder: i,
@@ -264,8 +270,9 @@ export const useAppStore = create<AppState>((set, get) => ({
         isLoading: false,
         isInitialized: true,
       });
-    } catch {
-      set({ isLoading: false, isInitialized: true });
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : 'Database initialization failed';
+      set({ isLoading: false, isInitialized: false, initError: msg });
     }
   },
 
@@ -333,9 +340,9 @@ export const useAppStore = create<AppState>((set, get) => ({
   apply503020Rule: () => {
     const totalIncome = get().getTotalIncome();
     const preset: BudgetCategory[] = [
-      { id: 'needs', name: 'Besoins', percentage: 50, amount: totalIncome * 0.5, color: Colors.primary, icon: '🏠', spent: 0 },
-      { id: 'wants', name: 'Envies', percentage: 30, amount: totalIncome * 0.3, color: Colors.secondary, icon: '🎮', spent: 0 },
-      { id: 'savings', name: 'Épargne', percentage: 20, amount: totalIncome * 0.2, color: Colors.success, icon: '💰', spent: 0 },
+      { id: 'needs', name: i18n.t('salary.needs'), percentage: 50, amount: totalIncome * 0.5, color: Colors.primary, icon: '🏠', spent: 0 },
+      { id: 'wants', name: i18n.t('salary.wants'), percentage: 30, amount: totalIncome * 0.3, color: Colors.secondary, icon: '🎮', spent: 0 },
+      { id: 'savings', name: i18n.t('salary.savings'), percentage: 20, amount: totalIncome * 0.2, color: Colors.success, icon: '💰', spent: 0 },
     ];
     get().updateCategories(preset);
   },
@@ -505,7 +512,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   addEmergencyContribution: async (amount, note) => {
     const txId = generateId();
-    const tx = { id: txId, type: 'contribution' as const, amount, date: now(), note };
+    const tx = { id: txId, type: 'contribution' as const, amount, date: today(), note };
     const updated = {
       ...get().emergencyFund,
       currentAmount: get().emergencyFund.currentAmount + amount,
@@ -522,7 +529,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   withdrawFromEmergency: async (amount, reason) => {
     const txId = generateId();
-    const tx = { id: txId, type: 'withdrawal' as const, amount, date: now(), note: reason };
+    const tx = { id: txId, type: 'withdrawal' as const, amount, date: today(), note: reason };
     const updated = {
       ...get().emergencyFund,
       currentAmount: Math.max(0, get().emergencyFund.currentAmount - amount),
@@ -596,10 +603,9 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ goals: updated });
     const db = getDb();
     await db.insert(schema.goalContributions).values({ id: contribId, goalId, amount, date: contribution.date });
-    await db
-      .update(schema.goals)
-      .set({ currentAmount: (updated.find((g) => g.id === goalId)?.currentAmount ?? 0) })
-      .where(eq(schema.goals.id, goalId));
+    const goal = updated.find((g) => g.id === goalId);
+    if (!goal) return;
+    await db.update(schema.goals).set({ currentAmount: goal.currentAmount }).where(eq(schema.goals.id, goalId));
   },
 
   // ── Computed ──────────────────────────────────────────────────────────────

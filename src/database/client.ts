@@ -145,10 +145,36 @@ export async function initDatabase(encryptionKey?: string): Promise<void> {
     CREATE INDEX IF NOT EXISTS gc_goal_idx ON goal_contributions(goal_id);
   `);
 
+  await runMigrations(sqlite);
+
   await sqlite.execAsync(`
     INSERT OR IGNORE INTO users (id) VALUES (1);
     INSERT OR IGNORE INTO emergency_fund (id) VALUES (1);
   `);
+}
+
+async function runMigrations(sqlite: SQLite.SQLiteDatabase): Promise<void> {
+  const row = await sqlite.getFirstAsync<{ user_version: number }>('PRAGMA user_version');
+  const version = row?.user_version ?? 0;
+
+  if (version < 1) {
+    // Migration 1: add FK constraint (REFERENCES goals ON DELETE CASCADE) to goal_contributions.
+    // SQLite requires recreating the table to add FK constraints to an existing table.
+    await sqlite.execAsync(`
+      CREATE TABLE IF NOT EXISTS goal_contributions_new (
+        id TEXT PRIMARY KEY,
+        goal_id TEXT NOT NULL REFERENCES goals(id) ON DELETE CASCADE,
+        amount REAL NOT NULL,
+        date TEXT NOT NULL,
+        deleted_at TEXT
+      );
+      INSERT OR IGNORE INTO goal_contributions_new SELECT * FROM goal_contributions;
+      DROP TABLE IF EXISTS goal_contributions;
+      ALTER TABLE goal_contributions_new RENAME TO goal_contributions;
+      CREATE INDEX IF NOT EXISTS gc_goal_idx ON goal_contributions(goal_id);
+    `);
+    await sqlite.execAsync('PRAGMA user_version = 1;');
+  }
 }
 
 /**

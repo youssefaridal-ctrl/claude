@@ -2,18 +2,23 @@
  * PIN unlock screen — shown after first launch whenever the session is locked.
  *
  * Flow:
- *   1. On mount: attempt biometric auth (FaceID / fingerprint)
- *      — if approved, show PIN entry (v1.0: biometric gates UI but key is PIN-derived)
+ *   1. On mount: check brute-force lockout state; attempt biometric auth if available
  *   2. PIN entry: user enters 6-digit PIN
  *      — unlockWithPin use case: derive key → verify → open DB → 'unlocked'
- *   3. Wrong PIN: show error, clear dots, allow retry (no lockout in v1.0)
+ *   3. Wrong PIN: record failed attempt; enforce progressive lockout at 5/10/15 attempts
  */
 
 import * as LocalAuth from 'expo-local-authentication';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { unlockWithPin } from '../../src/application/auth/unlock-with-pin.usecase';
 import { ErrorCode } from '../../src/domain/shared/errors/domain-error';
+import {
+  loadAttemptState,
+  recordFailedAttempt,
+  resetAttemptState,
+} from '../../src/infrastructure/crypto/pin-store';
 import { PinPad } from '../../src/presentation/components/auth/PinPad';
 import { Colors } from '../../src/theme/colors';
 
@@ -21,16 +26,49 @@ const PIN_LENGTH = 6;
 const DOT_IDS = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6'] as const;
 
 export default function PinUnlockScreen() {
+  const { t } = useTranslation();
   const [pin, setPin] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
   const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [lockedUntil, setLockedUntil] = useState<number | null>(null);
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+  const countdownRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    void checkBiometric();
+    void init();
+    return () => {
+      if (countdownRef.current) clearInterval(countdownRef.current);
+    };
   }, []);
 
-  const checkBiometric = async () => {
+  const startCountdown = useCallback((until: number) => {
+    if (countdownRef.current) clearInterval(countdownRef.current);
+    setLockedUntil(until);
+    const update = () => {
+      const remaining = Math.ceil((until - Date.now()) / 1000);
+      if (remaining <= 0) {
+        setLockedUntil(null);
+        setRemainingSeconds(0);
+        if (countdownRef.current) {
+          clearInterval(countdownRef.current);
+          countdownRef.current = null;
+        }
+      } else {
+        setRemainingSeconds(remaining);
+      }
+    };
+    update();
+    countdownRef.current = setInterval(update, 1000);
+  }, []);
+
+  const init = async () => {
+    const state = await loadAttemptState();
+    if (state.lockedUntil && state.lockedUntil > Date.now()) {
+      startCountdown(state.lockedUntil);
+      return;
+    }
     const compatible = await LocalAuth.hasHardwareAsync();
     const enrolled = await LocalAuth.isEnrolledAsync();
     if (compatible && enrolled) {
@@ -41,33 +79,53 @@ export default function PinUnlockScreen() {
 
   const attemptBiometric = async () => {
     const result = await LocalAuth.authenticateAsync({
-      promptMessage: 'Unlock Finance Bag',
-      fallbackLabel: 'Use PIN',
+      promptMessage: t('auth.biometric_prompt'),
+      fallbackLabel: t('auth.biometric_fallback'),
     });
     if (result.success) {
-      // v1.0: biometric is a UX gate only — the DB key is PIN-derived and never stored.
-      // Prompt for PIN after biometric approval so the key can be re-derived.
-      // TODO(v1.1): cache key in a biometric-protected SecureStore item.
-      setError('Biometric verified. Please enter your PIN to continue.');
+      setInfo(t('auth.biometric_success'));
+      setError('');
     }
   };
 
-  const verifyPin = useCallback(async (candidate: string) => {
-    setBusy(true);
-    setError('');
-    const result = await unlockWithPin(candidate);
-    if (!result.ok) {
-      const isWrongPin = result.error.code === ErrorCode.UNAUTHORIZED;
-      setError(isWrongPin ? 'Incorrect PIN. Please try again.' : result.error.message);
-      setPin('');
-      setBusy(false);
-    }
-    // On success: auth store transitions to 'unlocked' → root navigator routes away
-  }, []);
+  const verifyPin = useCallback(
+    async (candidate: string) => {
+      const state = await loadAttemptState();
+      if (state.lockedUntil && state.lockedUntil > Date.now()) {
+        startCountdown(state.lockedUntil);
+        setPin('');
+        return;
+      }
+
+      setBusy(true);
+      setError('');
+      setInfo('');
+      const result = await unlockWithPin(candidate);
+      if (!result.ok) {
+        const isWrongPin = result.error.code === ErrorCode.UNAUTHORIZED;
+        if (isWrongPin) {
+          const newState = await recordFailedAttempt();
+          if (newState.lockedUntil && newState.lockedUntil > Date.now()) {
+            startCountdown(newState.lockedUntil);
+          } else {
+            setError(t('auth.wrong_pin'));
+          }
+        } else {
+          setError(result.error.message);
+        }
+        setPin('');
+        setBusy(false);
+      } else {
+        await resetAttemptState();
+        // On success: auth store transitions to 'unlocked' → root navigator routes away
+      }
+    },
+    [t, startCountdown]
+  );
 
   const handleDigit = useCallback(
     (digit: string) => {
-      if (busy) return;
+      if (busy || lockedUntil) return;
       setError('');
       const next = pin + digit;
       setPin(next);
@@ -75,17 +133,28 @@ export default function PinUnlockScreen() {
         void verifyPin(next);
       }
     },
-    [pin, busy, verifyPin]
+    [pin, busy, lockedUntil, verifyPin]
   );
 
   const handleDelete = useCallback(() => {
-    if (!busy) setPin((p) => p.slice(0, -1));
-  }, [busy]);
+    if (!busy && !lockedUntil) setPin((p) => p.slice(0, -1));
+  }, [busy, lockedUntil]);
+
+  if (lockedUntil) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>{t('auth.locked_title')}</Text>
+        <Text style={styles.subtitle}>
+          {t('auth.locked_message', { seconds: remainingSeconds })}
+        </Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome back</Text>
-      <Text style={styles.subtitle}>Enter your PIN to continue</Text>
+      <Text style={styles.title}>{t('auth.unlock_title')}</Text>
+      <Text style={styles.subtitle}>{t('auth.unlock_subtitle')}</Text>
 
       <View style={styles.dots}>
         {DOT_IDS.map((id, i) => (
@@ -93,6 +162,7 @@ export default function PinUnlockScreen() {
         ))}
       </View>
 
+      {info ? <Text style={styles.info}>{info}</Text> : null}
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       {busy ? (
@@ -102,7 +172,7 @@ export default function PinUnlockScreen() {
           <PinPad onDigit={handleDigit} onDelete={handleDelete} />
           {biometricAvailable && (
             <TouchableOpacity style={styles.biometricBtn} onPress={attemptBiometric}>
-              <Text style={styles.biometricText}>Use Face / Touch ID</Text>
+              <Text style={styles.biometricText}>{t('auth.biometric_button')}</Text>
             </TouchableOpacity>
           )}
         </>
@@ -147,6 +217,12 @@ const styles = StyleSheet.create({
   dotFilled: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
+  },
+  info: {
+    color: Colors.text.secondary,
+    fontSize: 14,
+    marginBottom: 12,
+    textAlign: 'center',
   },
   error: {
     color: '#F87171',

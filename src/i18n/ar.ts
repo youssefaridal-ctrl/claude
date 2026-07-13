@@ -337,6 +337,28 @@ export const ar = {
     restart_required: 'أعد تشغيل التطبيق لتطبيق اتجاه النص الجديد.',
   },
 
+  // Auth screens
+  auth: {
+    unlock_title: 'مرحباً بعودتك',
+    unlock_subtitle: 'أدخل رمز PIN للمتابعة',
+    wrong_pin: 'رمز PIN غير صحيح. يرجى المحاولة مجدداً.',
+    biometric_success: 'تم التحقق البيومتري. أدخل رمز PIN للمتابعة.',
+    biometric_button: 'استخدام Face ID / بصمة الإصبع',
+    biometric_prompt: 'فتح Finance Bag',
+    biometric_fallback: 'استخدام PIN',
+    setup_title: 'إنشاء رمز PIN',
+    confirm_title: 'تأكيد رمز PIN',
+    setup_subtitle: 'اختر رمز PIN من 6 أرقام لحماية بياناتك',
+    confirm_subtitle: 'أعد إدخال رمز PIN للتأكيد',
+    pin_mismatch_title: 'رمزا PIN غير متطابقين',
+    pin_mismatch_message: 'يرجى المحاولة مجدداً.',
+    setup_failed: 'فشل الإعداد',
+    locked_title: 'الحساب مقفل',
+    locked_message: 'محاولات خاطئة كثيرة. أعد المحاولة بعد {{seconds}} ثانية.',
+    error_title: 'خطأ أمني',
+    error_message: 'تعذّر التحقق من الأمان. أعد تشغيل التطبيق.',
+  },
+
   // Currencies
   currencies: {
     MAD: 'الدرهم المغربي (MAD)',

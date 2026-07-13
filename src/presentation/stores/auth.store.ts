@@ -10,7 +10,7 @@
 
 import { create } from 'zustand';
 
-export type AuthStatus = 'checking' | 'no_pin' | 'locked' | 'unlocked';
+export type AuthStatus = 'checking' | 'no_pin' | 'locked' | 'unlocked' | 'error';
 
 interface AuthState {
   status: AuthStatus;
