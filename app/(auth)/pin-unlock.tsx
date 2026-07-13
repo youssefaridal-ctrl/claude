@@ -78,7 +78,6 @@ export default function PinUnlockScreen() {
 
       setBusy(true);
       setError('');
-      setInfo('');
       const result = await unlockWithPin(candidate);
       if (!result.ok) {
         const isWrongPin = result.error.code === ErrorCode.UNAUTHORIZED;
