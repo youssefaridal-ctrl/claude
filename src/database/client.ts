@@ -1,5 +1,5 @@
-import * as SQLite from 'expo-sqlite';
 import { drizzle } from 'drizzle-orm/expo-sqlite';
+import * as SQLite from 'expo-sqlite';
 import * as schema from './schema';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -11,9 +11,23 @@ export function getDb() {
   return _db;
 }
 
-export async function initDatabase(): Promise<void> {
-  const sqlite = SQLite.openDatabaseSync('finance_bag.db');
+/**
+ * Open (or create) the encrypted SQLite database and apply all DDL.
+ * Must be called once during app startup, after the PIN is verified.
+ *
+ * @param encryptionKey  256-bit hex key derived from the user's PIN via PBKDF2.
+ *                       Pass undefined only in tests that use an unencrypted DB.
+ */
+export async function initDatabase(encryptionKey?: string): Promise<void> {
+  const sqlite = await SQLite.openDatabaseAsync('finance_bag.db');
+
   _db = drizzle(sqlite, { schema });
+
+  // SQLCipher key must be the very first PRAGMA on a newly-opened connection.
+  // An empty encryptionKey means the database is plaintext (test-only path).
+  await sqlite.execAsync(
+    encryptionKey ? `PRAGMA key = "${encryptionKey.replace(/"/g, '""')}";` : 'SELECT 1;'
+  );
 
   await sqlite.execAsync(`
     PRAGMA journal_mode = WAL;
@@ -129,9 +143,13 @@ export async function initDatabase(): Promise<void> {
     CREATE INDEX IF NOT EXISTS gc_goal_idx ON goal_contributions(goal_id);
   `);
 
-  // Seed singleton user row if not present
   await sqlite.execAsync(`
     INSERT OR IGNORE INTO users (id) VALUES (1);
     INSERT OR IGNORE INTO emergency_fund (id) VALUES (1);
   `);
+}
+
+/** Close the database and clear the singleton — used in tests and PIN reset flows. */
+export async function closeDatabase(): Promise<void> {
+  _db = null;
 }

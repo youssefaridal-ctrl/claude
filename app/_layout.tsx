@@ -1,33 +1,62 @@
-import { useEffect } from 'react';
-import { View, StatusBar, I18nManager } from 'react-native';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+import { StatusBar, View } from 'react-native';
 import '../src/i18n';
-import { initDatabase } from '../src/database/client';
+import { hasPinSetup } from '../src/infrastructure/crypto/pin-store';
+import { useAuthStore } from '../src/presentation/stores/auth.store';
 import { useAppStore } from '../src/store';
 import { Colors } from '../src/theme/colors';
 
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
-  const { isLoading, isInitialized, user, initializeApp } = useAppStore();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: { retry: 1, staleTime: 30_000 },
+  },
+});
 
+function RootNavigator() {
+  const { status } = useAuthStore();
+  const { isLoading, isInitialized, user } = useAppStore();
+
+  // Determine initial auth state on mount
   useEffect(() => {
-    initDatabase().then(() => initializeApp()).catch(() => initializeApp());
+    const { setStatus } = useAuthStore.getState();
+    hasPinSetup()
+      .then((has) => setStatus(has ? 'locked' : 'no_pin'))
+      .catch(() => setStatus('no_pin'));
   }, []);
 
+  // Route based on auth + onboarding state
   useEffect(() => {
-    if (isInitialized && !isLoading) {
-      SplashScreen.hideAsync();
-      if (!user.onboardingCompleted) {
-        router.replace('/onboarding/welcome');
-      } else {
-        router.replace('/(tabs)/dashboard');
-      }
-    }
-  }, [isInitialized, isLoading, user.onboardingCompleted]);
+    if (status === 'checking') return;
 
-  if (isLoading) {
+    if (status === 'no_pin') {
+      SplashScreen.hideAsync();
+      router.replace('/(auth)/pin-setup');
+      return;
+    }
+
+    if (status === 'locked') {
+      SplashScreen.hideAsync();
+      router.replace('/(auth)/pin-unlock');
+      return;
+    }
+
+    // status === 'unlocked' — wait for app store to finish initializing
+    if (!isInitialized || isLoading) return;
+
+    SplashScreen.hideAsync();
+    if (!user.onboardingCompleted) {
+      router.replace('/onboarding/welcome');
+    } else {
+      router.replace('/(tabs)/dashboard');
+    }
+  }, [status, isInitialized, isLoading, user.onboardingCompleted]);
+
+  if (status === 'checking' || (status === 'unlocked' && (isLoading || !isInitialized))) {
     return <View style={{ flex: 1, backgroundColor: Colors.bg.primary }} />;
   }
 
@@ -41,9 +70,18 @@ export default function RootLayout() {
           animation: 'fade',
         }}
       >
+        <Stack.Screen name="(auth)" />
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
       </Stack>
     </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <RootNavigator />
+    </QueryClientProvider>
   );
 }

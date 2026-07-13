@@ -36,7 +36,7 @@ export function Input({ label, error, hint, prefix, suffix, containerStyle, styl
       >
         {prefix && <View style={styles.prefix}>{prefix}</View>}
         <TextInput
-          style={[styles.input, prefix && styles.withPrefix, suffix && styles.withSuffix, style]}
+          style={[styles.input, !!prefix && styles.withPrefix, !!suffix && styles.withSuffix, style]}
           placeholderTextColor={Colors.text.tertiary}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}

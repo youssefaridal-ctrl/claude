@@ -76,7 +76,7 @@ export function MultiProgressBar({ segments, total, height = 10, style }: MultiS
   return (
     <View style={[styles.track, { height, borderRadius: height / 2, backgroundColor: Colors.bg.elevated }, style]}>
       {segments.map((seg, i) => {
-        const width = total > 0 ? `${Math.min(100, (seg.value / total) * 100)}%` : '0%';
+        const width: `${number}%` = total > 0 ? `${Math.min(100, (seg.value / total) * 100)}%` : '0%';
         return (
           <View
             key={i}
