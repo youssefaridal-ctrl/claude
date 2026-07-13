@@ -1,89 +1,117 @@
-import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
-  Dimensions,
-  Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useAppStore } from '../../src/store';
-import { Colors } from '../../src/theme/colors';
-import { Typography } from '../../src/theme/typography';
-import { Spacing, Radius } from '../../src/theme/spacing';
-import { ProgressBar } from '../../src/components/ui/ProgressBar';
-import { DonutChart } from '../../src/components/ui/DonutChart';
+import { useCallback, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { addTransaction } from '../../src/application/salary/add-transaction.usecase';
+import { AmountInput } from '../../src/components/ui/AmountInput';
 import { Badge } from '../../src/components/ui/Badge';
 import { BottomSheet } from '../../src/components/ui/BottomSheet';
-import { Input } from '../../src/components/ui/Input';
-import { AmountInput } from '../../src/components/ui/AmountInput';
 import { Button } from '../../src/components/ui/Button';
+import { DonutChart } from '../../src/components/ui/DonutChart';
+import { Input } from '../../src/components/ui/Input';
+import { ProgressBar } from '../../src/components/ui/ProgressBar';
+import { useAppStore } from '../../src/store';
+import { Colors } from '../../src/theme/colors';
+import { Radius, Spacing } from '../../src/theme/spacing';
+import { Typography } from '../../src/theme/typography';
 import { formatCurrency } from '../../src/utils/currency';
-import { formatShortDate, getGreeting, getCurrentMonth } from '../../src/utils/date';
-
-const TIPS = [
-  'La règle 50/30/20 : 50% besoins, 30% envies, 20% épargne.',
-  'Votre fonds d\'urgence devrait couvrir 3 à 6 mois de dépenses.',
-  'Priorisez le remboursement des crédits à taux élevé.',
-  'Chaque petite économie compte. 50 DH/jour = 1 500 DH/mois !',
-  'Révisez vos abonnements — éliminez ce que vous n\'utilisez pas.',
-];
+import { formatShortDate, getCurrentMonth, getGreeting } from '../../src/utils/date';
 
 export default function DashboardScreen() {
+  const { t } = useTranslation();
   const {
-    user, salary, categories, transactions, credits, emergencyFund, goals,
-    getTotalIncome, getTotalMonthlyPayments, getBudgetHealth, getDebtRatio,
-    addTransaction, getCurrentMonthSpentByCategory,
+    user,
+    categories,
+    transactions,
+    emergencyFund,
+    getTotalIncome,
+    getTotalMonthlyPayments,
+    getBudgetHealth,
+    getDebtRatio,
+    getCurrentMonthSpentByCategory,
   } = useAppStore();
 
   const [showAddTx, setShowAddTx] = useState(false);
   const [txDesc, setTxDesc] = useState('');
   const [txAmount, setTxAmount] = useState('');
-  const [txCategory, setTxCategory] = useState(categories[0]?.id || '');
+  const [txCategory, setTxCategory] = useState(categories[0]?.id ?? '');
   const [txType, setTxType] = useState<'expense' | 'income'>('expense');
-  const [tipIndex] = useState(Math.floor(Math.random() * TIPS.length));
+  const [tipIndex] = useState(() => Math.floor(Math.random() * 3));
+
+  const tips = useMemo(
+    () => [t('dashboard.tip_50_30_20'), t('dashboard.tip_emergency'), t('dashboard.tip_debt')],
+    [t],
+  );
 
   const totalIncome = getTotalIncome();
   const monthlyPayments = getTotalMonthlyPayments();
   const health = getBudgetHealth();
   const debtRatio = getDebtRatio();
   const currentMonth = getCurrentMonth();
-  const monthTransactions = transactions.filter((t) => t.month === currentMonth);
+  const monthTransactions = transactions.filter((tx) => tx.month === currentMonth);
   const spentByCategory = getCurrentMonthSpentByCategory();
 
   const totalSpent = monthTransactions
-    .filter((t) => t.type === 'expense')
-    .reduce((a, t) => a + t.amount, 0);
+    .filter((tx) => tx.type === 'expense')
+    .reduce((a, tx) => a + tx.amount, 0);
   const remaining = totalIncome - totalSpent - monthlyPayments;
 
-  const healthLabel = health >= 70 ? 'Excellent' : health >= 40 ? 'Bon' : health >= 20 ? 'Moyen' : 'Critique';
-  const healthVariant = health >= 70 ? 'success' : health >= 40 ? 'info' : health >= 20 ? 'warning' : 'danger';
-  const healthColor = health >= 70 ? Colors.success : health >= 40 ? Colors.info : health >= 20 ? Colors.warning : Colors.danger;
+  const healthLabel =
+    health >= 70
+      ? t('dashboard.excellent')
+      : health >= 40
+        ? t('dashboard.good')
+        : health >= 20
+          ? t('dashboard.average')
+          : t('dashboard.critical');
+
+  const healthVariant: 'success' | 'info' | 'warning' | 'danger' =
+    health >= 70 ? 'success' : health >= 40 ? 'info' : health >= 20 ? 'warning' : 'danger';
+
+  const healthColor =
+    health >= 70
+      ? Colors.success
+      : health >= 40
+        ? Colors.info
+        : health >= 20
+          ? Colors.warning
+          : Colors.danger;
+
+  const healthDesc =
+    health >= 70
+      ? t('dashboard.health_excellent_desc')
+      : health >= 40
+        ? t('dashboard.health_good_desc')
+        : health >= 20
+          ? t('dashboard.health_average_desc')
+          : t('dashboard.health_critical_desc');
 
   const donutSegments = categories
     .filter((c) => c.amount > 0)
     .map((c) => ({ value: c.amount, color: c.color, label: c.name }));
 
-  const handleAddTransaction = async () => {
-    const amount = parseFloat(txAmount.replace(',', '.'));
+  const handleAddTransaction = useCallback(async () => {
+    const amount = Number.parseFloat(txAmount.replace(',', '.'));
     if (!txDesc.trim() || !amount || amount <= 0) {
-      Alert.alert('', 'Veuillez remplir tous les champs.');
+      Alert.alert('', t('common.required'));
       return;
     }
-    await addTransaction({
+    const result = await addTransaction({
       description: txDesc,
       amount,
       categoryId: txCategory,
-      date: new Date().toISOString(),
+      date: new Date().toISOString().slice(0, 10),
       type: txType,
     });
+    if (!result.ok) {
+      Alert.alert(t('common.error'), result.error.message);
+      return;
+    }
     setShowAddTx(false);
     setTxDesc('');
     setTxAmount('');
-  };
+  }, [txAmount, txDesc, txCategory, txType, t]);
 
   const recentTxs = monthTransactions.slice(0, 5);
 
@@ -94,8 +122,10 @@ export default function DashboardScreen() {
         <LinearGradient colors={Colors.gradient.dashboard} style={styles.heroGrad}>
           <View style={styles.header}>
             <View>
-              <Text style={styles.greeting}>{getGreeting(user.language)}, {user.name || 'vous'}</Text>
-              <Text style={styles.headerSub}>Voici votre situation financière</Text>
+              <Text style={styles.greeting}>
+                {getGreeting(user.language)}, {user.name || 'vous'}
+              </Text>
+              <Text style={styles.headerSub}>{t('dashboard.overview_sub')}</Text>
             </View>
             <View style={styles.healthBadge}>
               <Badge label={healthLabel} variant={healthVariant} size="md" />
@@ -109,27 +139,35 @@ export default function DashboardScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.balanceCard}
           >
-            <Text style={styles.balanceLabel}>Revenu mensuel</Text>
+            <Text style={styles.balanceLabel}>{t('dashboard.net_salary')}</Text>
             <Text style={styles.balanceAmount}>{formatCurrency(totalIncome, user.currency)}</Text>
             <View style={styles.balanceRow}>
               <View style={styles.balanceItem}>
-                <Text style={styles.balanceItemLabel}>Dépensé</Text>
-                <Text style={styles.balanceItemValue}>{formatCurrency(totalSpent, user.currency)}</Text>
+                <Text style={styles.balanceItemLabel}>{t('dashboard.total_spent')}</Text>
+                <Text style={styles.balanceItemValue}>
+                  {formatCurrency(totalSpent, user.currency)}
+                </Text>
               </View>
               <View style={styles.balanceDivider} />
               <View style={styles.balanceItem}>
-                <Text style={styles.balanceItemLabel}>Remboursements</Text>
-                <Text style={styles.balanceItemValue}>{formatCurrency(monthlyPayments, user.currency)}</Text>
+                <Text style={styles.balanceItemLabel}>{t('dashboard.monthly_credits')}</Text>
+                <Text style={styles.balanceItemValue}>
+                  {formatCurrency(monthlyPayments, user.currency)}
+                </Text>
               </View>
               <View style={styles.balanceDivider} />
               <View style={styles.balanceItem}>
-                <Text style={styles.balanceItemLabel}>Disponible</Text>
-                <Text style={[styles.balanceItemValue, { color: remaining >= 0 ? Colors.successLight : Colors.dangerLight }]}>
+                <Text style={styles.balanceItemLabel}>{t('dashboard.remaining')}</Text>
+                <Text
+                  style={[
+                    styles.balanceItemValue,
+                    { color: remaining >= 0 ? Colors.successLight : Colors.dangerLight },
+                  ]}
+                >
                   {formatCurrency(remaining, user.currency)}
                 </Text>
               </View>
             </View>
-            {/* Budget progress */}
             <View style={styles.budgetProgress}>
               <ProgressBar
                 progress={totalIncome > 0 ? (totalSpent / totalIncome) * 100 : 0}
@@ -139,7 +177,8 @@ export default function DashboardScreen() {
                 animated
               />
               <Text style={styles.budgetProgressLabel}>
-                {totalIncome > 0 ? Math.round((totalSpent / totalIncome) * 100) : 0}% du budget utilisé
+                {totalIncome > 0 ? Math.round((totalSpent / totalIncome) * 100) : 0}%{' '}
+                {t('dashboard.budget_used')}
               </Text>
             </View>
           </LinearGradient>
@@ -150,53 +189,58 @@ export default function DashboardScreen() {
           <View style={styles.quickActions}>
             <TouchableOpacity
               style={styles.actionBtn}
-              onPress={() => { setTxType('expense'); setShowAddTx(true); }}
+              onPress={() => {
+                setTxType('expense');
+                setShowAddTx(true);
+              }}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={t('dashboard.add_expense')}
             >
               <LinearGradient colors={Colors.gradient.danger} style={styles.actionIcon}>
                 <Text style={styles.actionEmoji}>➖</Text>
               </LinearGradient>
-              <Text style={styles.actionLabel}>Dépense</Text>
+              <Text style={styles.actionLabel}>{t('dashboard.add_expense')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               style={styles.actionBtn}
-              onPress={() => { setTxType('income'); setShowAddTx(true); }}
+              onPress={() => {
+                setTxType('income');
+                setShowAddTx(true);
+              }}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={t('dashboard.add_income')}
             >
               <LinearGradient colors={Colors.gradient.success} style={styles.actionIcon}>
                 <Text style={styles.actionEmoji}>➕</Text>
               </LinearGradient>
-              <Text style={styles.actionLabel}>Revenu</Text>
+              <Text style={styles.actionLabel}>{t('dashboard.add_income')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.actionBtn} activeOpacity={0.8}>
               <View style={[styles.actionIcon, { backgroundColor: Colors.bg.elevated }]}>
                 <Text style={styles.actionEmoji}>📈</Text>
               </View>
-              <Text style={styles.actionLabel}>Stats</Text>
+              <Text style={styles.actionLabel}>{t('dashboard.view_stats')}</Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.actionBtn} activeOpacity={0.8}>
               <View style={[styles.actionIcon, { backgroundColor: Colors.bg.elevated }]}>
                 <Text style={styles.actionEmoji}>⚙️</Text>
               </View>
-              <Text style={styles.actionLabel}>Paramètres</Text>
+              <Text style={styles.actionLabel}>{t('settings.title')}</Text>
             </TouchableOpacity>
           </View>
 
           {/* Budget Health */}
           <View style={styles.sectionCard}>
-            <Text style={styles.sectionTitle}>Santé budgétaire</Text>
+            <Text style={styles.sectionTitle}>{t('dashboard.budget_health')}</Text>
             <View style={styles.healthRow}>
               <View style={styles.healthInfo}>
                 <Text style={[styles.healthScore, { color: healthColor }]}>{health}%</Text>
-                <Text style={styles.healthDesc}>
-                  {health >= 70 ? 'Excellent ! Continuez ainsi.' :
-                    health >= 40 ? 'Bon, mais il y a de la marge.' :
-                    health >= 20 ? 'Attention, revoyez vos dépenses.' :
-                    'Critique ! Réduisez vos dépenses.'}
-                </Text>
+                <Text style={styles.healthDesc}>{healthDesc}</Text>
               </View>
               <View>
                 <DonutChart
@@ -204,17 +248,14 @@ export default function DashboardScreen() {
                   size={100}
                   strokeWidth={18}
                   centerLabel={`${Math.round((totalSpent / (totalIncome || 1)) * 100)}%`}
-                  centerSubLabel="utilisé"
+                  centerSubLabel={t('dashboard.budget_used')}
                 />
               </View>
             </View>
             {debtRatio > 0 && (
               <View style={styles.debtRow}>
-                <Text style={styles.debtLabel}>Taux d'endettement</Text>
-                <Badge
-                  label={`${debtRatio}%`}
-                  variant={debtRatio > 33 ? 'danger' : 'success'}
-                />
+                <Text style={styles.debtLabel}>{t('credits.debt_ratio')}</Text>
+                <Badge label={`${debtRatio}%`} variant={debtRatio > 33 ? 'danger' : 'success'} />
               </View>
             )}
           </View>
@@ -222,9 +263,9 @@ export default function DashboardScreen() {
           {/* Category Overview */}
           {categories.length > 0 && (
             <View style={styles.sectionCard}>
-              <Text style={styles.sectionTitle}>Répartition du salaire</Text>
+              <Text style={styles.sectionTitle}>{t('dashboard.spending_breakdown')}</Text>
               {categories.slice(0, 5).map((cat) => {
-                const spent = spentByCategory[cat.id] || 0;
+                const spent = spentByCategory[cat.id] ?? 0;
                 const progress = cat.amount > 0 ? (spent / cat.amount) * 100 : 0;
                 return (
                   <View key={cat.id} style={styles.catRow}>
@@ -233,12 +274,18 @@ export default function DashboardScreen() {
                       <View>
                         <Text style={styles.catName}>{cat.name}</Text>
                         <Text style={styles.catSub}>
-                          {formatCurrency(spent, user.currency)} / {formatCurrency(cat.amount, user.currency)}
+                          {formatCurrency(spent, user.currency)} /{' '}
+                          {formatCurrency(cat.amount, user.currency)}
                         </Text>
                       </View>
                     </View>
                     <View style={styles.catRight}>
-                      <Text style={[styles.catPct, { color: progress > 100 ? Colors.danger : Colors.text.secondary }]}>
+                      <Text
+                        style={[
+                          styles.catPct,
+                          { color: progress > 100 ? Colors.danger : Colors.text.secondary },
+                        ]}
+                      >
                         {Math.round(progress)}%
                       </Text>
                     </View>
@@ -252,7 +299,7 @@ export default function DashboardScreen() {
           {emergencyFund.targetAmount > 0 && (
             <View style={styles.sectionCard}>
               <View style={styles.rowBetween}>
-                <Text style={styles.sectionTitle}>🛡️ Fonds d'urgence</Text>
+                <Text style={styles.sectionTitle}>🛡️ {t('dashboard.emergency_fund')}</Text>
                 <Badge
                   label={`${Math.round((emergencyFund.currentAmount / emergencyFund.targetAmount) * 100)}%`}
                   variant="warning"
@@ -274,21 +321,26 @@ export default function DashboardScreen() {
           {/* Recent Transactions */}
           <View style={styles.sectionCard}>
             <View style={styles.rowBetween}>
-              <Text style={styles.sectionTitle}>Transactions récentes</Text>
+              <Text style={styles.sectionTitle}>{t('dashboard.recent_transactions')}</Text>
             </View>
             {recentTxs.length === 0 ? (
               <View style={styles.emptyState}>
                 <Text style={styles.emptyIcon}>📝</Text>
-                <Text style={styles.emptyText}>Aucune transaction ce mois-ci</Text>
-                <Text style={styles.emptySub}>Appuyez sur "Dépense" pour commencer</Text>
+                <Text style={styles.emptyText}>{t('dashboard.no_transactions')}</Text>
+                <Text style={styles.emptySub}>{t('dashboard.start_tracking')}</Text>
               </View>
             ) : (
               recentTxs.map((tx) => {
                 const cat = categories.find((c) => c.id === tx.categoryId);
                 return (
                   <View key={tx.id} style={styles.txRow}>
-                    <View style={[styles.txIcon, { backgroundColor: `${cat?.color || Colors.bg.elevated}20` }]}>
-                      <Text style={styles.txEmoji}>{cat?.icon || '💸'}</Text>
+                    <View
+                      style={[
+                        styles.txIcon,
+                        { backgroundColor: `${cat?.color ?? Colors.bg.elevated}20` },
+                      ]}
+                    >
+                      <Text style={styles.txEmoji}>{cat?.icon ?? '💸'}</Text>
                     </View>
                     <View style={styles.txInfo}>
                       <Text style={styles.txDesc}>{tx.description}</Text>
@@ -300,7 +352,8 @@ export default function DashboardScreen() {
                         { color: tx.type === 'expense' ? Colors.danger : Colors.success },
                       ]}
                     >
-                      {tx.type === 'expense' ? '-' : '+'}{formatCurrency(tx.amount, user.currency)}
+                      {tx.type === 'expense' ? '-' : '+'}
+                      {formatCurrency(tx.amount, user.currency)}
                     </Text>
                   </View>
                 );
@@ -313,8 +366,8 @@ export default function DashboardScreen() {
             colors={['rgba(99,102,241,0.15)', 'rgba(139,92,246,0.1)']}
             style={styles.tipCard}
           >
-            <Text style={styles.tipTitle}>💡 Conseil du jour</Text>
-            <Text style={styles.tipText}>{TIPS[tipIndex]}</Text>
+            <Text style={styles.tipTitle}>💡 {t('dashboard.tips_title')}</Text>
+            <Text style={styles.tipText}>{tips[tipIndex]}</Text>
           </LinearGradient>
         </View>
       </ScrollView>
@@ -323,7 +376,11 @@ export default function DashboardScreen() {
       <BottomSheet
         visible={showAddTx}
         onClose={() => setShowAddTx(false)}
-        title={txType === 'expense' ? 'Nouvelle dépense' : 'Nouveau revenu'}
+        title={
+          txType === 'expense'
+            ? t('dashboard.add_expense_title')
+            : t('dashboard.add_income_title')
+        }
         snapPoint={0.75}
       >
         <View style={styles.txTypeRow}>
@@ -339,18 +396,24 @@ export default function DashboardScreen() {
                 },
               ]}
             >
-              <Text style={[
-                styles.txTypeTxt,
-                txType === type && { color: type === 'expense' ? Colors.danger : Colors.success },
-              ]}>
-                {type === 'expense' ? '➖ Dépense' : '➕ Revenu'}
+              <Text
+                style={[
+                  styles.txTypeTxt,
+                  txType === type && {
+                    color: type === 'expense' ? Colors.danger : Colors.success,
+                  },
+                ]}
+              >
+                {type === 'expense'
+                  ? `➖ ${t('salary.type_expense')}`
+                  : `➕ ${t('salary.type_income')}`}
               </Text>
             </TouchableOpacity>
           ))}
         </View>
 
         <AmountInput
-          label="Montant"
+          label={t('salary.transaction_amount')}
           value={txAmount}
           onChangeText={setTxAmount}
           currency={user.currency}
@@ -358,14 +421,18 @@ export default function DashboardScreen() {
         />
 
         <Input
-          label="Description"
+          label={t('salary.transaction_name')}
           value={txDesc}
           onChangeText={setTxDesc}
           placeholder="Ex: Loyer, Supermarché..."
         />
 
-        <Text style={styles.catSelectLabel}>Catégorie</Text>
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catSelect}>
+        <Text style={styles.catSelectLabel}>{t('salary.transaction_category')}</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.catSelect}
+        >
           {categories.map((cat) => (
             <TouchableOpacity
               key={cat.id}
@@ -376,7 +443,12 @@ export default function DashboardScreen() {
               ]}
             >
               <Text style={styles.catChipIcon}>{cat.icon}</Text>
-              <Text style={[styles.catChipLabel, txCategory === cat.id && { color: Colors.white }]}>
+              <Text
+                style={[
+                  styles.catChipLabel,
+                  txCategory === cat.id && { color: Colors.white },
+                ]}
+              >
                 {cat.name}
               </Text>
             </TouchableOpacity>
@@ -384,7 +456,7 @@ export default function DashboardScreen() {
         </ScrollView>
 
         <Button
-          title="Ajouter"
+          title={t('common.add')}
           onPress={handleAddTransaction}
           fullWidth
           size="lg"
@@ -499,7 +571,12 @@ const styles = StyleSheet.create({
     color: Colors.text.primary,
     marginBottom: Spacing.md,
   },
-  rowBetween: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md },
+  rowBetween: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+  },
   healthRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   healthInfo: { flex: 1, paddingRight: Spacing.md },
   healthScore: {
@@ -532,7 +609,11 @@ const styles = StyleSheet.create({
   },
   catLeft: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flex: 1 },
   catIcon: { fontSize: 20, width: 30, textAlign: 'center' },
-  catName: { fontSize: Typography.size.sm, color: Colors.text.primary, fontWeight: Typography.weight.medium },
+  catName: {
+    fontSize: Typography.size.sm,
+    color: Colors.text.primary,
+    fontWeight: Typography.weight.medium,
+  },
   catSub: { fontSize: Typography.size.xs, color: Colors.text.tertiary, marginTop: 1 },
   catRight: { alignItems: 'flex-end' },
   catPct: { fontSize: Typography.size.sm, fontWeight: Typography.weight.semibold },
@@ -544,7 +625,11 @@ const styles = StyleSheet.create({
   },
   emptyState: { alignItems: 'center', paddingVertical: Spacing.xl },
   emptyIcon: { fontSize: 40, marginBottom: Spacing.md },
-  emptyText: { fontSize: Typography.size.base, color: Colors.text.secondary, fontWeight: Typography.weight.medium },
+  emptyText: {
+    fontSize: Typography.size.base,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.medium,
+  },
   emptySub: { fontSize: Typography.size.sm, color: Colors.text.tertiary, marginTop: 4 },
   txRow: {
     flexDirection: 'row',
@@ -561,7 +646,11 @@ const styles = StyleSheet.create({
   },
   txEmoji: { fontSize: 18 },
   txInfo: { flex: 1 },
-  txDesc: { fontSize: Typography.size.sm, color: Colors.text.primary, fontWeight: Typography.weight.medium },
+  txDesc: {
+    fontSize: Typography.size.sm,
+    color: Colors.text.primary,
+    fontWeight: Typography.weight.medium,
+  },
   txDate: { fontSize: Typography.size.xs, color: Colors.text.tertiary, marginTop: 2 },
   txAmount: { fontSize: Typography.size.sm, fontWeight: Typography.weight.semibold },
   tipCard: {
@@ -571,7 +660,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border.accent,
   },
-  tipTitle: { fontSize: Typography.size.sm, fontWeight: Typography.weight.semibold, color: Colors.primaryLight, marginBottom: 6 },
+  tipTitle: {
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.primaryLight,
+    marginBottom: 6,
+  },
   tipText: { fontSize: Typography.size.sm, color: Colors.text.secondary, lineHeight: 20 },
   txTypeRow: { flexDirection: 'row', gap: Spacing.md, marginBottom: Spacing.lg },
   txTypeBtn: {
@@ -583,8 +677,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border.default,
   },
-  txTypeTxt: { fontSize: Typography.size.sm, fontWeight: Typography.weight.semibold, color: Colors.text.secondary },
-  catSelectLabel: { fontSize: Typography.size.sm, color: Colors.text.secondary, fontWeight: Typography.weight.medium, marginBottom: Spacing.sm },
+  txTypeTxt: {
+    fontSize: Typography.size.sm,
+    fontWeight: Typography.weight.semibold,
+    color: Colors.text.secondary,
+  },
+  catSelectLabel: {
+    fontSize: Typography.size.sm,
+    color: Colors.text.secondary,
+    fontWeight: Typography.weight.medium,
+    marginBottom: Spacing.sm,
+  },
   catSelect: { marginBottom: Spacing.base },
   catChip: {
     flexDirection: 'row',
@@ -599,5 +702,9 @@ const styles = StyleSheet.create({
     marginRight: Spacing.sm,
   },
   catChipIcon: { fontSize: 16 },
-  catChipLabel: { fontSize: Typography.size.xs, fontWeight: Typography.weight.medium, color: Colors.text.secondary },
+  catChipLabel: {
+    fontSize: Typography.size.xs,
+    fontWeight: Typography.weight.medium,
+    color: Colors.text.secondary,
+  },
 });

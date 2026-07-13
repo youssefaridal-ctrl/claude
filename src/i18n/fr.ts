@@ -94,6 +94,14 @@ export const fr = {
     tip_debt: "Priorisez le remboursement des crédits avec les taux d'intérêt les plus élevés.",
     spending_breakdown: 'Répartition des dépenses',
     no_spending: 'Aucune dépense ce mois',
+    overview_sub: 'Voici votre situation financière',
+    budget_used: 'du budget utilisé',
+    health_excellent_desc: 'Excellent ! Continuez ainsi.',
+    health_good_desc: 'Bon, mais il y a de la marge.',
+    health_average_desc: 'Attention, revoyez vos dépenses.',
+    health_critical_desc: 'Critique ! Réduisez vos dépenses.',
+    add_expense_title: 'Nouvelle dépense',
+    add_income_title: 'Nouveau revenu',
   },
 
   // Salary
@@ -196,6 +204,17 @@ export const fr = {
     healthy_ratio: 'Taux sain (< 33%)',
     critical_ratio: 'Taux critique (> 33%)',
     next_payment: 'Prochain paiement',
+    rate: 'Taux',
+    duration: 'Durée',
+    repaid: 'remboursé',
+    payoff_strategies: 'Stratégies de remboursement',
+    snowball_desc: 'Commencez par le plus petit crédit pour gagner en motivation.',
+    avalanche_desc: 'Commencez par le taux le plus élevé pour économiser le plus.',
+    long_press_tip: 'Maintenez un crédit pour le supprimer',
+    income_pct: 'du revenu en remboursements',
+    critical_ratio_desc:
+      'Vos remboursements dépassent 33% de votre revenu. Cherchez à réduire vos dettes.',
+    healthy_ratio_desc: 'Vos remboursements sont dans une zone saine. Continuez ainsi.',
   },
 
   // Emergency Fund
@@ -230,6 +249,20 @@ export const fr = {
     goal_reached_desc: "Félicitations ! Vous avez constitué votre fonds d'urgence.",
     monthly_expenses: 'Dépenses mensuelles estimées',
     auto_calculate: 'Calculer automatiquement',
+    not_defined: 'Non défini',
+    of_goal: "de l'objectif",
+    planned_monthly: 'Contribution mensuelle prévue',
+    withdraw_warning: 'Utilisez ce fonds uniquement pour de vraies urgences.',
+    calculated_target: 'Objectif calculé',
+    save_target: "Enregistrer l'objectif",
+    contribution_label: 'Contribution',
+    withdrawal_label: 'Retrait',
+    minimum: 'Minimum',
+    recommended: 'Recommandé',
+    optimal: 'Optimal',
+    custom_sub: 'Montant libre',
+    action_withdraw: 'Retirer',
+    action_target: 'Objectif',
   },
 
   // Goals
@@ -248,6 +281,7 @@ export const fr = {
     medium: 'Moyenne',
     low: 'Basse',
     goal_icon: 'Icône',
+    goal_type: "Type d'objectif",
     add_contribution: 'Ajouter',
     contribution_amount: 'Montant',
     progress: 'Progression',
@@ -273,6 +307,9 @@ export const fr = {
     goal_added: 'Objectif créé',
     total_saved: 'Total épargné',
     total_targets: 'Total objectifs',
+    in_progress: 'En cours',
+    achieved: 'Atteints',
+    current_savings: 'Épargné',
   },
 
   // Settings
