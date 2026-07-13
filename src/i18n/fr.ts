@@ -138,6 +138,12 @@ export const fr = {
     income_type: 'Type',
     fixed: 'Fixe',
     variable: 'Variable',
+    no_transactions: 'Aucune transaction ce mois',
+    over_budget: 'Dépassé',
+    type_expense: 'Dépense',
+    type_income: 'Revenu',
+    category_icon: 'Icône',
+    category_color: 'Couleur',
     categories: {
       housing: 'Logement',
       food: 'Alimentation',

@@ -138,6 +138,12 @@ export const en = {
     income_type: 'Type',
     fixed: 'Fixed',
     variable: 'Variable',
+    no_transactions: 'No transactions this month',
+    over_budget: 'Over budget',
+    type_expense: 'Expense',
+    type_income: 'Income',
+    category_icon: 'Icon',
+    category_color: 'Color',
     categories: {
       housing: 'Housing',
       food: 'Food',

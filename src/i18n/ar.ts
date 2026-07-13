@@ -137,6 +137,12 @@ export const ar = {
     income_type: 'النوع',
     fixed: 'ثابت',
     variable: 'متغير',
+    no_transactions: 'لا معاملات هذا الشهر',
+    over_budget: 'تجاوز',
+    type_expense: 'مصروف',
+    type_income: 'دخل',
+    category_icon: 'الأيقونة',
+    category_color: 'اللون',
     categories: {
       housing: 'السكن',
       food: 'الغذاء',
