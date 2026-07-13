@@ -40,6 +40,9 @@ export const ar = {
     welcome_title: 'مرحباً في\nحقيبة المالية',
     welcome_subtitle: 'مدربك المالي الشخصي. تحكم الكامل في أموالك.',
     choose_language: 'اختر لغتك',
+    choose_language_subtitle: 'اختر لغة الواجهة',
+    name_required: 'يرجى إدخال اسمك.',
+    salary_required: 'يرجى إدخال راتبك الشهري.',
     setup_title: 'لنضبط\nملفك الشخصي',
     setup_subtitle: 'هذه المعلومات تساعدنا على تخصيص تجربتك.',
     salary_label: 'راتبك الشهري الصافي',
@@ -212,7 +215,8 @@ export const ar = {
     withdraw_reason: 'السبب',
     progress_label: 'التقدم',
     why_emergency: 'لماذا صندوق طوارئ؟',
-    why_text: 'يحميك صندوق الطوارئ من المفاجآت: فقدان العمل، المرض، الإصلاحات العاجلة. يجنبك اللجوء إلى القروض عند الأزمات.',
+    why_text:
+      'يحميك صندوق الطوارئ من المفاجآت: فقدان العمل، المرض، الإصلاحات العاجلة. يجنبك اللجوء إلى القروض عند الأزمات.',
     history: 'السجل',
     no_history: 'لا توجد معاملات',
     goal_reached: 'تم تحقيق الهدف! 🎉',
@@ -288,6 +292,7 @@ export const ar = {
     rate_app: 'تقييم التطبيق',
     payment_day: 'يوم استلام الراتب',
     first_day_month: 'أول الشهر',
+    restart_required: 'أعد تشغيل التطبيق لتطبيق اتجاه النص الجديد.',
   },
 
   // Currencies

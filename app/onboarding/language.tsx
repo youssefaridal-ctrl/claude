@@ -1,22 +1,26 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors } from '../../src/theme/colors';
-import { Typography } from '../../src/theme/typography';
-import { Spacing, Radius } from '../../src/theme/spacing';
-import { LANGUAGES, Language } from '../../src/i18n';
+import { router } from 'expo-router';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { updateLanguage } from '../../src/application/profile/update-language.usecase';
+import { LANGUAGES } from '../../src/i18n';
+import type { Language } from '../../src/i18n';
 import { useAppStore } from '../../src/store';
-import i18n from '../../src/i18n';
+import { Colors } from '../../src/theme/colors';
+import { Radius, Spacing } from '../../src/theme/spacing';
+import { Typography } from '../../src/theme/typography';
+
+const FLAG: Record<Language, string> = { fr: '🇫🇷', ar: '🇲🇦', en: '🇺🇸' };
 
 export default function LanguageScreen() {
-  const { user, updateUser } = useAppStore();
-  const [selected, setSelected] = React.useState<Language>(user.language);
+  const { t } = useTranslation();
+  const { user } = useAppStore();
+  const [selected, setSelected] = useState<Language>(user.language);
 
   const handleSelect = async (lang: Language) => {
     setSelected(lang);
-    await updateUser({ language: lang });
-    i18n.changeLanguage(lang);
+    await updateLanguage(lang);
   };
 
   const handleNext = () => router.push('/onboarding/setup');
@@ -29,13 +33,13 @@ export default function LanguageScreen() {
         </TouchableOpacity>
         <View style={styles.logoRow}>
           <Text style={styles.logo}>💼</Text>
-          <Text style={styles.logoText}>Finance Bag</Text>
+          <Text style={styles.logoText}>{t('common.app_name')}</Text>
         </View>
       </View>
 
       <View style={styles.content}>
-        <Text style={styles.title}>Choisissez{'\n'}votre langue</Text>
-        <Text style={styles.subtitle}>Sélectionnez la langue de l'interface</Text>
+        <Text style={styles.title}>{t('onboarding.choose_language')}</Text>
+        <Text style={styles.subtitle}>{t('onboarding.choose_language_subtitle')}</Text>
 
         <ScrollView style={styles.langList} showsVerticalScrollIndicator={false}>
           {LANGUAGES.map((lang) => {
@@ -56,9 +60,7 @@ export default function LanguageScreen() {
                   />
                 )}
                 <View style={styles.langInfo}>
-                  <Text style={styles.langFlag}>
-                    {lang.code === 'fr' ? '🇫🇷' : lang.code === 'ar' ? '🇲🇦' : '🇺🇸'}
-                  </Text>
+                  <Text style={styles.langFlag}>{FLAG[lang.code]}</Text>
                   <View>
                     <Text style={[styles.langNative, isSelected && styles.langNativeSelected]}>
                       {lang.nativeLabel}
@@ -81,7 +83,7 @@ export default function LanguageScreen() {
             end={{ x: 1, y: 0 }}
             style={styles.nextGradient}
           >
-            <Text style={styles.nextText}>Suivant →</Text>
+            <Text style={styles.nextText}>{t('common.next')} →</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>

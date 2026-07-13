@@ -1,37 +1,40 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  TouchableOpacity,
+  Alert,
   KeyboardAvoidingView,
   Platform,
-  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Colors } from '../../src/theme/colors';
-import { Typography } from '../../src/theme/typography';
-import { Spacing, Radius } from '../../src/theme/spacing';
+import { useTranslation } from 'react-i18next';
+import { updateProfile } from '../../src/application/profile/update-profile.usecase';
 import { useAppStore } from '../../src/store';
-import { Input } from '../../src/components/ui/Input';
 import { AmountInput } from '../../src/components/ui/AmountInput';
 import { Button } from '../../src/components/ui/Button';
-import { Currency } from '../../src/store/types';
+import { Input } from '../../src/components/ui/Input';
+import type { Currency } from '../../src/store/types';
+import { Colors } from '../../src/theme/colors';
+import { Radius, Spacing } from '../../src/theme/spacing';
+import { Typography } from '../../src/theme/typography';
 
-const CURRENCIES: { code: Currency; symbol: string; name: string }[] = [
-  { code: 'MAD', symbol: 'DH', name: 'Dirham' },
-  { code: 'EUR', symbol: '€', name: 'Euro' },
-  { code: 'USD', symbol: '$', name: 'Dollar' },
-  { code: 'GBP', symbol: '£', name: 'Livre' },
-  { code: 'TND', symbol: 'DT', name: 'Dinar' },
-  { code: 'DZD', symbol: 'DA', name: 'Dinar DZ' },
-  { code: 'SAR', symbol: 'SR', name: 'Riyal' },
-  { code: 'AED', symbol: 'AED', name: 'Dirham AE' },
+const CURRENCIES: { code: Currency; symbol: string }[] = [
+  { code: 'MAD', symbol: 'DH' },
+  { code: 'EUR', symbol: '€' },
+  { code: 'USD', symbol: '$' },
+  { code: 'GBP', symbol: '£' },
+  { code: 'TND', symbol: 'DT' },
+  { code: 'DZD', symbol: 'DA' },
+  { code: 'SAR', symbol: 'SR' },
+  { code: 'AED', symbol: 'AED' },
 ];
 
 export default function SetupScreen() {
+  const { t } = useTranslation();
   const { user, completeOnboarding } = useAppStore();
   const [name, setName] = useState('');
   const [salaryStr, setSalaryStr] = useState('');
@@ -39,13 +42,13 @@ export default function SetupScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleStart = async () => {
-    const salary = parseFloat(salaryStr.replace(',', '.')) || 0;
+    const salary = Number.parseFloat(salaryStr.replace(',', '.')) || 0;
     if (!name.trim()) {
-      Alert.alert('', 'Veuillez entrer votre prénom.');
+      Alert.alert('', t('onboarding.name_required'));
       return;
     }
     if (salary <= 0) {
-      Alert.alert('', 'Veuillez entrer votre salaire mensuel.');
+      Alert.alert('', t('onboarding.salary_required'));
       return;
     }
     setLoading(true);
@@ -56,6 +59,8 @@ export default function SetupScreen() {
       setLoading(false);
     }
   };
+
+  const selectedSymbol = CURRENCIES.find((c) => c.code === currency)?.symbol ?? 'DH';
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
@@ -72,32 +77,33 @@ export default function SetupScreen() {
           </View>
         </View>
 
-        <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+        <ScrollView
+          style={styles.scroll}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
           <View style={styles.content}>
-            <Text style={styles.title}>Configurons{'\n'}votre profil</Text>
-            <Text style={styles.subtitle}>Quelques informations pour personnaliser votre expérience.</Text>
+            <Text style={styles.title}>{t('onboarding.setup_title')}</Text>
+            <Text style={styles.subtitle}>{t('onboarding.setup_subtitle')}</Text>
 
-            {/* Name */}
             <Input
-              label="Votre prénom"
+              label={t('onboarding.name_label')}
               value={name}
               onChangeText={setName}
-              placeholder="Ex: Ahmed"
+              placeholder={t('onboarding.name_placeholder')}
               autoCapitalize="words"
             />
 
-            {/* Salary */}
             <AmountInput
-              label="Salaire mensuel net"
+              label={t('onboarding.salary_label')}
               value={salaryStr}
               onChangeText={setSalaryStr}
-              currency={CURRENCIES.find((c) => c.code === currency)?.symbol || 'DH'}
-              placeholder="0"
+              currency={selectedSymbol}
+              placeholder={t('onboarding.salary_placeholder')}
               large
             />
 
-            {/* Currency */}
-            <Text style={styles.sectionLabel}>Devise</Text>
+            <Text style={styles.sectionLabel}>{t('onboarding.currency_label')}</Text>
             <View style={styles.currencyGrid}>
               {CURRENCIES.map((c) => (
                 <TouchableOpacity
@@ -117,26 +123,23 @@ export default function SetupScreen() {
                   <Text style={[styles.currencySymbol, currency === c.code && styles.currencySymbolSelected]}>
                     {c.symbol}
                   </Text>
-                  <Text style={[styles.currencyName, currency === c.code && styles.currencyNameSelected]}>
-                    {c.name}
+                  <Text style={[styles.currencyCode, currency === c.code && styles.currencyCodeSelected]}>
+                    {c.code}
                   </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
-            {/* Tip */}
             <View style={styles.tip}>
               <Text style={styles.tipIcon}>💡</Text>
-              <Text style={styles.tipText}>
-                Votre salaire sera automatiquement réparti selon vos catégories de dépenses.
-              </Text>
+              <Text style={styles.tipText}>{t('dashboard.tip_50_30_20')}</Text>
             </View>
           </View>
         </ScrollView>
 
         <View style={styles.footer}>
           <Button
-            title={loading ? 'Chargement...' : 'Commencer →'}
+            title={loading ? t('common.loading') : `${t('onboarding.get_started')} →`}
             onPress={handleStart}
             loading={loading}
             fullWidth
@@ -213,21 +216,19 @@ const styles = StyleSheet.create({
     minWidth: 72,
     overflow: 'hidden',
   },
-  currencyBtnSelected: {
-    borderColor: Colors.primary,
-  },
+  currencyBtnSelected: { borderColor: Colors.primary },
   currencySymbol: {
     fontSize: Typography.size.md,
     fontWeight: Typography.weight.bold,
     color: Colors.text.primary,
   },
   currencySymbolSelected: { color: Colors.white },
-  currencyName: {
+  currencyCode: {
     fontSize: Typography.size.xs,
     color: Colors.text.tertiary,
     marginTop: 2,
   },
-  currencyNameSelected: { color: 'rgba(255,255,255,0.8)' },
+  currencyCodeSelected: { color: 'rgba(255,255,255,0.8)' },
   tip: {
     flexDirection: 'row',
     backgroundColor: 'rgba(99,102,241,0.1)',

@@ -1,56 +1,23 @@
-import React, { useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  Dimensions,
-  ScrollView,
-  TouchableOpacity,
-  Animated,
-} from 'react-native';
+import { useRef, useState } from 'react';
+import { Dimensions, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from 'react-i18next';
 import { Colors } from '../../src/theme/colors';
 import { Typography } from '../../src/theme/typography';
-import { Spacing, Radius } from '../../src/theme/spacing';
+import { Radius, Spacing } from '../../src/theme/spacing';
 import { Button } from '../../src/components/ui/Button';
 
-const { width, height } = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
 const FEATURES = [
-  {
-    icon: '💰',
-    gradient: Colors.gradient.salary,
-    title_fr: 'Gérez votre salaire',
-    title_ar: 'إدارة راتبك',
-    title_en: 'Manage your salary',
-    desc_fr: 'Répartissez intelligemment votre salaire selon la règle 50/30/20 ou vos propres priorités.',
-    desc_ar: 'وزع راتبك بذكاء وفق قاعدة 50/30/20 أو حسب أولوياتك الخاصة.',
-    desc_en: 'Intelligently distribute your salary using the 50/30/20 rule or your own priorities.',
-  },
-  {
-    icon: '📊',
-    gradient: Colors.gradient.credits,
-    title_fr: 'Suivez vos crédits',
-    title_ar: 'تتبع قروضك',
-    title_en: 'Track your loans',
-    desc_fr: 'Visualisez vos dettes, suivez vos remboursements et planifiez votre liberté financière.',
-    desc_ar: 'تابع ديونك وأقساطك وخطط للتحرر المالي.',
-    desc_en: 'Visualize your debts, track repayments, and plan your financial freedom.',
-  },
-  {
-    icon: '🎯',
-    gradient: Colors.gradient.goals,
-    title_fr: 'Atteignez vos objectifs',
-    title_ar: 'حقق أهدافك',
-    title_en: 'Achieve your goals',
-    desc_fr: 'Créez des objectifs financiers personnalisés et suivez votre progression chaque mois.',
-    desc_ar: 'أنشئ أهدافاً مالية مخصصة وتابع تقدمك شهرياً.',
-    desc_en: 'Create personalized financial goals and track your monthly progress.',
-  },
-];
+  { key: 'salary', icon: '💰', gradient: Colors.gradient.salary, titleKey: 'feature1_title', descKey: 'feature1_desc' },
+  { key: 'credits', icon: '📊', gradient: Colors.gradient.credits, titleKey: 'feature2_title', descKey: 'feature2_desc' },
+  { key: 'goals', icon: '🎯', gradient: Colors.gradient.goals, titleKey: 'feature3_title', descKey: 'feature3_desc' },
+] as const;
 
 export default function WelcomeScreen() {
+  const { t } = useTranslation();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
 
@@ -73,8 +40,8 @@ export default function WelcomeScreen() {
         <View style={styles.logoCircle}>
           <Text style={styles.logoEmoji}>💼</Text>
         </View>
-        <Text style={styles.appName}>Finance Bag</Text>
-        <Text style={styles.tagline}>Votre coach financier personnel</Text>
+        <Text style={styles.appName}>{t('common.app_name')}</Text>
+        <Text style={styles.tagline}>{t('onboarding.welcome_subtitle')}</Text>
       </View>
 
       {/* Features */}
@@ -86,8 +53,8 @@ export default function WelcomeScreen() {
         scrollEnabled={false}
         style={styles.scroll}
       >
-        {FEATURES.map((feature, i) => (
-          <View key={i} style={[styles.featurePage, { width }]}>
+        {FEATURES.map((feature) => (
+          <View key={feature.key} style={[styles.featurePage, { width }]}>
             <LinearGradient
               colors={feature.gradient}
               style={styles.featureIcon}
@@ -96,18 +63,21 @@ export default function WelcomeScreen() {
             >
               <Text style={styles.featureEmoji}>{feature.icon}</Text>
             </LinearGradient>
-            <Text style={styles.featureTitle}>{feature.title_fr}</Text>
-            <Text style={styles.featureDesc}>{feature.desc_fr}</Text>
+            <Text style={styles.featureTitle}>{t(`onboarding.${feature.titleKey}`)}</Text>
+            <Text style={styles.featureDesc}>{t(`onboarding.${feature.descKey}`)}</Text>
           </View>
         ))}
       </ScrollView>
 
       {/* Indicators */}
       <View style={styles.dots}>
-        {FEATURES.map((_, i) => (
+        {FEATURES.map((feature) => (
           <View
-            key={i}
-            style={[styles.dot, i === currentIndex && styles.dotActive]}
+            key={feature.key}
+            style={[
+              styles.dot,
+              FEATURES[currentIndex].key === feature.key && styles.dotActive,
+            ]}
           />
         ))}
       </View>
@@ -115,13 +85,13 @@ export default function WelcomeScreen() {
       {/* Actions */}
       <View style={styles.actions}>
         <Button
-          title={currentIndex < FEATURES.length - 1 ? 'Suivant' : 'Commencer'}
+          title={currentIndex < FEATURES.length - 1 ? t('common.next') : t('onboarding.get_started')}
           onPress={handleNext}
           fullWidth
           size="lg"
         />
         <TouchableOpacity onPress={handleSkip} style={styles.skipBtn}>
-          <Text style={styles.skipText}>Passer l'intro</Text>
+          <Text style={styles.skipText}>{t('onboarding.skip')}</Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>
@@ -161,6 +131,8 @@ const styles = StyleSheet.create({
     fontSize: Typography.size.sm,
     color: Colors.text.secondary,
     marginTop: 4,
+    textAlign: 'center',
+    paddingHorizontal: Spacing.xl,
   },
   scroll: {
     flex: 1,
@@ -173,7 +145,7 @@ const styles = StyleSheet.create({
   featureIcon: {
     width: 100,
     height: 100,
-    borderRadius: 30,
+    borderRadius: Radius.xl,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.xl,

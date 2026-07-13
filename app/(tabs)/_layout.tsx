@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
-import { View, Text, StyleSheet, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 import { Colors } from '../../src/theme/colors';
 import { Typography } from '../../src/theme/typography';
 
@@ -7,10 +8,9 @@ interface TabIconProps {
   icon: string;
   label: string;
   focused: boolean;
-  color: string;
 }
 
-function TabIcon({ icon, label, focused, color }: TabIconProps) {
+function TabIcon({ icon, label, focused }: TabIconProps) {
   return (
     <View style={[styles.tabItem, focused && styles.tabItemFocused]}>
       <Text style={[styles.tabIcon, { opacity: focused ? 1 : 0.6 }]}>{icon}</Text>
@@ -23,6 +23,8 @@ function TabIcon({ icon, label, focused, color }: TabIconProps) {
 }
 
 export default function TabsLayout() {
+  const { t } = useTranslation();
+
   return (
     <Tabs
       screenOptions={{
@@ -36,40 +38,48 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="dashboard"
         options={{
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon="📊" label="Dashboard" focused={focused} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="📊" label={t('nav.dashboard')} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="salary"
         options={{
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon="💰" label="Salaire" focused={focused} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="💰" label={t('nav.salary')} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="credits"
         options={{
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon="💳" label="Crédits" focused={focused} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="💳" label={t('nav.credits')} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="emergency"
         options={{
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon="🛡️" label="Urgences" focused={focused} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="🛡️" label={t('nav.emergency')} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="goals"
         options={{
-          tabBarIcon: ({ focused, color }) => (
-            <TabIcon icon="🎯" label="Objectifs" focused={focused} color={color} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="🎯" label={t('nav.goals')} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="settings"
+        options={{
+          tabBarIcon: ({ focused }) => (
+            <TabIcon icon="⚙️" label={t('nav.settings')} focused={focused} />
           ),
         }}
       />
@@ -91,15 +101,15 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: 'center',
     paddingTop: 4,
-    minWidth: 60,
+    minWidth: 48,
   },
   tabItemFocused: {},
   tabIcon: {
-    fontSize: 22,
+    fontSize: 20,
     marginBottom: 3,
   },
   tabLabel: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: Typography.weight.medium,
   },
   tabDot: {

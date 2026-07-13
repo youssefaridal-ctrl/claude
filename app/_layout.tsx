@@ -2,8 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { StatusBar, View } from 'react-native';
-import '../src/i18n';
+import { I18nManager, StatusBar, View } from 'react-native';
+import i18n, { LANGUAGES } from '../src/i18n';
 import { hasPinSetup } from '../src/infrastructure/crypto/pin-store';
 import { useAuthStore } from '../src/presentation/stores/auth.store';
 import { useAppStore } from '../src/store';
@@ -20,6 +20,20 @@ const queryClient = new QueryClient({
 function RootNavigator() {
   const { status } = useAuthStore();
   const { isLoading, isInitialized, user } = useAppStore();
+  const { language } = user;
+
+  // Sync stored language and RTL direction after the DB is open and user data is loaded
+  useEffect(() => {
+    if (!isInitialized) return;
+    if (i18n.language !== language) {
+      void i18n.changeLanguage(language);
+    }
+    const langDef = LANGUAGES.find((l) => l.code === language);
+    if (langDef) {
+      I18nManager.allowRTL(true);
+      I18nManager.forceRTL(langDef.rtl);
+    }
+  }, [isInitialized, language]);
 
   // Determine initial auth state on mount
   useEffect(() => {
