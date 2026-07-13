@@ -3,6 +3,7 @@ import * as SQLite from 'expo-sqlite';
 import * as schema from './schema';
 
 let _db: ReturnType<typeof drizzle> | null = null;
+let _sqlite: SQLite.SQLiteDatabase | null = null;
 
 export function getDb() {
   if (!_db) {
@@ -21,6 +22,7 @@ export function getDb() {
 export async function initDatabase(encryptionKey?: string): Promise<void> {
   const sqlite = await SQLite.openDatabaseAsync('finance_bag.db');
 
+  _sqlite = sqlite;
   _db = drizzle(sqlite, { schema });
 
   // SQLCipher key must be the very first PRAGMA on a newly-opened connection.
@@ -149,7 +151,17 @@ export async function initDatabase(encryptionKey?: string): Promise<void> {
   `);
 }
 
+/**
+ * Re-encrypt the open database with a new key (SQLCipher PRAGMA rekey).
+ * Must be called while the DB is open and the current session is authenticated.
+ */
+export async function rekeyDatabase(newKey: string): Promise<void> {
+  if (!_sqlite) throw new Error('Database not initialized. Call initDatabase() first.');
+  await _sqlite.execAsync(`PRAGMA rekey = "${newKey.replace(/"/g, '""')}";`);
+}
+
 /** Close the database and clear the singleton — used in tests and PIN reset flows. */
 export async function closeDatabase(): Promise<void> {
+  _sqlite = null;
   _db = null;
 }

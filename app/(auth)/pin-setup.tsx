@@ -4,24 +4,15 @@
  * Flow:
  *   1. User enters a 6-digit PIN
  *   2. User confirms the PIN
- *   3. App generates a random salt, derives the key (PBKDF2), computes verifier
- *   4. Salt + verifier saved to SecureStore
- *   5. Database opened with derived key
- *   6. Auth store set to 'unlocked' → root navigator routes to main app
+ *   3. setupPin use case: generates salt, derives key (PBKDF2), computes verifier,
+ *      saves credentials, opens DB, transitions auth store → 'unlocked'
+ *   4. Root navigator detects 'unlocked' and routes to onboarding / dashboard
  */
 
 import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, StyleSheet, Text, View } from 'react-native';
-import { initDatabase } from '../../src/database/client';
-import {
-  computeVerifier,
-  derivePinKey,
-  generateSalt,
-} from '../../src/infrastructure/crypto/pbkdf2';
-import { savePinCredentials } from '../../src/infrastructure/crypto/pin-store';
+import { setupPin } from '../../src/application/auth/setup-pin.usecase';
 import { PinPad } from '../../src/presentation/components/auth/PinPad';
-import { useAuthStore } from '../../src/presentation/stores/auth.store';
-import { useAppStore } from '../../src/store';
 import { Colors } from '../../src/theme/colors';
 
 type Step = 'enter' | 'confirm';
@@ -74,21 +65,15 @@ export default function PinSetupScreen() {
 
   const finalize = async (confirmedPin: string) => {
     setBusy(true);
-    try {
-      const salt = await generateSalt();
-      const key = await derivePinKey(confirmedPin, salt);
-      const verifier = await computeVerifier(key);
-      await savePinCredentials(salt, verifier);
-      await initDatabase(key);
-      await useAppStore.getState().initializeApp();
-      useAuthStore.getState().unlock(key);
-    } catch {
-      Alert.alert('Setup failed', 'Please try again.');
+    const result = await setupPin(confirmedPin);
+    if (!result.ok) {
+      Alert.alert('Setup failed', result.error.message);
       firstPin.current = '';
       setConfirming('');
       setStep('enter');
       setBusy(false);
     }
+    // On success: auth store transitions to 'unlocked' → root navigator routes away
   };
 
   const current = step === 'enter' ? pin : confirming;

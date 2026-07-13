@@ -3,22 +3,18 @@
  *
  * Flow:
  *   1. On mount: attempt biometric auth (FaceID / fingerprint)
- *      — if approved, load salt from SecureStore, derive key (requires stored verifier),
- *        open DB, set 'unlocked'
- *   2. PIN fallback: user enters 6-digit PIN manually
- *      — derive key → compute verifier → compare → open DB → set 'unlocked'
+ *      — if approved, show PIN entry (v1.0: biometric gates UI but key is PIN-derived)
+ *   2. PIN entry: user enters 6-digit PIN
+ *      — unlockWithPin use case: derive key → verify → open DB → 'unlocked'
  *   3. Wrong PIN: show error, clear dots, allow retry (no lockout in v1.0)
  */
 
 import * as LocalAuth from 'expo-local-authentication';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { initDatabase } from '../../src/database/client';
-import { computeVerifier, derivePinKey } from '../../src/infrastructure/crypto/pbkdf2';
-import { loadSalt, loadVerifier } from '../../src/infrastructure/crypto/pin-store';
+import { unlockWithPin } from '../../src/application/auth/unlock-with-pin.usecase';
+import { ErrorCode } from '../../src/domain/shared/errors/domain-error';
 import { PinPad } from '../../src/presentation/components/auth/PinPad';
-import { useAuthStore } from '../../src/presentation/stores/auth.store';
-import { useAppStore } from '../../src/store';
 import { Colors } from '../../src/theme/colors';
 
 const PIN_LENGTH = 6;
@@ -49,54 +45,24 @@ export default function PinUnlockScreen() {
       fallbackLabel: 'Use PIN',
     });
     if (result.success) {
-      await openWithStoredKey('__biometric__');
+      // v1.0: biometric is a UX gate only — the DB key is PIN-derived and never stored.
+      // Prompt for PIN after biometric approval so the key can be re-derived.
+      // TODO(v1.1): cache key in a biometric-protected SecureStore item.
+      setError('Biometric verified. Please enter your PIN to continue.');
     }
-  };
-
-  /**
-   * openWithStoredKey:
-   *   - For biometric path: we cannot re-derive from PIN, so we need a
-   *     different approach. In v1.0 the key is derived from PIN only.
-   *     Biometric acts as a gate but still requires the PIN-derived key.
-   *
-   *   A pragmatic v1.0 approach: after biometric success, prompt for PIN once
-   *   to re-derive the key, then keep it in memory for the session.
-   *
-   *   For simplicity in v1.0 we treat biometric as a UX shortcut that still
-   *   requires the underlying PIN key — see attemptBiometric above.
-   *   TODO(v1.1): use expo-secure-store biometric-protected item to cache key.
-   */
-  const openWithStoredKey = async (_source: string) => {
-    // Biometric approved but we still need to verify PIN for key derivation.
-    // Fall back to PIN entry for now with a helpful message.
-    setError('Please enter your PIN to unlock.');
   };
 
   const verifyPin = useCallback(async (candidate: string) => {
     setBusy(true);
     setError('');
-    try {
-      const [salt, storedVerifier] = await Promise.all([loadSalt(), loadVerifier()]);
-      if (!salt || !storedVerifier) throw new Error('No credentials found');
-
-      const key = await derivePinKey(candidate, salt);
-      const verifier = await computeVerifier(key);
-
-      if (verifier !== storedVerifier) {
-        setError('Incorrect PIN. Please try again.');
-        setPin('');
-        setBusy(false);
-        return;
-      }
-
-      await initDatabase(key);
-      await useAppStore.getState().initializeApp();
-      useAuthStore.getState().unlock(key);
-    } catch {
-      setError('Something went wrong. Please try again.');
+    const result = await unlockWithPin(candidate);
+    if (!result.ok) {
+      const isWrongPin = result.error.code === ErrorCode.UNAUTHORIZED;
+      setError(isWrongPin ? 'Incorrect PIN. Please try again.' : result.error.message);
       setPin('');
       setBusy(false);
     }
+    // On success: auth store transitions to 'unlocked' → root navigator routes away
   }, []);
 
   const handleDigit = useCallback(
