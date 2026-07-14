@@ -1,6 +1,6 @@
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { Component, type ReactNode, useEffect, useRef } from 'react';
 import { I18nManager, StatusBar, StyleSheet, Text, View } from 'react-native';
 import i18n, { LANGUAGES } from '../src/i18n';
 import { hasPinSetup } from '../src/infrastructure/crypto/pin-store';
@@ -10,10 +10,52 @@ import { Colors } from '../src/theme/colors';
 
 SplashScreen.preventAutoHideAsync();
 
+// ─── Error Boundary ───────────────────────────────────────────────────────────
+
+interface EBState {
+  error: string | null;
+}
+
+class AppErrorBoundary extends Component<{ children: ReactNode }, EBState> {
+  state: EBState = { error: null };
+
+  static getDerivedStateFromError(error: Error): EBState {
+    void SplashScreen.hideAsync();
+    return { error: error.message ?? String(error) };
+  }
+
+  render() {
+    const { error } = this.state;
+    if (error) {
+      return (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorTitle}>Erreur de démarrage</Text>
+          <Text style={styles.errorMessage}>{error}</Text>
+        </View>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+// ─── Root Navigator ───────────────────────────────────────────────────────────
+
 function RootNavigator() {
   const { status } = useAuthStore();
   const { isLoading, isInitialized, initError, user } = useAppStore();
   const { language } = user;
+  const splashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Force-hide splash after 15 s regardless of state so the user never sees a
+  // permanent black screen even if startup stalls.
+  useEffect(() => {
+    splashTimerRef.current = setTimeout(() => {
+      void SplashScreen.hideAsync();
+    }, 15_000);
+    return () => {
+      if (splashTimerRef.current) clearTimeout(splashTimerRef.current);
+    };
+  }, []);
 
   // Sync stored language and RTL direction after the DB is open and user data is loaded
   useEffect(() => {
@@ -33,7 +75,10 @@ function RootNavigator() {
     const { setStatus } = useAuthStore.getState();
     hasPinSetup()
       .then((has) => setStatus(has ? 'locked' : 'no_pin'))
-      .catch(() => setStatus('error'));
+      .catch((err) => {
+        console.error('[Auth] hasPinSetup failed:', err);
+        setStatus('error');
+      });
   }, []);
 
   // Route based on auth + onboarding state
@@ -97,6 +142,7 @@ function RootNavigator() {
           animation: 'fade',
         }}
       >
+        <Stack.Screen name="index" options={{ animation: 'none' }} />
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
@@ -104,6 +150,8 @@ function RootNavigator() {
     </>
   );
 }
+
+// ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
   errorContainer: {
@@ -128,6 +176,12 @@ const styles = StyleSheet.create({
   },
 });
 
+// ─── Root Layout ──────────────────────────────────────────────────────────────
+
 export default function RootLayout() {
-  return <RootNavigator />;
+  return (
+    <AppErrorBoundary>
+      <RootNavigator />
+    </AppErrorBoundary>
+  );
 }
