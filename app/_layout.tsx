@@ -1,7 +1,7 @@
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { Component, type ReactNode, useEffect, useRef } from 'react';
-import { I18nManager, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, I18nManager, StatusBar, StyleSheet, Text, View } from 'react-native';
 import i18n, { LANGUAGES } from '../src/i18n';
 import { hasPinSetup } from '../src/infrastructure/crypto/pin-store';
 import { useAuthStore } from '../src/presentation/stores/auth.store';
@@ -46,12 +46,12 @@ function RootNavigator() {
   const { language } = user;
   const splashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Force-hide splash after 15 s regardless of state so the user never sees a
+  // Force-hide splash after 5 s regardless of state so the user never sees a
   // permanent black screen even if startup stalls.
   useEffect(() => {
     splashTimerRef.current = setTimeout(() => {
       void SplashScreen.hideAsync();
-    }, 15_000);
+    }, 5_000);
     return () => {
       if (splashTimerRef.current) clearTimeout(splashTimerRef.current);
     };
@@ -119,7 +119,11 @@ function RootNavigator() {
   }, [status, isInitialized, isLoading, initError, user.onboardingCompleted]);
 
   if (status === 'checking' || (status === 'unlocked' && isLoading)) {
-    return <View style={{ flex: 1, backgroundColor: Colors.bg.primary }} />;
+    return (
+      <View style={[styles.errorContainer, { justifyContent: 'center' }]}>
+        <ActivityIndicator size="large" color={Colors.primary} />
+      </View>
+    );
   }
 
   if (status === 'error' || (status === 'unlocked' && !isLoading && initError)) {
