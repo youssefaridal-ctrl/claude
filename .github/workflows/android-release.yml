@@ -1,0 +1,299 @@
+name: Android Release
+
+# Builds a signed release APK and AAB.
+# Triggers on version tags (v1.2.3) or manual dispatch.
+# Requires four repository secrets:
+#   ANDROID_KEYSTORE          — base64-encoded .jks / .keystore file
+#   ANDROID_KEYSTORE_PASSWORD — keystore password
+#   ANDROID_KEY_ALIAS         — signing key alias
+#   ANDROID_KEY_PASSWORD      — signing key password
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g. v1.0.0)'
+        required: true
+        default: 'v1.0.0'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false  # Never cancel a release build mid-flight
+
+permissions:
+  contents: write  # Required to create GitHub Releases
+
+env:
+  NODE_VERSION: '22'
+  JAVA_VERSION: '17'
+  ANDROID_COMPILE_SDK: '35'
+  ANDROID_BUILD_TOOLS: '35.0.0'
+  ANDROID_MIN_SDK: '24'
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 1: Verify JS before the expensive native build
+  # ─────────────────────────────────────────────────────────────────────────────
+  verify-js:
+    name: TypeScript & Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+      - name: Biome lint
+        run: npx biome check src/ app/
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # Job 2: Build signed release APK + AAB
+  # ─────────────────────────────────────────────────────────────────────────────
+  build-release:
+    name: Release APK & AAB
+    runs-on: ubuntu-latest
+    needs: verify-js
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Full history needed for release notes
+
+      # ── Node.js ──────────────────────────────────────────────────────────────
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      # ── Java 17 ──────────────────────────────────────────────────────────────
+      - uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      # ── Android SDK ──────────────────────────────────────────────────────────
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install required Android SDK components
+        run: |
+          sdkmanager \
+            "platforms;android-${{ env.ANDROID_COMPILE_SDK }}" \
+            "build-tools;${{ env.ANDROID_BUILD_TOOLS }}" \
+            "platform-tools"
+
+      # ── JS dependencies ──────────────────────────────────────────────────────
+      - name: Install npm dependencies
+        run: npm ci
+
+      # ── Generate android/ directory ──────────────────────────────────────────
+      - name: Generate Android project (expo prebuild)
+        run: npx expo prebuild --platform android --clean --no-install
+        env:
+          CI: '1'
+
+      # ── Gradle ───────────────────────────────────────────────────────────────
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      # ── Release signing ───────────────────────────────────────────────────────
+      - name: Decode release keystore
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode \
+            > android/app/release.keystore
+
+      - name: Configure release signing in build.gradle
+        working-directory: android/app
+        run: |
+          cat >> build.gradle <<'GRADLE'
+
+          // Release signing — injected by CI
+          android {
+              signingConfigs {
+                  release {
+                      storeFile file("release.keystore")
+                      storePassword System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                      keyAlias System.getenv("ANDROID_KEY_ALIAS")
+                      keyPassword System.getenv("ANDROID_KEY_PASSWORD")
+                  }
+              }
+              buildTypes {
+                  release {
+                      signingConfig signingConfigs.release
+                  }
+              }
+          }
+          GRADLE
+
+      # ── Build APK ────────────────────────────────────────────────────────────
+      - name: Build Release APK
+        working-directory: android
+        run: ./gradlew :app:assembleRelease --no-daemon --stacktrace
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GRADLE_OPTS: >-
+            -Dorg.gradle.jvmargs=-Xmx4g
+            -XX:MaxMetaspaceSize=512m
+            -Dfile.encoding=UTF-8
+
+      # ── Build AAB ────────────────────────────────────────────────────────────
+      - name: Build Release AAB
+        working-directory: android
+        run: ./gradlew :app:bundleRelease --no-daemon --stacktrace
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          GRADLE_OPTS: >-
+            -Dorg.gradle.jvmargs=-Xmx4g
+            -XX:MaxMetaspaceSize=512m
+            -Dfile.encoding=UTF-8
+
+      # ── Verify outputs ────────────────────────────────────────────────────────
+      - name: Verify release artifacts
+        id: artifacts
+        run: |
+          APK="android/app/build/outputs/apk/release/app-release.apk"
+          AAB="android/app/build/outputs/bundle/release/app-release.aab"
+
+          if [ ! -f "$APK" ]; then
+            echo "❌ APK not found: $APK"
+            exit 1
+          fi
+          if [ ! -f "$AAB" ]; then
+            echo "❌ AAB not found: $AAB"
+            exit 1
+          fi
+
+          APK_SIZE=$(du -sh "$APK" | cut -f1)
+          AAB_SIZE=$(du -sh "$AAB" | cut -f1)
+
+          echo "apk_path=$APK" >> "$GITHUB_OUTPUT"
+          echo "aab_path=$AAB" >> "$GITHUB_OUTPUT"
+          echo "apk_size=$APK_SIZE" >> "$GITHUB_OUTPUT"
+          echo "aab_size=$AAB_SIZE" >> "$GITHUB_OUTPUT"
+
+          echo "✅ Release APK: $APK_SIZE"
+          echo "✅ Release AAB: $AAB_SIZE"
+
+      # ── Determine version tag ─────────────────────────────────────────────────
+      - name: Determine version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ github.event.inputs.version }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF#refs/tags/}" >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── Generate release notes ────────────────────────────────────────────────
+      - name: Generate release notes
+        id: notes
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          PREV_TAG=$(git tag --sort=-version:refname | grep -v "^${TAG}$" | head -1)
+
+          {
+            echo "## What's Changed"
+            echo ""
+            if [ -n "$PREV_TAG" ]; then
+              git log "${PREV_TAG}..HEAD" \
+                --pretty=format:"- %s" \
+                --no-merges \
+                | grep -v "^- $" \
+                || true
+            else
+              git log HEAD \
+                --pretty=format:"- %s" \
+                --no-merges \
+                | head -20
+            fi
+            echo ""
+            echo ""
+            echo "## Build Info"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **APK Size** | ${{ steps.artifacts.outputs.apk_size }} |"
+            echo "| **AAB Size** | ${{ steps.artifacts.outputs.aab_size }} |"
+            echo "| **Min SDK** | ${{ env.ANDROID_MIN_SDK }} (Android 7.0+) |"
+            echo "| **Target SDK** | 34 (Android 14) |"
+            echo "| **Commit** | \`${{ github.sha }}\` |"
+          } > release_notes.md
+
+          echo "notes_file=release_notes.md" >> "$GITHUB_OUTPUT"
+
+      # ── Step summary ──────────────────────────────────────────────────────────
+      - name: Build summary
+        run: |
+          {
+            echo "## 📦 Release Build — ${{ steps.version.outputs.tag }}"
+            echo ""
+            echo "| Artifact | Size |"
+            echo "|---|---|"
+            echo "| Release APK | ${{ steps.artifacts.outputs.apk_size }} |"
+            echo "| Release AAB | ${{ steps.artifacts.outputs.aab_size }} |"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| **Min SDK** | ${{ env.ANDROID_MIN_SDK }} (Android 7.0+) |"
+            echo "| **Target SDK** | 34 (Android 14) |"
+            echo "| **Commit** | \`${{ github.sha }}\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ── Upload artifacts ──────────────────────────────────────────────────────
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: finance-bag-release-apk-${{ steps.version.outputs.tag }}
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 90
+
+      - name: Upload Release AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: finance-bag-release-aab-${{ steps.version.outputs.tag }}
+          path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 90
+
+      - name: Upload build reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports-release-${{ steps.version.outputs.tag }}
+          path: |
+            android/build/reports/
+            android/app/build/outputs/logs/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # ── GitHub Release (tags only) ────────────────────────────────────────────
+      - name: Create GitHub Release
+        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Finance Bag ${{ steps.version.outputs.tag }}
+          body_path: ${{ steps.notes.outputs.notes_file }}
+          draft: false
+          prerelease: false
+          files: |
+            android/app/build/outputs/apk/release/app-release.apk
+            android/app/build/outputs/bundle/release/app-release.aab
