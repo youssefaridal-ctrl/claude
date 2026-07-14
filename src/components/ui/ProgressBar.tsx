@@ -27,6 +27,7 @@ export function ProgressBar({
   const anim = useRef(new Animated.Value(0)).current;
   const clampedProgress = Math.min(100, Math.max(0, progress));
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: anim and animated are stable refs/props
   useEffect(() => {
     if (animated) {
       Animated.timing(anim, {

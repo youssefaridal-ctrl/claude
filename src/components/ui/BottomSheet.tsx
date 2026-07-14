@@ -30,6 +30,7 @@ interface Props {
 export function BottomSheet({ visible, onClose, title, children, snapPoint = 0.6 }: Props) {
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: translateY is a stable Animated.Value ref
   useEffect(() => {
     if (visible) {
       Animated.spring(translateY, {
