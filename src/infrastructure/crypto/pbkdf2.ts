@@ -1,9 +1,12 @@
 /**
  * PIN → encryption key derivation.
  *
- * Uses the Web Crypto API (crypto.subtle) available in Hermes 0.13 / RN 0.76.
- * 600,000 PBKDF2-SHA256 iterations per SPEC-SEC-001 §6.2.
+ * Uses the Web Crypto API (crypto.subtle) polyfilled by react-native-quick-crypto,
+ * which provides a native C++ implementation via Nitro Modules.
+ * Hermes does not ship SubtleCrypto natively; the polyfill is installed in
+ * app/_layout.tsx before any screen code runs.
  *
+ * 600,000 PBKDF2-SHA256 iterations per SPEC-SEC-001 §6.2.
  * Key is returned as a 64-char hex string (256 bits).
  * It is NEVER stored — derived fresh on each unlock.
  */

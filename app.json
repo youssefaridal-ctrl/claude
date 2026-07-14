@@ -34,6 +34,7 @@
     "plugins": [
       "expo-router",
       "expo-font",
+      "react-native-quick-crypto",
       [
         "expo-sqlite",
         {
