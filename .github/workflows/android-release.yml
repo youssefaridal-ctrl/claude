@@ -111,21 +111,26 @@ jobs:
         run: chmod +x android/gradlew
 
       # ── Release signing ───────────────────────────────────────────────────────
-      # When ANDROID_KEYSTORE is set: inject production signing.
-      # When unset (e.g. BC1 without production certs): expo prebuild already
-      # configures the release buildType to use signingConfigs.debug, so the
-      # APK/AAB will be debug-signed and fully installable for testing.
-      - name: Decode release keystore
-        if: ${{ secrets.ANDROID_KEYSTORE != '' }}
-        run: |
-          echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode \
-            > android/app/release.keystore
-
-      - name: Configure release signing in build.gradle
-        if: ${{ secrets.ANDROID_KEYSTORE != '' }}
+      # When ANDROID_KEYSTORE secret is set: inject production signing config.
+      # When unset (e.g. BC1 before production certs exist): expo prebuild
+      # already wires the release buildType to signingConfigs.debug, so the
+      # APK/AAB will be debug-signed and fully installable for internal testing.
+      # Note: secrets context is not valid in step `if:` conditions, so the
+      # check is done inside the shell script via the mapped env var.
+      - name: Configure signing
+        id: signing
         working-directory: android/app
+        env:
+          ANDROID_KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
         run: |
-          cat >> build.gradle <<'GRADLE'
+          if [ -n "$ANDROID_KEYSTORE_B64" ]; then
+            echo "Signing: PRODUCTION"
+            echo "mode=production" >> "$GITHUB_OUTPUT"
+            echo "$ANDROID_KEYSTORE_B64" | base64 --decode > release.keystore
+            cat >> build.gradle <<'GRADLE'
 
           // Release signing — injected by CI
           android {
@@ -144,13 +149,9 @@ jobs:
               }
           }
           GRADLE
-
-      - name: Log signing mode
-        run: |
-          if [ -n "${{ secrets.ANDROID_KEYSTORE }}" ]; then
-            echo "🔑 Production signing: ENABLED"
           else
-            echo "🔓 Production signing: NOT CONFIGURED — using debug keystore (build candidate / testing only)"
+            echo "mode=debug" >> "$GITHUB_OUTPUT"
+            echo "Signing: DEBUG KEYSTORE (build candidate — production secrets not configured)"
           fi
 
       # ── Build APK ────────────────────────────────────────────────────────────
@@ -248,7 +249,7 @@ jobs:
             echo "| **AAB Size** | ${{ steps.artifacts.outputs.aab_size }} |"
             echo "| **Min SDK** | ${{ env.ANDROID_MIN_SDK }} (Android 7.0+) |"
             echo "| **Target SDK** | 34 (Android 14) |"
-            if [ -n "${{ secrets.ANDROID_KEYSTORE }}" ]; then
+            if [ "${{ steps.signing.outputs.mode }}" = "production" ]; then
               echo "| **Signing** | Production keystore |"
             else
               echo "| **Signing** | Debug keystore (build candidate) |"
@@ -262,7 +263,7 @@ jobs:
       - name: Build summary
         run: |
           SIGNING="Debug keystore (build candidate)"
-          if [ -n "${{ secrets.ANDROID_KEYSTORE }}" ]; then
+          if [ "${{ steps.signing.outputs.mode }}" = "production" ]; then
             SIGNING="Production keystore"
           fi
           {
