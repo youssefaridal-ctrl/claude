@@ -1,4 +1,3 @@
-import '../src/infrastructure/crypto/polyfill';
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';

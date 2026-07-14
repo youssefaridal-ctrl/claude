@@ -1,0 +1,8 @@
+{
+  "name": "expo-pbkdf2",
+  "version": "1.0.0",
+  "description": "Native PBKDF2-SHA256 for Expo — uses Android javax.crypto and iOS CommonCrypto",
+  "main": "src/index",
+  "types": "src/index",
+  "private": true
+}
