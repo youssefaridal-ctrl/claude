@@ -111,12 +111,18 @@ jobs:
         run: chmod +x android/gradlew
 
       # ── Release signing ───────────────────────────────────────────────────────
+      # When ANDROID_KEYSTORE is set: inject production signing.
+      # When unset (e.g. BC1 without production certs): expo prebuild already
+      # configures the release buildType to use signingConfigs.debug, so the
+      # APK/AAB will be debug-signed and fully installable for testing.
       - name: Decode release keystore
+        if: ${{ secrets.ANDROID_KEYSTORE != '' }}
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode \
             > android/app/release.keystore
 
       - name: Configure release signing in build.gradle
+        if: ${{ secrets.ANDROID_KEYSTORE != '' }}
         working-directory: android/app
         run: |
           cat >> build.gradle <<'GRADLE'
@@ -138,6 +144,14 @@ jobs:
               }
           }
           GRADLE
+
+      - name: Log signing mode
+        run: |
+          if [ -n "${{ secrets.ANDROID_KEYSTORE }}" ]; then
+            echo "🔑 Production signing: ENABLED"
+          else
+            echo "🔓 Production signing: NOT CONFIGURED — using debug keystore (build candidate / testing only)"
+          fi
 
       # ── Build APK ────────────────────────────────────────────────────────────
       - name: Build Release APK
@@ -234,6 +248,11 @@ jobs:
             echo "| **AAB Size** | ${{ steps.artifacts.outputs.aab_size }} |"
             echo "| **Min SDK** | ${{ env.ANDROID_MIN_SDK }} (Android 7.0+) |"
             echo "| **Target SDK** | 34 (Android 14) |"
+            if [ -n "${{ secrets.ANDROID_KEYSTORE }}" ]; then
+              echo "| **Signing** | Production keystore |"
+            else
+              echo "| **Signing** | Debug keystore (build candidate) |"
+            fi
             echo "| **Commit** | \`${{ github.sha }}\` |"
           } > release_notes.md
 
@@ -242,6 +261,10 @@ jobs:
       # ── Step summary ──────────────────────────────────────────────────────────
       - name: Build summary
         run: |
+          SIGNING="Debug keystore (build candidate)"
+          if [ -n "${{ secrets.ANDROID_KEYSTORE }}" ]; then
+            SIGNING="Production keystore"
+          fi
           {
             echo "## 📦 Release Build — ${{ steps.version.outputs.tag }}"
             echo ""
@@ -254,6 +277,7 @@ jobs:
             echo "|---|---|"
             echo "| **Min SDK** | ${{ env.ANDROID_MIN_SDK }} (Android 7.0+) |"
             echo "| **Target SDK** | 34 (Android 14) |"
+            echo "| **Signing** | $SIGNING |"
             echo "| **Commit** | \`${{ github.sha }}\` |"
           } >> "$GITHUB_STEP_SUMMARY"
 
