@@ -5,13 +5,13 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { updateLanguage } from '../../src/application/profile/update-language.usecase';
 import { updateProfile } from '../../src/application/profile/update-profile.usecase';
 import { Input } from '../../src/components/ui/Input';
@@ -56,7 +56,7 @@ export default function SettingsScreen() {
     }
     setSaving(true);
     const result = await updateProfile({
-      name: name.trim() || undefined,
+      name: name.trim(),
       salaryPaymentDay: day,
     });
     setSaving(false);
@@ -84,7 +84,7 @@ export default function SettingsScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={styles.flex}

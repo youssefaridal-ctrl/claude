@@ -32,10 +32,8 @@ export async function hasPinSetup(): Promise<boolean> {
 // ── Write ─────────────────────────────────────────────────────────────────────
 
 export async function savePinCredentials(saltHex: string, verifierHex: string): Promise<void> {
-  await Promise.all([
-    SecureStore.setItemAsync(KEY_SALT, saltHex),
-    SecureStore.setItemAsync(KEY_VERIFIER, verifierHex),
-  ]);
+  await SecureStore.setItemAsync(KEY_SALT, saltHex);
+  await SecureStore.setItemAsync(KEY_VERIFIER, verifierHex);
 }
 
 // ── Delete ────────────────────────────────────────────────────────────────────

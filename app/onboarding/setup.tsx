@@ -41,7 +41,7 @@ export default function SetupScreen() {
   const [loading, setLoading] = useState(false);
 
   const handleStart = async () => {
-    const salary = Number.parseFloat(salaryStr.replace(',', '.')) || 0;
+    const salary = Number.parseFloat(salaryStr.replace(/,/g, '.')) || 0;
     if (!name.trim()) {
       Alert.alert('', t('onboarding.name_required'));
       return;
@@ -54,6 +54,8 @@ export default function SetupScreen() {
     try {
       await completeOnboarding(name.trim(), salary, user.language, currency);
       router.replace('/(tabs)/dashboard');
+    } catch {
+      Alert.alert(t('common.error'), t('common.required'));
     } finally {
       setLoading(false);
     }

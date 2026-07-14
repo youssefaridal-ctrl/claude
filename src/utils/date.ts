@@ -3,7 +3,7 @@ export function getCurrentMonth(): string {
 }
 
 export function formatDate(dateStr: string, lang = 'fr'): string {
-  const date = new Date(dateStr);
+  const date = new Date(`${dateStr}T12:00:00`);
   const locales: Record<string, string> = { fr: 'fr-FR', ar: 'ar-MA', en: 'en-US' };
   return date.toLocaleDateString(locales[lang] || 'fr-FR', {
     day: 'numeric',
@@ -13,7 +13,7 @@ export function formatDate(dateStr: string, lang = 'fr'): string {
 }
 
 export function formatShortDate(dateStr: string, lang = 'fr'): string {
-  const date = new Date(dateStr);
+  const date = new Date(`${dateStr}T12:00:00`);
   const locales: Record<string, string> = { fr: 'fr-FR', ar: 'ar-MA', en: 'en-US' };
   return date.toLocaleDateString(locales[lang] || 'fr-FR', {
     day: 'numeric',
@@ -23,11 +23,8 @@ export function formatShortDate(dateStr: string, lang = 'fr'): string {
 
 export function monthsUntilDate(targetDateStr: string): number {
   const now = new Date();
-  const target = new Date(targetDateStr);
-  return Math.max(
-    0,
-    (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth())
-  );
+  const target = new Date(`${targetDateStr}T12:00:00`);
+  return (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
 }
 
 export function getGreeting(lang: string): string {
@@ -45,12 +42,15 @@ export function getGreeting(lang: string): string {
 
 export function addMonths(date: Date, months: number): Date {
   const d = new Date(date);
-  d.setMonth(d.getMonth() + months);
+  const targetMonth = d.getMonth() + months;
+  d.setDate(1);
+  d.setMonth(targetMonth);
   return d;
 }
 
 export function getMonthName(monthStr: string, lang = 'fr'): string {
-  const date = new Date(monthStr + '-01');
+  const [y, m] = monthStr.split('-').map(Number);
+  const date = new Date(y, m - 1, 1);
   const locales: Record<string, string> = { fr: 'fr-FR', ar: 'ar-MA', en: 'en-US' };
   return date.toLocaleDateString(locales[lang] || 'fr-FR', { month: 'long', year: 'numeric' });
 }

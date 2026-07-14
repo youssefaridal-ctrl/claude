@@ -56,7 +56,10 @@ export default function DashboardScreen() {
   const totalSpent = monthTransactions
     .filter((tx) => tx.type === 'expense')
     .reduce((a, tx) => a + tx.amount, 0);
-  const remaining = totalIncome - totalSpent - monthlyPayments;
+  const totalExtraIncome = monthTransactions
+    .filter((tx) => tx.type === 'income')
+    .reduce((a, tx) => a + tx.amount, 0);
+  const remaining = totalIncome + totalExtraIncome - totalSpent - monthlyPayments;
 
   const healthLabel =
     health >= 70
@@ -124,7 +127,7 @@ export default function DashboardScreen() {
           <View style={styles.header}>
             <View>
               <Text style={styles.greeting}>
-                {getGreeting(user.language)}, {user.name || 'vous'}
+                {getGreeting(user.language)}, {user.name || t('dashboard.you')}
               </Text>
               <Text style={styles.headerSub}>{t('dashboard.overview_sub')}</Text>
             </View>

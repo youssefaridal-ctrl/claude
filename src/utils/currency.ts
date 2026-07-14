@@ -18,6 +18,7 @@ const LOCALES: Record<string, string> = {
 };
 
 export function formatCurrency(amount: number, currency: Currency = 'MAD', lang = 'fr'): string {
+  if (!Number.isFinite(amount)) return `– ${CURRENCY_SYMBOLS[currency]}`;
   const symbol = CURRENCY_SYMBOLS[currency];
   const locale = LOCALES[lang] ?? 'fr-FR';
   const formatted = amount.toLocaleString(locale, {
@@ -28,6 +29,7 @@ export function formatCurrency(amount: number, currency: Currency = 'MAD', lang 
 }
 
 export function formatAmount(amount: number, lang = 'fr'): string {
+  if (!Number.isFinite(amount)) return '–';
   const locale = LOCALES[lang] ?? 'fr-FR';
   return amount.toLocaleString(locale, {
     minimumFractionDigits: 0,

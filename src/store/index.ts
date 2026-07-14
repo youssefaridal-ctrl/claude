@@ -443,7 +443,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         id: 'needs',
         name: i18n.t('salary.needs'),
         percentage: 50,
-        amount: totalIncome * 0.5,
+        amount: Math.round(totalIncome * 0.5),
         color: Colors.primary,
         icon: '🏠',
         spent: 0,
@@ -452,7 +452,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         id: 'wants',
         name: i18n.t('salary.wants'),
         percentage: 30,
-        amount: totalIncome * 0.3,
+        amount: Math.round(totalIncome * 0.3),
         color: Colors.secondary,
         icon: '🎮',
         spent: 0,
@@ -461,7 +461,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         id: 'savings',
         name: i18n.t('salary.savings'),
         percentage: 20,
-        amount: totalIncome * 0.2,
+        amount: Math.round(totalIncome * 0.2),
         color: Colors.success,
         icon: '💰',
         spent: 0,
@@ -475,7 +475,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const newCat: BudgetCategory = {
       ...cat,
       id: generateId(),
-      amount: (cat.percentage / 100) * totalIncome,
+      amount: Math.round((cat.percentage / 100) * totalIncome),
       spent: 0,
     };
     const sortOrder = get().categories.length;
@@ -735,7 +735,7 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   addGoalContribution: async (goalId, amount) => {
     const contribId = generateId();
-    const contribution = { id: contribId, amount, date: now() };
+    const contribution = { id: contribId, amount, date: today() };
     const updated = get().goals.map((g) =>
       g.id === goalId
         ? {

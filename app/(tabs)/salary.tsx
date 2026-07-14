@@ -105,18 +105,22 @@ export default function SalaryScreen() {
   );
 
   const goToPrevMonth = () => {
-    const d = new Date(`${selectedMonth}-01`);
+    const d = new Date(`${selectedMonth}-01T12:00:00`);
     setSelectedMonth(addMonths(d, -1).toISOString().slice(0, 7));
   };
 
   const goToNextMonth = () => {
-    const d = new Date(`${selectedMonth}-01`);
+    const d = new Date(`${selectedMonth}-01T12:00:00`);
     const next = addMonths(d, 1).toISOString().slice(0, 7);
     if (next <= getCurrentMonth()) setSelectedMonth(next);
   };
 
   const handleUpdateSalary = async () => {
     const amount = Number.parseFloat(newSalaryStr.replace(/,/g, '.'));
+    if (Number.isNaN(amount) || amount < 0) {
+      Alert.alert(t('common.error'), t('common.required'));
+      return;
+    }
     const result = await updateSalary(amount);
     if (!result.ok) {
       Alert.alert(t('common.error'), result.error.message);
@@ -241,7 +245,7 @@ export default function SalaryScreen() {
   };
 
   const isNextMonthAvailable =
-    addMonths(new Date(`${selectedMonth}-01`), 1)
+    addMonths(new Date(`${selectedMonth}-01T12:00:00`), 1)
       .toISOString()
       .slice(0, 7) <= getCurrentMonth();
 
@@ -308,7 +312,14 @@ export default function SalaryScreen() {
               <Text
                 style={[
                   styles.allocationValue,
-                  { color: unallocated > 0 ? Colors.warning : Colors.success },
+                  {
+                    color:
+                      totalAllocated > 100
+                        ? Colors.danger
+                        : unallocated > 0
+                          ? Colors.warning
+                          : Colors.success,
+                  },
                 ]}
               >
                 {unallocated}%

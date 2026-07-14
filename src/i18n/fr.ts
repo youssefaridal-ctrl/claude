@@ -103,6 +103,7 @@ export const fr = {
     add_expense_title: 'Nouvelle dépense',
     add_income_title: 'Nouveau revenu',
     transaction_placeholder: 'Ex: Loyer, Supermarché...',
+    you: 'vous',
   },
 
   // Salary
@@ -268,6 +269,9 @@ export const fr = {
     custom_sub: 'Montant libre',
     action_withdraw: 'Retirer',
     action_target: 'Objectif',
+    insufficient_funds: 'Le montant dépasse le solde disponible',
+    contribution_note_placeholder: 'Ex: Économie du mois...',
+    withdraw_reason_placeholder: 'Ex: Réparation voiture urgente...',
   },
 
   // Goals
@@ -317,6 +321,7 @@ export const fr = {
     current_savings: 'Épargné',
     goal_name_placeholder: 'Ex: Vacances en Espagne',
     goal_description_placeholder: 'Détails de votre objectif...',
+    of_goal: "de l'objectif",
   },
 
   // Settings

@@ -137,7 +137,7 @@ export default function GoalsScreen() {
       description: goalDesc,
       type: goalType,
       targetAmount: target,
-      currentAmount: Number.parseFloat(goalCurrent) || 0,
+      currentAmount: Number.parseFloat(goalCurrent.replace(/,/g, '.')) || 0,
       targetDate: goalDate,
       priority: goalPriority,
       color: typeInfo?.color ?? Colors.primary,
@@ -228,7 +228,7 @@ export default function GoalsScreen() {
                   animated
                 />
                 <Text style={styles.globalProgressLabel}>
-                  {Math.round((totalSaved / totalTargets) * 100)}% {t('emergency.of_goal')}
+                  {Math.round((totalSaved / totalTargets) * 100)}% {t('goals.of_goal')}
                 </Text>
               </View>
             )}
@@ -537,13 +537,13 @@ export default function GoalsScreen() {
               {
                 label: t('salary.remaining'),
                 value: formatCurrency(
-                  showDetail.targetAmount - showDetail.currentAmount,
+                  Math.max(0, showDetail.targetAmount - showDetail.currentAmount),
                   user.currency
                 ),
               },
               {
                 label: t('goals.progress'),
-                value: `${Math.round((showDetail.currentAmount / showDetail.targetAmount) * 100)}%`,
+                value: `${showDetail.targetAmount > 0 ? Math.round((showDetail.currentAmount / showDetail.targetAmount) * 100) : 0}%`,
               },
               ...(showDetail.targetDate
                 ? [

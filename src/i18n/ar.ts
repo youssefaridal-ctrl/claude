@@ -102,6 +102,7 @@ export const ar = {
     add_expense_title: 'مصروف جديد',
     add_income_title: 'دخل جديد',
     transaction_placeholder: 'مثال: إيجار، بقالة...',
+    you: 'أنت',
   },
 
   // Salary
@@ -266,6 +267,9 @@ export const ar = {
     custom_sub: 'مبلغ مخصص',
     action_withdraw: 'سحب',
     action_target: 'هدف',
+    insufficient_funds: 'المبلغ يتجاوز الرصيد المتاح',
+    contribution_note_placeholder: 'مثال: مدخرات الشهر...',
+    withdraw_reason_placeholder: 'مثال: إصلاح طارئ للسيارة...',
   },
 
   // Goals
@@ -315,6 +319,7 @@ export const ar = {
     current_savings: 'المدخر',
     goal_name_placeholder: 'مثال: إجازة في إسبانيا',
     goal_description_placeholder: 'تفاصيل هدفك...',
+    of_goal: 'من الهدف',
   },
 
   // Settings

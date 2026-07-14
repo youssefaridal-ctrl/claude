@@ -7,7 +7,10 @@ import { useAppStore } from '../../store';
  * Navigation back to the lock screen is driven by the auth store state change.
  */
 export async function lockApp(): Promise<void> {
-  await closeDatabase();
-  useAppStore.setState({ isInitialized: false, isLoading: true });
-  useAuthStore.getState().lock();
+  try {
+    await closeDatabase();
+  } finally {
+    useAppStore.setState({ isInitialized: false, isLoading: true });
+    useAuthStore.getState().lock();
+  }
 }

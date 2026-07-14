@@ -90,10 +90,10 @@ export default function EmergencyScreen() {
 
   const handleSetTarget = useCallback(async () => {
     let target = 0;
-    const expenses = Number.parseFloat(monthlyExpenses.replace(',', '.')) || 0;
+    const expenses = Number.parseFloat(monthlyExpenses.replace(/,/g, '.')) || 0;
 
     if (targetType === 'custom') {
-      target = Number.parseFloat(customTarget.replace(',', '.')) || 0;
+      target = Number.parseFloat(customTarget.replace(/,/g, '.')) || 0;
     } else {
       const multiplier = TARGET_TYPES.find((type) => type.value === targetType)?.multiplier ?? 0;
       target = expenses * multiplier;
@@ -108,7 +108,7 @@ export default function EmergencyScreen() {
       targetAmount: target,
       targetType,
       monthlyExpenses: expenses,
-      monthlyContribution: Number.parseFloat(monthlyContrib) || 0,
+      monthlyContribution: Number.parseFloat(monthlyContrib.replace(/,/g, '.')) || 0,
     });
     setShowSetTarget(false);
   }, [
@@ -122,7 +122,7 @@ export default function EmergencyScreen() {
   ]);
 
   const handleContribute = useCallback(async () => {
-    const amount = Number.parseFloat(contributionAmount.replace(',', '.'));
+    const amount = Number.parseFloat(contributionAmount.replace(/,/g, '.'));
     if (Number.isNaN(amount) || amount <= 0) {
       Alert.alert(t('common.error'), t('common.required'));
       return;
@@ -134,13 +134,13 @@ export default function EmergencyScreen() {
   }, [contributionAmount, contributionNote, t, addEmergencyContribution]);
 
   const handleWithdraw = useCallback(async () => {
-    const amount = Number.parseFloat(withdrawAmount.replace(',', '.'));
+    const amount = Number.parseFloat(withdrawAmount.replace(/,/g, '.'));
     if (Number.isNaN(amount) || amount <= 0) {
       Alert.alert(t('common.error'), t('common.required'));
       return;
     }
     if (amount > emergencyFund.currentAmount) {
-      Alert.alert(t('common.error'), t('common.required'));
+      Alert.alert(t('common.error'), t('emergency.insufficient_funds'));
       return;
     }
     await withdrawFromEmergency(amount, withdrawReason);
@@ -264,7 +264,13 @@ export default function EmergencyScreen() {
 
             <TouchableOpacity
               style={styles.actionCard}
-              onPress={() => setShowSetTarget(true)}
+              onPress={() => {
+                setTargetType(emergencyFund.targetType);
+                setMonthlyExpenses(emergencyFund.monthlyExpenses.toString());
+                setCustomTarget(emergencyFund.targetAmount.toString());
+                setMonthlyContrib(emergencyFund.monthlyContribution.toString());
+                setShowSetTarget(true);
+              }}
               activeOpacity={0.85}
               accessibilityRole="button"
             >
@@ -357,6 +363,14 @@ export default function EmergencyScreen() {
                 targetType === type.value && styles.targetTypeBtnSelected,
               ]}
             >
+              {targetType === type.value && (
+                <LinearGradient
+                  colors={Colors.gradient.emergency}
+                  style={StyleSheet.absoluteFill}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                />
+              )}
               <Text
                 style={[
                   styles.targetTypeMain,
@@ -373,14 +387,6 @@ export default function EmergencyScreen() {
               >
                 {type.sublabel}
               </Text>
-              {targetType === type.value && (
-                <LinearGradient
-                  colors={Colors.gradient.emergency}
-                  style={StyleSheet.absoluteFill}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                />
-              )}
             </TouchableOpacity>
           ))}
         </View>
@@ -408,12 +414,12 @@ export default function EmergencyScreen() {
           currency={user.currency}
         />
 
-        {targetType !== 'custom' && Number.parseFloat(monthlyExpenses) > 0 && (
+        {targetType !== 'custom' && Number.parseFloat(monthlyExpenses.replace(/,/g, '.')) > 0 && (
           <View style={styles.calcResult}>
             <Text style={styles.calcLabel}>{t('emergency.calculated_target')} :</Text>
             <Text style={styles.calcValue}>
               {formatCurrency(
-                Number.parseFloat(monthlyExpenses) *
+                Number.parseFloat(monthlyExpenses.replace(/,/g, '.')) *
                   (TARGET_TYPES.find((type) => type.value === targetType)?.multiplier ?? 0),
                 user.currency
               )}
@@ -448,7 +454,7 @@ export default function EmergencyScreen() {
           label={`${t('emergency.contribution_note')} (${t('common.optional')})`}
           value={contributionNote}
           onChangeText={setContributionNote}
-          placeholder="Ex: Économie du mois..."
+          placeholder={t('emergency.contribution_note_placeholder')}
         />
         <Button title={t('common.confirm')} onPress={handleContribute} fullWidth size="lg" />
       </BottomSheet>
@@ -474,7 +480,7 @@ export default function EmergencyScreen() {
           label={t('emergency.withdraw_reason')}
           value={withdrawReason}
           onChangeText={setWithdrawReason}
-          placeholder="Ex: Réparation voiture urgente..."
+          placeholder={t('emergency.withdraw_reason_placeholder')}
         />
         <Button
           title={t('common.confirm')}

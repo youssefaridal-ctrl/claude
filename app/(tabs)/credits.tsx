@@ -128,7 +128,7 @@ export default function CreditsScreen() {
       totalAmount: total,
       remainingAmount: remaining,
       monthlyPayment: monthly,
-      interestRate: Number.parseFloat(creditRate) || 0,
+      interestRate: Number.parseFloat(creditRate.replace(/,/g, '.')) || 0,
       startDate: new Date().toISOString().slice(0, 10),
       endDate: creditEndDate,
       bank: creditBank,
@@ -462,7 +462,7 @@ export default function CreditsScreen() {
               },
               {
                 label: t('credits.monthly_payment'),
-                value: `${formatCurrency(showDetail.monthlyPayment, user.currency)}/${t('common.months')}`,
+                value: `${formatCurrency(showDetail.monthlyPayment, user.currency)}/${t('common.per_month')}`,
               },
               {
                 label: t('credits.rate'),

@@ -158,7 +158,9 @@ export const goalContributions = sqliteTable(
   'goal_contributions',
   {
     id: text('id').primaryKey(),
-    goalId: text('goal_id').notNull(),
+    goalId: text('goal_id')
+      .notNull()
+      .references(() => goals.id, { onDelete: 'cascade' }),
     amount: real('amount').notNull(),
     date: text('date').notNull(),
     deletedAt: text('deleted_at'),

@@ -103,6 +103,7 @@ export const en = {
     add_expense_title: 'New expense',
     add_income_title: 'New income',
     transaction_placeholder: 'Ex: Rent, Groceries...',
+    you: 'you',
   },
 
   // Salary
@@ -267,6 +268,9 @@ export const en = {
     custom_sub: 'Custom amount',
     action_withdraw: 'Withdraw',
     action_target: 'Target',
+    insufficient_funds: 'Amount exceeds available balance',
+    contribution_note_placeholder: 'Ex: Monthly savings...',
+    withdraw_reason_placeholder: 'Ex: Urgent car repair...',
   },
 
   // Goals
@@ -316,6 +320,7 @@ export const en = {
     current_savings: 'Saved',
     goal_name_placeholder: 'Ex: Vacation in Spain',
     goal_description_placeholder: 'Goal details...',
+    of_goal: 'of goal',
   },
 
   // Settings
