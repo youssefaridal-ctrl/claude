@@ -70,7 +70,6 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
-          cache: 'gradle'
 
       # ── Android SDK ──────────────────────────────────────────────────────────
       - name: Setup Android SDK
