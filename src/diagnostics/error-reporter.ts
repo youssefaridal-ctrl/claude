@@ -58,11 +58,17 @@ function makeEntry(type: string, error: unknown): CapturedError {
   return { message: msg, stack: '', timestamp: ts, type };
 }
 
+interface RNErrorUtils {
+  setGlobalHandler: (handler: (error: Error, isFatal?: boolean) => void) => void;
+  getGlobalHandler: () => ((error: Error, isFatal?: boolean) => void) | undefined;
+}
+
 export function installGlobalHandlers(): void {
   // JS exceptions (non-fatal and fatal)
-  if (global.ErrorUtils) {
-    const prev = global.ErrorUtils.getGlobalHandler();
-    global.ErrorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
+  const errorUtils = (global as unknown as { ErrorUtils?: RNErrorUtils }).ErrorUtils;
+  if (errorUtils) {
+    const prev = errorUtils.getGlobalHandler();
+    errorUtils.setGlobalHandler((error: Error, isFatal?: boolean) => {
       record(makeEntry(isFatal ? 'FatalJSError' : 'JSError', error));
       prev?.(error, isFatal);
     });

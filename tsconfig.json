@@ -10,5 +10,6 @@
       "@infra/*": ["./src/infrastructure/*"],
       "@presentation/*": ["./src/presentation/*"]
     }
-  }
+  },
+  "exclude": ["node_modules", "debug_package"]
 }
