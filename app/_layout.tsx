@@ -1,38 +1,62 @@
 import { Stack, router } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { Component, type ReactNode, useEffect, useRef } from 'react';
-import { ActivityIndicator, I18nManager, StatusBar, StyleSheet, Text, View } from 'react-native';
+import { Component, type ReactNode, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, I18nManager, StatusBar, StyleSheet, View } from 'react-native';
+import { CrashScreen } from '../src/components/ui/CrashScreen';
+import {
+  type CapturedError,
+  getCapturedError,
+  installGlobalHandlers,
+  onErrorCaptured,
+  reportError,
+} from '../src/diagnostics/error-reporter';
 import i18n, { LANGUAGES } from '../src/i18n';
 import { hasPinSetup } from '../src/infrastructure/crypto/pin-store';
 import { useAuthStore } from '../src/presentation/stores/auth.store';
 import { useAppStore } from '../src/store';
 import { Colors } from '../src/theme/colors';
 
+// Install global JS exception + promise rejection handlers as early as possible.
+installGlobalHandlers();
+
 SplashScreen.preventAutoHideAsync();
 
-// ─── Error Boundary ───────────────────────────────────────────────────────────
+// ─── Enhanced Error Boundary ──────────────────────────────────────────────────
 
 interface EBState {
-  error: string | null;
+  crash: CapturedError | null;
 }
 
 class AppErrorBoundary extends Component<{ children: ReactNode }, EBState> {
-  state: EBState = { error: null };
+  state: EBState = { crash: getCapturedError() };
+
+  private unsubscribe: (() => void) | null = null;
+
+  componentDidMount() {
+    this.unsubscribe = onErrorCaptured((err) => {
+      void SplashScreen.hideAsync();
+      this.setState({ crash: err });
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribe?.();
+  }
 
   static getDerivedStateFromError(error: Error): EBState {
     void SplashScreen.hideAsync();
-    return { error: error.message ?? String(error) };
+    reportError('ReactRenderError', error);
+    return { crash: getCapturedError() };
+  }
+
+  componentDidCatch(error: Error, info: { componentStack: string }) {
+    console.error('[DiagnosticMode][componentDidCatch]', error, info.componentStack);
   }
 
   render() {
-    const { error } = this.state;
-    if (error) {
-      return (
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorTitle}>Erreur de démarrage</Text>
-          <Text style={styles.errorMessage}>{error}</Text>
-        </View>
-      );
+    const { crash } = this.state;
+    if (crash) {
+      return <CrashScreen error={crash} />;
     }
     return this.props.children;
   }
@@ -45,6 +69,16 @@ function RootNavigator() {
   const { isLoading, isInitialized, initError, user } = useAppStore();
   const { language } = user;
   const splashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [globalCrash, setGlobalCrash] = useState<CapturedError | null>(getCapturedError());
+
+  // Subscribe to globally captured errors so the navigator can show CrashScreen
+  // even for errors that happen outside the React tree (e.g. DB init, SecureStore).
+  useEffect(() => {
+    return onErrorCaptured((err) => {
+      void SplashScreen.hideAsync();
+      setGlobalCrash(err);
+    });
+  }, []);
 
   // Force-hide splash after 5 s regardless of state so the user never sees a
   // permanent black screen even if startup stalls.
@@ -77,6 +111,7 @@ function RootNavigator() {
       .then((has) => setStatus(has ? 'locked' : 'no_pin'))
       .catch((err) => {
         console.error('[Auth] hasPinSetup failed:', err);
+        reportError('SecureStoreError', err);
         setStatus('error');
       });
   }, []);
@@ -105,6 +140,7 @@ function RootNavigator() {
     // status === 'unlocked' — wait for app store to finish initializing
     if (isLoading) return;
     if (initError) {
+      reportError('InitializationError', new Error(initError));
       void SplashScreen.hideAsync();
       return;
     }
@@ -118,22 +154,24 @@ function RootNavigator() {
     }
   }, [status, isInitialized, isLoading, initError, user.onboardingCompleted]);
 
+  // If a global (non-React-tree) error was captured, show the crash screen here too.
+  if (globalCrash) {
+    return <CrashScreen error={globalCrash} />;
+  }
+
   if (status === 'checking' || (status === 'unlocked' && isLoading)) {
     return (
-      <View style={[styles.errorContainer, { justifyContent: 'center' }]}>
+      <View style={[styles.container, { justifyContent: 'center' }]}>
         <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
   if (status === 'error' || (status === 'unlocked' && !isLoading && initError)) {
-    const message = initError ?? i18n.t('auth.error_message');
-    return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorTitle}>{i18n.t('auth.error_title')}</Text>
-        <Text style={styles.errorMessage}>{message}</Text>
-      </View>
-    );
+    const err = initError ? new Error(initError) : new Error('Unknown auth error');
+    reportError('AuthError', err);
+    const crash = getCapturedError();
+    if (crash) return <CrashScreen error={crash} />;
   }
 
   return (
@@ -158,25 +196,10 @@ function RootNavigator() {
 // ─── Styles ───────────────────────────────────────────────────────────────────
 
 const styles = StyleSheet.create({
-  errorContainer: {
+  container: {
     flex: 1,
     backgroundColor: Colors.bg.primary,
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-  },
-  errorTitle: {
-    color: Colors.text.primary,
-    fontSize: 20,
-    fontWeight: '700',
-    marginBottom: 12,
-    textAlign: 'center',
-  },
-  errorMessage: {
-    color: Colors.text.secondary,
-    fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 22,
   },
 });
 
