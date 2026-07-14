@@ -1,4 +1,4 @@
-import { NativeModulesProxy, requireNativeModule } from 'expo-modules-core';
+import { requireNativeModule } from 'expo-modules-core';
 
 interface ExpoPbkdf2Module {
   pbkdf2HmacSha256(
@@ -9,12 +9,13 @@ interface ExpoPbkdf2Module {
   ): Promise<string>;
 }
 
-let module: ExpoPbkdf2Module;
-try {
-  module = requireNativeModule<ExpoPbkdf2Module>('ExpoPbkdf2');
-} catch {
-  // Fallback: should never be hit in a native build, but prevents bundler crashes
-  module = NativeModulesProxy.ExpoPbkdf2 as ExpoPbkdf2Module;
-}
+const nativeModule = requireNativeModule<ExpoPbkdf2Module>('ExpoPbkdf2');
 
-export const { pbkdf2HmacSha256 } = module;
+export function pbkdf2HmacSha256(
+  passwordHex: string,
+  saltHex: string,
+  iterations: number,
+  keyLenBytes: number
+): Promise<string> {
+  return nativeModule.pbkdf2HmacSha256(passwordHex, saltHex, iterations, keyLenBytes);
+}
